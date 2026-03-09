@@ -63,7 +63,7 @@ _acronyms_exceptions_vi = {
 # Compiled Regular Expressions
 RE_ROMAN_NUMBER = re.compile(r"\b(?=[IVXLCDM]{2,})M{0,4}(CM|CD|D?C{0,3})(XC|XL|L?X{0,3})(IX|IV|V?I{0,3})\b")
 RE_LETTER = re.compile(r"(chữ|chữ cái|kí tự|ký tự)\s+(['\"]?)([a-z])(['\"]?)\b", re.IGNORECASE)
-RE_STANDALONE_LETTER = re.compile(r'\b([a-zA-Z])\b(\.?)')
+RE_STANDALONE_LETTER = re.compile(r'(?<![\'’])\b([a-zA-Z])\b(\.?)')
 RE_URL = re.compile(r'\b(?:https?://|www\.)[A-Za-z0-9.\-_~:/?#\[\]@!$&\'()*+,;=]+\b')
 RE_SLASH_NUMBER = re.compile(r'\b(\d+)/(\d+)\b')
 RE_EMAIL = re.compile(r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b')
@@ -78,8 +78,9 @@ RE_TEMP_C = re.compile(r'(\d+(?:[.,]\d+)?)\s*°\s*c\b', re.IGNORECASE)
 RE_TEMP_F = re.compile(r'(\d+(?:[.,]\d+)?)\s*°\s*f\b', re.IGNORECASE)
 RE_DEGREE = re.compile(r'°')
 RE_VERSION = re.compile(r'\b(\d+(?:\.\d+)+)\b')
-RE_CLEAN_OTHERS = re.compile(r'[^\w\sàáảãạăắằẳẵặâấầẩẫậèéẻẽẹêếềểễệìíỉĩịòóỏõọôốồổỗộơớờởỡợùúủũụưứừửữỳýỷỹỵđ.,!?;:@%_]')
-RE_CLEAN_QUOTES = re.compile(r'["\'“”‘’]')
+RE_CLEAN_OTHERS = re.compile(r'[^\w\sàáảãạăắằẳẵặâấầẩẫậèéẻẽẹêếềểễệìíỉĩịòóỏõọôốồổỗộơớờởỡợùúủũụưứừửữỳýỷỹỵđ.,!?;:@%_\'’]')
+RE_CLEAN_QUOTES = re.compile(r'["“”]')
+RE_PRIME = re.compile(r"(\b[a-zA-Z0-9])['’](?!\w)")
 
 # Reusable patterns for measurement/currency
 _MAGNITUDE_P = r"\s*(tỷ|triệu|nghìn|ngàn)?\s*"
@@ -366,6 +367,17 @@ def expand_symbols(text):
         text = text.replace(s, v)
     return text
 
+def expand_prime(text):
+    def _repl(m):
+        val = m.group(1).lower()
+        if val.isdigit():
+            # word for digit + phẩy
+            return f"{n2w_single(val)} phẩy"
+        else:
+            # letter name + phẩy
+            return f"{_letter_key_vi.get(val, val)} phẩy"
+    return RE_PRIME.sub(_repl, text)
+
 def expand_temperatures(text):
     text = RE_TEMP_C_NEG.sub(r'âm \1 độ xê', text)
     text = RE_TEMP_F_NEG.sub(r'âm \1 độ ép', text)
@@ -393,7 +405,12 @@ def normalize_others(text):
     text = expand_alphanumeric(text)
     
     # 3. Clean quotes and expand general symbols
+    text = expand_prime(text) # Handle A' or 1' before cleaning general quotes
     text = RE_CLEAN_QUOTES.sub('', text)
+    
+    # Remove single quotes only if they are not part of a word (start/end of word)
+    text = re.sub(r"(^|\s)['’]+|['’]+($|\s)", r"\1 \2", text)
+    
     text = expand_symbols(text)
 
     # 4. Handle brackets and temperatures

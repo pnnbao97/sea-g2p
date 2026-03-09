@@ -9,8 +9,19 @@ import functools
 from phonemizer import phonemize
 from phonemizer.backend.espeak.espeak import EspeakWrapper
 
+import base64
+
 # Configure logging
 logger = logging.getLogger("sea_g2p.G2P")
+
+def deobfuscate(encoded_text: str) -> str:
+    if not encoded_text: return ""
+    try:
+        decoded_bytes = base64.b64decode(encoded_text)
+        decoded_str = decoded_bytes.decode('utf-8')
+        return decoded_str[::-1]
+    except (TypeError, ValueError, UnicodeDecodeError):
+        return encoded_text
 
 class PhonemeDB:
     """SQLite-based dictionary for fast lookup and low memory usage."""
@@ -31,6 +42,7 @@ class PhonemeDB:
             if os.path.exists(self.db_path):
                 self._local.conn = sqlite3.connect(self.db_path, check_same_thread=False)
             else:
+                logger.warning("Phoneme database not found. G2P will rely entirely on eSpeak-NG fallback (this may be slower).")
                 self._local.conn = None # Will rely on espeak fallback
         return self._local.conn
 
@@ -50,18 +62,22 @@ class PhonemeDB:
             placeholders = ','.join(['?'] * len(chunk))
 
             cursor.execute(f"SELECT word, phone FROM merged WHERE word IN ({placeholders})", chunk)
-            merged_map.update(dict(cursor.fetchall()))
+            for word, phone in cursor.fetchall():
+                merged_map[word] = deobfuscate(phone)
 
             cursor.execute(f"SELECT word, vi_phone, en_phone FROM common WHERE word IN ({placeholders})", chunk)
             for row in cursor.fetchall():
-                common_map[row[0]] = {"vi": row[1], "en": row[2]}
+                common_map[row[0]] = {
+                    "vi": deobfuscate(row[1]), 
+                    "en": deobfuscate(row[2])
+                }
         
         return merged_map, common_map
 
 class G2P:
     # Compiled Regular Expressions
-    RE_PHONEMIZE_MATCH = re.compile(r'(<en>.*?</en>)|(\w+)|([^\w\s])', re.I | re.U)
-    RE_PHONEMIZE_TAG_CONTENT = re.compile(r'(\w+)|([^\w\s])', re.U)
+    RE_PHONEMIZE_MATCH = re.compile(r'(<en>.*?</en>)|(\w+(?:[\'’]\w+)*)|([^\w\s])', re.I | re.U)
+    RE_PHONEMIZE_TAG_CONTENT = re.compile(r'(\w+(?:[\'’]\w+)*)|([^\w\s])', re.U)
     RE_PHONEMIZE_TAG_STRIP = re.compile(r'</?en>', flags=re.I)
     RE_PHONEMIZE_PUNCT_CLEANUP = re.compile(r'\s+([.,!?;:])')
     _VI_ACCENTS = "àáảãạăằắẳẵặâầấẩẫậèéẻẽẹêềếểễệìíỉĩịòóỏõọôồốổỗộơờớởỡợùúủũụưừứửữựỳýỷỹỵđ"

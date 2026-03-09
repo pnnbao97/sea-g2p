@@ -18,7 +18,7 @@ Requires `espeak-ng` only for fallback (built-in dictionary already covers ~99.9
 from sea_g2p import SEAPipeline
 
 pipeline = SEAPipeline(lang="vi")
-result = pipeline.run("Giá SP500 hôm nay là 4,200.5 điểm")
+result = pipeline.run("Giá SP500 hôm nay là 4.200,5 điểm")
 print(result)
 ```
 
@@ -30,7 +30,7 @@ from sea_g2p import Normalizer, G2P
 normalizer = Normalizer(lang="vi")
 g2p = G2P(lang="vi")
 
-text = "Giá SP500 là 4,200.5"
+text = "Giá SP500 hôm nay là 4.200,5 điểm"
 normalized = normalizer.normalize(text)
 phonemes = g2p.convert(normalized)
 print(phonemes)

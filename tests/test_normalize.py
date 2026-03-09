@@ -231,6 +231,13 @@ TEST_CASES = [
     ("Unit mix: 10km/h và 5m/s.", "unit mix: mười ki lô mét trên giờ và năm mét trên giây."),
     ("Số cực lớn: 1.000.000.000.000.000.000", "số cực lớn: một tỷ tỷ"),
     ("Email với tên miền lạ: user@domain.tech", "email với tên miền lạ: u ét e rờ a còng đê o mờ a i nờ chấm tê e xê hát"),
+    
+    # ─── 27. PHẨY VÀ DẤU NHÁY (PRIMES & APOSTROPHES) ──────────────────────────
+    ("A' là một ký tự đặc biệt", "a phẩy là một ký tự đặc biệt"),
+    ("Đây là phút 1'", "đây là phút một phẩy"),
+    ("I don't know why", "i don't know why"),
+    ("It's a beautiful day", "it's a beautiful day"),
+    ("Giá của 'Sản phẩm' này là $10", "giá của sản phẩm này là mười đô la mỹ"),
 ]
 
 @pytest.mark.parametrize("input_text, expected", TEST_CASES)
