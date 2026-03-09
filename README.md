@@ -1,6 +1,9 @@
-# SEA-G2P
+# 🦭 SEA-G2P
 
-Fast multilingual text-to-phoneme converter for South East Asian languages.
+<img width="1221" height="656" alt="image" src="https://github.com/user-attachments/assets/01220177-815b-4012-8f65-8a2a86beddf9" />
+
+Fast multilingual text-to-phoneme converter for South East Asian languages.  
+>**Author**: [Pham Nguyen Ngoc Bao](https://www.facebook.com/pnnbao97)
 
 ## Installation
 
