@@ -1,0 +1,16 @@
+[project]
+name = "sea-g2p"
+version = "0.1.0"
+description = "Fast multilingual text-to-phoneme converter for South East Asian languages."
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = [
+    "phonemizer",
+]
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
