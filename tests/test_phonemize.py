@@ -36,3 +36,18 @@ def test_phonemize_batch_consistency(g2p):
     assert results[0] == g2p.convert(texts[0])
     assert results[1] == g2p.convert(texts[1])
     assert results[2] == g2p.convert(texts[2])
+
+def test_primes_and_apostrophes(g2p):
+    # Note: G2P class expects normalized text. 
+    # Normalization of A' -> 'a phẩy' and 1' -> 'một phẩy' is tested in test_normalize.py
+    
+    # Test Phonemization of the expanded prime forms
+    assert "fˈəɪ4" in g2p.convert("a phẩy")
+    assert "mˈo6t̪ fˈəɪ4" in g2p.convert("một phẩy")
+    
+    # Test English apostrophes within words (these are kept by normalizer and handled by G2P)
+    res_dont = g2p.convert("don't")
+    assert "dˈoʊnt" in res_dont
+    
+    res_its = g2p.convert("it's")
+    assert "ɪts" in res_its or "ɪts" in res_its
