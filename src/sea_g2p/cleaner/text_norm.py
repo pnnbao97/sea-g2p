@@ -40,7 +40,8 @@ _measurement_key_vi = {
     "sqm": "mét vuông", "cum": "mét khối",
     "gb": "gi ga bai", "mb": "mê ga bai", "kb": "ki lô bai", "tb": "tê ra bai",
     "db": "đê xi ben", "oz": "ao xơ", "lb": "pao", "lbs": "pao",
-    "ft": "phít", "in": "ins", "dpi": "đi phi ai", "pH": "pê hát"
+    "ft": "phít", "in": "ins", "dpi": "đi phi ai", "pH": "pê hát",
+    "gallon": "__START_EN__gallon__END_EN__"
 }
 
 _currency_key = {
@@ -200,8 +201,8 @@ def expand_compound_units(text):
         num = _expand_number_with_sep(num_str)
         u1 = m.group(2).lower()
         u2 = m.group(3).lower()
-        full1 = _measurement_key_vi.get(u1, u1)
-        full2 = _measurement_key_vi.get(u2, u2)
+        full1 = _measurement_key_vi.get(u1, _currency_key.get(u1, u1))
+        full2 = _measurement_key_vi.get(u2, _currency_key.get(u2, u2))
         res = f" {full1} trên {full2} "
         if num:
             res = f"{num} {res}"

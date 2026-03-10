@@ -34,6 +34,8 @@ TEST_CASES = [
     ("thứ 4",  "thứ tư"),
     ("thứ 5",  "thứ năm"),
     ("hạng 1", "hạng nhất"),
+    ("thứ 10",  "thứ mười"),
+    ("Thứ 10",  "thứ mười"),
 
     # ─── 5. PHÉP NHÂN ─────────────────────────────────────────────────────────
     ("3 x 4",  "ba nhân bốn"),
@@ -207,6 +209,7 @@ TEST_CASES = [
     ("Màn hình 24in.", "màn hình hai mươi bốn ins."),
     ("Độ phân giải 300dpi.", "độ phân giải ba trăm đi phi ai."),
     ("Độ pH của nước là 7.", "độ pê hát của nước là bảy."),
+    ("3.46 USD/gallon", "ba chấm bốn mươi sáu <en>u s d</en> trên <en>gallon</en>"),
 
     # Emails mở rộng
     ("Email công việc: admin@fpt.vn", "email công việc, <en>admin</en> a còng <en>f p t</en> chấm <en>v n</en>"),
