@@ -7,7 +7,7 @@ from .datestime import normalize_date, normalize_time
 from .text_norm import normalize_others, expand_measurement, expand_currency, expand_compound_units, expand_abbreviations, expand_standalone_letters
 
 def _expand_float(m):
-    int_part = n2w(m.group(1))
+    int_part = n2w(m.group(1).replace('.', ''))
     dec_part = n2w(m.group(2))
     res = f"{int_part} phẩy {dec_part}"
     if m.group(3):
@@ -46,7 +46,7 @@ def clean_vietnamese_text(text):
     text = expand_measurement(text)
     text = expand_currency(text)
 
-    text = re.sub(r'\b(\d+),(\d+)(%)?', _expand_float, text)
+    text = re.sub(r'(?<![\d.])(\d+(?:\.\d{3})*),(\d+)(%)?', _expand_float, text)
     text = re.sub(r'\b\d+(?:\.\d{3})+\b', _strip_dot_sep, text)
     
     text = normalize_others(text)

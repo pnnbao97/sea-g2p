@@ -50,4 +50,4 @@ def test_primes_and_apostrophes(g2p):
     assert "dˈoʊnt" in res_dont
     
     res_its = g2p.convert("it's")
-    assert "ɪts" in res_its or "ɪts" in res_its
+    assert "ɪts" in res_its

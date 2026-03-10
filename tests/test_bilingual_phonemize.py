@@ -1,12 +1,8 @@
 import unittest
-import os
-import sys
-from unittest.mock import patch
+from sea_g2p import G2P
+import pytest
 
-# Thêm src vào path để import module
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'src')))
-
-from vieneu_utils.phonemize_text import phonemize_text
+g2p = G2P()
 
 class TestBilingualPhonemize(unittest.TestCase):
     """
@@ -26,8 +22,8 @@ class TestBilingualPhonemize(unittest.TestCase):
 
     def assert_propagation(self, natural_text, tagged_text):
         """Kiểm tra câu tự nhiên phải cho ra phoneme giống hệt câu có tag."""
-        p_nat = phonemize_text(natural_text)
-        p_tag = phonemize_text(tagged_text)
+        p_nat = g2p.convert(natural_text)
+        p_tag = g2p.convert(tagged_text)
         self.assertEqual(p_nat, p_tag, f"\nFAIL:\n  Nat: {p_nat}\n  Tag: {p_tag}")
 
     def test_bridge_propagation(self):

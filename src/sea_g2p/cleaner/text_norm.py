@@ -11,14 +11,14 @@ _vi_letter_names = {
 }
 
 _common_email_domains = {
-    "gmail.com": "gờ meo chấm com",
-    "yahoo.com": "da hu chấm com",
-    "yahoo.com.vn": "da hu chấm com chấm vê nờ",
-    "outlook.com": "aut lúc chấm com",
-    "hotmail.com": "hót meo chấm com",
-    "icloud.com": "ai clao chấm com",
-    "fpt.vn": "ép phê tê chấm vê nờ",
-    "fpt.com.vn": "ép phê tê chấm com chấm vê nờ",
+    "gmail.com": "__START_EN__gmail__END_EN__ chấm com",
+    "yahoo.com": "__START_EN__yahoo__END_EN__ chấm com",
+    "yahoo.com.vn": "__START_EN__yahoo__END_EN__ chấm com chấm __START_EN__v n__END_EN__",
+    "outlook.com": "__START_EN__outlook__END_EN__ chấm com",
+    "hotmail.com": "__START_EN__hotmail__END_EN__ chấm com",
+    "icloud.com": "__START_EN__icloud__END_EN__ chấm com",
+    "fpt.vn": "__START_EN__f p t__END_EN__ chấm __START_EN__v n__END_EN__",
+    "fpt.com.vn": "__START_EN__f p t__END_EN__ chấm com chấm __START_EN__v n__END_EN__",
 }
 
 _measurement_key_vi = {
@@ -44,20 +44,21 @@ _measurement_key_vi = {
 }
 
 _currency_key = {
-    "usd": "đô la Mỹ", "vnd": "đồng", "đ": "đồng", "euro": "ơ rô", "%": "phần trăm"
+    "usd": "__START_EN__u s d__END_EN__",
+    "vnd": "đồng", "đ": "đồng", "%": "phần trăm"
 }
 
 _letter_key_vi = _vi_letter_names
 
 _acronyms_exceptions_vi = {
-    "CĐV": "cổ động viên", "HĐND": "hội đồng nhân dân", "TAND": "toàn án nhân dân",
+    "CĐV": "cổ động viên", "HĐND": "hội đồng nhân dân", "HĐQT": "hội đồng quản trị", "TAND": "toàn án nhân dân",
     "BHXH": "bảo hiểm xã hội", "BHTN": "bảo hiểm thất nghiệp", "TP.HCM": "thành phố hồ chí minh",
     "VN": "việt nam", "UBND": "uỷ ban nhân dân", "TP": "thành phố", "HCM": "hồ chí minh",
     "HN": "hà nội", "BTC": "ban tổ chức", "CLB": "câu lạc bộ", "HTX": "hợp tác xã",
     "NXB": "nhà xuất bản", "TW": "trung ương", "CSGT": "cảnh sát giao thông", "LHQ": "liên hợp quốc",
     "THCS": "trung học cơ sở", "THPT": "trung học phổ thông", "ĐH": "đại học", "HLV": "huấn luyện viên",
     "GS": "giáo sư", "TS": "tiến sĩ", "TNHH": "trách nhiệm hữu hạn", "VĐV": "vận động viên",
-    "TPHCM": "thành phố hồ chí minh", "PGS": "phó giáo sư"
+    "TPHCM": "thành phố hồ chí minh", "PGS": "phó giáo sư", "SP500": "ét pê năm trăm"
 }
 
 # Compiled Regular Expressions
@@ -78,9 +79,22 @@ RE_TEMP_C = re.compile(r'(\d+(?:[.,]\d+)?)\s*°\s*c\b', re.IGNORECASE)
 RE_TEMP_F = re.compile(r'(\d+(?:[.,]\d+)?)\s*°\s*f\b', re.IGNORECASE)
 RE_DEGREE = re.compile(r'°')
 RE_VERSION = re.compile(r'\b(\d+(?:\.\d+)+)\b')
-RE_CLEAN_OTHERS = re.compile(r'[^\w\sàáảãạăắằẳẵặâấầẩẫậèéẻẽẹêếềểễệìíỉĩịòóỏõọôốồổỗộơớờởỡợùúủũụưứừửữỳýỷỹỵđ.,!?;:@%_\'’]')
-RE_CLEAN_QUOTES = re.compile(r'["“”]')
+RE_CLEAN_OTHERS = re.compile(r'[^\w\sàáảãạăắằẳẵặâấầẩẫậèéẻẽẹêếềểễệìíỉĩịòóỏõọôốồổỗộơớờởỡợùúủũụưứừửữỳýỷỹỵđ.,!?_\'’]')
+RE_CLEAN_QUOTES = re.compile(r'["“”"]')
 RE_PRIME = re.compile(r"(\b[a-zA-Z0-9])['’](?!\w)")
+
+_DOMAIN_SUFFIXES_RE = re.compile(r'\.(com|vn|net|org|edu|gov|io|biz|info)\b', re.IGNORECASE)
+_DOMAIN_SUFFIX_MAP = {
+    "com": "com",
+    "vn": "__START_EN__v n__END_EN__",
+    "net": "nét",
+    "org": "o rờ gờ",
+    "edu": "__START_EN__edu__END_EN__",
+    "gov": "gờ o vê",
+    "io": "__START_EN__i o__END_EN__",
+    "biz": "biz",
+    "info": "info",
+}
 
 # Reusable patterns for measurement/currency
 _MAGNITUDE_P = r"\s*(tỷ|triệu|nghìn|ngàn)?\s*"
@@ -121,7 +135,7 @@ _ACRONYMS_EXCEPTIONS_RE = [(re.compile(rf"\b{re.escape(k)}\b"), v) for k, v in _
 
 _ROMAN_NUMERALS = {"I": 1, "V": 5, "X": 10, "L": 50, "C": 100, "D": 500, "M": 1000}
 
-_ABBRS = {"v.v": " vân vân", "v/v": " về việc", "ko": " không", "đ/c": "địa chỉ"}
+_ABBRS = {"v.v": " vân vân", "v/v": " về việc", "đ/c": "địa chỉ"}
 
 _SYMBOLS_MAP = {
     '&': ' và ', '+': ' cộng ', '=': ' bằng ', '#': ' thăng ',
@@ -220,9 +234,13 @@ def expand_abbreviations(text):
 
 def expand_standalone_letters(text):
     def _repl_letter(m):
-        char = m.group(1).lower()
+        char_raw = m.group(1)
+        char = char_raw.lower()
         dot = m.group(2) if m.group(2) else ""
         if char in _letter_key_vi:
+            # Drop dot for uppercase initials (e.g., "M." -> "mờ")
+            if char_raw.isupper() and dot == '.':
+                return f" {_letter_key_vi[char]} "
             return f" {_letter_key_vi[char]}{dot} "
         return m.group(0)
     
@@ -231,22 +249,29 @@ def expand_standalone_letters(text):
 def normalize_urls(text):
     def _repl_url(m):
         url = m.group(0)
+        # Split URL into segments but keep delimiters
+        parts = re.split(r'([./:?&=])', url)
         res = []
-        for char in url.lower():
-            if char.isalnum():
-                if char.isdigit():
-                    res.append(n2w_single(char))
+        for p in parts:
+            if not p: continue
+            if p == '.': res.append('chấm')
+            elif p in './:?&=-_': continue # Skip technical delimiters like : // ? & =
+            elif p.isalnum() and p.isascii():
+                # Check suffixes first
+                if p.lower() in _DOMAIN_SUFFIX_MAP:
+                    res.append(_DOMAIN_SUFFIX_MAP[p.lower()])
                 else:
-                    res.append(_vi_letter_names.get(char, char))
-            elif char == '.': res.append('chấm')
-            elif char == '/': res.append('xẹt')
-            elif char == ':': res.append('hai chấm')
-            elif char == '-': res.append('gạch ngang')
-            elif char == '_': res.append('gạch dưới')
-            elif char == '?': res.append('hỏi')
-            elif char == '&': res.append('và')
-            elif char == '=': res.append('bằng')
-            else: res.append(char)
+                    res.append(f"__START_EN__{p.lower()}__END_EN__")
+            else:
+                # Fallback to character-by-character for non-ASCII or mixed
+                for char in p.lower():
+                    if char.isalnum():
+                        if char.isdigit():
+                            res.append(n2w_single(char))
+                        else:
+                            res.append(_vi_letter_names.get(char, char))
+                    else:
+                        res.append(char)
         return " ".join(res)
 
     return RE_URL.sub(_repl_url, text)
@@ -269,18 +294,22 @@ def normalize_emails(text):
 
         user_part, domain_part = parts
 
-        # User part: spell out
-        user_norm = []
-        for char in user_part.lower():
-            if char.isalnum():
-                if char.isdigit():
-                    user_norm.append(n2w_single(char))
-                else:
-                    user_norm.append(_vi_letter_names.get(char, char))
-            elif char == '.': user_norm.append('chấm')
-            elif char == '_': user_norm.append('gạch dưới')
-            elif char == '-': user_norm.append('gạch ngang')
-            else: user_norm.append(char)
+        # User part: spell out or EN
+        if user_part.isalnum() and user_part.isascii():
+            user_norm = [f"__START_EN__{user_part.lower()}__END_EN__"]
+        else:
+            user_unorm = []
+            for char in user_part.lower():
+                if char.isalnum():
+                    if char.isdigit():
+                        user_unorm.append(n2w_single(char))
+                    else:
+                        user_unorm.append(_vi_letter_names.get(char, char))
+                elif char == '.': user_unorm.append('chấm')
+                elif char == '_': user_unorm.append('gạch dưới')
+                elif char == '-': user_unorm.append('gạch ngang')
+                else: user_unorm.append(char)
+            user_norm = user_unorm
 
         # Domain part
         domain_part_lower = domain_part.lower()
@@ -289,7 +318,16 @@ def normalize_emails(text):
         else:
             domain_parts = domain_part.split('.')
             norm_domain_parts = []
-            for dp in domain_parts:
+            for i, dp in enumerate(domain_parts):
+                # If it's the last part and in our suffix map, use the map
+                if i == len(domain_parts) - 1 and dp.lower() in _DOMAIN_SUFFIX_MAP:
+                    norm_domain_parts.append(_DOMAIN_SUFFIX_MAP[dp.lower()])
+                    continue
+                
+                if dp.isalnum() and dp.isascii():
+                    norm_domain_parts.append(f"__START_EN__{dp.lower()}__END_EN__")
+                    continue
+
                 dp_norm = []
                 for char in dp.lower():
                     if char.isalnum():
@@ -300,6 +338,8 @@ def normalize_emails(text):
                     else: dp_norm.append(char)
                 norm_domain_parts.append(" ".join(dp_norm))
             domain_norm = " chấm ".join(norm_domain_parts)
+
+        return " ".join(user_norm) + " a còng " + domain_norm
 
         return " ".join(user_norm) + " a còng " + domain_norm
 
@@ -398,6 +438,9 @@ def normalize_others(text):
     text = normalize_urls(text)
     text = normalize_emails(text)
     text = normalize_slashes(text)
+    
+    # Handle domain suffixes like .com, .vn (especially after acronyms)
+    text = _DOMAIN_SUFFIXES_RE.sub(lambda m: " chấm " + _DOMAIN_SUFFIX_MAP.get(m.group(1).lower(), m.group(1).lower()), text)
 
     # 2. Expand Roman numerals and special letter patterns
     text = RE_ROMAN_NUMBER.sub(expand_roman, text)
@@ -425,7 +468,10 @@ def normalize_others(text):
     # 6. Expand version numbers (e.g., 1.2.3 -> 1 chấm 2 chấm 3)
     text = RE_VERSION.sub(lambda m: ' chấm '.join(m.group(1).split('.')), text)
 
-    # 7. Final cleanup of any remaining unsupported characters
+    # 7. Final punctuation normalization: convert : and ; to commas for better prosody
+    text = re.sub(r'[:;]', ',', text)
+
+    # 8. Final cleanup of any remaining unsupported characters
     text = RE_CLEAN_OTHERS.sub(' ', text)
     
     # Restore internal <en> tags

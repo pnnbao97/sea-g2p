@@ -18,7 +18,7 @@ def test_pipeline_english_contractions(pipeline):
     assert "dˈoʊnt" in res_dont
     
     res_its = pipeline.run("It's a gift")
-    assert "ɪts" in res_its or "ɪts" in res_its
+    assert "ɪts" in res_its
 
 def test_pipeline_full_sentence(pipeline):
     text = "Giá SP500 hôm nay là 4.200,5 điểm"
