@@ -21,8 +21,9 @@ Requires `espeak-ng` only for fallback (built-in dictionary already covers ~99.9
 from sea_g2p import SEAPipeline
 
 pipeline = SEAPipeline(lang="vi")
-result = pipeline.run("Giá SP500 hôm nay là 4.200,5 điểm")
+result = pipeline.run("Giá SP500 hôm nay là 4.200,5 điểm.")
 print(result)
+#zˈaːɜ ˈɛɜt̪ pˈe nˈam tʃˈam hˈom nˈaj lˌaː2 bˈoɜn ŋˈi2n hˈaːj tʃˈam fˈəɪ4 nˈam ɗˈiɛ4m.
 ```
 
 ### Individual Modules
@@ -35,8 +36,11 @@ g2p = G2P(lang="vi")
 
 text = "Giá SP500 hôm nay là 4.200,5 điểm"
 normalized = normalizer.normalize(text)
+print(normalized)
 phonemes = g2p.convert(normalized)
 print(phonemes)
+#giá ét pê năm trăm hôm nay là bốn nghìn hai trăm phẩy năm điểm.
+#zˈaːɜ ˈɛɜt̪ pˈe nˈam tʃˈam hˈom nˈaj lˌaː2 bˈoɜn ŋˈi2n hˈaːj tʃˈam fˈəɪ4 nˈam ɗˈiɛ4m.
 ```
 
 ## Features
