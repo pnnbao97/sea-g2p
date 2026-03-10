@@ -61,11 +61,13 @@ class PhonemeDB:
             chunk = words[i : i + chunk_size]
             placeholders = ','.join(['?'] * len(chunk))
 
-            cursor.execute(f"SELECT word, phone FROM merged WHERE word IN ({placeholders})", chunk)
+            query_merged = "SELECT word, phone FROM merged WHERE word IN ({})".format(placeholders)
+            cursor.execute(query_merged, chunk)
             for word, phone in cursor.fetchall():
                 merged_map[word] = deobfuscate(phone)
 
-            cursor.execute(f"SELECT word, vi_phone, en_phone FROM common WHERE word IN ({placeholders})", chunk)
+            query_common = "SELECT word, vi_phone, en_phone FROM common WHERE word IN ({})".format(placeholders)
+            cursor.execute(query_common, chunk)
             for row in cursor.fetchall():
                 common_map[row[0]] = {
                     "vi": deobfuscate(row[1]), 

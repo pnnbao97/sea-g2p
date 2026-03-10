@@ -15,7 +15,7 @@ class TestBilingualPhonemize(unittest.TestCase):
         try:
             # We also check if it actually returns phonemes, not just exists
             # Added -x to get phonemes on stdout even if audio fails
-            res = subprocess.run(["espeak-ng", "-x", "test"], capture_output=True, text=True)
+            res = subprocess.run(["espeak-ng", "-x", "test"], capture_output=True, text=True, shell=False)
             if not res.stdout.strip():
                 self.skipTest("espeak-ng not returning output")
         except (subprocess.CalledProcessError, FileNotFoundError):
