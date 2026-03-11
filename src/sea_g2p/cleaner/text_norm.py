@@ -41,12 +41,14 @@ _measurement_key_vi = {
     "gb": "gi ga bai", "mb": "mê ga bai", "kb": "ki lô bai", "tb": "tê ra bai",
     "db": "đê xi ben", "oz": "ao xơ", "lb": "pao", "lbs": "pao",
     "ft": "phít", "in": "ins", "dpi": "đi phi ai", "pH": "pê hát",
+    "gbps": "gi ga bít trên giây", "mbps": "mê ga bít trên giây", "kbps": "ki lô bít trên giây",
     "gallon": "__START_EN__gallon__END_EN__"
 }
 
 _currency_key = {
     "usd": "__START_EN__u s d__END_EN__",
-    "vnd": "đồng", "đ": "đồng", "%": "phần trăm"
+    "vnd": "đồng", "đ": "đồng", "€": "ơ rô", "euro": "ơ rô", "eur": "ơ rô",
+    "¥": "yên", "yên": "yên", "jpy": "yên", "%": "phần trăm"
 }
 
 _letter_key_vi = _vi_letter_names
@@ -105,8 +107,16 @@ _NUMERIC_P = r"((?:\d+[.,])*\d+)"
 RE_COMPOUND_UNIT = re.compile(rf"\b{_NUMERIC_P}?\s*([a-zμµ²³°]+)/([a-zμµ²³°0-9]+)\b", re.IGNORECASE)
 
 # Pre-compiled currency patterns
-RE_CURRENCY_PREFIX_USD = re.compile(rf"\$\s*{_NUMERIC_P}{_MAGNITUDE_P}", re.IGNORECASE)
-RE_CURRENCY_SUFFIX_USD = re.compile(rf"{_NUMERIC_P}{_MAGNITUDE_P}\$", re.IGNORECASE)
+_CURRENCY_SYMBOL_MAP = {
+    "$": "đô la Mỹ",
+    "€": "ơ rô",
+    "¥": "yên",
+    "£": "bảng Anh",
+    "₩": "won",
+}
+_CURRENCY_SYMBOLS_RE = "[$€¥£₩]"
+RE_CURRENCY_PREFIX_SYMBOL = re.compile(rf"({_CURRENCY_SYMBOLS_RE})\s*{_NUMERIC_P}{_MAGNITUDE_P}", re.IGNORECASE)
+RE_CURRENCY_SUFFIX_SYMBOL = re.compile(rf"{_NUMERIC_P}{_MAGNITUDE_P}({_CURRENCY_SYMBOLS_RE})", re.IGNORECASE)
 RE_PERCENTAGE = re.compile(rf"{_NUMERIC_P}\s*%", re.IGNORECASE)
 
 # Pre-compile measurement and currency unit patterns
@@ -147,22 +157,98 @@ _SYMBOLS_MAP = {
 
 def _expand_number_with_sep(num_str):
     if not num_str: return ""
-    if "," in num_str:
-        # Standard Vietnamese float: 1,5 or 1.000,5
-        clean_num = num_str.replace(".", "")
-        parts = clean_num.split(",")
+
+    # Scientific notation: 3.2e5, 6.626e-34
+    if 'e' in num_str.lower():
+        parts = re.split('e', num_str, flags=re.IGNORECASE)
         if len(parts) == 2:
-            return f"{n2w(parts[0])} phẩy {n2w(parts[1])}"
+            base = parts[0]
+            exp = parts[1]
+
+            # Normalize base - forcing decimal for scientific base
+            if '.' in base and base.count('.') == 1:
+                 b_parts = base.split('.')
+                 base_expanded = f"{n2w(b_parts[0])} chấm {n2w_single(b_parts[1])}"
+            elif ',' in base and base.count(',') == 1:
+                 b_parts = base.split(',')
+                 base_expanded = f"{n2w(b_parts[0])} phẩy {n2w_single(b_parts[1])}"
+            else:
+                 base_expanded = _expand_number_with_sep(base)
+
+            # Normalize exponent
+            if exp.startswith('-'):
+                exp_expanded = "trừ " + n2w(exp[1:])
+            elif exp.startswith('+'):
+                exp_expanded = n2w(exp[1:])
+            else:
+                exp_expanded = n2w(exp)
+
+            return f"{base_expanded} nhân mười mũ {exp_expanded}"
+
+    # Handle English vs Vietnamese number formats
+    # Vietnamese: 1.299.495,50 (dot for thousands, comma for decimal)
+    # English: 1,299,495.50 (comma for thousands, dot for decimal)
     
-    if "." in num_str:
-        # Check if it's a thousand separator format (e.g. 1.000, 1.000.000)
-        # Vietnamese thousand sep is ALWAYS exactly 3 digits after the dot.
-        if re.fullmatch(r"\d+(?:\.\d{3})+", num_str):
-            return n2w(num_str.replace(".", ""))
-        # Otherwise treat dot as "chấm" (e.g. version 1.3 or English-style decimal 1.5)
-        return " chấm ".join([n2w(p) for p in num_str.split(".")])
-        
+    # 1.299 -> Vietnamese thousand separator? NO, typically it needs to be 1.299,xx or part of a larger number.
+    # But usually 1,299 in VN is 1.299 decimal.
+
+    # Heuristic:
+    # If it has a comma followed by EXACTLY 3 digits, and NO OTHER comma, it might be ambiguous.
+    # User says: 1,299 should be "một phẩy hai chín chín"
+    # But 1,299,495 should be "một triệu hai trăm chín mươi chín nghìn bốn trăm chín mươi lăm"
+    # And 1,299.5 should be "một nghìn hai trăm chín mươi chín phẩy năm"
+
+    if ',' in num_str and '.' in num_str:
+        # Both present:
+        # if dot comes after last comma -> English style (1,299.5)
+        # if comma comes after last dot -> Vietnamese style (1.299,5)
+        if num_str.rfind('.') > num_str.rfind(','):
+            # English style
+            # If it's like 1,299.5 -> "một nghìn hai trăm chín mươi chín phẩy năm"
+            clean_num = num_str.replace(',', '')
+            parts = clean_num.split('.')
+            return f"{n2w(parts[0])} phẩy {n2w_single(parts[1])}"
+        else:
+            # Vietnamese style
+            clean_num = num_str.replace('.', '')
+            parts = clean_num.split(',')
+            return f"{n2w(parts[0])} phẩy {n2w_single(parts[1])}"
+
+    # Handle 1,299,495 (multiple commas) vs 1,299 (single comma, 3 digits)
+    if ',' in num_str:
+        parts = num_str.split(',')
+        if len(parts) > 2:
+            # Multiple commas: English thousands (1,299,495)
+            return n2w(num_str.replace(',', ''))
+        elif len(parts) == 2:
+            if len(parts[1]) == 3:
+                # Ambiguous: 1,299. User specifically said 1,299 is one phẩy two nine nine.
+                return f"{n2w(parts[0])} phẩy {n2w_single(parts[1])}"
+            else:
+                # Standard Vietnamese decimal
+                return f"{n2w(parts[0])} phẩy {n2w_single(parts[1])}"
+
+
+    if '.' in num_str:
+        parts = num_str.split('.')
+        if len(parts) > 2:
+            # Multiple dots: Vietnamese thousands (1.299.495)
+            return n2w(num_str.replace('.', ''))
+        elif len(parts) == 2:
+            if len(parts[1]) == 3:
+                # 1.299 -> typically Vietnamese thousands
+                return n2w(num_str.replace('.', ''))
+            else:
+                # English decimal or version - use "chấm" for backward compatibility and scientific notation
+                return f"{n2w(parts[0])} chấm {n2w_single(parts[1])}"
+
     return n2w(num_str)
+
+def expand_scientific_notation(text):
+    # Match something like 3.2e5 or 6.626e-34
+    # But be careful not to match words containing 'e'
+    pattern = re.compile(r'\b(\d+(?:[.,]\d+)?e[+-]?\d+)\b', re.IGNORECASE)
+    return pattern.sub(lambda m: _expand_number_with_sep(m.group(1)), text)
 
 def expand_measurement(text):
     def _repl(m, full):
@@ -181,14 +267,23 @@ def expand_measurement(text):
     return text
 
 def expand_currency(text):
+    def _repl_symbol(m, is_prefix=True):
+        symbol = m.group(1 if is_prefix else 3)
+        num = m.group(2 if is_prefix else 1)
+        mag = m.group(3 if is_prefix else 2)
+        mag = mag if mag else ""
+        full = _CURRENCY_SYMBOL_MAP.get(symbol, "")
+        expanded_num = _expand_number_with_sep(num)
+        return f"{expanded_num} {mag} {full}".replace("  ", " ").strip()
+
     def _repl(m, full):
         num = m.group(1)
         mag = m.group(2) if m.group(2) else ""
         expanded_num = _expand_number_with_sep(num)
         return f"{expanded_num} {mag} {full}".replace("  ", " ").strip()
         
-    text = RE_CURRENCY_PREFIX_USD.sub(lambda m: _repl(m, "đô la Mỹ"), text)
-    text = RE_CURRENCY_SUFFIX_USD.sub(lambda m: _repl(m, "đô la Mỹ"), text)
+    text = RE_CURRENCY_PREFIX_SYMBOL.sub(lambda m: _repl_symbol(m, True), text)
+    text = RE_CURRENCY_SUFFIX_SYMBOL.sub(lambda m: _repl_symbol(m, False), text)
     text = RE_PERCENTAGE.sub(lambda m: f"{_expand_number_with_sep(m.group(1))} phần trăm", text)
     
     for pattern, full in _CURRENCY_PATTERNS:

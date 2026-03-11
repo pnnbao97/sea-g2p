@@ -22,7 +22,7 @@ TEST_CASES = [
     # ─── 2. SỐ THẬP PHÂN / SỐ CÓ DẤU PHÂN CÁCH ──────────────────────────────
     ("1.000",    "một nghìn"),
     ("1.000.000","một triệu"),
-    ("3,14",     "ba phẩy mười bốn"),
+    ("3,14",     "ba phẩy một bốn"),
     ("1.3",      "một chấm ba"),
 
     # ─── 3. SỐ ĐIỆN THOẠI ────────────────────────────────────────────────────
@@ -68,14 +68,14 @@ TEST_CASES = [
     ("$50",    "năm mươi đô la Mỹ"),
     ("200 USD","hai trăm <en>u s d</en>"),
     ("500 VND","năm trăm đồng"),
-    ("50 euro","năm mươi euro"),
+    ("50 euro","năm mươi ơ rô"),
     ("1000đ",  "một nghìn đồng"),
     ("75%",    "bảy mươi lăm phần trăm"),
     ("15,4% xuống còn 8,3%", "mười lăm phẩy bốn phần trăm xuống còn tám phẩy ba phần trăm"),
     ("370 tỷ USD", "ba trăm bảy mươi tỷ <en>u s d</en>"),
     ("5 triệu VND", "năm triệu đồng"),
     ("10 nghìn USD", "mười nghìn <en>u s d</en>"),
-    ("8,92 tỷ USD", "tám phẩy chín mươi hai tỷ <en>u s d</en>"),
+    ("8,92 tỷ USD", "tám phẩy chín hai tỷ <en>u s d</en>"),
 
     # ─── 9. ĐƠN VỊ ĐO LƯỜNG ─────────────────────────────────────────────────
     ("50km",  "năm mươi ki lô mét"),
@@ -209,7 +209,7 @@ TEST_CASES = [
     ("Màn hình 24in.", "màn hình hai mươi bốn ins."),
     ("Độ phân giải 300dpi.", "độ phân giải ba trăm đi phi ai."),
     ("Độ pH của nước là 7.", "độ pê hát của nước là bảy."),
-    ("3.46 USD/gallon", "ba chấm bốn mươi sáu <en>u s d</en> trên <en>gallon</en>"),
+    ("3.46 USD/gallon", "ba chấm bốn sáu <en>u s d</en> trên <en>gallon</en>"),
 
     # Emails mở rộng
     ("Email công việc: admin@fpt.vn", "email công việc, <en>admin</en> a còng <en>f p t</en> chấm <en>v n</en>"),
@@ -243,6 +243,18 @@ TEST_CASES = [
     ("It's a beautiful day", "it's a beautiful day"),
     ("Giá của 'Sản phẩm' này là $10", "giá của sản phẩm này là mười đô la mỹ"),
     ("Giá SP500 hôm nay là 4.200,5 điểm", "giá ét pê năm trăm hôm nay là bốn nghìn hai trăm phẩy năm điểm"),
+
+    # ─── 28. CÁC TRƯỜNG HỢP MỚI (SCIENTIFIC, CURRENCY, ENGLISH SEPARATORS) ───
+    ("3.2e5 km", "ba chấm hai nhân mười mũ năm ki lô mét"),
+    ("6.626e-34", "sáu chấm sáu hai sáu nhân mười mũ trừ ba mươi bốn"),
+    ("1.5×10^-3", "một chấm năm nhân mười mũ trừ ba"),
+    ("Tôi mua nó với giá $1,299.99.", "tôi mua nó với giá một nghìn hai trăm chín mươi chín phẩy chín chín đô la mỹ."),
+    ("€3,50", "ba phẩy năm không ơ rô"),
+    ("¥120000", "một trăm hai mươi nghìn yên"),
+    ("1Gbps", "một gi ga bít trên giây"),
+    ("1,299,495", "một triệu hai trăm chín mươi chín nghìn bốn trăm chín mươi lăm"),
+    ("1,299", "một phẩy hai chín chín"),
+    ("1,299.5", "một nghìn hai trăm chín mươi chín phẩy năm"),
 ]
 
 @pytest.mark.parametrize("input_text, expected", TEST_CASES)
