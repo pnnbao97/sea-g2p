@@ -223,7 +223,9 @@ class G2P:
                     all_words.add(word.lower())
             batch_token_lists.append(sent_tokens)
 
-        db_merged, db_common = self.db.lookup_batch(list(all_words))
+        # Include force_espeak_words so we can resolve them from dict before using eSpeak
+        all_lookup_words = all_words | {w.lower() for w in force_espeak_words}
+        db_merged, db_common = self.db.lookup_batch(list(all_lookup_words))
 
         for sent in batch_token_lists:
             for t in sent:
@@ -245,11 +247,35 @@ class G2P:
         lut = {}
         if force_espeak_words:
             fe_words = sorted(list(force_espeak_words))
-            fe_phones = self._espeak_fallback_batch(fe_words, 'en-us')
-            if fe_phones and fe_phones != fe_words:
-                 lut.update({w: f"<en>{p}" for w, p in zip(fe_words, fe_phones)})
-            else:
-                 lut.update({w: p for w, p in zip(fe_words, fe_phones)})
+            still_need_espeak = []
+
+            for w in fe_words:
+                lw = w.lower()
+                if lw in custom:
+                    lut[w] = f"<en>{custom[lw]}"
+                elif lw in db_merged:
+                    val = db_merged[lw]
+                    # Strip any existing <en> wrapper and re-apply cleanly
+                    clean_val = val.replace('<en>', '').replace('</en>', '').strip()
+                    lut[w] = f"<en>{clean_val}"
+                elif lw in db_common:
+                    common_val = db_common[lw]
+                    if isinstance(common_val, dict):
+                        # Prefer English phoneme for words explicitly tagged <en>
+                        en_phone = common_val.get('en') or common_val.get('vi') or w
+                        lut[w] = f"<en>{en_phone}"
+                    else:
+                        lut[w] = f"<en>{common_val}"
+                else:
+                    still_need_espeak.append(w)
+
+            # eSpeak chỉ được gọi cho các từ thực sự không có trong từ điển
+            if still_need_espeak:
+                fe_phones = self._espeak_fallback_batch(still_need_espeak, 'en-us')
+                if fe_phones and fe_phones != still_need_espeak:
+                    lut.update({w: f"<en>{p}" for w, p in zip(still_need_espeak, fe_phones)})
+                else:
+                    lut.update({w: p for w, p in zip(still_need_espeak, fe_phones)})
 
         if global_unknown:
             u_words = sorted(list(global_unknown))
