@@ -42,7 +42,7 @@ def _normalize_pre_number(text):
         # Only treat as a numeric range if digit counts are similar (within 1)
         if abs(len(n1) - len(n2)) <= 1:
             return f'{m.group(1)} đến {m.group(2)}'
-        return m.group(0)
+        return f'{m.group(1)} {m.group(2)}'
     text = re.sub(r'(\d+(?:[,.]\d+)?)\s*[–\-—]\s*(\d+(?:[,.]\d+)?)', _range_sub, text)
     text = re.sub(r'(?<=\s)[–\-—](?=\s)', ',', text)
     text = re.sub(r'\s*(?:->|=>)\s*', ' sang ', text)

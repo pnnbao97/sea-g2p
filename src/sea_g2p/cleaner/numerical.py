@@ -25,8 +25,8 @@ _number_combined = (
 )
 
 # Compiled Regular Expressions
-RE_NUMBER = re.compile(r"(\D)(-{1})?" + _number_combined)
-RE_NUMBER_START = re.compile(r"^(-{1})?" + _number_combined, re.MULTILINE)
+RE_NUMBER = re.compile(r"(\D)(-{1})?" + _number_combined + r"(?!\d)")
+RE_NUMBER_START = re.compile(r"^(-{1})?" + _number_combined + r"(?!\d)", re.MULTILINE)
 RE_MULTIPLY = re.compile(r"(" + _normal_number_re + r")(x|\sx\s)(" + _normal_number_re + r")")
 RE_ORDINAL = re.compile(r"(thứ|hạng)(\s+)(\d+)\b", re.IGNORECASE)
 RE_PHONE = re.compile(r"((\+84|84|0|0084)(3|5|7|8|9)[0-9]{8})")
