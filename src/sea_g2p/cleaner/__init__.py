@@ -54,6 +54,7 @@ def _normalize_units_currency(text):
     text = re.sub(r'\b(\d+(?:,\d+){2,})\b', _expand_multi_comma, text)
 
     # Floats and Dot-separated numbers
+    # Simplified patterns to avoid ReDoS and satisfy SonarCloud
     text = re.sub(r'(?<![\d.])(\d+(?:\.\d{3})*),(\d+)(%)?', _expand_float, text)
     text = re.sub(r'(?<![\d.])\d+(?:\.\d{3})+(?![\d.])', _strip_dot_sep, text)
     return text
@@ -85,6 +86,7 @@ def clean_vietnamese_text(text):
         normed = normalize_emails(orig) if '@' in orig else normalize_technical(orig)
         return protect(type('Match', (), {'group': lambda self, n: normed})())
 
+    # Order matters: Emails first as they are more specific than generic URLs
     text = RE_EMAIL.sub(protect_url_email, text)
     text = RE_TECHNICAL.sub(protect_url_email, text)
 
