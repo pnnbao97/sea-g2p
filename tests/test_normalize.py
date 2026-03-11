@@ -308,6 +308,7 @@ TEST_CASES = [
     # Dấu - giữa 2 số có số chữ số chênh lệch > 1 → không phải range → giữ nguyên
     ("RAM hệ thống là 128GB DDR5-6400.",
      "<en>ram</en> hệ thống là một trăm hai mươi tám <en>gigabyte</en> đê đê rờ năm sáu nghìn bốn trăm."),
+    ("CPU Core i9-14900K chạy ở xung nhịp 6,0 GHz nhưng nhiệt độ lên tới 95°C.", "<en>c p u</en> core i chín mười bốn nghìn chín trăm ca chạy ở xung nhịp sáu gi ga héc nhưng nhiệt độ lên tới chín mươi lăm độ xê.")
 ]
 
 @pytest.mark.parametrize("input_text, expected", TEST_CASES)
