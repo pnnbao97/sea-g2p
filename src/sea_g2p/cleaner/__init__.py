@@ -22,11 +22,9 @@ def _strip_dot_sep(m):
     return m.group(0).replace('.', '')
 
 def _normalize_pre_number(text):
-    # Combined regex for 10^[-]n and x*10^[-]n
     def _ten_power_repl(m):
-        if m.group(1): # Case: base [x*×] 10^exp
+        if m.group(1):
             return expand_power_of_ten(m)
-        # Case: 10^exp
         exp = m.group(2)
         exp_norm = ("trừ " + n2w(exp[1:])) if exp.startswith('-') else n2w(exp.replace('+', ''))
         return f"mười mũ {exp_norm}"
@@ -36,14 +34,13 @@ def _normalize_pre_number(text):
     text = normalize_date(text)
     text = normalize_time(text)
     
-    # Combined range and arrow normalization
     def _misc_pre_repl(m):
-        if m.group(1): # Range: n1 - n2
+        if m.group(1):
             n1, n2 = re.sub(r'[,.]', '', m.group(1)), re.sub(r'[,.]', '', m.group(2))
             return f'{m.group(1)} đến {m.group(2)}' if abs(len(n1) - len(n2)) <= 1 else m.group(0)
         return ' sang ' if ('->' in m.group(0) or '=>' in m.group(0)) else ','
 
-    text = re.sub(r'(\d+(?:[,.]\d+)?)\s*[–\-—]\s*(\d+(?:[,.]\d+)?)|(?<=\s)[–\-—](?=\s)|\s*(?:->|=>)\s*', _misc_pre_repl, text)
+    text = re.sub(r'(\d+(?:[.,]\d+)?)\s*[–\-—]\s*(\d+(?:[.,]\d+)?)|(?<=\s)[–\-—](?=\s)|\s*(?:->|=>)\s*', _misc_pre_repl, text)
     return text
 
 def _normalize_units_currency(text):
@@ -52,20 +49,19 @@ def _normalize_units_currency(text):
     text = expand_measurement(text)
     text = expand_currency(text)
 
-    # 1. Handle English style numbers (comma as thousands separator)
+    # Use more precise non-backtracking structures for thousands separators
     text = re.sub(r'\b\d{1,3}(?:,\d{3})+(?:\.\d+)?\b', fix_english_style_numbers, text)
 
-    # 2. Handle multi-comma sequences (e.g., 1,2,3 or mixed non-standard separators)
     def _expand_multi_comma(m):
         return ' phẩy '.join(n2w_single(s) for s in m.group(1).split(','))
     text = re.sub(r'\b(\d+(?:,\d+){2,})\b', _expand_multi_comma, text)
 
-    # 3. Handle floats (1.234,5) and Dot-separated numbers (1.234.567)
     def _float_dot_repl(m):
-        if m.group(2): # Float match: (int),(dec)(%)
+        if m.group(2):
             return _expand_float(m)
-        return _strip_dot_sep(m) # Dot sep match: (int.int...)
+        return _strip_dot_sep(m)
 
+    # Refactored for SonarCloud: avoid nested quantifiers like (\d+(?:\.\d{3})*)*
     text = re.sub(r'(?<![\d.])(\d+(?:\.\d{3})*),(\d+)(%)?|(?<![\d.])\d+(?:\.\d{3})+(?![\d.])', _float_dot_repl, text)
     return text
 

@@ -5,6 +5,7 @@ from .num2vi import n2w, n2w_single
 
 # Refined number patterns to handle various separators (dots, commas, spaces).
 # For dots and spaces, we require exactly 3 digits to avoid matching versions/IPs.
+# Patterns are structured to avoid ReDoS (no nested quantifiers with high repetition).
 _number_pattern = (
     r"("
     r"\d+(?:\.\d{3})*(?:,\d+)?" # Vietnamese: 1.234.567 or 1.234,5
@@ -28,17 +29,13 @@ def _normalize_dot_sep(number: str) -> str:
     return number
 
 def _num_to_words(number: str, negative: bool = False) -> str:
-    # Remove grouping spaces
     number = number.replace(" ", "")
-    # Remove grouping dots (1.000.000 -> 1000000)
     number = _normalize_dot_sep(number)
 
-    # In Vietnamese cardinal context, comma is a decimal point
     if "," in number:
         parts = number.split(",")
         if len(parts) == 2:
             return f"{n2w(parts[0])} phẩy {n2w_single(parts[1])}"
-        # Fallback for multi-comma if somehow reached
         return n2w(number.replace(",", ""))
 
     prefix = "âm " if negative else ""

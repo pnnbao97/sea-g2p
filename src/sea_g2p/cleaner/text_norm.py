@@ -126,23 +126,25 @@ WORD_LIKE_ACRONYMS = {
 RE_ROMAN_NUMBER = re.compile(r"\b(?=[IVXLCDM]{2,})M{0,4}(CM|CD|D?C{0,3})(XC|XL|L?X{0,3})(IX|IV|V?I{0,3})\b")
 RE_LETTER = re.compile(r"(chữ|chữ cái|kí tự|ký tự)\s+(['\"]?)([a-z])(['\"]?)\b", re.IGNORECASE)
 RE_STANDALONE_LETTER = re.compile(r'(?<![\'’])\b([a-zA-Z])\b(\.?)')
+
 RE_TECHNICAL = re.compile(r'''
-    \b(?:https?|ftp)://[A-Za-z0-9.\-_~:/?#\[\]@!$&\'()*+,;=]+\b
+    \b(?:https?|ftp)://[A-Za-z0-9.\-_~:/?#\[\]@!$&'()*+,;=]+\b
     |
-    \b(?:www\.)[A-Za-z0-9.\-_~:/?#\[\]@!$&\'()*+,;=]+\b
+    \b(?:www\.)[A-Za-z0-9.\-_~:/?#\[\]@!$&'()*+,;=]+\b
     |
-    \b[A-Za-z0-9.\-]+(?:\.com|\.vn|\.net|\.org|\.gov|\.io|\.biz|\.info)(?:/[A-Za-z0-9.\-_~:/?#\[\]@!$&\'()*+,;=]*)?\b
+    \b[A-Za-z0-9\-]+(?:\.[A-Za-z0-9\-]+)*(?:\.com|\.vn|\.net|\.org|\.gov|\.io|\.biz|\.info)(?:/[A-Za-z0-9.\-_~:/?#\[\]@!$&'()*+,;=]*)?\b
     |
     (?<!\w)/[a-zA-Z0-9._\-/]{2,}\b
     |
-    \b[a-zA-Z0-9._\-]+\.(?:txt|log|tar|gz|zip|sh|py|js|cpp|h|json|xml|yaml|yml|md|csv|pdf|docx|xlsx|exe|dll|so|config)\b
+    \b[A-Za-z0-9\-]+(?:\.[A-Za-z0-9\-]+)*\.(?:txt|log|tar|gz|zip|sh|py|js|cpp|h|json|xml|yaml|yml|md|csv|pdf|docx|xlsx|exe|dll|so|config)\b
     |
     \b[a-zA-Z][a-zA-Z0-9]*(?:[._\-][a-zA-Z0-9]+){2,}\b
     |
     \b(?:[a-fA-F0-9]{1,4}:){3,7}[a-fA-F0-9]{1,4}\b
 ''', re.VERBOSE | re.IGNORECASE)
+
 RE_SLASH_NUMBER = re.compile(r'\b(\d+)/(\d+)\b')
-RE_EMAIL = re.compile(r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b')
+RE_EMAIL = re.compile(r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[a-zA-Z]{2,}\b')
 RE_SENTENCE_SPLIT = re.compile(r'([.!?]+(?:\s+|$))')
 RE_ACRONYM = re.compile(r'\b(?=[A-Z0-9]*[A-Z])[A-Z0-9]{2,}\b')
 RE_ALPHANUMERIC = re.compile(r'\b(\d+)([a-zA-Z])\b')
@@ -431,11 +433,11 @@ def normalize_technical(text):
             res.append('gạch')
             rest = orig[1:]
 
-        segments = re.split(r'([./:?&=/_ \-])', rest)
+        # Use split with capturing group to keep delimiters, then filter out empty strings
+        segments = [s for s in re.split(r'([./:?&=/_ \-])', rest) if s]
         idx = 0
         while idx < len(segments):
             s = segments[idx]
-            if not s: idx += 1; continue
             if s == '.' and idx + 1 < len(segments):
                 next_seg = segments[idx+1]
                 if next_seg.lower() in _DOMAIN_SUFFIX_MAP:
@@ -457,12 +459,11 @@ def normalize_emails(text):
         user_part, domain_part = parts
 
         def _process_part(p, is_domain=False):
-            segments = re.split(r'([._\-+])', p)
+            segments = [s for s in re.split(r'([._\-+])', p) if s]
             res = []
             idx = 0
             while idx < len(segments):
                 s = segments[idx]
-                if not s: idx += 1; continue
                 if s == '.' and is_domain and idx + 1 < len(segments):
                     next_seg = segments[idx+1]
                     if next_seg.lower() in _DOMAIN_SUFFIX_MAP:
@@ -562,7 +563,9 @@ def normalize_others(text):
     text = expand_prime(text)
     text = expand_unit_powers(text)
     text = RE_CLEAN_QUOTES.sub('', text)
+
     text = re.sub(r"(^|\s)['’]+|['’]+($|\s)", r"\1 \2", text)
+
     text = expand_symbols(text)
     text = RE_BRACKETS.sub(r', \1, ', text)
     text = RE_STRIP_BRACKETS.sub(' ', text)
