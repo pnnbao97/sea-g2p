@@ -64,11 +64,11 @@ TEST_CASES = [
     ("12:00:00 giây", "mười hai giờ không phút không giây"),
 
     # ─── 8. TIỀN TỆ ──────────────────────────────────────────────────────────
-    ("100$",   "một trăm đô la Mỹ"),
-    ("$50",    "năm mươi đô la Mỹ"),
+    ("100$",   "một trăm <en>u s d</en>"),
+    ("$50",    "năm mươi <en>u s d</en>"),
     ("200 USD","hai trăm <en>u s d</en>"),
     ("500 VND","năm trăm đồng"),
-    ("50 euro","năm mươi ơ rô"),
+    ("50 euro","năm mươi <en>euro</en>"),
     ("1000đ",  "một nghìn đồng"),
     ("75%",    "bảy mươi lăm phần trăm"),
     ("15,4% xuống còn 8,3%", "mười lăm phẩy bốn phần trăm xuống còn tám phẩy ba phần trăm"),
@@ -157,7 +157,7 @@ TEST_CASES = [
 
     # ─── 18. TRƯỜNG HỢP HỖN HỢP ──────────────────────────────────────────────
     ("Ngày 21/02/2025 lúc 14h30, giá vàng đạt 100$ tại TPHCM",
-     "ngày hai mươi mốt tháng hai năm hai nghìn không trăm hai mươi lăm lúc mười bốn giờ ba mươi phút, giá vàng đạt một trăm đô la Mỹ tại thành phố hồ chí minh"),
+     "ngày hai mươi mốt tháng hai năm hai nghìn không trăm hai mươi lăm lúc mười bốn giờ ba mươi phút, giá vàng đạt một trăm <en>u s d</en> tại thành phố hồ chí minh"),
     ("Thế kỷ XXI chứng kiến sự phát triển của <en>AI</en> và vũ trụ học",
      "thế kỷ hai mươi mốt chứng kiến sự phát triển của <en>AI</en> và vũ trụ học"),
     ("Đề án 06 và Chỉ thị 04", "đề án không sáu và chỉ thị không bốn"),
@@ -199,15 +199,15 @@ TEST_CASES = [
     ("Biểu thức ≥ 10.", "biểu thức lớn hơn hoặc bằng mười."),
 
     # Đơn vị đo lường mở rộng
-    ("Dung lượng 16GB.", "dung lượng mười sáu gi ga bai."),
-    ("File nặng 50MB.", "file nặng năm mươi mê ga bai."),
-    ("Ổ cứng 1TB.", "ổ cứng một tê ra bai."),
+    ("Dung lượng 16GB.", "dung lượng mười sáu <en>gigabyte</en>."),
+    ("File nặng 50MB.", "file nặng năm mươi <en>megabyte</en>."),
+    ("Ổ cứng 1TB.", "ổ cứng một <en>terabyte</en>."),
     ("Căn hộ 75sqm.", "căn hộ bảy mươi lăm mét vuông."),
     ("Bể bơi 100cum.", "bể bơi một trăm mét khối."),
-    ("Âm thanh 80db.", "âm thanh tám mươi đê xi ben."),
-    ("Trọng lượng 10lb.", "trọng lượng mười pao."),
-    ("Màn hình 24in.", "màn hình hai mươi bốn ins."),
-    ("Độ phân giải 300dpi.", "độ phân giải ba trăm đi phi ai."),
+    ("Âm thanh 80db.", "âm thanh tám mươi <en>decibel</en>."),
+    ("Trọng lượng 10lb.", "trọng lượng mười <en>pound</en>."),
+    ("Màn hình 24in.", "màn hình hai mươi bốn <en>inch</en>."),
+    ("Độ phân giải 300dpi.", "độ phân giải ba trăm <en>d p i</en>."),
     ("Độ pH của nước là 7.", "độ pê hát của nước là bảy."),
     ("3.46 USD/gallon", "ba chấm bốn sáu <en>u s d</en> trên <en>gallon</en>"),
 
@@ -241,17 +241,17 @@ TEST_CASES = [
     ("Đây là phút 1'", "đây là phút một phẩy"),
     ("I don't know why", "i don't know why"),
     ("It's a beautiful day", "it's a beautiful day"),
-    ("Giá của 'Sản phẩm' này là $10", "giá của sản phẩm này là mười đô la mỹ"),
+    ("Giá của 'Sản phẩm' này là $10", "giá của sản phẩm này là mười <en>u s d</en>"),
     ("Giá SP500 hôm nay là 4.200,5 điểm", "giá ét pê năm trăm hôm nay là bốn nghìn hai trăm phẩy năm điểm"),
 
     # ─── 28. CÁC TRƯỜNG HỢP MỚI (SCIENTIFIC, CURRENCY, ENGLISH SEPARATORS) ───
     ("3.2e5 km", "ba chấm hai nhân mười mũ năm ki lô mét"),
     ("6.626e-34", "sáu chấm sáu hai sáu nhân mười mũ trừ ba mươi bốn"),
     ("1.5×10^-3", "một chấm năm nhân mười mũ trừ ba"),
-    ("Tôi mua nó với giá $1,299.99.", "tôi mua nó với giá một nghìn hai trăm chín mươi chín phẩy chín chín đô la mỹ."),
-    ("€3,50", "ba phẩy năm không ơ rô"),
+    ("Tôi mua nó với giá $1,299.99.", "tôi mua nó với giá một nghìn hai trăm chín mươi chín phẩy chín chín <en>u s d</en>."),
+    ("€3,50", "ba phẩy năm không <en>euro</en>"),
     ("¥120000", "một trăm hai mươi nghìn yên"),
-    ("1Gbps", "một gi ga bít trên giây"),
+    ("1Gbps", "một <en>gigabits per second</en>"),
     ("1,299,495", "một triệu hai trăm chín mươi chín nghìn bốn trăm chín mươi lăm"),
     ("1,299", "một phẩy hai chín chín"),
     ("1,299.5", "một nghìn hai trăm chín mươi chín phẩy năm"),
