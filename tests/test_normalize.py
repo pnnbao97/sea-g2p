@@ -251,7 +251,7 @@ TEST_CASES = [
     ("6.626e-34", "sáu chấm sáu hai sáu nhân mười mũ trừ ba mươi bốn"),
     ("1.5×10^-3", "một chấm năm nhân mười mũ trừ ba"),
     ("Tôi mua nó với giá $1,299.99.", "tôi mua nó với giá một nghìn hai trăm chín mươi chín phẩy chín chín <en>u s d</en>."),
-    ("€3,50", "ba phẩy năm không <en>euro</en>"),
+    ("€3,50", "ba phẩy năm <en>euro</en>"),
     ("¥120000", "một trăm hai mươi nghìn yên"),
     ("1Gbps", "một <en>gigabits per second</en>"),
     ("1,299,495", "một triệu hai trăm chín mươi chín nghìn bốn trăm chín mươi lăm"),
@@ -282,6 +282,24 @@ TEST_CASES = [
     ("Dùng MI5 và MI6.", "dùng <en>m i five</en> và <en>m i six</en>."),
     ("Bảo mật 2FA.", "bảo mật <en>two f a</en>."),
     ("Máy tính TX-0.", "máy tính <en>t x zero</en>."),
+    
+    # ─── 30. EXTREME CASES ─────────────────────────────────────
+    ("Dân số thế giới khoảng 7,888,000,000 người (~7.9B).",
+     "dân số thế giới khoảng bảy tỷ tám trăm tám mươi tám triệu người, khoảng bảy chấm chín bê."),
+    ("Latency trung bình chỉ ~42ms / request qua REST API.",
+     "latency trung bình chỉ khoảng bốn mươi hai mi li giây trên request qua <en>r e s t</en> <en>a p i</en>."),
+    ("Liên hệ qua email research.ai+test@example-domain.org.",
+     "liên hệ qua email <en>research</en> chấm <en>ai</en> cộng <en>test</en> a còng <en>example</en> gạch ngang <en>domain</en> chấm o rờ gờ."),
+    ("Gửi báo cáo đến admin_v2@server.ai.",
+     "gửi báo cáo đến <en>admin</en> gạch dưới <en>v2</en> a còng <en>server</en> chấm <en>ai</en>."),
+    ("Repo nằm ở https://github.com/user/project-v2.",
+     "repo nằm ở <en>https</en> <en>github</en> chấm com gạch <en>user</en> gạch <en>project</en> gạch ngang <en>v 2</en>."),
+    ("Tại sao khi x 8 thì nó lại là 8x - mà với lại 20 x 8 = ?", "tại sao khi ích tám thì nó lại là tám ích, mà với lại hai mươi nhân tám bằng?"),
+
+    # ─── 31. KÝ HIỆU - GIỮA SỐ CÓ ĐỘ LỚN KHÁC NHAU ────────────────────────────
+    # Dấu - giữa 2 số có số chữ số chênh lệch > 1 → không phải range → giữ nguyên
+    ("RAM hệ thống là 128GB DDR5-6400.",
+     "<en>ram</en> hệ thống là một trăm hai mươi tám <en>gigabyte</en> đê đê rờ năm sáu nghìn bốn trăm."),
 ]
 
 @pytest.mark.parametrize("input_text, expected", TEST_CASES)
