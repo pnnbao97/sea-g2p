@@ -11,14 +11,14 @@ _vi_letter_names = {
 }
 
 _common_email_domains = {
-    "gmail.com": "__START_EN__gmail__END_EN__ chấm com",
-    "yahoo.com": "__START_EN__yahoo__END_EN__ chấm com",
-    "yahoo.com.vn": "__START_EN__yahoo__END_EN__ chấm com chấm __START_EN__v n__END_EN__",
-    "outlook.com": "__START_EN__outlook__END_EN__ chấm com",
-    "hotmail.com": "__START_EN__hotmail__END_EN__ chấm com",
-    "icloud.com": "__START_EN__icloud__END_EN__ chấm com",
-    "fpt.vn": "__START_EN__f p t__END_EN__ chấm __START_EN__v n__END_EN__",
-    "fpt.com.vn": "__START_EN__f p t__END_EN__ chấm com chấm __START_EN__v n__END_EN__",
+    "gmail.com": "__start_en__gmail__end_en__ chấm com",
+    "yahoo.com": "__start_en__yahoo__end_en__ chấm com",
+    "yahoo.com.vn": "__start_en__yahoo__end_en__ chấm com chấm __start_en__v n__end_en__",
+    "outlook.com": "__start_en__outlook__end_en__ chấm com",
+    "hotmail.com": "__start_en__hotmail__end_en__ chấm com",
+    "icloud.com": "__start_en__icloud__end_en__ chấm com",
+    "fpt.vn": "__start_en__f p t__end_en__ chấm __start_en__v n__end_en__",
+    "fpt.com.vn": "__start_en__f p t__end_en__ chấm com chấm __start_en__v n__end_en__",
 }
 
 _measurement_key_vi = {
@@ -89,12 +89,12 @@ RE_PRIME = re.compile(r"(\b[a-zA-Z0-9])['’](?!\w)")
 _DOMAIN_SUFFIXES_RE = re.compile(r'\.(com|vn|net|org|edu|gov|io|biz|info)\b', re.IGNORECASE)
 _DOMAIN_SUFFIX_MAP = {
     "com": "com",
-    "vn": "__START_EN__v n__END_EN__",
+    "vn": "__start_en__v n__end_en__",
     "net": "nét",
     "org": "o rờ gờ",
-    "edu": "__START_EN__edu__END_EN__",
+    "edu": "__start_en__edu__end_en__",
     "gov": "gờ o vê",
-    "io": "__START_EN__i o__END_EN__",
+    "io": "__start_en__i o__end_en__",
     "biz": "biz",
     "info": "info",
 }
@@ -331,21 +331,62 @@ def normalize_urls(text):
     def _repl_url(m):
         url = m.group(0)
         # Split URL into segments but keep delimiters
-        parts = re.split(r'([./:?&=])', url)
+        # Avoid nested quantifiers and complex splitting to maintain low cognitive complexity
+        segments = re.split(r'([.:?&=/])', url)
         res = []
-        for p in parts:
-            if not p: continue
-            if p == '.': res.append('chấm')
-            elif p in './:?&=-_': continue # Skip technical delimiters like : // ? & =
-            elif p.isalnum() and p.isascii():
-                # Check suffixes first
-                if p.lower() in _DOMAIN_SUFFIX_MAP:
-                    res.append(_DOMAIN_SUFFIX_MAP[p.lower()])
+        idx = 0
+        while idx < len(segments):
+            p = segments[idx]
+            if not p:
+                idx += 1
+                continue
+
+            if p == '/':
+                # Skip slashes immediately after colon (protocol case like https://)
+                # But handle the case where colon itself might have skipped slashes
+                res.append('trên')
+                idx += 1
+                continue
+
+            if p in ':?&=-_':
+                idx += 1
+                # Skip all following slashes (handle ://)
+                while idx < len(segments) and (segments[idx] == '/' or not segments[idx]):
+                    idx += 1
+                continue
+
+            if p == '.':
+                # Check if next segment is a known domain suffix
+                # Next non-empty segment
+                next_p = ""
+                next_idx = -1
+                for i in range(idx + 1, len(segments)):
+                    if segments[i]:
+                        next_p = segments[i]
+                        next_idx = i
+                        break
+
+                if next_idx != -1 and next_p.lower() in _DOMAIN_SUFFIX_MAP:
+                    res.append('chấm')
+                    res.append(_DOMAIN_SUFFIX_MAP[next_p.lower()])
+                    idx = next_idx + 1
+                    continue
                 else:
-                    res.append(f"__START_EN__{p.lower()}__END_EN__")
+                    res.append('chấm')
+                    idx += 1
+                continue
+
+            p_lower = p.lower()
+            if p_lower in _DOMAIN_SUFFIX_MAP:
+                res.append(_DOMAIN_SUFFIX_MAP[p_lower])
+                idx += 1
+            elif p.isalnum() and p.isascii():
+                res.append(f"__start_en__{p_lower}__end_en__")
+                idx += 1
             else:
                 # Fallback to character-by-character for non-ASCII or mixed
-                for char in p.lower():
+                idx += 1
+                for char in p_lower:
                     if char.isalnum():
                         if char.isdigit():
                             res.append(n2w_single(char))
@@ -377,7 +418,7 @@ def normalize_emails(text):
 
         # User part: spell out or EN
         if user_part.isalnum() and user_part.isascii():
-            user_norm = [f"__START_EN__{user_part.lower()}__END_EN__"]
+            user_norm = [f"__start_en__{user_part.lower()}__end_en__"]
         else:
             user_unorm = []
             for char in user_part.lower():
@@ -406,7 +447,7 @@ def normalize_emails(text):
                     continue
                 
                 if dp.isalnum() and dp.isascii():
-                    norm_domain_parts.append(f"__START_EN__{dp.lower()}__END_EN__")
+                    norm_domain_parts.append(f"__start_en__{dp.lower()}__end_en__")
                     continue
 
                 dp_norm = []
@@ -447,10 +488,10 @@ def normalize_acronyms(text):
                 word = m.group(0)
                 if word.isdigit(): return word
                 if word in WORD_LIKE_ACRONYMS:
-                    return f"__START_EN__{word.lower()}__END_EN__"
+                    return f"__start_en__{word.lower()}__end_en__"
                 if any(c.isdigit() for c in word):
                     if word.upper() == "B2B":
-                        return "__START_EN__b two b__END_EN__"
+                        return "__start_en__b two b__end_en__"
                     
                     res = []
                     for c in word.lower():
@@ -462,7 +503,7 @@ def normalize_acronyms(text):
 
                 spaced_word = " ".join(c.lower() for c in word if c.isalnum())
                 if spaced_word:
-                    return f"__START_EN__{spaced_word}__END_EN__"
+                    return f"__start_en__{spaced_word}__end_en__"
                 return word
 
             s = RE_ACRONYM.sub(_repl_acronym, s)
@@ -516,8 +557,6 @@ def normalize_others(text):
     for pattern, v in _ACRONYMS_EXCEPTIONS_RE:
         text = pattern.sub(v, text)
     
-    text = normalize_urls(text)
-    text = normalize_emails(text)
     text = normalize_slashes(text)
     
     # Handle domain suffixes like .com, .vn (especially after acronyms)
@@ -555,8 +594,7 @@ def normalize_others(text):
     # 8. Final cleanup of any remaining unsupported characters
     text = RE_CLEAN_OTHERS.sub(' ', text)
     
-    # Restore internal <en> tags (handle both cases for backward compatibility)
-    text = text.replace('__START_EN__', '<en>').replace('__END_EN__', '</en>')
+    # Restore internal <en> tags
     text = text.replace('__start_en__', '<en>').replace('__end_en__', '</en>')
     
     return text

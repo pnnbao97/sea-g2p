@@ -188,6 +188,8 @@ TEST_CASES = [
     # URLs
     ("Truy cập https://vieneu.io để biết thêm chi tiết.", "truy cập <en>https</en> <en>vieneu</en> chấm <en>i o</en> để biết thêm chi tiết."),
     ("Website www.google.com rất hữu ích.", "website <en>www</en> chấm <en>google</en> chấm com rất hữu ích."),
+    ("Trang web chính thức là https://openai.com.", "trang web chính thức là <en>https</en> <en>openai</en> chấm com."),
+    ("Tài liệu nằm ở www.example.org/docs.", "tài liệu nằm ở <en>www</en> chấm <en>example</en> chấm o rờ gờ trên <en>docs</en>."),
 
     # Slashes / Địa chỉ
     ("Địa chỉ nhà tôi là 123/4 đường Nguyễn Trãi.", "địa chỉ nhà tôi là một trăm hai mươi ba xẹt bốn đường nguyễn trãi."),

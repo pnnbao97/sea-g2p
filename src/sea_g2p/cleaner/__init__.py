@@ -7,7 +7,8 @@ from .datestime import normalize_date, normalize_time
 from .text_norm import (
     normalize_others, expand_measurement, expand_currency,
     expand_compound_units, expand_abbreviations, expand_standalone_letters,
-    expand_scientific_notation, fix_english_style_numbers, expand_power_of_ten
+    expand_scientific_notation, fix_english_style_numbers, expand_power_of_ten,
+    normalize_urls, normalize_emails
 )
 
 def _expand_float(m):
@@ -70,6 +71,11 @@ def clean_vietnamese_text(text):
 
     # Simple regex to protect existing tags, avoiding potential ReDoS in nested patterns
     text = re.sub(r'___PROTECTED_EN_TAG_\d+___', protect, text)
+
+    # Normalize URLs and Emails early and protect them
+    text = normalize_urls(text)
+    text = normalize_emails(text)
+    text = re.sub(r'<en>.*?</en>', protect, text, flags=re.IGNORECASE)
     text = _normalize_pre_number(text)
     text = _normalize_units_currency(text)
     text = _normalize_post_number(text)
