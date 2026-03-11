@@ -7,16 +7,27 @@ _short_date_seperator = r"(\/|-)"
 
 # Compiled Regular Expressions
 # Grouping date patterns: Full date (D/M/Y), Month/Year (M/Y), Day/Month (D/M)
+# Patterns are structured to avoid overlapping alternatives and catastrophic backtracking
 RE_DATE_COMBINED = re.compile(r'''
-    \b(\d{1,2})([/\-.])(\d{1,2})\2(\d{4})\b  # D/M/Y
-    |
-    \b(\d{1,2})([/\-.])(\d{4})\b             # M/Y
-    |
-    \b(\d{1,2})([/\-])(\d{1,2})\b             # D/M
+    \b(\d{1,2})                 # Day or Month (group 1)
+    (?:
+        ([/\-.])(\d{1,2})       # Separator (group 2) and Month/Day (group 3)
+        \2(\d{4})               # Same separator and Year (group 4)
+        |
+        ([/\-])(\d{1,2})\b       # Separator (group 5) and Month/Day (group 6) (only / or -)
+        |
+        ([/\-.])(\d{4})\b        # Separator (group 7) and Year (group 8)
+    )
 ''', re.VERBOSE | re.IGNORECASE)
 
 RE_TIME_COMBINED = re.compile(r'''
-    \b(\d+)([g:h])(\d{1,2})(?:([p:m])(\d{1,2})(?:\s*(giây|s|g))?|(?:\s*(phút|p|m))?)\b
+    \b(\d+)([g:h])(\d{1,2})     # Hour (group 1), sep (group 2), Minute (group 3)
+    (?:
+        ([p:m])(\d{1,2})        # sep (group 4), Second (group 5)
+        (?:\s*(giây|s|g))?      # Unit (group 6)
+        |
+        (?:\s*(phút|p|m))       # Unit (group 7)
+    )?\b
 ''', re.VERBOSE | re.IGNORECASE)
 
 RE_REDUNDANT_NGAY = re.compile(r'\bngày\s+ngày\b', re.IGNORECASE)
@@ -68,17 +79,20 @@ def _expand_time(match):
 
 def normalize_date(text):
     def _repl_date(m):
-        if m.group(1): # D/M/Y
-            d, sep, m_val, y = m.group(1), m.group(2), m.group(3), m.group(4)
+        # Full date (group 1, 2, 3, 4)
+        if m.group(4):
+            d, m_val, y = m.group(1), m.group(3), m.group(4)
             if _is_valid_date(d, m_val):
                 return f"ngày {n2w(str(int(d)))} tháng {n2w(str(int(m_val)))} năm {n2w(y)}"
-        elif m.group(5): # M/Y
-            m_val, sep, y = m.group(5), m.group(6), m.group(7)
-            return f"tháng {n2w(str(int(m_val)))} năm {n2w(y)}"
-        elif m.group(8): # D/M
-            d, sep, m_val = m.group(8), m.group(9), m.group(10)
+        # Day/Month (group 1, 5, 6)
+        elif m.group(6):
+            d, m_val = m.group(1), m.group(6)
             if _is_valid_date(d, m_val):
                 return f"ngày {n2w(str(int(d)))} tháng {n2w(str(int(m_val)))}"
+        # Month/Year (group 1, 7, 8)
+        elif m.group(8):
+            m_val, y = m.group(1), m.group(8)
+            return f"tháng {n2w(str(int(m_val)))} năm {n2w(y)}"
         return m.group(0)
 
     text = RE_DATE_COMBINED.sub(_repl_date, text)
@@ -90,7 +104,6 @@ def normalize_time(text):
     def _repl_time(m):
         h, sep1, m_val = m.group(1), m.group(2), m.group(3)
         sep2, s_val, s_unit = m.group(4), m.group(5), m.group(6)
-        m_unit = m.group(7)
 
         try:
             h_int = int(h)

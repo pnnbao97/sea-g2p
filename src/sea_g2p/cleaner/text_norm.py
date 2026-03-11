@@ -134,7 +134,20 @@ _MAGNITUDE_P = r"(?:\s*(tỷ|triệu|nghìn|ngàn))?"
 _NUMERIC_P = r"(\d+(?:[.,]\d+)*)"
 
 # Pre-compiled regex for compound units
-RE_COMPOUND_UNIT = re.compile(rf"\b{_NUMERIC_P}?\s*([a-zμµ²³°]+)/([a-zμµ²³°0-9]+)\b", re.IGNORECASE)
+# Using non-overlapping patterns to satisfy SonarCloud
+RE_COMPOUND_UNIT = re.compile(rf'''
+    \b
+    (?:
+        (\d+(?:[.,]\d+)*)\s*    # Numeric part (group 1)
+        ([a-zμµ²³°]+)           # Unit 1 (group 2)
+        /
+        ([a-zμµ²³°0-9]+)        # Unit 2 (group 3)
+        |
+        ([a-zμµ²³°]+)           # Unit 1 (group 4, no numeric part)
+        /
+        ([a-zμµ²³°0-9]+)        # Unit 2 (group 5)
+    )\b
+''', re.VERBOSE | re.IGNORECASE)
 
 # Pre-compiled currency patterns
 _CURRENCY_SYMBOL_MAP = {
@@ -294,10 +307,14 @@ def expand_measurement_currency(text):
 
 def expand_compound_units(text):
     def _repl_compound(m):
-        num_str = m.group(1) if m.group(1) else ""
-        num = _expand_number_with_sep(num_str)
-        u1 = m.group(2).lower()
-        u2 = m.group(3).lower()
+        g1, g2, g3, g4, g5 = m.groups()
+        if g1 is not None: # Case with number: num unit1/unit2
+            num = _expand_number_with_sep(g1)
+            u1, u2 = g2.lower(), g3.lower()
+        else: # Case without number: unit1/unit2
+            num = ""
+            u1, u2 = g4.lower(), g5.lower()
+
         full1 = _measurement_key_vi.get(u1, _currency_key.get(u1, u1))
         full2 = _measurement_key_vi.get(u2, _currency_key.get(u2, u2))
         res = f" {full1} trên {full2} "

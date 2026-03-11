@@ -24,18 +24,19 @@ def _normalize_pre_number(text):
     
     # 3. Ranges and Arrows
     def _range_or_dash(m):
-        if m.group(1) and m.group(2): # Range
-            n1 = re.sub(r'[,.]', '', m.group(1))
-            n2 = re.sub(r'[,.]', '', m.group(2))
+        g1, g2, g3, g4 = m.groups()
+        if g1 is not None and g2 is not None: # Range
+            n1 = re.sub(r'[,.]', '', g1)
+            n2 = re.sub(r'[,.]', '', g2)
             if abs(len(n1) - len(n2)) <= 1:
-                return f'{m.group(1)} đến {m.group(2)}'
-            return f'{m.group(1)} {m.group(2)}'
-        elif m.group(3): # Arrow
-            return ' sang '
+                return f'{g1} đến {g2}'
+            return f'{g1} {g2}'
+        elif g3 is not None: # Arrow
+            return g3.replace('->', ' sang ').replace('=>', ' sang ')
         return ',' # Standalone dash
 
     text = re.sub(r'''
-        (\d+(?:[,.]\d+)?)\s*[–\-—]\s*(\d+(?:[,.]\d+)?)  # Range (groups 1, 2)
+        (\d+(?:[.,]\d+)?)\s*[–\-—]\s*(\d+(?:[.,]\d+)?)  # Range (groups 1, 2)
         |
         (\s*(?:->|=>)\s*)                                # Arrow (group 3)
         |
@@ -52,10 +53,11 @@ def _normalize_units_currency(text):
 
     # 2. Number style fixes and multi-comma expansion
     def _fix_and_expand_numbers(m):
-        val = m.group(1) if m.group(1) else m.group(2)
+        g1, g2 = m.groups()
 
-        # fix_english_style_numbers logic for m.group(1)
-        if m.group(1):
+        # fix_english_style_numbers logic for g1
+        if g1 is not None:
+            val = g1
             has_comma = ',' in val
             has_dot = '.' in val
             if val.count(',') > 1 or (has_comma and has_dot and val.find(',') < val.find('.')):
@@ -64,32 +66,39 @@ def _normalize_units_currency(text):
                 return val.replace(',', '').replace('.', ',')
             return val
 
-        # _expand_multi_comma logic for m.group(2)
-        res = []
-        for s in val.split(','):
-            res.append(' '.join(n2w_single(c) for c in s))
-        return ' phẩy '.join(res)
+        # _expand_multi_comma logic for g2
+        if g2 is not None:
+            res = []
+            for s in g2.split(','):
+                res.append(' '.join(n2w_single(c) for c in s))
+            return ' phẩy '.join(res)
+        return m.group(0)
 
+    # Patterns are mutually exclusive to avoid overlapping
     text = re.sub(r'''
-        \b(\d{1,3}(?:,\d{3})+(?:\.\d+)?)\b  # English style numbers
+        \b(\d{1,3}(?:,\d{3})+(?:\.\d+)?)\b  # English style numbers (g1)
         |
-        \b(\d+(?:,\d+){2,})\b               # Multi-comma numbers
+        \b(\d+(?:,\d+){2,})\b               # Multi-comma numbers (g2)
     ''', _fix_and_expand_numbers, text, flags=re.VERBOSE)
 
     # 3. Float and dot separator normalization
     def _float_or_dot_sep(m):
-        if m.group(1): # _expand_float
-            int_part = n2w(m.group(1).replace('.', ''))
-            dec_part = m.group(2).rstrip('0')
+        g1, g2, g3, g4 = m.groups()
+        if g1 is not None: # Float with comma decimal
+            int_part = n2w(g1.replace('.', ''))
+            dec_part = g2.rstrip('0')
             res = f"{int_part} phẩy {n2w_single(dec_part)}" if dec_part else int_part
-            if m.group(3): res += " phần trăm"
+            if g3: res += " phần trăm"
             return f" {res} "
-        return m.group(0).replace('.', '') # _strip_dot_sep
+        elif g4 is not None: # Dot separated thousands
+            return g4.replace('.', '')
+        return m.group(0)
 
+    # Patterns are mutually exclusive to avoid overlapping
     text = re.sub(r'''
-        (?<![\d.])(\d+(?:\.\d{3})*),(\d+)(%)?  # Float with comma decimal
+        (?<![\d.])(\d+(?:\.\d{3})*),(\d+)(%)?  # Float with comma decimal (g1, g2, g3)
         |
-        (?<![\d.])\d+(?:\.\d{3})+(?![\d.])      # Dot separated thousands
+        (?<![\d.])(\d+(?:\.\d{3})+)(?![\d.])    # Dot separated thousands (g4)
     ''', _float_or_dot_sep, text, flags=re.VERBOSE)
 
     return text
