@@ -159,29 +159,31 @@ def _expand_number_with_sep(num_str):
     if not num_str: return ""
 
     # Scientific notation: 3.2e5, 6.626e-34
-    if 'e' in num_str.lower():
-        parts = re.split('e', num_str, flags=re.IGNORECASE)
-        if len(parts) == 2:
-            base, exp = parts
+    num_lower = num_str.lower()
+    if 'e' in num_lower:
+        e_idx = num_lower.find('e')
+        base = num_str[:e_idx]
+        exp = num_str[e_idx+1:]
 
-            # Normalize base - forcing decimal for scientific base
-            if '.' in base and base.count('.') == 1:
-                 b_parts = base.split('.')
-                 base_expanded = f"{n2w(b_parts[0])} chấm {n2w_single(b_parts[1])}"
-            elif ',' in base and base.count(',') == 1:
-                 b_parts = base.split(',')
-                 base_expanded = f"{n2w(b_parts[0])} phẩy {n2w_single(b_parts[1])}"
-            else:
-                 base_expanded = _expand_number_with_sep(base)
+        # Normalize base - forcing decimal for scientific base
+        if '.' in base and base.count('.') == 1:
+                b_parts = base.split('.')
+                base_expanded = f"{n2w(b_parts[0])} chấm {n2w_single(b_parts[1])}"
+        elif ',' in base and base.count(',') == 1:
+                b_parts = base.split(',')
+                base_expanded = f"{n2w(b_parts[0])} phẩy {n2w_single(b_parts[1])}"
+        else:
+                # Basic expansion without separators for simple bases
+                base_expanded = n2w(base.replace(',', '').replace('.', ''))
 
-            # Normalize exponent
-            exp_val = exp.replace('+', '')
-            if exp_val.startswith('-'):
-                exp_expanded = "trừ " + n2w(exp_val[1:])
-            else:
-                exp_expanded = n2w(exp_val)
+        # Normalize exponent
+        exp_val = exp.replace('+', '')
+        if exp_val.startswith('-'):
+            exp_expanded = "trừ " + n2w(exp_val[1:])
+        else:
+            exp_expanded = n2w(exp_val)
 
-            return f"{base_expanded} nhân mười mũ {exp_expanded}"
+        return f"{base_expanded} nhân mười mũ {exp_expanded}"
 
     # Handle English vs Vietnamese number formats
     # Mixed separators (e.g., 1,299.5 or 1.299,5)
