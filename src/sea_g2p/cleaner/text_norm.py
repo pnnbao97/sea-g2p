@@ -101,7 +101,7 @@ _DOMAIN_SUFFIX_MAP = {
 
 # Reusable patterns for measurement/currency
 _MAGNITUDE_P = r"\s*(tỷ|triệu|nghìn|ngàn)?\s*"
-_NUMERIC_P = r"((?:\d+[.,])*\d+)"
+_NUMERIC_P = r"(\d+(?:[.,]\d+)*)"
 
 # Pre-compiled regex for compound units
 RE_COMPOUND_UNIT = re.compile(rf"\b{_NUMERIC_P}?\s*([a-zμµ²³°]+)/([a-zμµ²³°0-9]+)\b", re.IGNORECASE)
@@ -155,62 +155,49 @@ _SYMBOLS_MAP = {
     '±': ' cộng trừ ', '≈': ' xấp xỉ '
 }
 
-def _expand_number_with_sep(num_str):
-    if not num_str: return ""
-
-    # Scientific notation: 3.2e5, 6.626e-34
+def _expand_scientific(num_str):
     num_lower = num_str.lower()
-    if 'e' in num_lower:
-        e_idx = num_lower.find('e')
-        base = num_str[:e_idx]
-        exp = num_str[e_idx+1:]
+    e_idx = num_lower.find('e')
+    base, exp = num_str[:e_idx], num_str[e_idx+1:]
 
-        # Normalize base - forcing decimal for scientific base
-        if '.' in base and base.count('.') == 1:
-                b_parts = base.split('.')
-                base_expanded = f"{n2w(b_parts[0])} chấm {n2w_single(b_parts[1])}"
-        elif ',' in base and base.count(',') == 1:
-                b_parts = base.split(',')
-                base_expanded = f"{n2w(b_parts[0])} phẩy {n2w_single(b_parts[1])}"
-        else:
-                # Basic expansion without separators for simple bases
-                base_expanded = n2w(base.replace(',', '').replace('.', ''))
+    # Base normalization
+    if base.count('.') == 1:
+        parts = base.split('.')
+        base_norm = f"{n2w(parts[0])} chấm {n2w_single(parts[1])}"
+    elif base.count(',') == 1:
+        parts = base.split(',')
+        base_norm = f"{n2w(parts[0])} phẩy {n2w_single(parts[1])}"
+    else:
+        base_norm = n2w(base.replace(',', '').replace('.', ''))
 
-        # Normalize exponent
-        exp_val = exp.replace('+', '')
-        if exp_val.startswith('-'):
-            exp_expanded = "trừ " + n2w(exp_val[1:])
-        else:
-            exp_expanded = n2w(exp_val)
+    # Exponent normalization
+    exp_val = exp.lstrip('+')
+    exp_norm = f"trừ {n2w(exp_val[1:])}" if exp_val.startswith('-') else n2w(exp_val)
+    return f"{base_norm} nhân mười mũ {exp_norm}"
 
-        return f"{base_expanded} nhân mười mũ {exp_expanded}"
+def _expand_mixed_sep(num_str):
+    if num_str.rfind('.') > num_str.rfind(','): # English style (1,299.5)
+        parts = num_str.replace(',', '').split('.')
+    else: # Vietnamese style (1.299,5)
+        parts = num_str.replace('.', '').split(',')
+    return f"{n2w(parts[0])} phẩy {n2w_single(parts[1])}"
 
-    # Handle English vs Vietnamese number formats
-    # Mixed separators (e.g., 1,299.5 or 1.299,5)
-    if ',' in num_str and '.' in num_str:
-        if num_str.rfind('.') > num_str.rfind(','): # English style (1,299.5)
-            parts = num_str.replace(',', '').split('.')
-        else: # Vietnamese style (1.299,5)
-            parts = num_str.replace('.', '').split(',')
-        return f"{n2w(parts[0])} phẩy {n2w_single(parts[1])}"
-
-    # Single separator
+def _expand_single_sep(num_str):
     if ',' in num_str:
         parts = num_str.split(',')
-        if len(parts) > 2: # Multiple commas: English thousands
-            return n2w(num_str.replace(',', ''))
-        # len(parts) == 2: Ambiguous (1,299) or standard decimal (1,5)
-        # User requested 1,299 as decimal "một phẩy hai chín chín"
+        if len(parts) > 2: return n2w(num_str.replace(',', ''))
         return f"{n2w(parts[0])} phẩy {n2w_single(parts[1])}"
 
-    if '.' in num_str:
-        parts = num_str.split('.')
-        if len(parts) > 2 or (len(parts) == 2 and len(parts[1]) == 3):
-            # Multiple dots or 3 digits after dot: Vietnamese thousands (1.299)
-            return n2w(num_str.replace('.', ''))
-        # English decimal or version (1.3)
-        return f"{n2w(parts[0])} chấm {n2w_single(parts[1])}"
+    parts = num_str.split('.')
+    if len(parts) > 2 or (len(parts) == 2 and len(parts[1]) == 3):
+        return n2w(num_str.replace('.', ''))
+    return f"{n2w(parts[0])} chấm {n2w_single(parts[1])}"
 
+def _expand_number_with_sep(num_str):
+    if not num_str: return ""
+    if 'e' in num_str.lower(): return _expand_scientific(num_str)
+    if ',' in num_str and '.' in num_str: return _expand_mixed_sep(num_str)
+    if ',' in num_str or '.' in num_str: return _expand_single_sep(num_str)
     return n2w(num_str)
 
 def fix_english_style_numbers(m):
