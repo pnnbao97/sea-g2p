@@ -32,21 +32,23 @@ _measurement_key_vi = {
     "kw": "ki lô oát", "mw": "mê ga oát", "gw": "gi ga oát",
     "kwh": "ki lô oát giờ", "mwh": "mê ga oát giờ", "wh": "oát giờ",
     "hz": "héc", "khz": "ki lô héc", "mhz": "mê ga héc", "ghz": "gi ga héc",
-    "pa": "pát cal", "kpa": "ki lô pát cal", "mpa": "mê ga pát cal",
-    "bar": "ba", "mbar": "mi li ba", "atm": "át mốt phia", "psi": "pi ét xai",
-    "j": "giun", "kj": "ki lô giun",
-    "cal": "ca lo", "kcal": "ki lô ca lo",
+    "pa": "__start_en__pascal__end_en__", "kpa": "__start_en__kilopascal__end_en__", "mpa": "__start_en__megapascal__end_en__",
+    "bar": "__start_en__bar__end_en__", "mbar": "__start_en__millibar__end_en__", "atm": "__start_en__atmosphere__end_en__", "psi": "__start_en__p s i__end_en__",
+    "j": "__start_en__joule__end_en__", "kj": "__start_en__kilojoule__end_en__",
+    "cal": "__start_en__calorie__end_en__", "kcal": "__start_en__kilocalorie__end_en__",
     "h": "giờ", "p": "phút", "s": "giây",
     "sqm": "mét vuông", "cum": "mét khối",
-    "gb": "gi ga bai", "mb": "mê ga bai", "kb": "ki lô bai", "tb": "tê ra bai",
-    "db": "đê xi ben", "oz": "ao xơ", "lb": "pao", "lbs": "pao",
-    "ft": "phít", "in": "ins", "dpi": "đi phi ai", "pH": "pê hát",
-    "gallon": "__START_EN__gallon__END_EN__"
+    "gb": "__start_en__gigabyte__end_en__", "mb": "__start_en__megabyte__end_en__", "kb": "__start_en__kilobyte__end_en__", "tb": "__start_en__terabyte__end_en__",
+    "db": "__start_en__decibel__end_en__", "oz": "__start_en__ounce__end_en__", "lb": "__start_en__pound__end_en__", "lbs": "__start_en__pounds__end_en__",
+    "ft": "__start_en__feet__end_en__", "in": "__start_en__inch__end_en__", "dpi": "__start_en__d p i__end_en__", "pH": "pê hát",
+    "gbps": "__start_en__gigabits per second__end_en__", "mbps": "__start_en__megabits per second__end_en__", "kbps": "__start_en__kilobits per second__end_en__",
+    "gallon": "__start_en__gallon__end_en__"
 }
 
 _currency_key = {
-    "usd": "__START_EN__u s d__END_EN__",
-    "vnd": "đồng", "đ": "đồng", "%": "phần trăm"
+    "usd": "__start_en__u s d__end_en__",
+    "vnd": "đồng", "đ": "đồng", "€": "__start_en__euro__end_en__", "euro": "__start_en__euro__end_en__", "eur": "__start_en__euro__end_en__",
+    "¥": "yên", "yên": "yên", "jpy": "yên", "%": "phần trăm"
 }
 
 _letter_key_vi = _vi_letter_names
@@ -99,14 +101,22 @@ _DOMAIN_SUFFIX_MAP = {
 
 # Reusable patterns for measurement/currency
 _MAGNITUDE_P = r"\s*(tỷ|triệu|nghìn|ngàn)?\s*"
-_NUMERIC_P = r"((?:\d+[.,])*\d+)"
+_NUMERIC_P = r"(\d+(?:[.,]\d+)*)"
 
 # Pre-compiled regex for compound units
 RE_COMPOUND_UNIT = re.compile(rf"\b{_NUMERIC_P}?\s*([a-zμµ²³°]+)/([a-zμµ²³°0-9]+)\b", re.IGNORECASE)
 
 # Pre-compiled currency patterns
-RE_CURRENCY_PREFIX_USD = re.compile(rf"\$\s*{_NUMERIC_P}{_MAGNITUDE_P}", re.IGNORECASE)
-RE_CURRENCY_SUFFIX_USD = re.compile(rf"{_NUMERIC_P}{_MAGNITUDE_P}\$", re.IGNORECASE)
+_CURRENCY_SYMBOL_MAP = {
+    "$": "__start_en__u s d__end_en__",
+    "€": "__start_en__euro__end_en__",
+    "¥": "yên",
+    "£": "__start_en__pound__end_en__",
+    "₩": "won",
+}
+_CURRENCY_SYMBOLS_RE = "[$€¥£₩]"
+RE_CURRENCY_PREFIX_SYMBOL = re.compile(rf"({_CURRENCY_SYMBOLS_RE})\s*{_NUMERIC_P}{_MAGNITUDE_P}", re.IGNORECASE)
+RE_CURRENCY_SUFFIX_SYMBOL = re.compile(rf"{_NUMERIC_P}{_MAGNITUDE_P}({_CURRENCY_SYMBOLS_RE})", re.IGNORECASE)
 RE_PERCENTAGE = re.compile(rf"{_NUMERIC_P}\s*%", re.IGNORECASE)
 
 # Pre-compile measurement and currency unit patterns
@@ -145,24 +155,85 @@ _SYMBOLS_MAP = {
     '±': ' cộng trừ ', '≈': ' xấp xỉ '
 }
 
+def _expand_scientific(num_str):
+    num_lower = num_str.lower()
+    e_idx = num_lower.find('e')
+    base, exp = num_str[:e_idx], num_str[e_idx+1:]
+
+    # Base normalization
+    if base.count('.') == 1:
+        parts = base.split('.')
+        base_norm = f"{n2w(parts[0])} chấm {n2w_single(parts[1])}"
+    elif base.count(',') == 1:
+        parts = base.split(',')
+        base_norm = f"{n2w(parts[0])} phẩy {n2w_single(parts[1])}"
+    else:
+        base_norm = n2w(base.replace(',', '').replace('.', ''))
+
+    # Exponent normalization
+    exp_val = exp.lstrip('+')
+    exp_norm = f"trừ {n2w(exp_val[1:])}" if exp_val.startswith('-') else n2w(exp_val)
+    return f"{base_norm} nhân mười mũ {exp_norm}"
+
+def _expand_mixed_sep(num_str):
+    if num_str.rfind('.') > num_str.rfind(','): # English style (1,299.5)
+        parts = num_str.replace(',', '').split('.')
+    else: # Vietnamese style (1.299,5)
+        parts = num_str.replace('.', '').split(',')
+    return f"{n2w(parts[0])} phẩy {n2w_single(parts[1])}"
+
+def _expand_single_sep(num_str):
+    if ',' in num_str:
+        parts = num_str.split(',')
+        if len(parts) > 2: return n2w(num_str.replace(',', ''))
+        return f"{n2w(parts[0])} phẩy {n2w_single(parts[1])}"
+
+    parts = num_str.split('.')
+    if len(parts) > 2 or (len(parts) == 2 and len(parts[1]) == 3):
+        return n2w(num_str.replace('.', ''))
+    return f"{n2w(parts[0])} chấm {n2w_single(parts[1])}"
+
 def _expand_number_with_sep(num_str):
     if not num_str: return ""
-    if "," in num_str:
-        # Standard Vietnamese float: 1,5 or 1.000,5
-        clean_num = num_str.replace(".", "")
-        parts = clean_num.split(",")
-        if len(parts) == 2:
-            return f"{n2w(parts[0])} phẩy {n2w(parts[1])}"
-    
-    if "." in num_str:
-        # Check if it's a thousand separator format (e.g. 1.000, 1.000.000)
-        # Vietnamese thousand sep is ALWAYS exactly 3 digits after the dot.
-        if re.fullmatch(r"\d+(?:\.\d{3})+", num_str):
-            return n2w(num_str.replace(".", ""))
-        # Otherwise treat dot as "chấm" (e.g. version 1.3 or English-style decimal 1.5)
-        return " chấm ".join([n2w(p) for p in num_str.split(".")])
-        
+    if 'e' in num_str.lower(): return _expand_scientific(num_str)
+    if ',' in num_str and '.' in num_str: return _expand_mixed_sep(num_str)
+    if ',' in num_str or '.' in num_str: return _expand_single_sep(num_str)
     return n2w(num_str)
+
+def fix_english_style_numbers(m):
+    val = m.group(0)
+    has_comma = ',' in val
+    has_dot = '.' in val
+
+    # definitely English thousands (multiple commas or dot after comma)
+    if val.count(',') > 1 or (has_comma and has_dot and val.find(',') < val.find('.')):
+        return val.replace(',', '').replace('.', ',') if has_dot else val.replace(',', '')
+
+    # single comma, likely English thousands or decimal (handled by single sep logic later)
+    # but 1,299.5 (English style) needs to be 1299,5
+    if has_comma and has_dot:
+        return val.replace(',', '').replace('.', ',')
+
+    return val
+
+def expand_power_of_ten(m):
+    base = m.group(1)
+    exp = m.group(2)
+    # Use global normalize_others instead of local import
+    base_norm = normalize_others(base).strip()
+    exp_val = exp.replace('+', '')
+    if exp_val.startswith('-'):
+        exp_norm = "trừ " + n2w(exp_val[1:])
+    else:
+        exp_norm = n2w(exp_val)
+    return f" {base_norm} nhân mười mũ {exp_norm} "
+
+def expand_scientific_notation(text):
+    # Match something like 3.2e5 or 6.626e-34
+    # But be careful not to match words containing 'e'
+    # Use anchored regex to reduce search space
+    pattern = re.compile(r'\b(\d+(?:[.,]\d+)?e[+-]?\d+)\b', re.IGNORECASE)
+    return pattern.sub(lambda m: _expand_number_with_sep(m.group(1)), text)
 
 def expand_measurement(text):
     def _repl(m, full):
@@ -181,14 +252,23 @@ def expand_measurement(text):
     return text
 
 def expand_currency(text):
+    def _repl_symbol(m, is_prefix=True):
+        symbol = m.group(1 if is_prefix else 3)
+        num = m.group(2 if is_prefix else 1)
+        mag = m.group(3 if is_prefix else 2)
+        mag = mag if mag else ""
+        full = _CURRENCY_SYMBOL_MAP.get(symbol, "")
+        expanded_num = _expand_number_with_sep(num)
+        return f"{expanded_num} {mag} {full}".replace("  ", " ").strip()
+
     def _repl(m, full):
         num = m.group(1)
         mag = m.group(2) if m.group(2) else ""
         expanded_num = _expand_number_with_sep(num)
         return f"{expanded_num} {mag} {full}".replace("  ", " ").strip()
         
-    text = RE_CURRENCY_PREFIX_USD.sub(lambda m: _repl(m, "đô la Mỹ"), text)
-    text = RE_CURRENCY_SUFFIX_USD.sub(lambda m: _repl(m, "đô la Mỹ"), text)
+    text = RE_CURRENCY_PREFIX_SYMBOL.sub(lambda m: _repl_symbol(m, True), text)
+    text = RE_CURRENCY_SUFFIX_SYMBOL.sub(lambda m: _repl_symbol(m, False), text)
     text = RE_PERCENTAGE.sub(lambda m: f"{_expand_number_with_sep(m.group(1))} phần trăm", text)
     
     for pattern, full in _CURRENCY_PATTERNS:
@@ -475,7 +555,8 @@ def normalize_others(text):
     # 8. Final cleanup of any remaining unsupported characters
     text = RE_CLEAN_OTHERS.sub(' ', text)
     
-    # Restore internal <en> tags
+    # Restore internal <en> tags (handle both cases for backward compatibility)
     text = text.replace('__START_EN__', '<en>').replace('__END_EN__', '</en>')
+    text = text.replace('__start_en__', '<en>').replace('__end_en__', '</en>')
     
     return text
