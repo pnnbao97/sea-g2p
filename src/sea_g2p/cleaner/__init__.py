@@ -14,38 +14,36 @@ from .text_norm import (
 def _expand_float(m):
     int_part = n2w(m.group(1).replace('.', ''))
     dec_part = m.group(2).rstrip('0')
-    if not dec_part:
-        res = int_part
-    else:
-        res = f"{int_part} phẩy {n2w_single(dec_part)}"
-    
-    if m.group(3):
-        res += " phần trăm"
+    res = int_part if not dec_part else f"{int_part} phẩy {n2w_single(dec_part)}"
+    if m.group(3): res += " phần trăm"
     return f" {res} "
 
 def _strip_dot_sep(m):
     return m.group(0).replace('.', '')
 
 def _normalize_pre_number(text):
-    # Handle explicit powers of ten: 1.5×10^-3 or 1.5x10^3 or 1.5*10^3
-    # Anchored regex to reduce search space and avoid ReDoS
-    text = re.sub(r'\b(\d+(?:[.,]\d+)?)\s*[x*×]\s*10\^([-+]?\d+)\b', expand_power_of_ten, text, flags=re.IGNORECASE)
-    text = re.sub(r'\b10\^([-+]?\d+)\b', lambda m: f"mười mũ {('trừ ' + n2w(m.group(1)[1:])) if m.group(1).startswith('-') else n2w(m.group(1).replace('+', ''))}", text)
-    
+    # Combined regex for 10^[-]n and x*10^[-]n
+    def _ten_power_repl(m):
+        if m.group(1): # Case: base [x*×] 10^exp
+            return expand_power_of_ten(m)
+        # Case: 10^exp
+        exp = m.group(2)
+        exp_norm = ("trừ " + n2w(exp[1:])) if exp.startswith('-') else n2w(exp.replace('+', ''))
+        return f"mười mũ {exp_norm}"
+
+    text = re.sub(r'\b(?:(\d+(?:[.,]\d+)?)\s*[x*×]\s*)?10\^([-+]?\d+)\b', _ten_power_repl, text, flags=re.IGNORECASE)
     text = expand_abbreviations(text)
     text = normalize_date(text)
     text = normalize_time(text)
     
-    def _range_sub(m):
-        n1 = re.sub(r'[,.]', '', m.group(1))
-        n2 = re.sub(r'[,.]', '', m.group(2))
-        # Only treat as a numeric range if digit counts are similar (within 1)
-        if abs(len(n1) - len(n2)) <= 1:
-            return f'{m.group(1)} đến {m.group(2)}'
-        return m.group(0)
-    text = re.sub(r'(\d+(?:[,.]\d+)?)\s*[–\-—]\s*(\d+(?:[,.]\d+)?)', _range_sub, text)
-    text = re.sub(r'(?<=\s)[–\-—](?=\s)', ',', text)
-    text = re.sub(r'\s*(?:->|=>)\s*', ' sang ', text)
+    # Combined range and arrow normalization
+    def _misc_pre_repl(m):
+        if m.group(1): # Range: n1 - n2
+            n1, n2 = re.sub(r'[,.]', '', m.group(1)), re.sub(r'[,.]', '', m.group(2))
+            return f'{m.group(1)} đến {m.group(2)}' if abs(len(n1) - len(n2)) <= 1 else m.group(0)
+        return ' sang ' if ('->' in m.group(0) or '=>' in m.group(0)) else ','
+
+    text = re.sub(r'(\d+(?:[,.]\d+)?)\s*[–\-—]\s*(\d+(?:[,.]\d+)?)|(?<=\s)[–\-—](?=\s)|\s*(?:->|=>)\s*', _misc_pre_repl, text)
     return text
 
 def _normalize_units_currency(text):
@@ -54,17 +52,21 @@ def _normalize_units_currency(text):
     text = expand_measurement(text)
     text = expand_currency(text)
 
+    # 1. Handle English style numbers (comma as thousands separator)
     text = re.sub(r'\b\d{1,3}(?:,\d{3})+(?:\.\d+)?\b', fix_english_style_numbers, text)
 
+    # 2. Handle multi-comma sequences (e.g., 1,2,3 or mixed non-standard separators)
     def _expand_multi_comma(m):
-        res = []
-        for s in m.group(1).split(','):
-            res.append(' '.join(n2w_single(c) for c in s))
-        return ' phẩy '.join(res)
+        return ' phẩy '.join(n2w_single(s) for s in m.group(1).split(','))
     text = re.sub(r'\b(\d+(?:,\d+){2,})\b', _expand_multi_comma, text)
 
-    text = re.sub(r'(?<![\d.])(\d+(?:\.\d{3})*),(\d+)(%)?', _expand_float, text)
-    text = re.sub(r'(?<![\d.])\d+(?:\.\d{3})+(?![\d.])', _strip_dot_sep, text)
+    # 3. Handle floats (1.234,5) and Dot-separated numbers (1.234.567)
+    def _float_dot_repl(m):
+        if m.group(2): # Float match: (int),(dec)(%)
+            return _expand_float(m)
+        return _strip_dot_sep(m) # Dot sep match: (int.int...)
+
+    text = re.sub(r'(?<![\d.])(\d+(?:\.\d{3})*),(\d+)(%)?|(?<![\d.])\d+(?:\.\d{3})+(?![\d.])', _float_dot_repl, text)
     return text
 
 def _normalize_post_number(text):
@@ -81,39 +83,26 @@ def _cleanup_whitespace(text):
 
 def clean_vietnamese_text(text):
     mask_map = {}
-
     def protect(match):
         idx = len(mask_map)
         mask = f"mask{str(idx).zfill(4)}mask".translate(str.maketrans('0123456789', string.ascii_lowercase[:10]))
         mask_map[mask] = match.group(0)
         return mask
 
-    # Simple regex to protect existing tags, avoiding potential ReDoS in nested patterns
     text = re.sub(r'___PROTECTED_EN_TAG_\d+___', protect, text)
 
-    # Normalize URLs and Emails early and protect them
     def protect_url_email(match):
         orig = match.group(0)
-        # First expand it
-        if '@' in orig:
-            normed = normalize_emails(orig)
-        else:
-            normed = normalize_technical(orig)
-        # Then mask the result
-        return protect(re.Match if False else type('Match', (), {'group': lambda self, n: normed})())
+        normed = normalize_emails(orig) if '@' in orig else normalize_technical(orig)
+        return protect(type('Match', (), {'group': lambda self, n: normed})())
 
-    # Order matters: Emails first as they are more specific than generic URLs
     text = RE_EMAIL.sub(protect_url_email, text)
     text = RE_TECHNICAL.sub(protect_url_email, text)
-
-    # Some tokens like VND might be misinterpreted as acronyms or currency
-    # Currency expansion usually happens in _normalize_units_currency
 
     text = _normalize_pre_number(text)
     text = _normalize_units_currency(text)
     text = _normalize_post_number(text)
 
-    # Protect internally generated tags before standalone letter expansion
     text = re.sub(r'(__start_en__.*?__end_en__|<en>.*?</en>)', protect, text, flags=re.IGNORECASE)
     text = expand_standalone_letters(text)
 
@@ -121,8 +110,5 @@ def clean_vietnamese_text(text):
         text = text.replace(mask, original)
         text = text.replace(mask.lower(), original)
 
-    # Final conversion of any remaining __start_en__ tags
     text = text.replace('__start_en__', '<en>').replace('__end_en__', '</en>')
-
-    text = _cleanup_whitespace(text)
-    return text.lower()
+    return _cleanup_whitespace(text).lower()

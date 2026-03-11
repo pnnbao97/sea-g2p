@@ -1,6 +1,7 @@
 import re
 from .num2vi import n2w, n2w_single
-from .symbols import vietnamese_re, vietnamese_without_num_re
+
+# --- Constants & Dictionaries ---
 
 _vi_letter_names = {
     "a": "a", "b": "bê", "c": "xê", "d": "đê", "đ": "đê", "e": "e", "ê": "ê",
@@ -9,6 +10,7 @@ _vi_letter_names = {
     "r": "rờ", "s": "ét", "t": "tê", "u": "u", "ư": "ư", "v": "vê", "w": "đắp liu",
     "x": "ích", "y": "y", "z": "dét"
 }
+_letter_key_vi = _vi_letter_names
 
 _common_email_domains = {
     "gmail.com": "__start_en__gmail__end_en__ chấm com",
@@ -51,14 +53,12 @@ _currency_key = {
     "¥": "yên", "yên": "yên", "jpy": "yên", "%": "phần trăm"
 }
 
-_letter_key_vi = _vi_letter_names
-
 _acronyms_exceptions_vi = {
     "CĐV": "cổ động viên", "HĐND": "hội đồng nhân dân", "HĐQT": "hội đồng quản trị", "TAND": "toàn án nhân dân",
     "BHXH": "bảo hiểm xã hội", "BHTN": "bảo hiểm thất nghiệp", "TP.HCM": "thành phố hồ chí minh",
     "VN": "việt nam", "UBND": "uỷ ban nhân dân", "TP": "thành phố", "HCM": "hồ chí minh",
     "HN": "hà nội", "BTC": "ban tổ chức", "CLB": "câu lạc bộ", "HTX": "hợp tác xã",
-    "NXB": "nhà xuất bản", "TW": "trung ương", "CSGT": "cảnh sát giao thông", "LHQ": "liên hợp quốc",
+    "NXB": " nhà xuất bản", "TW": "trung ương", "CSGT": "cảnh sát giao thông", "LHQ": "liên hợp quốc",
     "THCS": "trung học cơ sở", "THPT": "trung học phổ thông", "ĐH": "đại học", "HLV": "huấn luyện viên",
     "GS": "giáo sư", "TS": "tiến sĩ", "TNHH": "trách nhiệm hữu hạn", "VĐV": "vận động viên",
     "TPHCM": "thành phố hồ chí minh", "PGS": "phó giáo sư", "SP500": "ét pê năm trăm",
@@ -81,7 +81,48 @@ _technical_terms = {
     "IPv4": "__start_en__i p v__end_en__ bốn",
 }
 
-# Compiled Regular Expressions
+_ROMAN_NUMERALS = {"I": 1, "V": 5, "X": 10, "L": 50, "C": 100, "D": 500, "M": 1000}
+
+_ABBRS = {"v.v": " vân vân", "v/v": " về việc", "đ/c": "địa chỉ"}
+
+_SYMBOLS_MAP = {
+    '&': ' và ', '+': ' cộng ', '=': ' bằng ', '#': ' thăng ',
+    '>': ' lớn hơn ', '<': ' nhỏ hơn ',
+    '≥': ' lớn hơn hoặc bằng ', '≤': ' nhỏ hơn hoặc bằng ',
+    '±': ' cộng trừ ', '≈': ' xấp xỉ ',
+    '/': ' trên ', '→': ' đến ', '÷': ' chia ',
+    '*': ' nhân ', '×': ' nhân ', '^': ' mũ ', '~': ' khoảng '
+}
+
+_DOMAIN_SUFFIX_MAP = {
+    "com": "com",
+    "vn": "__start_en__v n__end_en__",
+    "net": "nét",
+    "org": "o rờ gờ",
+    "edu": "__start_en__edu__end_en__",
+    "gov": "gờ o vê",
+    "io": "__start_en__i o__end_en__",
+    "biz": "biz",
+    "info": "info",
+}
+
+_CURRENCY_SYMBOL_MAP = {
+    "$": "__start_en__u s d__end_en__",
+    "€": "__start_en__euro__end_en__",
+    "¥": "yên",
+    "£": "__start_en__pound__end_en__",
+    "₩": "won",
+}
+
+WORD_LIKE_ACRONYMS = {
+    "UNESCO", "NASA", "NATO", "ASEAN", "OPEC", "SARS", "FIFA", "UNIC", "RAM", "VRAM", "COVID",
+    "IELTS", "STEM", "SWAT", "SEAL", "WASP", "COBOL", "BASIC", "OLED", "COVAX", "BRICS",
+    "APEC", "VUCA", "PERMA", "DINK", "MENA", "EPIC", "OASIS", "BASE", "DART", "IDEA",
+    "CHAOS", "SMART", "FANG", "BLEU", "REST"
+}
+
+# --- Compiled Regular Expressions ---
+
 RE_ROMAN_NUMBER = re.compile(r"\b(?=[IVXLCDM]{2,})M{0,4}(CM|CD|D?C{0,3})(XC|XL|L?X{0,3})(IX|IV|V?I{0,3})\b")
 RE_LETTER = re.compile(r"(chữ|chữ cái|kí tự|ký tự)\s+(['\"]?)([a-z])(['\"]?)\b", re.IGNORECASE)
 RE_STANDALONE_LETTER = re.compile(r'(?<![\'’])\b([a-zA-Z])\b(\.?)')
@@ -118,50 +159,25 @@ RE_CLEAN_QUOTES = re.compile(r'["“”"]')
 RE_PRIME = re.compile(r"(\b[a-zA-Z0-9])['’](?!\w)")
 
 _DOMAIN_SUFFIXES_RE = re.compile(r'\.(com|vn|net|org|edu|gov|io|biz|info)\b', re.IGNORECASE)
-_DOMAIN_SUFFIX_MAP = {
-    "com": "com",
-    "vn": "__start_en__v n__end_en__",
-    "net": "nét",
-    "org": "o rờ gờ",
-    "edu": "__start_en__edu__end_en__",
-    "gov": "gờ o vê",
-    "io": "__start_en__i o__end_en__",
-    "biz": "biz",
-    "info": "info",
-}
 
-# Reusable patterns for measurement/currency
 _MAGNITUDE_P = r"(?:\s*(tỷ|triệu|nghìn|ngàn))?"
 _NUMERIC_P = r"(\d+(?:[.,]\d+)*)"
-
-# Pre-compiled regex for compound units
 RE_COMPOUND_UNIT = re.compile(rf"\b{_NUMERIC_P}?\s*([a-zμµ²³°]+)/([a-zμµ²³°0-9]+)\b", re.IGNORECASE)
 
-# Pre-compiled currency patterns
-_CURRENCY_SYMBOL_MAP = {
-    "$": "__start_en__u s d__end_en__",
-    "€": "__start_en__euro__end_en__",
-    "¥": "yên",
-    "£": "__start_en__pound__end_en__",
-    "₩": "won",
-}
 _CURRENCY_SYMBOLS_RE = "[$€¥£₩]"
 RE_CURRENCY_PREFIX_SYMBOL = re.compile(rf"({_CURRENCY_SYMBOLS_RE})\s*{_NUMERIC_P}{_MAGNITUDE_P}", re.IGNORECASE)
 RE_CURRENCY_SUFFIX_SYMBOL = re.compile(rf"{_NUMERIC_P}{_MAGNITUDE_P}({_CURRENCY_SYMBOLS_RE})", re.IGNORECASE)
 RE_PERCENTAGE = re.compile(rf"{_NUMERIC_P}\s*%", re.IGNORECASE)
 
-# Pre-compile measurement and currency unit patterns
+# --- Derived regex patterns (built from dictionaries) ---
+
 _MEASUREMENT_PATTERNS = []
 for unit, full in sorted(_measurement_key_vi.items(), key=lambda x: len(x[0]), reverse=True):
     pattern = re.compile(rf"(?<![\d.,]){_NUMERIC_P}{_MAGNITUDE_P}\s*{unit}\b", re.IGNORECASE)
-
     standalone_pattern = None
-    safe_standalone = [
-        "km", "cm", "mm", "kg", "mg", "usd", "vnd", "ph"
-    ]
+    safe_standalone = ["km", "cm", "mm", "kg", "mg", "usd", "vnd", "ph"]
     if unit.lower() in safe_standalone:
         standalone_pattern = re.compile(rf"(?<![\d.,])\b{unit}\b", re.IGNORECASE)
-
     _MEASUREMENT_PATTERNS.append((pattern, standalone_pattern, full))
 
 _CURRENCY_PATTERNS = []
@@ -170,22 +186,10 @@ for unit, full in _currency_key.items():
     pattern = re.compile(rf"(?<![\d.,]){_NUMERIC_P}{_MAGNITUDE_P}\s*{unit}\b", re.IGNORECASE)
     _CURRENCY_PATTERNS.append((pattern, full))
 
-# Pre-compile acronyms exceptions (sorted by length descending for longest-match-first)
 _combined_exceptions = {**_acronyms_exceptions_vi, **_technical_terms}
 _ACRONYMS_EXCEPTIONS_RE = [(re.compile(rf"\b{re.escape(k)}\b"), v) for k, v in sorted(_combined_exceptions.items(), key=lambda x: len(x[0]), reverse=True)]
 
-_ROMAN_NUMERALS = {"I": 1, "V": 5, "X": 10, "L": 50, "C": 100, "D": 500, "M": 1000}
-
-_ABBRS = {"v.v": " vân vân", "v/v": " về việc", "đ/c": "địa chỉ"}
-
-_SYMBOLS_MAP = {
-    '&': ' và ', '+': ' cộng ', '=': ' bằng ', '#': ' thăng ',
-    '>': ' lớn hơn ', '<': ' nhỏ hơn ',
-    '≥': ' lớn hơn hoặc bằng ', '≤': ' nhỏ hơn hoặc bằng ',
-    '±': ' cộng trừ ', '≈': ' xấp xỉ ',
-    '/': ' trên ', '→': ' đến ', '÷': ' chia ',
-    '*': ' nhân ', '×': ' nhân ', '^': ' mũ ', '~': ' khoảng '
-}
+# --- Helper Functions ---
 
 def _expand_scientific(num_str):
     num_lower = num_str.lower()
@@ -249,6 +253,8 @@ def _expand_number_with_sep(num_str):
     if ',' in num_str or '.' in num_str: return _expand_single_sep(num_str)
     return n2w(num_str)
 
+# --- Expansion Functions ---
+
 def fix_english_style_numbers(m):
     val = m.group(0)
     has_comma = ',' in val
@@ -268,7 +274,6 @@ def fix_english_style_numbers(m):
 def expand_power_of_ten(m):
     base = m.group(1)
     exp = m.group(2)
-    # Use global normalize_others instead of local import
     base_norm = normalize_others(base).strip()
     exp_val = exp.replace('+', '')
     if exp_val.startswith('-'):
@@ -278,9 +283,6 @@ def expand_power_of_ten(m):
     return f" {base_norm} nhân mười mũ {exp_norm} "
 
 def expand_scientific_notation(text):
-    # Match something like 3.2e5 or 6.626e-34
-    # But be careful not to match words containing 'e'
-    # Use anchored regex to reduce search space
     pattern = re.compile(r'\b(\d+(?:[.,]\d+)?e[+-]?\d+)\b', re.IGNORECASE)
     return pattern.sub(lambda m: _expand_number_with_sep(m.group(1)), text)
 
@@ -292,10 +294,7 @@ def expand_measurement(text):
         return f"{expanded_num} {mag} {full}".replace("  ", " ").strip()
     
     for pattern, standalone_pattern, full in _MEASUREMENT_PATTERNS:
-        # Case with number
         text = pattern.sub(lambda m, f=full: _repl(m, f), text)
-        
-        # Standalone units
         if standalone_pattern:
             text = standalone_pattern.sub(f" {full} ", text)
     return text
@@ -363,13 +362,10 @@ def expand_unit_powers(text):
         else:
             power_norm = n2w(power)
         
-        # If the base matches a known unit, use its expansion
         base_lower = base.lower()
         full_base = _measurement_key_vi.get(base_lower, _currency_key.get(base_lower, base))
-        # If it's a known unit, it might have __start_en__ tags, let's keep them if present
         return f" {full_base} mũ {power_norm} "
 
-    # Match word^[-]number
     return re.sub(r'\b([a-zA-Z]+)\^([-+]?\d+)\b', _repl, text)
 
 def expand_letter(match):
@@ -389,7 +385,6 @@ def expand_standalone_letters(text):
         char = char_raw.lower()
         dot = m.group(2) if m.group(2) else ""
         if char in _letter_key_vi:
-            # Drop dot for uppercase initials (e.g., "M." -> "mờ")
             if char_raw.isupper() and dot == '.':
                 return f" {_letter_key_vi[char]} "
             return f" {_letter_key_vi[char]}{dot} "
@@ -397,210 +392,117 @@ def expand_standalone_letters(text):
     
     return RE_STANDALONE_LETTER.sub(_repl_letter, text)
 
+# --- Technical & Email Normalization ---
+
+def _norm_tech_segment(s):
+    if not s: return ""
+    if s.isdigit(): return " ".join(n2w_single(c) for c in s)
+    if s.isalnum() and s.isascii():
+        sub_tokens = re.findall(r'[a-zA-Z]+|\d+', s)
+        if len(sub_tokens) > 1:
+            res = []
+            for t in sub_tokens:
+                if t.isdigit(): res.append(" ".join(n2w_single(c) for c in t))
+                else:
+                    val = t.lower()
+                    if (t.isupper() and len(t) <= 4) or (len(val) <= 2 and len(val) > 0):
+                        val = " ".join(val)
+                    res.append(f"__start_en__{val}__end_en__")
+            return " ".join(res)
+        val = s.lower()
+        if (s.isupper() and len(s) <= 4) or (len(val) <= 2 and len(val) > 0):
+            val = " ".join(val)
+        return f"__start_en__{val}__end_en__"
+    return " ".join(_vi_letter_names.get(c, c) if c.isalnum() else c for c in s.lower())
+
 def normalize_technical(text):
-    import re as std_re
+    _delim_map = {'.': 'chấm', '/': 'gạch', '-': 'gạch ngang', '_': 'gạch dưới', ':': 'hai chấm', '?': 'hỏi', '&': 'và', '=': 'bằng'}
     def _repl_tech(m):
         orig = m.group(0)
-
-        # Protocol handling
-        rest = orig
         res = []
+        rest = orig
         if '://' in orig.lower():
             p_idx = orig.lower().find('://')
-            protocol = orig[:p_idx]
-            # Space out protocol if it looks like an acronym (short & uppercase)
-            if protocol.isupper() and len(protocol) <= 4:
-                p_norm = " ".join(protocol.lower())
-            elif len(protocol) <= 3:
-                p_norm = " ".join(protocol.lower())
-            else:
-                p_norm = protocol.lower()
+            protocol = orig[:p_idx].lower()
+            p_norm = " ".join(protocol) if len(protocol) <= 4 else protocol
             res.append(f"__start_en__{p_norm}__end_en__")
             rest = orig[p_idx+3:]
         elif orig.startswith('/'):
             res.append('gạch')
             rest = orig[1:]
 
-        # Simple segments based on delimiters
-        segments = std_re.split(r'([./:?&=/_ \-])', rest)
+        segments = re.split(r'([./:?&=/_ \-])', rest)
         idx = 0
         while idx < len(segments):
             s = segments[idx]
-            if not s: # Empty string from split, e.g., between delimiter and next char
-                idx += 1
-                continue
-
-            if s == '.':
-                # Peek next segment for suffix map
-                next_seg = ""
-                for j in range(idx + 1, len(segments)):
-                    if segments[j] and segments[j] not in './:?&=/_ -':
-                        next_seg = segments[j]
-                        break
+            if not s: idx += 1; continue
+            if s == '.' and idx + 1 < len(segments):
+                next_seg = segments[idx+1]
                 if next_seg.lower() in _DOMAIN_SUFFIX_MAP:
-                    res.append('chấm')
-                    res.append(_DOMAIN_SUFFIX_MAP[next_seg.lower()])
-                    # Move idx forward to consume the segment we just peeked
-                    idx += 1
-                    while idx < len(segments) and (not segments[idx] or segments[idx].lower() != next_seg.lower()):
-                        idx += 1
-                    idx += 1 # move past the next_seg
-                    continue
-                res.append('chấm')
-            elif s == '/':
-                res.append('gạch')
-            elif s == '-':
-                res.append('gạch ngang')
-            elif s == '_':
-                res.append('gạch dưới')
-            elif s == ':':
-                res.append('hai chấm')
-            elif s == '?':
-                res.append('hỏi')
-            elif s == '&':
-                res.append('và')
-            elif s == '=':
-                res.append('bằng')
-            elif s.lower() in _DOMAIN_SUFFIX_MAP:
-                res.append(_DOMAIN_SUFFIX_MAP[s.lower()])
-            elif s.isalnum() and s.isascii():
-                if s.isdigit():
-                    # In technical contexts (filenames, IDs), read digits individually
-                    res.append(" ".join(n2w_single(c) for c in s))
-                else:
-                    # Split into letters and digits
-                    sub_tokens = std_re.findall(r'[a-zA-Z]+|\d+', s)
-                    if len(sub_tokens) > 1:
-                        for t in sub_tokens:
-                            if t.isdigit():
-                                res.append(" ".join(n2w_single(c) for c in t))
-                            else:
-                                val = t.lower()
-                                if t.isupper() and len(t) <= 4:
-                                    val = " ".join(val)
-                                elif len(val) <= 2 and len(val) > 0:
-                                    val = " ".join(val)
-                                res.append(f"__start_en__{val}__end_en__")
-                    else:
-                        val = s.lower()
-                        if s.isupper() and len(s) <= 4:
-                            val = " ".join(val)
-                        elif len(val) <= 2 and len(val) > 0: # e.g. 'io' -> 'i o'
-                            val = " ".join(val)
-                        res.append(f"__start_en__{val}__end_en__")
-            else:
-                for char in s.lower():
-                    if char.isalnum():
-                        if char.isdigit(): res.append(n2w_single(char))
-                        else: res.append(_vi_letter_names.get(char, char))
-                    else: res.append(char)
+                    res.extend(['chấm', _DOMAIN_SUFFIX_MAP[next_seg.lower()]])
+                    idx += 2; continue
+            if s in _delim_map: res.append(_delim_map[s])
+            elif s.lower() in _DOMAIN_SUFFIX_MAP: res.append(_DOMAIN_SUFFIX_MAP[s.lower()])
+            else: res.append(_norm_tech_segment(s))
             idx += 1
-
         return " ".join(res).replace("  ", " ").strip()
     return RE_TECHNICAL.sub(_repl_tech, text)
 
-def normalize_slashes(text):
-    def _repl(m):
-        n1 = m.group(1)
-        n2 = m.group(2)
-        # If it's likely an address (first number is large)
-        if len(n1) > 2 or int(n1) > 31:
-            return f"{n2w(n1)} xẹt {n2w(n2)}"
-        return f"{n2w(n1)} trên {n2w(n2)}"
-    return RE_SLASH_NUMBER.sub(_repl, text)
-
 def normalize_emails(text):
+    _delim_map = {'.': 'chấm', '_': 'gạch dưới', '-': 'gạch ngang', '+': 'cộng'}
     def _repl_email(m):
         email = m.group(0)
         parts = email.split('@')
         if len(parts) != 2: return email
-
         user_part, domain_part = parts
 
-        def _norm_segment(s):
-            if not s: return ""
-            if s.isdigit(): return n2w(s)
-            if s.isalnum() and s.isascii():
-                sub_tokens = re.findall(r'[a-zA-Z]+|\d+', s)
-                if len(sub_tokens) > 1:
-                    res_parts = []
-                    for t in sub_tokens:
-                        if t.isdigit():
-                            res_parts.append(n2w(t))
-                        else:
-                            res_parts.append(f"__start_en__{t.lower()}__end_en__")
-                    return " ".join(res_parts)
-                val = s.lower()
-                # Use English tags for segments to avoid character-by-character spelling
-                return f"__start_en__{val}__end_en__"
-            
-            # Character-by-character fallback for mixed/unrecognized segments
-            res = []
-            for char in s.lower():
-                if char.isalnum():
-                    if char.isdigit(): res.append(n2w_single(char))
-                    else: res.append(_vi_letter_names.get(char, char))
-                else: res.append(char)
-            return " ".join(res)
-
         def _process_part(p, is_domain=False):
-            # Split by delimiters but keep them: . _ - +
             segments = re.split(r'([._\-+])', p)
             res = []
             idx = 0
             while idx < len(segments):
                 s = segments[idx]
-                if not s:
-                    idx += 1
-                    continue
-                if s == '.':
-                    # Special check for domain suffixes
-                    if is_domain:
-                        next_seg = None
-                        peek_idx = -1
-                        for j in range(idx + 1, len(segments)):
-                            if segments[j] and segments[j] not in '._-+':
-                                next_seg = segments[j]
-                                peek_idx = j
-                                break
-                        
-                        if next_seg and next_seg.lower() in _DOMAIN_SUFFIX_MAP:
-                            res.append('chấm')
-                            res.append(_DOMAIN_SUFFIX_MAP[next_seg.lower()])
-                            idx = peek_idx + 1
-                            continue
-                    res.append('chấm')
-                elif s == '_': res.append('gạch dưới')
-                elif s == '-': res.append('gạch ngang')
-                elif s == '+': res.append('cộng')
+                if not s: idx += 1; continue
+                if s == '.' and is_domain and idx + 1 < len(segments):
+                    next_seg = segments[idx+1]
+                    if next_seg.lower() in _DOMAIN_SUFFIX_MAP:
+                        res.extend(['chấm', _DOMAIN_SUFFIX_MAP[next_seg.lower()]])
+                        idx += 2; continue
+                if s in _delim_map: res.append(_delim_map[s])
                 else:
-                    res.append(_norm_segment(s))
+                    if s.isdigit(): res.append(n2w(s))
+                    elif s.isalnum() and s.isascii():
+                        sub_tokens = re.findall(r'[a-zA-Z]+|\d+', s)
+                        if len(sub_tokens) > 1:
+                            res.append(" ".join(n2w(t) if t.isdigit() else f"__start_en__{t.lower()}__end_en__" for t in sub_tokens))
+                        else: res.append(f"__start_en__{s.lower()}__end_en__")
+                    else: res.append(" ".join(_vi_letter_names.get(c, c) if c.isalnum() else c for c in s.lower()))
                 idx += 1
             return " ".join(res)
 
         user_norm = _process_part(user_part)
-        
         domain_part_lower = domain_part.lower()
-        if domain_part_lower in _common_email_domains:
-            domain_norm = _common_email_domains[domain_part_lower]
-        else:
-            domain_norm = _process_part(domain_part, is_domain=True)
-
+        domain_norm = _common_email_domains.get(domain_part_lower, _process_part(domain_part, True))
         return f"{user_norm} a còng {domain_norm}".replace("  ", " ").strip()
-
     return RE_EMAIL.sub(_repl_email, text)
 
-WORD_LIKE_ACRONYMS = {"UNESCO", "NASA", "NATO", "ASEAN", "OPEC", "SARS", "FIFA", "UNIC", "RAM", "VRAM", "COVID", "IELTS", "STEM", "SWAT", "SEAL", "WASP", "COBOL", "BASIC", "OLED", "COVAX", "BRICS", "APEC", "VUCA", "PERMA", "DINK", "MENA", "EPIC", "OASIS", "BASE", "DART", "IDEA", "CHAOS", "SMART", "FANG", "BLEU", "REST"}
-# AT&T
+# --- Other Normalizations ---
+
+def normalize_slashes(text):
+    def _repl(m):
+        n1, n2 = m.group(1), m.group(2)
+        if len(n1) > 2 or int(n1) > 31:
+            return f"{n2w(n1)} xẹt {n2w(n2)}"
+        return f"{n2w(n1)} trên {n2w(n2)}"
+    return RE_SLASH_NUMBER.sub(_repl, text)
+
 def normalize_acronyms(text):
     sentences = RE_SENTENCE_SPLIT.split(text)
     processed = []
     for i in range(0, len(sentences), 2):
         s = sentences[i]
         sep = sentences[i+1] if i+1 < len(sentences) else ""
-        if not s:
-            processed.append(sep)
-            continue
+        if not s: processed.append(sep); continue
 
         words = s.split()
         alpha_words = [w for w in words if any(c.isalpha() for c in w)]
@@ -610,35 +512,20 @@ def normalize_acronyms(text):
             def _repl_acronym(m):
                 word = m.group(0)
                 if word.isdigit(): return word
-                if word in WORD_LIKE_ACRONYMS:
-                    return f"__start_en__{word.lower()}__end_en__"
-                
+                if word in WORD_LIKE_ACRONYMS: return f"__start_en__{word.lower()}__end_en__"
                 if any(c.isdigit() for c in word):
-                    res = []
-                    for c in word.lower():
-                        if c.isdigit():
-                            res.append(n2w_single(c))
-                        else:
-                            res.append(_vi_letter_names.get(c, c))
-                    return " ".join(res)
-
+                    return " ".join(n2w_single(c) if c.isdigit() else _vi_letter_names.get(c, c) for c in word.lower())
                 spaced_word = " ".join(c.lower() for c in word if c.isalnum())
-                if spaced_word:
-                    return f"__start_en__{spaced_word}__end_en__"
-                return word
-
+                return f"__start_en__{spaced_word}__end_en__" if spaced_word else word
             s = RE_ACRONYM.sub(_repl_acronym, s)
-
         processed.append(s + sep)
     return "".join(processed)
 
 def expand_alphanumeric(text):
     def _repl(m):
-        num = m.group(1)
-        char = m.group(2).lower()
+        num, char = m.group(1), m.group(2).lower()
         if char in _letter_key_vi:
             pronunciation = _letter_key_vi[char]
-            # Special case for roads (Quốc lộ 1D -> Quốc lộ 1 đê)
             if char == 'd' and ('quốc lộ' in text.lower() or 'ql' in text.lower()):
                 pronunciation = 'đê'
             return f"{num} {pronunciation}"
@@ -653,12 +540,7 @@ def expand_symbols(text):
 def expand_prime(text):
     def _repl(m):
         val = m.group(1).lower()
-        if val.isdigit():
-            # word for digit + phẩy
-            return f"{n2w_single(val)} phẩy"
-        else:
-            # letter name + phẩy
-            return f"{_letter_key_vi.get(val, val)} phẩy"
+        return f"{n2w_single(val) if val.isdigit() else _letter_key_vi.get(val, val)} phẩy"
     return RE_PRIME.sub(_repl, text)
 
 def expand_temperatures(text):
@@ -670,55 +552,26 @@ def expand_temperatures(text):
     return text
 
 def normalize_others(text):
-    """
-    Apply various normalization rules that don't fit into specific categories.
-    This function is called by clean_vietnamese_text.
-    """
-    # 1. Expand acronym exceptions and basic patterns
     for pattern, v in _ACRONYMS_EXCEPTIONS_RE:
         text = pattern.sub(v, text)
-    
     text = normalize_slashes(text)
-    
-    # Handle domain suffixes like .com, .vn (especially after acronyms)
     text = _DOMAIN_SUFFIXES_RE.sub(lambda m: " chấm " + _DOMAIN_SUFFIX_MAP.get(m.group(1).lower(), m.group(1).lower()), text)
-
-    # 2. Expand Roman numerals and special letter patterns
     text = RE_ROMAN_NUMBER.sub(expand_roman, text)
     text = RE_LETTER.sub(expand_letter, text)
     text = expand_alphanumeric(text)
-    
-    # 3. Clean quotes and expand general symbols
-    text = expand_prime(text) # Handle A' or 1' before cleaning general quotes
+    text = expand_prime(text)
     text = expand_unit_powers(text)
     text = RE_CLEAN_QUOTES.sub('', text)
-    
-    # Remove single quotes only if they are not part of a word (start/end of word)
     text = re.sub(r"(^|\s)['’]+|['’]+($|\s)", r"\1 \2", text)
-    
     text = expand_symbols(text)
-
-    # 4. Handle brackets and temperatures
-    # Note: Measurement/Currency expansion is handled by clean_vietnamese_text caller
     text = RE_BRACKETS.sub(r', \1, ', text)
     text = RE_STRIP_BRACKETS.sub(' ', text)
     text = expand_temperatures(text)
-
-    # 5. Normalize acronyms (spell out or tag with <en>)
     text = normalize_acronyms(text)
 
-    # 6. Expand version numbers and IPs (e.g., 1.2.3 -> một chấm hai chấm ba)
     def _expand_version(m):
-        res = []
-        for s in m.group(1).split('.'):
-            res.append(" ".join(n2w_single(c) for c in s))
-        return ' chấm '.join(res)
+        return ' chấm '.join(" ".join(n2w_single(c) for c in s) for s in m.group(1).split('.'))
     text = RE_VERSION.sub(_expand_version, text)
-
-    # 7. Final punctuation normalization: convert : and ; to commas for better prosody
     text = re.sub(r'[:;]', ',', text)
-
-    # 8. Final cleanup of any remaining unsupported characters
     text = RE_CLEAN_OTHERS.sub(' ', text)
-    
     return text

@@ -1,6 +1,5 @@
 import re
 from .num2vi import n2w
-from .symbols import vietnamese_re, vietnamese_for_date_re
 
 day_in_month = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
 _date_seperator = r"(\/|-|\.)"
@@ -23,17 +22,13 @@ def _is_valid_date(day, month):
 def _expand_full_date(match):
     day, sep1, month, sep2, year = match.groups()
     if _is_valid_date(day, month):
-        day = str(int(day))
-        month = str(int(month))
-        return f"ngày {n2w(day)} tháng {n2w(month)} năm {n2w(year)}"
+        return f"ngày {n2w(str(int(day)))} tháng {n2w(str(int(month)))} năm {n2w(year)}"
     return match.group(0)
 
 def _expand_day_month(match):
     day, sep, month = match.groups()
     if _is_valid_date(day, month):
-        day = str(int(day))
-        month = str(int(month))
-        return f"ngày {n2w(day)} tháng {n2w(month)}"
+        return f"ngày {n2w(str(int(day)))} tháng {n2w(str(int(month)))}"
     return match.group(0)
 
 def _norm_time_part(s):
@@ -42,8 +37,7 @@ def _norm_time_part(s):
 def _expand_time(match):
     h, sep, m, suffix = match.groups()
     try:
-        h_int = int(h)
-        m_int = int(m)
+        h_int, m_int = int(h), int(m)
     except ValueError:
         return match.group(0)
 
@@ -51,24 +45,16 @@ def _expand_time(match):
         if sep == ':':
             if h_int < 24:
                 return f"{n2w(_norm_time_part(h))} giờ {n2w(_norm_time_part(m))} phút"
-            else:
-                # Handle durations like 27:45 (MM:SS)
-                return f"{n2w(h)} phút {n2w(_norm_time_part(m))} giây"
-        else:
-            # Handle forms like 27h45 (Always HH:MM even if H > 23 for durations)
-            return f"{n2w(_norm_time_part(h))} giờ {n2w(_norm_time_part(m))} phút"
+            return f"{n2w(h)} phút {n2w(_norm_time_part(m))} giây"
+        return f"{n2w(_norm_time_part(h))} giờ {n2w(_norm_time_part(m))} phút"
     return match.group(0)
 
 def normalize_date(text):
     text = RE_FULL_DATE.sub(_expand_full_date, text)
-    text = RE_MONTH_YEAR.sub(
-        lambda m: f"tháng {n2w(str(int(m.group(1))))} năm {n2w(m.group(3))}",
-        text
-    )
+    text = RE_MONTH_YEAR.sub(lambda m: f"tháng {n2w(str(int(m.group(1))))} năm {n2w(m.group(3))}", text)
     text = RE_DAY_MONTH.sub(_expand_day_month, text)
     text = RE_REDUNDANT_NGAY.sub('ngày', text)
-    text = re.sub(r'\btháng\s+tháng\b', 'tháng', text, flags=re.IGNORECASE)
-    text = re.sub(r'\bnăm\s+năm\b', 'năm', text, flags=re.IGNORECASE)
+    text = re.sub(r'\b(tháng|năm)\s+\1\b', r'\1', text, flags=re.IGNORECASE)
     return text
 
 def normalize_time(text):
