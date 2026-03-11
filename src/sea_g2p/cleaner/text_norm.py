@@ -127,16 +127,17 @@ RE_ROMAN_NUMBER = re.compile(r"\b(?=[IVXLCDM]{2,})M{0,4}(CM|CD|D?C{0,3})(XC|XL|L
 RE_LETTER = re.compile(r"(chữ|chữ cái|kí tự|ký tự)\s+(['\"]?)([a-z])(['\"]?)\b", re.IGNORECASE)
 RE_STANDALONE_LETTER = re.compile(r'(?<![\'’])\b([a-zA-Z])\b(\.?)')
 
+# Fixed RE_TECHNICAL with boundaries to avoid consuming trailing punctuation
 RE_TECHNICAL = re.compile(r'''
-    \b(?:https?|ftp)://[A-Za-z0-9.\-_~:/?#\[\]@!$&'()*+,;=]+\b
+    \b(?:https?|ftp)://[A-Za-z0-9.\-_~:/?#\[\]@!$&'()*+,;=]*[A-Za-z0-9\-_~:/?#\[\]@!$&'()*+;=]
     |
-    \b(?:www\.)[A-Za-z0-9.\-_~:/?#\[\]@!$&'()*+,;=]+\b
+    \bwww\.[A-Za-z0-9.\-_~:/?#\[\]@!$&'()*+,;=]*[A-Za-z0-9\-_~:/?#\[\]@!$&'()*+;=]
     |
-    \b[A-Za-z0-9\-]+(?:\.[A-Za-z0-9\-]+)*(?:\.com|\.vn|\.net|\.org|\.gov|\.io|\.biz|\.info)(?:/[A-Za-z0-9.\-_~:/?#\[\]@!$&'()*+,;=]*)?\b
+    \b[A-Za-z0-9.\-]+(?:\.com|\.vn|\.net|\.org|\.gov|\.io|\.biz|\.info)(?:/[A-Za-z0-9.\-_~:/?#\[\]@!$&'()*+,;=]*)?\b
     |
     (?<!\w)/[a-zA-Z0-9._\-/]{2,}\b
     |
-    \b[A-Za-z0-9\-]+(?:\.[A-Za-z0-9\-]+)*\.(?:txt|log|tar|gz|zip|sh|py|js|cpp|h|json|xml|yaml|yml|md|csv|pdf|docx|xlsx|exe|dll|so|config)\b
+    \b[a-zA-Z0-9.\-]+\.(?:txt|log|tar|gz|zip|sh|py|js|cpp|h|json|xml|yaml|yml|md|csv|pdf|docx|xlsx|exe|dll|so|config)\b
     |
     \b[a-zA-Z][a-zA-Z0-9]*(?:[._\-][a-zA-Z0-9]+){2,}\b
     |
@@ -433,13 +434,22 @@ def normalize_technical(text):
             res.append('gạch')
             rest = orig[1:]
 
-        # Use split with capturing group to keep delimiters, then filter out empty strings
-        segments = [s for s in re.split(r'([./:?&=/_ \-])', rest) if s]
+        # Manual tokenization to avoid ReDoS in re.split
+        tokens = []
+        last_idx = 0
+        for match in re.finditer(r'[./:?&=/_ \-]', rest):
+            if match.start() > last_idx:
+                tokens.append(rest[last_idx:match.start()])
+            tokens.append(match.group())
+            last_idx = match.end()
+        if last_idx < len(rest):
+            tokens.append(rest[last_idx:])
+
         idx = 0
-        while idx < len(segments):
-            s = segments[idx]
-            if s == '.' and idx + 1 < len(segments):
-                next_seg = segments[idx+1]
+        while idx < len(tokens):
+            s = tokens[idx]
+            if s == '.' and idx + 1 < len(tokens):
+                next_seg = tokens[idx+1]
                 if next_seg.lower() in _DOMAIN_SUFFIX_MAP:
                     res.extend(['chấm', _DOMAIN_SUFFIX_MAP[next_seg.lower()]])
                     idx += 2; continue
@@ -459,13 +469,22 @@ def normalize_emails(text):
         user_part, domain_part = parts
 
         def _process_part(p, is_domain=False):
-            segments = [s for s in re.split(r'([._\-+])', p) if s]
+            tokens = []
+            last_idx = 0
+            for match in re.finditer(r'[._\-+]', p):
+                if match.start() > last_idx:
+                    tokens.append(p[last_idx:match.start()])
+                tokens.append(match.group())
+                last_idx = match.end()
+            if last_idx < len(p):
+                tokens.append(p[last_idx:])
+
             res = []
             idx = 0
-            while idx < len(segments):
-                s = segments[idx]
-                if s == '.' and is_domain and idx + 1 < len(segments):
-                    next_seg = segments[idx+1]
+            while idx < len(tokens):
+                s = tokens[idx]
+                if s == '.' and is_domain and idx + 1 < len(tokens):
+                    next_seg = tokens[idx+1]
                     if next_seg.lower() in _DOMAIN_SUFFIX_MAP:
                         res.extend(['chấm', _DOMAIN_SUFFIX_MAP[next_seg.lower()]])
                         idx += 2; continue

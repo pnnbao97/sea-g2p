@@ -22,25 +22,21 @@ def _strip_dot_sep(m):
     return m.group(0).replace('.', '')
 
 def _normalize_pre_number(text):
-    def _ten_power_repl(m):
-        if m.group(1):
-            return expand_power_of_ten(m)
-        exp = m.group(2)
-        exp_norm = ("trừ " + n2w(exp[1:])) if exp.startswith('-') else n2w(exp.replace('+', ''))
-        return f"mười mũ {exp_norm}"
+    # Sequential subs for better ReDoS safety and clarity
+    text = re.sub(r'\b(\d+(?:[.,]\d+)?)\s*[x*×]\s*10\^([-+]?\d+)\b', expand_power_of_ten, text, flags=re.IGNORECASE)
+    text = re.sub(r'\b10\^([-+]?\d+)\b', lambda m: f"mười mũ {('trừ ' + n2w(m.group(1)[1:])) if m.group(1).startswith('-') else n2w(m.group(1).replace('+', ''))}", text)
 
-    text = re.sub(r'\b(?:(\d+(?:[.,]\d+)?)\s*[x*×]\s*)?10\^([-+]?\d+)\b', _ten_power_repl, text, flags=re.IGNORECASE)
     text = expand_abbreviations(text)
     text = normalize_date(text)
     text = normalize_time(text)
     
-    def _misc_pre_repl(m):
-        if m.group(1):
-            n1, n2 = re.sub(r'[,.]', '', m.group(1)), re.sub(r'[,.]', '', m.group(2))
-            return f'{m.group(1)} đến {m.group(2)}' if abs(len(n1) - len(n2)) <= 1 else m.group(0)
-        return ' sang ' if ('->' in m.group(0) or '=>' in m.group(0)) else ','
+    def _range_sub(m):
+        n1, n2 = re.sub(r'[,.]', '', m.group(1)), re.sub(r'[,.]', '', m.group(2))
+        return f'{m.group(1)} đến {m.group(2)}' if abs(len(n1) - len(n2)) <= 1 else m.group(0)
 
-    text = re.sub(r'(\d+(?:[.,]\d+)?)\s*[–\-—]\s*(\d+(?:[.,]\d+)?)|(?<=\s)[–\-—](?=\s)|\s*(?:->|=>)\s*', _misc_pre_repl, text)
+    text = re.sub(r'(\d+(?:[,.]\d+)?)\s*[–\-—]\s*(\d+(?:[,.]\d+)?)', _range_sub, text)
+    text = re.sub(r'(?<=\s)[–\-—](?=\s)', ',', text)
+    text = re.sub(r'\s*(?:->|=>)\s*', ' sang ', text)
     return text
 
 def _normalize_units_currency(text):
@@ -49,20 +45,17 @@ def _normalize_units_currency(text):
     text = expand_measurement(text)
     text = expand_currency(text)
 
-    # Use more precise non-backtracking structures for thousands separators
+    # English thousands
     text = re.sub(r'\b\d{1,3}(?:,\d{3})+(?:\.\d+)?\b', fix_english_style_numbers, text)
 
+    # Multi-comma sequences
     def _expand_multi_comma(m):
         return ' phẩy '.join(n2w_single(s) for s in m.group(1).split(','))
     text = re.sub(r'\b(\d+(?:,\d+){2,})\b', _expand_multi_comma, text)
 
-    def _float_dot_repl(m):
-        if m.group(2):
-            return _expand_float(m)
-        return _strip_dot_sep(m)
-
-    # Refactored for SonarCloud: avoid nested quantifiers like (\d+(?:\.\d{3})*)*
-    text = re.sub(r'(?<![\d.])(\d+(?:\.\d{3})*),(\d+)(%)?|(?<![\d.])\d+(?:\.\d{3})+(?![\d.])', _float_dot_repl, text)
+    # Floats and Dot-separated numbers
+    text = re.sub(r'(?<![\d.])(\d+(?:\.\d{3})*),(\d+)(%)?', _expand_float, text)
+    text = re.sub(r'(?<![\d.])\d+(?:\.\d{3})+(?![\d.])', _strip_dot_sep, text)
     return text
 
 def _normalize_post_number(text):
