@@ -32,22 +32,22 @@ _measurement_key_vi = {
     "kw": "ki lô oát", "mw": "mê ga oát", "gw": "gi ga oát",
     "kwh": "ki lô oát giờ", "mwh": "mê ga oát giờ", "wh": "oát giờ",
     "hz": "héc", "khz": "ki lô héc", "mhz": "mê ga héc", "ghz": "gi ga héc",
-    "pa": "__START_EN__pascal__END_EN__", "kpa": "__START_EN__kilopascal__END_EN__", "mpa": "__START_EN__megapascal__END_EN__",
-    "bar": "__START_EN__bar__END_EN__", "mbar": "__START_EN__millibar__END_EN__", "atm": "__START_EN__atmosphere__END_EN__", "psi": "__START_EN__p s i__END_EN__",
-    "j": "__START_EN__joule__END_EN__", "kj": "__START_EN__kilojoule__END_EN__",
-    "cal": "__START_EN__calorie__END_EN__", "kcal": "__START_EN__kilocalorie__END_EN__",
+    "pa": "__start_en__pascal__end_en__", "kpa": "__start_en__kilopascal__end_en__", "mpa": "__start_en__megapascal__end_en__",
+    "bar": "__start_en__bar__end_en__", "mbar": "__start_en__millibar__end_en__", "atm": "__start_en__atmosphere__end_en__", "psi": "__start_en__p s i__end_en__",
+    "j": "__start_en__joule__end_en__", "kj": "__start_en__kilojoule__end_en__",
+    "cal": "__start_en__calorie__end_en__", "kcal": "__start_en__kilocalorie__end_en__",
     "h": "giờ", "p": "phút", "s": "giây",
     "sqm": "mét vuông", "cum": "mét khối",
-    "gb": "__START_EN__gigabyte__END_EN__", "mb": "__START_EN__megabyte__END_EN__", "kb": "__START_EN__kilobyte__END_EN__", "tb": "__START_EN__terabyte__END_EN__",
-    "db": "__START_EN__decibel__END_EN__", "oz": "__START_EN__ounce__END_EN__", "lb": "__START_EN__pound__END_EN__", "lbs": "__START_EN__pounds__END_EN__",
-    "ft": "__START_EN__feet__END_EN__", "in": "__START_EN__inch__END_EN__", "dpi": "__START_EN__d p i__END_EN__", "pH": "pê hát",
-    "gbps": "__START_EN__gigabits per second__END_EN__", "mbps": "__START_EN__megabits per second__END_EN__", "kbps": "__START_EN__kilobits per second__END_EN__",
-    "gallon": "__START_EN__gallon__END_EN__"
+    "gb": "__start_en__gigabyte__end_en__", "mb": "__start_en__megabyte__end_en__", "kb": "__start_en__kilobyte__end_en__", "tb": "__start_en__terabyte__end_en__",
+    "db": "__start_en__decibel__end_en__", "oz": "__start_en__ounce__end_en__", "lb": "__start_en__pound__end_en__", "lbs": "__start_en__pounds__end_en__",
+    "ft": "__start_en__feet__end_en__", "in": "__start_en__inch__end_en__", "dpi": "__start_en__d p i__end_en__", "pH": "pê hát",
+    "gbps": "__start_en__gigabits per second__end_en__", "mbps": "__start_en__megabits per second__end_en__", "kbps": "__start_en__kilobits per second__end_en__",
+    "gallon": "__start_en__gallon__end_en__"
 }
 
 _currency_key = {
-    "usd": "__START_EN__u s d__END_EN__",
-    "vnd": "đồng", "đ": "đồng", "€": "__START_EN__euro__END_EN__", "euro": "__START_EN__euro__END_EN__", "eur": "__START_EN__euro__END_EN__",
+    "usd": "__start_en__u s d__end_en__",
+    "vnd": "đồng", "đ": "đồng", "€": "__start_en__euro__end_en__", "euro": "__start_en__euro__end_en__", "eur": "__start_en__euro__end_en__",
     "¥": "yên", "yên": "yên", "jpy": "yên", "%": "phần trăm"
 }
 
@@ -108,10 +108,10 @@ RE_COMPOUND_UNIT = re.compile(rf"\b{_NUMERIC_P}?\s*([a-zμµ²³°]+)/([a-zμµ�
 
 # Pre-compiled currency patterns
 _CURRENCY_SYMBOL_MAP = {
-    "$": "__START_EN__u s d__END_EN__",
-    "€": "__START_EN__euro__END_EN__",
+    "$": "__start_en__u s d__end_en__",
+    "€": "__start_en__euro__end_en__",
     "¥": "yên",
-    "£": "__START_EN__pound__END_EN__",
+    "£": "__start_en__pound__end_en__",
     "₩": "won",
 }
 _CURRENCY_SYMBOLS_RE = "[$€¥£₩]"
@@ -202,23 +202,17 @@ def _expand_number_with_sep(num_str):
 
 def fix_english_style_numbers(m):
     val = m.group(0)
-    # If it has more than 1 comma, or it has a dot after a comma, it's definitely English thousands
-    if val.count(',') > 1 or (',' in val and '.' in val and val.find(',') < val.find('.')):
-        if '.' in val:
-            parts = val.split('.')
-            return parts[0].replace(',', '') + ',' + parts[1]
-        return val.replace(',', '')
+    has_comma = ',' in val
+    has_dot = '.' in val
 
-    # If it's something like 1,299 (single comma, 3 digits)
-    if ',' in val and val.count(',') == 1 and '.' not in val:
-        parts = val.split(',')
-        if len(parts[1]) == 3:
-            return val
+    # definitely English thousands (multiple commas or dot after comma)
+    if val.count(',') > 1 or (has_comma and has_dot and val.find(',') < val.find('.')):
+        return val.replace(',', '').replace('.', ',') if has_dot else val.replace(',', '')
 
-    # 1,299.5 -> we want 1299,5
-    if ',' in val and '.' in val:
-         parts = val.split('.')
-         return parts[0].replace(',', '') + ',' + parts[1]
+    # single comma, likely English thousands or decimal (handled by single sep logic later)
+    # but 1,299.5 (English style) needs to be 1299,5
+    if has_comma and has_dot:
+        return val.replace(',', '').replace('.', ',')
 
     return val
 
@@ -237,6 +231,7 @@ def expand_power_of_ten(m):
 def expand_scientific_notation(text):
     # Match something like 3.2e5 or 6.626e-34
     # But be careful not to match words containing 'e'
+    # Use anchored regex to reduce search space
     pattern = re.compile(r'\b(\d+(?:[.,]\d+)?e[+-]?\d+)\b', re.IGNORECASE)
     return pattern.sub(lambda m: _expand_number_with_sep(m.group(1)), text)
 
@@ -560,7 +555,8 @@ def normalize_others(text):
     # 8. Final cleanup of any remaining unsupported characters
     text = RE_CLEAN_OTHERS.sub(' ', text)
     
-    # Restore internal <en> tags
+    # Restore internal <en> tags (handle both cases for backward compatibility)
     text = text.replace('__START_EN__', '<en>').replace('__END_EN__', '</en>')
+    text = text.replace('__start_en__', '<en>').replace('__end_en__', '</en>')
     
     return text

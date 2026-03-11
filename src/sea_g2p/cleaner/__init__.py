@@ -23,8 +23,9 @@ def _strip_dot_sep(m):
 
 def _normalize_pre_number(text):
     # Handle explicit powers of ten: 1.5×10^-3 or 1.5x10^3 or 1.5*10^3
-    text = re.sub(r'(\d+(?:[.,]\d+)?)\s*[x*×]\s*10\^([-+]?\d+)', expand_power_of_ten, text, flags=re.IGNORECASE)
-    text = re.sub(r'10\^([-+]?\d+)', lambda m: f"mười mũ {('trừ ' + n2w(m.group(1)[1:])) if m.group(1).startswith('-') else n2w(m.group(1).replace('+', ''))}", text)
+    # Anchored regex to reduce search space and avoid ReDoS
+    text = re.sub(r'\b(\d+(?:[.,]\d+)?)\s*[x*×]\s*10\^([-+]?\d+)\b', expand_power_of_ten, text, flags=re.IGNORECASE)
+    text = re.sub(r'\b10\^([-+]?\d+)\b', lambda m: f"mười mũ {('trừ ' + n2w(m.group(1)[1:])) if m.group(1).startswith('-') else n2w(m.group(1).replace('+', ''))}", text)
     
     text = expand_abbreviations(text)
     text = normalize_date(text)
@@ -67,6 +68,7 @@ def clean_vietnamese_text(text):
         mask_map[mask] = match.group(0)
         return mask
 
+    # Simple regex to protect existing tags, avoiding potential ReDoS in nested patterns
     text = re.sub(r'___PROTECTED_EN_TAG_\d+___', protect, text)
     text = _normalize_pre_number(text)
     text = _normalize_units_currency(text)
