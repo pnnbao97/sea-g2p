@@ -42,7 +42,7 @@ _measurement_key_vi = {
     "db": "__start_en__decibel__end_en__", "oz": "__start_en__ounce__end_en__", "lb": "__start_en__pound__end_en__", "lbs": "__start_en__pounds__end_en__",
     "ft": "__start_en__feet__end_en__", "in": "__start_en__inch__end_en__", "dpi": "__start_en__d p i__end_en__", "pH": "pê hát",
     "gbps": "__start_en__gigabits per second__end_en__", "mbps": "__start_en__megabits per second__end_en__", "kbps": "__start_en__kilobits per second__end_en__",
-    "gallon": "__start_en__gallon__end_en__"
+    "gallon": "__start_en__gallon__end_en__", "mol": "mol"
 }
 
 _currency_key = {
@@ -61,14 +61,28 @@ _acronyms_exceptions_vi = {
     "NXB": "nhà xuất bản", "TW": "trung ương", "CSGT": "cảnh sát giao thông", "LHQ": "liên hợp quốc",
     "THCS": "trung học cơ sở", "THPT": "trung học phổ thông", "ĐH": "đại học", "HLV": "huấn luyện viên",
     "GS": "giáo sư", "TS": "tiến sĩ", "TNHH": "trách nhiệm hữu hạn", "VĐV": "vận động viên",
-    "TPHCM": "thành phố hồ chí minh", "PGS": "phó giáo sư", "SP500": "ét pê năm trăm"
+    "TPHCM": "thành phố hồ chí minh", "PGS": "phó giáo sư", "SP500": "ét pê năm trăm",
+    "PGS.TS": "phó giáo sư tiến sĩ", "GS.TS": "giáo sư tiến sĩ", "ThS": "thạc sĩ", "BS": "bác sĩ",
+    "UAE": "u a e"
+}
+
+_technical_terms_en = {
+    "JSON": "__start_en__j son__end_en__",
+    "VN-Index": "__start_en__v n__end_en__ index",
+    "MS DOS": "__start_en__m s dos__end_en__",
+    "MS-DOS": "__start_en__m s dos__end_en__",
+    "B2B": "__start_en__b two b__end_en__",
+    "MI5": "__start_en__m i five__end_en__",
+    "MI6": "__start_en__m i six__end_en__",
+    "2FA": "__start_en__two f a__end_en__",
+    "TX-0": "__start_en__t x zero__end_en__"
 }
 
 # Compiled Regular Expressions
 RE_ROMAN_NUMBER = re.compile(r"\b(?=[IVXLCDM]{2,})M{0,4}(CM|CD|D?C{0,3})(XC|XL|L?X{0,3})(IX|IV|V?I{0,3})\b")
 RE_LETTER = re.compile(r"(chữ|chữ cái|kí tự|ký tự)\s+(['\"]?)([a-z])(['\"]?)\b", re.IGNORECASE)
 RE_STANDALONE_LETTER = re.compile(r'(?<![\'’])\b([a-zA-Z])\b(\.?)')
-RE_URL = re.compile(r'\b(?:https?|ftp)://[A-Za-z0-9.\-_~:/?#\[\]@!$&\'()*+,;=]+\b|\b(?:www\.)[A-Za-z0-9.\-_~:/?#\[\]@!$&\'()*+,;=]+\b|\b[A-Za-z0-9.\-]+(?:\.com|\.vn|\.net|\.org|\.gov|\.io|\.biz|\.info)\b(?![A-Za-z0-9])', re.IGNORECASE)
+RE_URL = re.compile(r'\b(?:https?|ftp)://[A-Za-z0-9.\-_~:/?#\[\]@!$&\'()*+,;=]+\b|\b(?:www\.)[A-Za-z0-9.\-_~:/?#\[\]@!$&\'()*+,;=]+\b|\b[A-Za-z0-9.\-]+(?:\.com|\.vn|\.net|\.org|\.gov|\.io|\.biz|\.info)(?:/[A-Za-z0-9.\-_~:/?#\[\]@!$&\'()*+,;=]*)?\b', re.IGNORECASE)
 RE_SLASH_NUMBER = re.compile(r'\b(\d+)/(\d+)\b')
 RE_EMAIL = re.compile(r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b')
 RE_SENTENCE_SPLIT = re.compile(r'([.!?]+(?:\s+|$))')
@@ -100,7 +114,7 @@ _DOMAIN_SUFFIX_MAP = {
 }
 
 # Reusable patterns for measurement/currency
-_MAGNITUDE_P = r"\s*(tỷ|triệu|nghìn|ngàn)?"
+_MAGNITUDE_P = r"(?:\s*(tỷ|triệu|nghìn|ngàn))?"
 _NUMERIC_P = r"(\d+(?:[.,]\d+)*)"
 
 # Pre-compiled regex for compound units
@@ -141,8 +155,9 @@ for unit, full in _currency_key.items():
     pattern = re.compile(rf"(?<![\d.,]){_NUMERIC_P}{_MAGNITUDE_P}\s*{unit}\b", re.IGNORECASE)
     _CURRENCY_PATTERNS.append((pattern, full))
 
-# Pre-compile acronyms exceptions
-_ACRONYMS_EXCEPTIONS_RE = [(re.compile(rf"\b{re.escape(k)}\b"), v) for k, v in _acronyms_exceptions_vi.items()]
+# Pre-compile acronyms exceptions (sorted by length descending for longest-match-first)
+_combined_exceptions = {**_acronyms_exceptions_vi, **_technical_terms_en}
+_ACRONYMS_EXCEPTIONS_RE = [(re.compile(rf"\b{re.escape(k)}\b"), v) for k, v in sorted(_combined_exceptions.items(), key=lambda x: len(x[0]), reverse=True)]
 
 _ROMAN_NUMERALS = {"I": 1, "V": 5, "X": 10, "L": 50, "C": 100, "D": 500, "M": 1000}
 
@@ -152,7 +167,9 @@ _SYMBOLS_MAP = {
     '&': ' và ', '+': ' cộng ', '=': ' bằng ', '#': ' thăng ',
     '>': ' lớn hơn ', '<': ' nhỏ hơn ',
     '≥': ' lớn hơn hoặc bằng ', '≤': ' nhỏ hơn hoặc bằng ',
-    '±': ' cộng trừ ', '≈': ' xấp xỉ '
+    '±': ' cộng trừ ', '≈': ' xấp xỉ ',
+    '/': ' trên ', '→': ' đến ', '÷': ' chia ',
+    '*': ' nhân ', '^': ' mũ '
 }
 
 def _expand_scientific(num_str):
@@ -302,6 +319,27 @@ def expand_roman(match):
             result -= _ROMAN_NUMERALS[c]
     return f" {n2w(str(result))} "
 
+def expand_unit_powers(text):
+    def _repl(m):
+        base = m.group(1)
+        power = m.group(2)
+        power_norm = ""
+        if power.startswith('-'):
+            power_norm = "trừ " + n2w(power[1:])
+        elif power.startswith('+'):
+            power_norm = n2w(power[1:])
+        else:
+            power_norm = n2w(power)
+        
+        # If the base matches a known unit, use its expansion
+        base_lower = base.lower()
+        full_base = _measurement_key_vi.get(base_lower, _currency_key.get(base_lower, base))
+        # If it's a known unit, it might have __start_en__ tags, let's keep them if present
+        return f" {full_base} mũ {power_norm} "
+
+    # Match word^[-]number
+    return re.sub(r'\b([a-zA-Z]+)\^([-+]?\d+)\b', _repl, text)
+
 def expand_letter(match):
     prefix, q1, char, q2 = match.groups()
     if char.lower() in _letter_key_vi:
@@ -349,7 +387,7 @@ def normalize_urls(text):
             rest = url[p_idx+3:]
 
         # Simple segments based on delimiters
-        segments = std_re.split(r'([./:?&=])', rest)
+        segments = std_re.split(r'([./:?&=/])', rest)
         idx = 0
         while idx < len(segments):
             s = segments[idx]
@@ -375,7 +413,7 @@ def normalize_urls(text):
                     continue
                 res.append('chấm')
             elif s == '/':
-                res.append('trên')
+                res.append('gạch')
             elif s.lower() in _DOMAIN_SUFFIX_MAP:
                 res.append(_DOMAIN_SUFFIX_MAP[s.lower()])
             elif s.isalnum() and s.isascii():
@@ -480,7 +518,7 @@ def normalize_emails(text):
 
     return RE_EMAIL.sub(_repl_email, text)
 
-WORD_LIKE_ACRONYMS = {"UNESCO", "NASA", "NATO", "ASEAN", "OPEC", "SARS", "FIFA", "UNIC", "RAM", "VRAM", "COVID", "IELTS", "STEM", "SWAT", "SEAL", "WASP", "COBOL", "BASIC", "OLED", "COVAX", "BRICS", "APEC", "VUCA", "PERMA", "DINK", "MENA", "EPIC", "OASIS", "BASE", "DART", "IDEA", "CHAOS", "SMART", "FANG"}
+WORD_LIKE_ACRONYMS = {"UNESCO", "NASA", "NATO", "ASEAN", "OPEC", "SARS", "FIFA", "UNIC", "RAM", "VRAM", "COVID", "IELTS", "STEM", "SWAT", "SEAL", "WASP", "COBOL", "BASIC", "OLED", "COVAX", "BRICS", "APEC", "VUCA", "PERMA", "DINK", "MENA", "EPIC", "OASIS", "BASE", "DART", "IDEA", "CHAOS", "SMART", "FANG", "BLEU"}
 # AT&T
 def normalize_acronyms(text):
     sentences = RE_SENTENCE_SPLIT.split(text)
@@ -502,10 +540,8 @@ def normalize_acronyms(text):
                 if word.isdigit(): return word
                 if word in WORD_LIKE_ACRONYMS:
                     return f"__start_en__{word.lower()}__end_en__"
+                
                 if any(c.isdigit() for c in word):
-                    if word.upper() == "B2B":
-                        return "__start_en__b two b__end_en__"
-                    
                     res = []
                     for c in word.lower():
                         if c.isdigit():
@@ -582,6 +618,7 @@ def normalize_others(text):
     
     # 3. Clean quotes and expand general symbols
     text = expand_prime(text) # Handle A' or 1' before cleaning general quotes
+    text = expand_unit_powers(text)
     text = RE_CLEAN_QUOTES.sub('', text)
     
     # Remove single quotes only if they are not part of a word (start/end of word)

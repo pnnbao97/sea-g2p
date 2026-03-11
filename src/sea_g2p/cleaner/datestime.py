@@ -10,8 +10,8 @@ _short_date_seperator = r"(\/|-)"
 RE_FULL_DATE = re.compile(r"\b(\d{1,2})" + _date_seperator + r"(\d{1,2})" + _date_seperator + r"(\d{4})\b", re.IGNORECASE)
 RE_DAY_MONTH = re.compile(r"\b(\d{1,2})" + _short_date_seperator + r"(\d{1,2})\b", re.IGNORECASE)
 RE_MONTH_YEAR = re.compile(r"\b(\d{1,2})" + _date_seperator + r"(\d{4})\b", re.IGNORECASE)
-RE_FULL_TIME = re.compile(r"\b(\d{1,2})(g|:|h)(\d{1,2})(p|:|m)(\d{1,2})(?:\s*(giây|s|g))?\b", re.IGNORECASE)
-RE_TIME = re.compile(r"\b(\d{1,2})(g|:|h)(\d{1,2})(?:\s*(phút|p|m))?\b", re.IGNORECASE)
+RE_FULL_TIME = re.compile(r"\b(\d+)(g|:|h)(\d{1,2})(p|:|m)(\d{1,2})(?:\s*(giây|s|g))?\b", re.IGNORECASE)
+RE_TIME = re.compile(r"\b(\d+)(g|:|h)(\d{1,2})(?:\s*(phút|p|m))?\b", re.IGNORECASE)
 RE_REDUNDANT_NGAY = re.compile(r'\bngày\s+ngày\b', re.IGNORECASE)
 
 def _is_valid_date(day, month):
@@ -41,8 +41,22 @@ def _norm_time_part(s):
 
 def _expand_time(match):
     h, sep, m, suffix = match.groups()
-    if 0 <= int(h) < 24 and 0 <= int(m) < 60:
-        return f"{n2w(_norm_time_part(h))} giờ {n2w(_norm_time_part(m))} phút"
+    try:
+        h_int = int(h)
+        m_int = int(m)
+    except ValueError:
+        return match.group(0)
+
+    if 0 <= m_int < 60:
+        if sep == ':':
+            if h_int < 24:
+                return f"{n2w(_norm_time_part(h))} giờ {n2w(_norm_time_part(m))} phút"
+            else:
+                # Handle durations like 27:45 (MM:SS)
+                return f"{n2w(h)} phút {n2w(_norm_time_part(m))} giây"
+        else:
+            # Handle forms like 27h45 (Always HH:MM even if H > 23 for durations)
+            return f"{n2w(_norm_time_part(h))} giờ {n2w(_norm_time_part(m))} phút"
     return match.group(0)
 
 def normalize_date(text):
@@ -59,7 +73,7 @@ def normalize_date(text):
 
 def normalize_time(text):
     text = RE_FULL_TIME.sub(
-        lambda m: f"{n2w(str(int(m.group(1))))} giờ {n2w(str(int(m.group(3))))} phút {n2w(str(int(m.group(5))))} giây",
+        lambda m: f"{n2w(_norm_time_part(m.group(1)))} giờ {n2w(_norm_time_part(m.group(3)))} phút {n2w(_norm_time_part(m.group(5)))} giây",
         text
     )
     text = RE_TIME.sub(_expand_time, text)

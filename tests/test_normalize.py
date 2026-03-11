@@ -189,7 +189,7 @@ TEST_CASES = [
     ("Truy cập https://vieneu.io để biết thêm chi tiết.", "truy cập <en>https</en> <en>vieneu</en> chấm <en>i o</en> để biết thêm chi tiết."),
     ("Website www.google.com rất hữu ích.", "website <en>www</en> chấm <en>google</en> chấm com rất hữu ích."),
     ("Trang web chính thức là https://openai.com.", "trang web chính thức là <en>https</en> <en>openai</en> chấm com."),
-    ("Tài liệu nằm ở www.example.org/docs.", "tài liệu nằm ở <en>www</en> chấm <en>example</en> chấm o rờ gờ trên <en>docs</en>."),
+    ("Tài liệu nằm ở www.example.org/docs.", "tài liệu nằm ở <en>www</en> chấm <en>example</en> chấm o rờ gờ gạch <en>docs</en>."),
 
     # Slashes / Địa chỉ
     ("Địa chỉ nhà tôi là 123/4 đường Nguyễn Trãi.", "địa chỉ nhà tôi là một trăm hai mươi ba xẹt bốn đường nguyễn trãi."),
@@ -257,6 +257,31 @@ TEST_CASES = [
     ("1,299,495", "một triệu hai trăm chín mươi chín nghìn bốn trăm chín mươi lăm"),
     ("1,299", "một phẩy hai chín chín"),
     ("1,299.5", "một nghìn hai trăm chín mươi chín phẩy năm"),
+    # ─── 29. URL, REPO, EMAIL (EXTENDED) ────────────────────────────────
+    ("Trang chủ là https://openai.com.", "trang chủ là <en>https</en> <en>openai</en> chấm com."),
+    ("Repo nằm ở github.com/user/project.", "repo nằm ở <en>github</en> chấm com gạch <en>user</en> gạch <en>project</en>."),
+    ("Tài liệu đọc tại docs.python.org.", "tài liệu đọc tại <en>docs</en> chấm <en>python</en> chấm o rờ gờ."),
+    ("Hãy gửi email đến support@example.com.", "hãy gửi email đến <en>support</en> a còng <en>example</en> chấm com."),
+    ("File tải tại ftp://example.org/data.zip.", "file tải tại <en>f t p</en> <en>example</en> chấm o rờ gờ gạch <en>data</en> chấm <en>zip</en>."),
+    ("Nhiệt độ ngoài trời là -3.5°C.", "nhiệt độ ngoài trời là âm ba chấm năm độ xê."),
+    ("Anh ấy chạy 10.000m trong 27:45.", "anh ấy chạy mười nghìn mét trong hai mươi bảy phút bốn mươi lăm giây."),
+    ("Tỉ số USD/EUR đang tăng.", "tỉ số <en>u s d</en> trên <en>euro</en> đang tăng."),
+    ("Anh ta kiếm được ¥120000 mỗi tháng.", "anh ta kiếm được một trăm hai mươi nghìn yên mỗi tháng."),
+    ("Giá là $50 cho mỗi sản phẩm.", "giá là năm mươi <en>u s d</en> cho mỗi sản phẩm."),
+    ("Phí dịch vụ là €10 mỗi người.", "phí dịch vụ là mười <en>euro</en> mỗi người."),
+    ("Nó nặng 10lb cho mỗi bao.", "nó nặng mười <en>pound</en> cho mỗi bao."),
+    ("Giá là £5 mỗi cái.", "giá là năm <en>pound</en> mỗi cái."),
+    ("Thưởng là ₩1000 cho bạn.", "thưởng là một nghìn won cho bạn."),
+    ("Hằng số Avogadro là 6.022e23 mol^-1.", "hằng số avogadro là sáu chấm không hai hai nhân mười mũ hai mươi ba mol mũ trừ một."),
+    ("Giới hạn lim(x→0) sin(x)/x = 1.", "giới hạn lim, ích đến không, sin, ích, trên ích bằng một."),
+    ("Ông ấy là PGS.TS ngành AI.", "ông ấy là phó giáo sư tiến sĩ ngành <en>a i</en>."),
+    ("Dữ liệu dạng JSON.", "dữ liệu dạng <en>j son</en>."),
+    ("Du lịch tại UAE.", "du lịch tại u a e."),
+    ("Chỉ số VN-Index giảm.", "chỉ số <en>v n</en> index giảm."),
+    ("Hệ điều hành MS DOS.", "hệ điều hành <en>m s dos</en>."),
+    ("Dùng MI5 và MI6.", "dùng <en>m i five</en> và <en>m i six</en>."),
+    ("Bảo mật 2FA.", "bảo mật <en>two f a</en>."),
+    ("Máy tính TX-0.", "máy tính <en>t x zero</en>."),
 ]
 
 @pytest.mark.parametrize("input_text, expected", TEST_CASES)
