@@ -42,7 +42,7 @@ class Normalizer:
         # Step 3: Restore EN tags
         for idx, en_content in enumerate(en_contents):
             placeholder = placeholder_pattern.format(idx).lower()
-            text = text.replace(placeholder, en_content + ' ')
+            text = text.replace(placeholder, en_content)
         
         # Final whitespace cleanup - preserve newlines
         text = re.sub(r'[ \t\xA0]+', ' ', text).strip()

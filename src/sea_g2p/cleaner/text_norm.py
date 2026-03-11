@@ -11,14 +11,14 @@ _vi_letter_names = {
 }
 
 _common_email_domains = {
-    "gmail.com": "__START_EN__gmail__END_EN__ chấm com",
-    "yahoo.com": "__START_EN__yahoo__END_EN__ chấm com",
-    "yahoo.com.vn": "__START_EN__yahoo__END_EN__ chấm com chấm __START_EN__v n__END_EN__",
-    "outlook.com": "__START_EN__outlook__END_EN__ chấm com",
-    "hotmail.com": "__START_EN__hotmail__END_EN__ chấm com",
-    "icloud.com": "__START_EN__icloud__END_EN__ chấm com",
-    "fpt.vn": "__START_EN__f p t__END_EN__ chấm __START_EN__v n__END_EN__",
-    "fpt.com.vn": "__START_EN__f p t__END_EN__ chấm com chấm __START_EN__v n__END_EN__",
+    "gmail.com": "__start_en__gmail__end_en__ chấm com",
+    "yahoo.com": "__start_en__yahoo__end_en__ chấm com",
+    "yahoo.com.vn": "__start_en__yahoo__end_en__ chấm com chấm __start_en__v n__end_en__",
+    "outlook.com": "__start_en__outlook__end_en__ chấm com",
+    "hotmail.com": "__start_en__hotmail__end_en__ chấm com",
+    "icloud.com": "__start_en__icloud__end_en__ chấm com",
+    "fpt.vn": "__start_en__f p t__end_en__ chấm __start_en__v n__end_en__",
+    "fpt.com.vn": "__start_en__f p t__end_en__ chấm com chấm __start_en__v n__end_en__",
 }
 
 _measurement_key_vi = {
@@ -47,7 +47,7 @@ _measurement_key_vi = {
 
 _currency_key = {
     "usd": "__start_en__u s d__end_en__",
-    "vnd": "đồng", "đ": "đồng", "€": "__start_en__euro__end_en__", "euro": "__start_en__euro__end_en__", "eur": "__start_en__euro__end_en__",
+    "vnd": "đồng", "đ": "đồng", "v n d": "đồng", "v n đ": "đồng", "€": "__start_en__euro__end_en__", "euro": "__start_en__euro__end_en__", "eur": "__start_en__euro__end_en__",
     "¥": "yên", "yên": "yên", "jpy": "yên", "%": "phần trăm"
 }
 
@@ -68,7 +68,7 @@ _acronyms_exceptions_vi = {
 RE_ROMAN_NUMBER = re.compile(r"\b(?=[IVXLCDM]{2,})M{0,4}(CM|CD|D?C{0,3})(XC|XL|L?X{0,3})(IX|IV|V?I{0,3})\b")
 RE_LETTER = re.compile(r"(chữ|chữ cái|kí tự|ký tự)\s+(['\"]?)([a-z])(['\"]?)\b", re.IGNORECASE)
 RE_STANDALONE_LETTER = re.compile(r'(?<![\'’])\b([a-zA-Z])\b(\.?)')
-RE_URL = re.compile(r'\b(?:https?://|www\.)[A-Za-z0-9.\-_~:/?#\[\]@!$&\'()*+,;=]+\b')
+RE_URL = re.compile(r'\b(?:https?|ftp)://[A-Za-z0-9.\-_~:/?#\[\]@!$&\'()*+,;=]+\b|\b(?:www\.)[A-Za-z0-9.\-_~:/?#\[\]@!$&\'()*+,;=]+\b|\b[A-Za-z0-9.\-]+(?:\.com|\.vn|\.net|\.org|\.gov|\.io|\.biz|\.info)\b(?![A-Za-z0-9])', re.IGNORECASE)
 RE_SLASH_NUMBER = re.compile(r'\b(\d+)/(\d+)\b')
 RE_EMAIL = re.compile(r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b')
 RE_SENTENCE_SPLIT = re.compile(r'([.!?]+(?:\s+|$))')
@@ -89,18 +89,18 @@ RE_PRIME = re.compile(r"(\b[a-zA-Z0-9])['’](?!\w)")
 _DOMAIN_SUFFIXES_RE = re.compile(r'\.(com|vn|net|org|edu|gov|io|biz|info)\b', re.IGNORECASE)
 _DOMAIN_SUFFIX_MAP = {
     "com": "com",
-    "vn": "__START_EN__v n__END_EN__",
+    "vn": "__start_en__v n__end_en__",
     "net": "nét",
     "org": "o rờ gờ",
-    "edu": "__START_EN__edu__END_EN__",
+    "edu": "__start_en__edu__end_en__",
     "gov": "gờ o vê",
-    "io": "__START_EN__i o__END_EN__",
+    "io": "__start_en__i o__end_en__",
     "biz": "biz",
     "info": "info",
 }
 
 # Reusable patterns for measurement/currency
-_MAGNITUDE_P = r"\s*(tỷ|triệu|nghìn|ngàn)?\s*"
+_MAGNITUDE_P = r"\s*(tỷ|triệu|nghìn|ngàn)?"
 _NUMERIC_P = r"(\d+(?:[.,]\d+)*)"
 
 # Pre-compiled regex for compound units
@@ -122,7 +122,7 @@ RE_PERCENTAGE = re.compile(rf"{_NUMERIC_P}\s*%", re.IGNORECASE)
 # Pre-compile measurement and currency unit patterns
 _MEASUREMENT_PATTERNS = []
 for unit, full in sorted(_measurement_key_vi.items(), key=lambda x: len(x[0]), reverse=True):
-    pattern = re.compile(rf"\b{_NUMERIC_P}{_MAGNITUDE_P}{unit}\b", re.IGNORECASE)
+    pattern = re.compile(rf"(?<![\d.,]){_NUMERIC_P}{_MAGNITUDE_P}\s*{unit}\b", re.IGNORECASE)
 
     standalone_pattern = None
     safe_standalone = [
@@ -138,7 +138,7 @@ for unit, full in sorted(_measurement_key_vi.items(), key=lambda x: len(x[0]), r
 _CURRENCY_PATTERNS = []
 for unit, full in _currency_key.items():
     if unit == "%": continue
-    pattern = re.compile(rf"\b{_NUMERIC_P}{_MAGNITUDE_P}{unit}\b", re.IGNORECASE)
+    pattern = re.compile(rf"(?<![\d.,]){_NUMERIC_P}{_MAGNITUDE_P}\s*{unit}\b", re.IGNORECASE)
     _CURRENCY_PATTERNS.append((pattern, full))
 
 # Pre-compile acronyms exceptions
@@ -328,33 +328,77 @@ def expand_standalone_letters(text):
     return RE_STANDALONE_LETTER.sub(_repl_letter, text)
 
 def normalize_urls(text):
+    import re as std_re
     def _repl_url(m):
         url = m.group(0)
-        # Split URL into segments but keep delimiters
-        parts = re.split(r'([./:?&=])', url)
-        res = []
-        for p in parts:
-            if not p: continue
-            if p == '.': res.append('chấm')
-            elif p in './:?&=-_': continue # Skip technical delimiters like : // ? & =
-            elif p.isalnum() and p.isascii():
-                # Check suffixes first
-                if p.lower() in _DOMAIN_SUFFIX_MAP:
-                    res.append(_DOMAIN_SUFFIX_MAP[p.lower()])
-                else:
-                    res.append(f"__START_EN__{p.lower()}__END_EN__")
-            else:
-                # Fallback to character-by-character for non-ASCII or mixed
-                for char in p.lower():
-                    if char.isalnum():
-                        if char.isdigit():
-                            res.append(n2w_single(char))
-                        else:
-                            res.append(_vi_letter_names.get(char, char))
-                    else:
-                        res.append(char)
-        return " ".join(res)
 
+        # Protocol handling
+        rest = url
+        res = []
+        if '://' in url.lower():
+            p_idx = url.lower().find('://')
+            protocol = url[:p_idx]
+            # Space out protocol if it looks like an acronym (short & uppercase)
+            if protocol.isupper() and len(protocol) <= 4:
+                p_norm = " ".join(protocol.lower())
+            elif len(protocol) <= 3:
+                p_norm = " ".join(protocol.lower())
+            else:
+                p_norm = protocol.lower()
+            res.append(f"__start_en__{p_norm}__end_en__")
+            rest = url[p_idx+3:]
+
+        # Simple segments based on delimiters
+        segments = std_re.split(r'([./:?&=])', rest)
+        idx = 0
+        while idx < len(segments):
+            s = segments[idx]
+            if not s or s in ':?&=':
+                idx += 1
+                continue
+
+            if s == '.':
+                # Peek next segment for suffix map
+                next_seg = ""
+                for j in range(idx + 1, len(segments)):
+                    if segments[j] and segments[j] not in './:?&=':
+                        next_seg = segments[j]
+                        break
+                if next_seg.lower() in _DOMAIN_SUFFIX_MAP:
+                    res.append('chấm')
+                    res.append(_DOMAIN_SUFFIX_MAP[next_seg.lower()])
+                    # Move idx forward to consume the segment we just peeked
+                    idx += 1
+                    while idx < len(segments) and (not segments[idx] or segments[idx].lower() != next_seg.lower()):
+                        idx += 1
+                    idx += 1 # move past the next_seg
+                    continue
+                res.append('chấm')
+            elif s == '/':
+                res.append('trên')
+            elif s.lower() in _DOMAIN_SUFFIX_MAP:
+                res.append(_DOMAIN_SUFFIX_MAP[s.lower()])
+            elif s.isalnum() and s.isascii():
+                if s.isdigit():
+                    res.append(n2w(s))
+                else:
+                    # Space out short segments (acronym-like) ONLY if they were uppercase
+                    # or very short (<= 2) and it's likely an acronym
+                    val = s.lower()
+                    if s.isupper() and len(s) <= 4:
+                        val = " ".join(val)
+                    elif len(val) <= 2 and len(val) > 0: # e.g. 'io' -> 'i o'
+                        val = " ".join(val)
+                    res.append(f"__start_en__{val}__end_en__")
+            else:
+                for char in s.lower():
+                    if char.isalnum():
+                        if char.isdigit(): res.append(n2w_single(char))
+                        else: res.append(_vi_letter_names.get(char, char))
+                    else: res.append(char)
+            idx += 1
+
+        return " ".join(res).replace("  ", " ").strip()
     return RE_URL.sub(_repl_url, text)
 
 def normalize_slashes(text):
@@ -377,7 +421,13 @@ def normalize_emails(text):
 
         # User part: spell out or EN
         if user_part.isalnum() and user_part.isascii():
-            user_norm = [f"__START_EN__{user_part.lower()}__END_EN__"]
+            if user_part.isdigit():
+                user_norm = [n2w(user_part)]
+            else:
+                val = user_part.lower()
+                if user_part.isupper() and len(user_part) <= 4:
+                    val = " ".join(val)
+                user_norm = [f"__start_en__{val}__end_en__"]
         else:
             user_unorm = []
             for char in user_part.lower():
@@ -406,7 +456,13 @@ def normalize_emails(text):
                     continue
                 
                 if dp.isalnum() and dp.isascii():
-                    norm_domain_parts.append(f"__START_EN__{dp.lower()}__END_EN__")
+                    if dp.isdigit():
+                        norm_domain_parts.append(n2w(dp))
+                    else:
+                        val = dp.lower()
+                        if dp.isupper() and len(dp) <= 4:
+                            val = " ".join(val)
+                        norm_domain_parts.append(f"__start_en__{val}__end_en__")
                     continue
 
                 dp_norm = []
@@ -419,8 +475,6 @@ def normalize_emails(text):
                     else: dp_norm.append(char)
                 norm_domain_parts.append(" ".join(dp_norm))
             domain_norm = " chấm ".join(norm_domain_parts)
-
-        return " ".join(user_norm) + " a còng " + domain_norm
 
         return " ".join(user_norm) + " a còng " + domain_norm
 
@@ -447,10 +501,10 @@ def normalize_acronyms(text):
                 word = m.group(0)
                 if word.isdigit(): return word
                 if word in WORD_LIKE_ACRONYMS:
-                    return f"__START_EN__{word.lower()}__END_EN__"
+                    return f"__start_en__{word.lower()}__end_en__"
                 if any(c.isdigit() for c in word):
                     if word.upper() == "B2B":
-                        return "__START_EN__b two b__END_EN__"
+                        return "__start_en__b two b__end_en__"
                     
                     res = []
                     for c in word.lower():
@@ -462,7 +516,7 @@ def normalize_acronyms(text):
 
                 spaced_word = " ".join(c.lower() for c in word if c.isalnum())
                 if spaced_word:
-                    return f"__START_EN__{spaced_word}__END_EN__"
+                    return f"__start_en__{spaced_word}__end_en__"
                 return word
 
             s = RE_ACRONYM.sub(_repl_acronym, s)
@@ -516,8 +570,6 @@ def normalize_others(text):
     for pattern, v in _ACRONYMS_EXCEPTIONS_RE:
         text = pattern.sub(v, text)
     
-    text = normalize_urls(text)
-    text = normalize_emails(text)
     text = normalize_slashes(text)
     
     # Handle domain suffixes like .com, .vn (especially after acronyms)
@@ -554,9 +606,5 @@ def normalize_others(text):
 
     # 8. Final cleanup of any remaining unsupported characters
     text = RE_CLEAN_OTHERS.sub(' ', text)
-    
-    # Restore internal <en> tags (handle both cases for backward compatibility)
-    text = text.replace('__START_EN__', '<en>').replace('__END_EN__', '</en>')
-    text = text.replace('__start_en__', '<en>').replace('__end_en__', '</en>')
     
     return text
