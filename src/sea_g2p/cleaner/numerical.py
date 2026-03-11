@@ -2,32 +2,12 @@ import re
 from .num2vi import n2w, n2w_single
 from .symbols import vietnamese_set
 
-_normal_number_re        = r"[\d]+"
-_float_number_re         = r"[\d]+[,]{1}[\d]+"
-_number_with_one_dot     = r"[\d]+[.]{1}[\d]{3}"
-_number_with_two_dot     = r"[\d]+[.]{1}[\d]{3}[.]{1}[\d]{3}"
-_number_with_three_dot   = r"[\d]+[.]{1}[\d]{3}[.]{1}[\d]{3}[.]{1}[\d]{3}"
-_number_with_one_space   = r"[\d]+[\s]{1}[\d]{3}"
-_number_with_two_space   = r"[\d]+[\s]{1}[\d]{3}[\s]{1}[\d]{3}"
-_number_with_three_space = r"[\d]+[\s]{1}[\d]{3}[\s]{1}[\d]{3}[\s]{1}[\d]{3}"
-
-_number_combined = (
-    r"("
-    + _float_number_re + "|"
-    + _number_with_three_dot + "|"
-    + _number_with_two_dot + "|"
-    + _number_with_one_dot + "|"
-    + _number_with_three_space + "|"
-    + _number_with_two_space + "|"
-    + _number_with_one_space + "|"
-    + _normal_number_re
-    + r")"
-)
+_number_combined = r"(\d+(?:,\d+)?|\d+(?:\.\d{3}){1,3}|\d+(?:\s\d{3}){1,3})"
 
 # Compiled Regular Expressions
 RE_NUMBER = re.compile(r"(\D)(-{1})?" + _number_combined + r"(?!\d)")
 RE_NUMBER_START = re.compile(r"^(-{1})?" + _number_combined + r"(?!\d)", re.MULTILINE)
-RE_MULTIPLY = re.compile(r"(" + _normal_number_re + r")(x|\sx\s)(" + _normal_number_re + r")")
+RE_MULTIPLY = re.compile(r"(\d+)(x|\sx\s)(\d+)")
 RE_ORDINAL = re.compile(r"(thứ|hạng)(\s+)(\d+)\b", re.IGNORECASE)
 RE_PHONE = re.compile(r"((\+84|84|0|0084)(3|5|7|8|9)[0-9]{8})")
 RE_DOT_SEP = re.compile(r"\d+(\.\d{3})+")

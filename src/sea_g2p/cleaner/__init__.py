@@ -5,66 +5,93 @@ from .num2vi import n2w, n2w_single
 from .numerical import normalize_number_vi
 from .datestime import normalize_date, normalize_time
 from .text_norm import (
-    normalize_others, expand_measurement, expand_currency,
+    normalize_others, expand_measurement_currency,
     expand_compound_units, expand_abbreviations, expand_standalone_letters,
-    expand_scientific_notation, fix_english_style_numbers, expand_power_of_ten,
+    expand_scientific_notation, expand_power_of_ten,
     normalize_technical, normalize_emails, RE_TECHNICAL, RE_EMAIL
 )
 
-def _expand_float(m):
-    int_part = n2w(m.group(1).replace('.', ''))
-    dec_part = m.group(2).rstrip('0')
-    if not dec_part:
-        res = int_part
-    else:
-        res = f"{int_part} phẩy {n2w_single(dec_part)}"
-    
-    if m.group(3):
-        res += " phần trăm"
-    return f" {res} "
-
-def _strip_dot_sep(m):
-    return m.group(0).replace('.', '')
 
 def _normalize_pre_number(text):
-    # Handle explicit powers of ten: 1.5×10^-3 or 1.5x10^3 or 1.5*10^3
-    # Anchored regex to reduce search space and avoid ReDoS
+    # 1. Powers of ten
     text = re.sub(r'\b(\d+(?:[.,]\d+)?)\s*[x*×]\s*10\^([-+]?\d+)\b', expand_power_of_ten, text, flags=re.IGNORECASE)
     text = re.sub(r'\b10\^([-+]?\d+)\b', lambda m: f"mười mũ {('trừ ' + n2w(m.group(1)[1:])) if m.group(1).startswith('-') else n2w(m.group(1).replace('+', ''))}", text)
     
+    # 2. Abbreviations and Date/Time
     text = expand_abbreviations(text)
     text = normalize_date(text)
     text = normalize_time(text)
     
-    def _range_sub(m):
-        n1 = re.sub(r'[,.]', '', m.group(1))
-        n2 = re.sub(r'[,.]', '', m.group(2))
-        # Only treat as a numeric range if digit counts are similar (within 1)
-        if abs(len(n1) - len(n2)) <= 1:
-            return f'{m.group(1)} đến {m.group(2)}'
-        return f'{m.group(1)} {m.group(2)}'
-    text = re.sub(r'(\d+(?:[,.]\d+)?)\s*[–\-—]\s*(\d+(?:[,.]\d+)?)', _range_sub, text)
-    text = re.sub(r'(?<=\s)[–\-—](?=\s)', ',', text)
-    text = re.sub(r'\s*(?:->|=>)\s*', ' sang ', text)
+    # 3. Ranges and Arrows
+    def _range_or_dash(m):
+        if m.group(1) and m.group(2): # Range
+            n1 = re.sub(r'[,.]', '', m.group(1))
+            n2 = re.sub(r'[,.]', '', m.group(2))
+            if abs(len(n1) - len(n2)) <= 1:
+                return f'{m.group(1)} đến {m.group(2)}'
+            return f'{m.group(1)} {m.group(2)}'
+        elif m.group(3): # Arrow
+            return ' sang '
+        return ',' # Standalone dash
+
+    text = re.sub(r'''
+        (\d+(?:[,.]\d+)?)\s*[–\-—]\s*(\d+(?:[,.]\d+)?)  # Range (groups 1, 2)
+        |
+        (\s*(?:->|=>)\s*)                                # Arrow (group 3)
+        |
+        ((?<=\s)[–\-—](?=\s))                            # Standalone dash (group 4)
+    ''', _range_or_dash, text, flags=re.VERBOSE)
+
     return text
 
 def _normalize_units_currency(text):
+    # 1. Scientific and compound units
     text = expand_scientific_notation(text)
     text = expand_compound_units(text)
-    text = expand_measurement(text)
-    text = expand_currency(text)
+    text = expand_measurement_currency(text)
 
-    text = re.sub(r'\b\d{1,3}(?:,\d{3})+(?:\.\d+)?\b', fix_english_style_numbers, text)
+    # 2. Number style fixes and multi-comma expansion
+    def _fix_and_expand_numbers(m):
+        val = m.group(1) if m.group(1) else m.group(2)
 
-    def _expand_multi_comma(m):
+        # fix_english_style_numbers logic for m.group(1)
+        if m.group(1):
+            has_comma = ',' in val
+            has_dot = '.' in val
+            if val.count(',') > 1 or (has_comma and has_dot and val.find(',') < val.find('.')):
+                return val.replace(',', '').replace('.', ',') if has_dot else val.replace(',', '')
+            if has_comma and has_dot:
+                return val.replace(',', '').replace('.', ',')
+            return val
+
+        # _expand_multi_comma logic for m.group(2)
         res = []
-        for s in m.group(1).split(','):
+        for s in val.split(','):
             res.append(' '.join(n2w_single(c) for c in s))
         return ' phẩy '.join(res)
-    text = re.sub(r'\b(\d+(?:,\d+){2,})\b', _expand_multi_comma, text)
 
-    text = re.sub(r'(?<![\d.])(\d+(?:\.\d{3})*),(\d+)(%)?', _expand_float, text)
-    text = re.sub(r'(?<![\d.])\d+(?:\.\d{3})+(?![\d.])', _strip_dot_sep, text)
+    text = re.sub(r'''
+        \b(\d{1,3}(?:,\d{3})+(?:\.\d+)?)\b  # English style numbers
+        |
+        \b(\d+(?:,\d+){2,})\b               # Multi-comma numbers
+    ''', _fix_and_expand_numbers, text, flags=re.VERBOSE)
+
+    # 3. Float and dot separator normalization
+    def _float_or_dot_sep(m):
+        if m.group(1): # _expand_float
+            int_part = n2w(m.group(1).replace('.', ''))
+            dec_part = m.group(2).rstrip('0')
+            res = f"{int_part} phẩy {n2w_single(dec_part)}" if dec_part else int_part
+            if m.group(3): res += " phần trăm"
+            return f" {res} "
+        return m.group(0).replace('.', '') # _strip_dot_sep
+
+    text = re.sub(r'''
+        (?<![\d.])(\d+(?:\.\d{3})*),(\d+)(%)?  # Float with comma decimal
+        |
+        (?<![\d.])\d+(?:\.\d{3})+(?![\d.])      # Dot separated thousands
+    ''', _float_or_dot_sep, text, flags=re.VERBOSE)
+
     return text
 
 def _normalize_post_number(text):

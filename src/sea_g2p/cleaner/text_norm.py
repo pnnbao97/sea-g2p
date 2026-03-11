@@ -1,6 +1,5 @@
 import re
 from .num2vi import n2w, n2w_single
-from .symbols import vietnamese_re, vietnamese_without_num_re
 
 _vi_letter_names = {
     "a": "a", "b": "bê", "c": "xê", "d": "đê", "đ": "đê", "e": "e", "ê": "ê",
@@ -151,28 +150,20 @@ RE_CURRENCY_SUFFIX_SYMBOL = re.compile(rf"{_NUMERIC_P}{_MAGNITUDE_P}({_CURRENCY_
 RE_PERCENTAGE = re.compile(rf"{_NUMERIC_P}\s*%", re.IGNORECASE)
 
 # Pre-compile measurement and currency unit patterns
-_MEASUREMENT_PATTERNS = []
-for unit, full in sorted(_measurement_key_vi.items(), key=lambda x: len(x[0]), reverse=True):
-    pattern = re.compile(rf"(?<![\d.,]){_NUMERIC_P}{_MAGNITUDE_P}\s*{unit}\b", re.IGNORECASE)
+_ALL_UNITS_MAP = {k.lower(): v for k, v in {**_measurement_key_vi, **_currency_key}.items()}
+if "%" in _ALL_UNITS_MAP:
+    del _ALL_UNITS_MAP["%"]
 
-    standalone_pattern = None
-    safe_standalone = [
-        "km", "cm", "mm", "kg", "mg", "usd", "vnd", "ph"
-    ]
-    if unit.lower() in safe_standalone:
-        standalone_pattern = re.compile(rf"(?<![\d.,])\b{unit}\b", re.IGNORECASE)
+_UNIT_NAMES_SORTED = sorted(_ALL_UNITS_MAP.keys(), key=len, reverse=True)
+RE_UNITS_WITH_NUM = re.compile(rf"(?<![\d.,]){_NUMERIC_P}{_MAGNITUDE_P}\s*(" + "|".join(re.escape(u) for u in _UNIT_NAMES_SORTED) + r")\b", re.IGNORECASE)
 
-    _MEASUREMENT_PATTERNS.append((pattern, standalone_pattern, full))
-
-_CURRENCY_PATTERNS = []
-for unit, full in _currency_key.items():
-    if unit == "%": continue
-    pattern = re.compile(rf"(?<![\d.,]){_NUMERIC_P}{_MAGNITUDE_P}\s*{unit}\b", re.IGNORECASE)
-    _CURRENCY_PATTERNS.append((pattern, full))
+_SAFE_STANDALONE = ["km", "cm", "mm", "kg", "mg", "usd", "vnd", "ph", "đ"]
+RE_STANDALONE_UNIT = re.compile(rf"(?<![\d.,])\b(" + "|".join(re.escape(u) for u in _SAFE_STANDALONE) + r")\b", re.IGNORECASE)
 
 # Pre-compile acronyms exceptions (sorted by length descending for longest-match-first)
 _combined_exceptions = {**_acronyms_exceptions_vi, **_technical_terms}
-_ACRONYMS_EXCEPTIONS_RE = [(re.compile(rf"\b{re.escape(k)}\b"), v) for k, v in sorted(_combined_exceptions.items(), key=lambda x: len(x[0]), reverse=True)]
+_EXCEPTIONS_SORTED_KEYS = sorted(_combined_exceptions.keys(), key=len, reverse=True)
+RE_ACRONYMS_EXCEPTIONS = re.compile(rf"\b(" + "|".join(re.escape(k) for k in _EXCEPTIONS_SORTED_KEYS) + r")\b")
 
 _ROMAN_NUMERALS = {"I": 1, "V": 5, "X": 10, "L": 50, "C": 100, "D": 500, "M": 1000}
 
@@ -249,21 +240,6 @@ def _expand_number_with_sep(num_str):
     if ',' in num_str or '.' in num_str: return _expand_single_sep(num_str)
     return n2w(num_str)
 
-def fix_english_style_numbers(m):
-    val = m.group(0)
-    has_comma = ',' in val
-    has_dot = '.' in val
-
-    # definitely English thousands (multiple commas or dot after comma)
-    if val.count(',') > 1 or (has_comma and has_dot and val.find(',') < val.find('.')):
-        return val.replace(',', '').replace('.', ',') if has_dot else val.replace(',', '')
-
-    # single comma, likely English thousands or decimal (handled by single sep logic later)
-    # but 1,299.5 (English style) needs to be 1299,5
-    if has_comma and has_dot:
-        return val.replace(',', '').replace('.', ',')
-
-    return val
 
 def expand_power_of_ten(m):
     base = m.group(1)
@@ -284,23 +260,8 @@ def expand_scientific_notation(text):
     pattern = re.compile(r'\b(\d+(?:[.,]\d+)?e[+-]?\d+)\b', re.IGNORECASE)
     return pattern.sub(lambda m: _expand_number_with_sep(m.group(1)), text)
 
-def expand_measurement(text):
-    def _repl(m, full):
-        num = m.group(1)
-        mag = m.group(2) if m.group(2) else ""
-        expanded_num = _expand_number_with_sep(num)
-        return f"{expanded_num} {mag} {full}".replace("  ", " ").strip()
-    
-    for pattern, standalone_pattern, full in _MEASUREMENT_PATTERNS:
-        # Case with number
-        text = pattern.sub(lambda m, f=full: _repl(m, f), text)
-        
-        # Standalone units
-        if standalone_pattern:
-            text = standalone_pattern.sub(f" {full} ", text)
-    return text
-
-def expand_currency(text):
+def expand_measurement_currency(text):
+    """Combined expansion for measurement and currency units."""
     def _repl_symbol(m, is_prefix=True):
         symbol = m.group(1 if is_prefix else 3)
         num = m.group(2 if is_prefix else 1)
@@ -310,18 +271,25 @@ def expand_currency(text):
         expanded_num = _expand_number_with_sep(num)
         return f"{expanded_num} {mag} {full}".replace("  ", " ").strip()
 
-    def _repl(m, full):
+    def _repl_unit(m):
         num = m.group(1)
         mag = m.group(2) if m.group(2) else ""
+        unit = m.group(3).lower()
+        full = _ALL_UNITS_MAP.get(unit, unit)
         expanded_num = _expand_number_with_sep(num)
         return f"{expanded_num} {mag} {full}".replace("  ", " ").strip()
-        
+
+    # 1. Symbols
     text = RE_CURRENCY_PREFIX_SYMBOL.sub(lambda m: _repl_symbol(m, True), text)
     text = RE_CURRENCY_SUFFIX_SYMBOL.sub(lambda m: _repl_symbol(m, False), text)
     text = RE_PERCENTAGE.sub(lambda m: f"{_expand_number_with_sep(m.group(1))} phần trăm", text)
     
-    for pattern, full in _CURRENCY_PATTERNS:
-        text = pattern.sub(lambda m, f=full: _repl(m, f), text)
+    # 2. Units with numbers
+    text = RE_UNITS_WITH_NUM.sub(_repl_unit, text)
+
+    # 3. Standalone units
+    text = RE_STANDALONE_UNIT.sub(lambda m: f" {_ALL_UNITS_MAP.get(m.group(1).lower(), m.group(1))} ", text)
+
     return text
 
 def expand_compound_units(text):
@@ -675,8 +643,7 @@ def normalize_others(text):
     This function is called by clean_vietnamese_text.
     """
     # 1. Expand acronym exceptions and basic patterns
-    for pattern, v in _ACRONYMS_EXCEPTIONS_RE:
-        text = pattern.sub(v, text)
+    text = RE_ACRONYMS_EXCEPTIONS.sub(lambda m: _combined_exceptions[m.group(1)], text)
     
     text = normalize_slashes(text)
     
