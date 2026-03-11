@@ -66,8 +66,9 @@ _acronyms_exceptions_vi = {
     "UAE": "u a e", "CUDA": "cu đa"
 }
 
-_technical_terms_en = {
+_technical_terms = {
     "JSON": "__start_en__j son__end_en__",
+    "VRAM": "__start_en__v ram__end_en__",
     "VN-Index": "__start_en__v n__end_en__ index",
     "MS DOS": "__start_en__m s dos__end_en__",
     "MS-DOS": "__start_en__m s dos__end_en__",
@@ -75,7 +76,9 @@ _technical_terms_en = {
     "MI5": "__start_en__m i five__end_en__",
     "MI6": "__start_en__m i six__end_en__",
     "2FA": "__start_en__two f a__end_en__",
-    "TX-0": "__start_en__t x zero__end_en__"
+    "TX-0": "__start_en__t x zero__end_en__",
+    "IPv6": "__start_en__i p v__end_en__ sáu",
+    "IPv4": "__start_en__i p v__end_en__ bốn",
 }
 
 # Compiled Regular Expressions
@@ -94,6 +97,8 @@ RE_TECHNICAL = re.compile(r'''
     \b[a-zA-Z0-9._\-]+\.(?:txt|log|tar|gz|zip|sh|py|js|cpp|h|json|xml|yaml|yml|md|csv|pdf|docx|xlsx|exe|dll|so|config)\b
     |
     \b[a-zA-Z][a-zA-Z0-9]*(?:[._\-][a-zA-Z0-9]+){2,}\b
+    |
+    \b(?:[a-fA-F0-9]{1,4}:){3,7}[a-fA-F0-9]{1,4}\b
 ''', re.VERBOSE | re.IGNORECASE)
 RE_SLASH_NUMBER = re.compile(r'\b(\d+)/(\d+)\b')
 RE_EMAIL = re.compile(r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b')
@@ -166,7 +171,7 @@ for unit, full in _currency_key.items():
     _CURRENCY_PATTERNS.append((pattern, full))
 
 # Pre-compile acronyms exceptions (sorted by length descending for longest-match-first)
-_combined_exceptions = {**_acronyms_exceptions_vi, **_technical_terms_en}
+_combined_exceptions = {**_acronyms_exceptions_vi, **_technical_terms}
 _ACRONYMS_EXCEPTIONS_RE = [(re.compile(rf"\b{re.escape(k)}\b"), v) for k, v in sorted(_combined_exceptions.items(), key=lambda x: len(x[0]), reverse=True)]
 
 _ROMAN_NUMERALS = {"I": 1, "V": 5, "X": 10, "L": 50, "C": 100, "D": 500, "M": 1000}
@@ -463,14 +468,26 @@ def normalize_technical(text):
                     # In technical contexts (filenames, IDs), read digits individually
                     res.append(" ".join(n2w_single(c) for c in s))
                 else:
-                    # Space out short segments (acronym-like) ONLY if they were uppercase
-                    # or very short (<= 2) and it's likely an acronym
-                    val = s.lower()
-                    if s.isupper() and len(s) <= 4:
-                        val = " ".join(val)
-                    elif len(val) <= 2 and len(val) > 0: # e.g. 'io' -> 'i o'
-                        val = " ".join(val)
-                    res.append(f"__start_en__{val}__end_en__")
+                    # Split into letters and digits
+                    sub_tokens = std_re.findall(r'[a-zA-Z]+|\d+', s)
+                    if len(sub_tokens) > 1:
+                        for t in sub_tokens:
+                            if t.isdigit():
+                                res.append(" ".join(n2w_single(c) for c in t))
+                            else:
+                                val = t.lower()
+                                if t.isupper() and len(t) <= 4:
+                                    val = " ".join(val)
+                                elif len(val) <= 2 and len(val) > 0:
+                                    val = " ".join(val)
+                                res.append(f"__start_en__{val}__end_en__")
+                    else:
+                        val = s.lower()
+                        if s.isupper() and len(s) <= 4:
+                            val = " ".join(val)
+                        elif len(val) <= 2 and len(val) > 0: # e.g. 'io' -> 'i o'
+                            val = " ".join(val)
+                        res.append(f"__start_en__{val}__end_en__")
             else:
                 for char in s.lower():
                     if char.isalnum():
@@ -504,6 +521,15 @@ def normalize_emails(text):
             if not s: return ""
             if s.isdigit(): return n2w(s)
             if s.isalnum() and s.isascii():
+                sub_tokens = re.findall(r'[a-zA-Z]+|\d+', s)
+                if len(sub_tokens) > 1:
+                    res_parts = []
+                    for t in sub_tokens:
+                        if t.isdigit():
+                            res_parts.append(n2w(t))
+                        else:
+                            res_parts.append(f"__start_en__{t.lower()}__end_en__")
+                    return " ".join(res_parts)
                 val = s.lower()
                 # Use English tags for segments to avoid character-by-character spelling
                 return f"__start_en__{val}__end_en__"
@@ -564,7 +590,7 @@ def normalize_emails(text):
 
     return RE_EMAIL.sub(_repl_email, text)
 
-WORD_LIKE_ACRONYMS = {"UNESCO", "NASA", "NATO", "ASEAN", "OPEC", "SARS", "FIFA", "UNIC", "RAM", "VRAM", "COVID", "IELTS", "STEM", "SWAT", "SEAL", "WASP", "COBOL", "BASIC", "OLED", "COVAX", "BRICS", "APEC", "VUCA", "PERMA", "DINK", "MENA", "EPIC", "OASIS", "BASE", "DART", "IDEA", "CHAOS", "SMART", "FANG", "BLEU"}
+WORD_LIKE_ACRONYMS = {"UNESCO", "NASA", "NATO", "ASEAN", "OPEC", "SARS", "FIFA", "UNIC", "RAM", "VRAM", "COVID", "IELTS", "STEM", "SWAT", "SEAL", "WASP", "COBOL", "BASIC", "OLED", "COVAX", "BRICS", "APEC", "VUCA", "PERMA", "DINK", "MENA", "EPIC", "OASIS", "BASE", "DART", "IDEA", "CHAOS", "SMART", "FANG", "BLEU", "REST"}
 # AT&T
 def normalize_acronyms(text):
     sentences = RE_SENTENCE_SPLIT.split(text)
@@ -681,8 +707,13 @@ def normalize_others(text):
     # 5. Normalize acronyms (spell out or tag with <en>)
     text = normalize_acronyms(text)
 
-    # 6. Expand version numbers (e.g., 1.2.3 -> 1 chấm 2 chấm 3)
-    text = RE_VERSION.sub(lambda m: ' chấm '.join(m.group(1).split('.')), text)
+    # 6. Expand version numbers and IPs (e.g., 1.2.3 -> một chấm hai chấm ba)
+    def _expand_version(m):
+        res = []
+        for s in m.group(1).split('.'):
+            res.append(" ".join(n2w_single(c) for c in s))
+        return ' chấm '.join(res)
+    text = RE_VERSION.sub(_expand_version, text)
 
     # 7. Final punctuation normalization: convert : and ; to commas for better prosody
     text = re.sub(r'[:;]', ',', text)

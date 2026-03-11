@@ -19,10 +19,10 @@ def test_phonemize_english_tag(g2p):
     assert any(c in phonemes for c in "əˈʃ")
 
 def test_phonemize_with_custom_dict(g2p):
-    custom_dict = {"robot": "ro-bot-phi-diệu"}
+    custom_dict = {"robot": "rô bốt"}
     text = "Tôi là robot"
     phonemes = g2p.convert(text, phoneme_dict=custom_dict)
-    assert "ro-bot-phi-diệu" in phonemes
+    assert "rô bốt" in phonemes
 
 def test_phonemize_batch_consistency(g2p):
     texts = ["Xin chào", "Việt Nam", "Chào <en>world</en>"]

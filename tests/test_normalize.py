@@ -245,6 +245,8 @@ TEST_CASES = [
     ("It's a beautiful day", "it's a beautiful day"),
     ("Giá của 'Sản phẩm' này là $10", "giá của sản phẩm này là mười <en>u s d</en>"),
     ("Giá SP500 hôm nay là 4.200,5 điểm", "giá ét pê năm trăm hôm nay là bốn nghìn hai trăm phẩy năm điểm"),
+    ("Trường hợp 1,23,4", "trường hợp một phẩy hai ba phẩy bốn"),
+    ("Trường hợp 1,234,567", "trường hợp một triệu hai trăm ba mươi bốn nghìn năm trăm sáu mươi bảy"),
 
     # ─── 28. CÁC TRƯỜNG HỢP MỚI (SCIENTIFIC, CURRENCY, ENGLISH SEPARATORS) ───
     ("3.2e5 km", "ba chấm hai nhân mười mũ năm ki lô mét"),
@@ -257,11 +259,17 @@ TEST_CASES = [
     ("1,299,495", "một triệu hai trăm chín mươi chín nghìn bốn trăm chín mươi lăm"),
     ("1,299", "một phẩy hai chín chín"),
     ("1,299.5", "một nghìn hai trăm chín mươi chín phẩy năm"),
+    ("Giá cổ phiếu tăng từ $0.000045 lên $1,234.5678 trong 3.5×10^6 giao dịch.", "giá cổ phiếu tăng từ không chấm không không không không bốn năm <en>u s d</en> lên một nghìn hai trăm ba mươi bốn phẩy năm sáu bảy tám <en>u s d</en> trong ba chấm năm nhân mười mũ sáu giao dịch."),
     # ─── 29. URL, REPO, EMAIL (EXTENDED) ────────────────────────────────
     ("Trang chủ là https://openai.com.", "trang chủ là <en>https</en> <en>openai</en> chấm com."),
     ("Repo nằm ở github.com/user/project.", "repo nằm ở <en>github</en> chấm com gạch <en>user</en> gạch <en>project</en>."),
     ("Tài liệu đọc tại docs.python.org.", "tài liệu đọc tại <en>docs</en> chấm <en>python</en> chấm o rờ gờ."),
     ("Hãy gửi email đến support@example.com.", "hãy gửi email đến <en>support</en> a còng <en>example</en> chấm com."),
+    ("Địa chỉ IP là 192.168.1.1 hoặc 10.0.0.1.", "địa chỉ <en>i p</en> là một chín hai chấm một sáu tám chấm một chấm một hoặc một không chấm không chấm không chấm một."),
+    ("Phiên bản phần mềm là 1.25.3.4", "phiên bản phần mềm là một chấm hai năm chấm ba chấm bốn"),
+    ("IPv6 là 2001:0db8:85a3:0000:0000:8a2e:0370:7334", "<en>i p v</en> sáu là hai không không một hai chấm không <en>d b</en> tám hai chấm tám năm <en>a</en> ba hai chấm không không không không hai chấm không không không không hai chấm tám <en>a</en> hai <en>e</en> hai chấm không ba bảy không hai chấm bảy ba ba bốn"),
+    ("Số 123.456.789", "số một trăm hai mươi ba triệu bốn trăm năm mươi sáu nghìn bảy trăm tám mươi chín"),
+    ("Mã này là 192.16.2", "mã này là một chín hai chấm một sáu chấm hai"),
     ("File tải tại ftp://example.org/data.zip.", "file tải tại <en>f t p</en> <en>example</en> chấm o rờ gờ gạch <en>data</en> chấm <en>zip</en>."),
     ("Nhiệt độ ngoài trời là -3.5°C.", "nhiệt độ ngoài trời là âm ba chấm năm độ xê."),
     ("Anh ấy chạy 10.000m trong 27:45.", "anh ấy chạy mười nghìn mét trong hai mươi bảy phút bốn mươi lăm giây."),
@@ -287,13 +295,13 @@ TEST_CASES = [
     ("Dân số thế giới khoảng 7,888,000,000 người (~7.9B).",
      "dân số thế giới khoảng bảy tỷ tám trăm tám mươi tám triệu người, khoảng bảy chấm chín bê."),
     ("Latency trung bình chỉ ~42ms / request qua REST API.",
-     "latency trung bình chỉ khoảng bốn mươi hai mi li giây trên request qua <en>r e s t</en> <en>a p i</en>."),
+     "latency trung bình chỉ khoảng bốn mươi hai mi li giây trên request qua <en>rest</en> <en>a p i</en>."),
     ("Liên hệ qua email research.ai+test@example-domain.org.",
      "liên hệ qua email <en>research</en> chấm <en>ai</en> cộng <en>test</en> a còng <en>example</en> gạch ngang <en>domain</en> chấm o rờ gờ."),
     ("Gửi báo cáo đến admin_v2@server.ai.",
-     "gửi báo cáo đến <en>admin</en> gạch dưới <en>v2</en> a còng <en>server</en> chấm <en>ai</en>."),
+     "gửi báo cáo đến <en>admin</en> gạch dưới <en>v</en> hai a còng <en>server</en> chấm <en>ai</en>."),
     ("Repo nằm ở https://github.com/user/project-v2.",
-     "repo nằm ở <en>https</en> <en>github</en> chấm com gạch <en>user</en> gạch <en>project</en> gạch ngang <en>v 2</en>."),
+     "repo nằm ở <en>https</en> <en>github</en> chấm com gạch <en>user</en> gạch <en>project</en> gạch ngang <en>v</en> hai."),
     ("Tại sao khi x 8 thì nó lại là 8x - mà với lại 20 x 8 = ?", "tại sao khi ích tám thì nó lại là tám ích, mà với lại hai mươi nhân tám bằng?"),
 
     # ─── 31. KÝ HIỆU - GIỮA SỐ CÓ ĐỘ LỚN KHÁC NHAU ────────────────────────────

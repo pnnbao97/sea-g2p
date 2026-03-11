@@ -55,8 +55,16 @@ def _normalize_units_currency(text):
     text = expand_currency(text)
 
     text = re.sub(r'\b\d{1,3}(?:,\d{3})+(?:\.\d+)?\b', fix_english_style_numbers, text)
+
+    def _expand_multi_comma(m):
+        res = []
+        for s in m.group(1).split(','):
+            res.append(' '.join(n2w_single(c) for c in s))
+        return ' phẩy '.join(res)
+    text = re.sub(r'\b(\d+(?:,\d+){2,})\b', _expand_multi_comma, text)
+
     text = re.sub(r'(?<![\d.])(\d+(?:\.\d{3})*),(\d+)(%)?', _expand_float, text)
-    text = re.sub(r'\b\d+(?:\.\d{3})+\b', _strip_dot_sep, text)
+    text = re.sub(r'(?<![\d.])\d+(?:\.\d{3})+(?![\d.])', _strip_dot_sep, text)
     return text
 
 def _normalize_post_number(text):
