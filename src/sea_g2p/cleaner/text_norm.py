@@ -162,8 +162,7 @@ def _expand_number_with_sep(num_str):
     if 'e' in num_str.lower():
         parts = re.split('e', num_str, flags=re.IGNORECASE)
         if len(parts) == 2:
-            base = parts[0]
-            exp = parts[1]
+            base, exp = parts
 
             # Normalize base - forcing decimal for scientific base
             if '.' in base and base.count('.') == 1:
@@ -176,73 +175,75 @@ def _expand_number_with_sep(num_str):
                  base_expanded = _expand_number_with_sep(base)
 
             # Normalize exponent
-            if exp.startswith('-'):
-                exp_expanded = "trừ " + n2w(exp[1:])
-            elif exp.startswith('+'):
-                exp_expanded = n2w(exp[1:])
+            exp_val = exp.replace('+', '')
+            if exp_val.startswith('-'):
+                exp_expanded = "trừ " + n2w(exp_val[1:])
             else:
-                exp_expanded = n2w(exp)
+                exp_expanded = n2w(exp_val)
 
             return f"{base_expanded} nhân mười mũ {exp_expanded}"
 
     # Handle English vs Vietnamese number formats
-    # Vietnamese: 1.299.495,50 (dot for thousands, comma for decimal)
-    # English: 1,299,495.50 (comma for thousands, dot for decimal)
-    
-    # 1.299 -> Vietnamese thousand separator? NO, typically it needs to be 1.299,xx or part of a larger number.
-    # But usually 1,299 in VN is 1.299 decimal.
-
-    # Heuristic:
-    # If it has a comma followed by EXACTLY 3 digits, and NO OTHER comma, it might be ambiguous.
-    # User says: 1,299 should be "một phẩy hai chín chín"
-    # But 1,299,495 should be "một triệu hai trăm chín mươi chín nghìn bốn trăm chín mươi lăm"
-    # And 1,299.5 should be "một nghìn hai trăm chín mươi chín phẩy năm"
-
+    # Mixed separators (e.g., 1,299.5 or 1.299,5)
     if ',' in num_str and '.' in num_str:
-        # Both present:
-        # if dot comes after last comma -> English style (1,299.5)
-        # if comma comes after last dot -> Vietnamese style (1.299,5)
-        if num_str.rfind('.') > num_str.rfind(','):
-            # English style
-            # If it's like 1,299.5 -> "một nghìn hai trăm chín mươi chín phẩy năm"
-            clean_num = num_str.replace(',', '')
-            parts = clean_num.split('.')
-            return f"{n2w(parts[0])} phẩy {n2w_single(parts[1])}"
-        else:
-            # Vietnamese style
-            clean_num = num_str.replace('.', '')
-            parts = clean_num.split(',')
-            return f"{n2w(parts[0])} phẩy {n2w_single(parts[1])}"
+        if num_str.rfind('.') > num_str.rfind(','): # English style (1,299.5)
+            parts = num_str.replace(',', '').split('.')
+        else: # Vietnamese style (1.299,5)
+            parts = num_str.replace('.', '').split(',')
+        return f"{n2w(parts[0])} phẩy {n2w_single(parts[1])}"
 
-    # Handle 1,299,495 (multiple commas) vs 1,299 (single comma, 3 digits)
+    # Single separator
     if ',' in num_str:
         parts = num_str.split(',')
-        if len(parts) > 2:
-            # Multiple commas: English thousands (1,299,495)
+        if len(parts) > 2: # Multiple commas: English thousands
             return n2w(num_str.replace(',', ''))
-        elif len(parts) == 2:
-            if len(parts[1]) == 3:
-                # Ambiguous: 1,299. User specifically said 1,299 is one phẩy two nine nine.
-                return f"{n2w(parts[0])} phẩy {n2w_single(parts[1])}"
-            else:
-                # Standard Vietnamese decimal
-                return f"{n2w(parts[0])} phẩy {n2w_single(parts[1])}"
-
+        # len(parts) == 2: Ambiguous (1,299) or standard decimal (1,5)
+        # User requested 1,299 as decimal "một phẩy hai chín chín"
+        return f"{n2w(parts[0])} phẩy {n2w_single(parts[1])}"
 
     if '.' in num_str:
         parts = num_str.split('.')
-        if len(parts) > 2:
-            # Multiple dots: Vietnamese thousands (1.299.495)
+        if len(parts) > 2 or (len(parts) == 2 and len(parts[1]) == 3):
+            # Multiple dots or 3 digits after dot: Vietnamese thousands (1.299)
             return n2w(num_str.replace('.', ''))
-        elif len(parts) == 2:
-            if len(parts[1]) == 3:
-                # 1.299 -> typically Vietnamese thousands
-                return n2w(num_str.replace('.', ''))
-            else:
-                # English decimal or version - use "chấm" for backward compatibility and scientific notation
-                return f"{n2w(parts[0])} chấm {n2w_single(parts[1])}"
+        # English decimal or version (1.3)
+        return f"{n2w(parts[0])} chấm {n2w_single(parts[1])}"
 
     return n2w(num_str)
+
+def fix_english_style_numbers(m):
+    val = m.group(0)
+    # If it has more than 1 comma, or it has a dot after a comma, it's definitely English thousands
+    if val.count(',') > 1 or (',' in val and '.' in val and val.find(',') < val.find('.')):
+        if '.' in val:
+            parts = val.split('.')
+            return parts[0].replace(',', '') + ',' + parts[1]
+        return val.replace(',', '')
+
+    # If it's something like 1,299 (single comma, 3 digits)
+    if ',' in val and val.count(',') == 1 and '.' not in val:
+        parts = val.split(',')
+        if len(parts[1]) == 3:
+            return val
+
+    # 1,299.5 -> we want 1299,5
+    if ',' in val and '.' in val:
+         parts = val.split('.')
+         return parts[0].replace(',', '') + ',' + parts[1]
+
+    return val
+
+def expand_power_of_ten(m):
+    base = m.group(1)
+    exp = m.group(2)
+    # Use global normalize_others instead of local import
+    base_norm = normalize_others(base).strip()
+    exp_val = exp.replace('+', '')
+    if exp_val.startswith('-'):
+        exp_norm = "trừ " + n2w(exp_val[1:])
+    else:
+        exp_norm = n2w(exp_val)
+    return f" {base_norm} nhân mười mũ {exp_norm} "
 
 def expand_scientific_notation(text):
     # Match something like 3.2e5 or 6.626e-34

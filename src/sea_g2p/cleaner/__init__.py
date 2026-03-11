@@ -7,7 +7,7 @@ from .datestime import normalize_date, normalize_time
 from .text_norm import (
     normalize_others, expand_measurement, expand_currency,
     expand_compound_units, expand_abbreviations, expand_standalone_letters,
-    expand_scientific_notation
+    expand_scientific_notation, fix_english_style_numbers, expand_power_of_ten
 )
 
 def _expand_float(m):
@@ -25,19 +25,8 @@ def clean_vietnamese_text(text):
     mask_map = {}
 
     # Handle explicit powers of ten: 1.5×10^-3 or 1.5x10^3 or 1.5*10^3
-    def _expand_power_of_ten(m):
-        base = m.group(1)
-        exp = m.group(2)
-        base_norm = normalize_others(base).strip()
-        if exp.startswith('-'):
-            exp_norm = "trừ " + n2w(exp[1:])
-        elif exp.startswith('+'):
-            exp_norm = n2w(exp[1:])
-        else:
-            exp_norm = n2w(exp)
-        return f" {base_norm} nhân mười mũ {exp_norm} "
-
-    text = re.sub(r'(\d+(?:[.,]\d+)?)\s*(?:x|\*|×)\s*10\^([-+]?\d+)', _expand_power_of_ten, text, flags=re.IGNORECASE)
+    # Mitigate ReDoS by avoiding nested quantifiers and ensuring efficient matching
+    text = re.sub(r'(\d+(?:[.,]\d+)?)\s*[x*×]\s*10\^([-+]?\d+)', expand_power_of_ten, text, flags=re.IGNORECASE)
     text = re.sub(r'10\^([-+]?\d+)', lambda m: f"mười mũ {('trừ ' + n2w(m.group(1)[1:])) if m.group(1).startswith('-') else n2w(m.group(1).replace('+', ''))}", text)
     
     def protect(match):
@@ -69,35 +58,7 @@ def clean_vietnamese_text(text):
 
     # Convert English thousand separators to Vietnamese style or remove them for general numbers
     # only if they look like English thousands (1,299,495.5 or 1,299,495)
-    def _fix_english_style(m):
-        val = m.group(0)
-        # If it has more than 1 comma, or it has a dot after a comma, it's definitely English thousands
-        if val.count(',') > 1 or (',' in val and '.' in val and val.find(',') < val.find('.')):
-            if '.' in val:
-                parts = val.split('.')
-                return parts[0].replace(',', '') + ',' + parts[1]
-            else:
-                return val.replace(',', '')
-
-        # If it's something like 1,299 (single comma, 3 digits)
-        if ',' in val and val.count(',') == 1 and '.' not in val:
-            parts = val.split(',')
-            if len(parts[1]) == 3:
-                # User says 1,299 should be "một phẩy hai chín chín"
-                # So we keep it as 1,299 and let _expand_float handle it?
-                # Actually _expand_float expects (\d+(?:\.\d{3})*),(\d+)
-                # 1,299 does match it if we consider it as 1 , 299
-                return val
-
-        # 1,299.5
-        if ',' in val and '.' in val:
-             parts = val.split('.')
-             # if it's 1,299.5 -> we want 1299,5
-             return parts[0].replace(',', '') + ',' + parts[1]
-
-        return val
-
-    text = re.sub(r'\b\d{1,3}(?:,\d{3})+(?:\.\d+)?\b', _fix_english_style, text)
+    text = re.sub(r'\b\d{1,3}(?:,\d{3})+(?:\.\d+)?\b', fix_english_style_numbers, text)
 
     text = re.sub(r'(?<![\d.])(\d+(?:\.\d{3})*),(\d+)(%)?', _expand_float, text)
     text = re.sub(r'\b\d+(?:\.\d{3})+\b', _strip_dot_sep, text)
