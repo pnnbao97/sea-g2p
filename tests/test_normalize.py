@@ -145,6 +145,7 @@ TEST_CASES = [
     ("hiệu lực từ 0h01 (giờ Mỹ) trong vòng", "hiệu lực từ không giờ không một phút, giờ mỹ, trong vòng"),
     ("kết thúc (0h01).", "kết thúc, không giờ không một phút."),
     ("chỉ số là 7,05 - đường huyết là 1.8", "chỉ số là bảy phẩy không năm, đường huyết là một chấm tám"),
+    ("ta có !hôm nay thật kì lạ; ta sẽ đi,chơi", "ta có! hôm nay thật kì lạ, ta sẽ đi, chơi"),
 
     # ─── 16. CẤU TRÚC VĂN BẢN ──────────────────────────────────────────────
     ("Đoạn 1.\nĐoạn 2.", "đoạn một.\nđoạn hai."),
@@ -322,8 +323,10 @@ TEST_CASES = [
     ("Dataset gồm 3.2M samples (~1.8TB audio).", "dataset gồm ba chấm hai triệu samples, khoảng một chấm tám <en>terabyte</en> audio."),
     ("GPU NVIDIA RTX 4090 có 24GB GDDR6X VRAM.", "<en>g p u</en> <en>n v d a</en> <en>r t x</en> bốn nghìn không trăm chín mươi có hai mươi bốn <en>gigabyte</en> gờ đê đê rờ sáu ích <en>v ram</en>."),
     ("API local chạy ở http://localhost:8080/api/v2?lang=vi#top.", "<en>a p i</en> local chạy ở <en>http</en> <en>localhost</en> hai chấm tám không tám không gạch <en>api</en> gạch <en>v</en> hai hỏi <en>lang</en> bằng <en>v i</en> thăng <en>top</en>."),
-    ("Tỷ lệ P/E là 28.7x.", "tỷ lệ pê trên e là hai tám chấm bảy ích.")
-]
+    ("Tỷ lệ P/E là 28.7x.", "tỷ lệ pê trên e là hai tám chấm bảy ích."),
+    ("Câu lệnh SQL: SELECT * FROM users WHERE id=1;", "câu lệnh <en>s q l</en>, <en>select</en> sao <en>from</en> users <en>where</en> id bằng một"),
+    ("EPS quý này đạt $3.45.Tiếng Việt có dấu: Hoà, Hòa, Hòa.", "<en>e p s</en> quý này đạt ba chấm bốn năm <en>u s d</en>. tiếng việt có dấu, hoà, hòa, hòa.")
+    ]
 
 @pytest.mark.parametrize("input_text, expected", TEST_CASES)
 def test_normalize(normalizer, input_text, expected):
