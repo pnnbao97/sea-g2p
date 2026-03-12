@@ -118,7 +118,12 @@ RE_DEGREE = re.compile(r'°')
 RE_VERSION = re.compile(r'\b(\d+(?:\.\d+)+)\b')
 RE_CLEAN_OTHERS = re.compile(r'[^a-zA-Z0-9\sàáảãạăắằẳẵặâấầẩẫậèéẻẽẹêếềểễệìíỉĩịòóỏõọôốồổỗộơớờởỡợùúủũụưứừửữựỳýỷỹỵđÀÁẢÃẠĂẮẰẲẴẶÂẤẦẨẪẬÈÉẺẼẸÊẾỀỂỄỆÌÍỈĨỊÒÓỎÕỌÔỐỒỔỖỘƠỚỜỞỠỢÙÚỦŨỤƯỨỪỬỮỰỲÝỶỸỴĐ.,!?_\'’]')
 RE_CLEAN_QUOTES = re.compile(r'["“”"]')
+RE_CLEAN_QUOTES_EDGES = re.compile(r"(^|\s)['’]+|['’]+($|\s)")
 RE_PRIME = re.compile(r"(\b[a-zA-Z0-9])['’](?!\w)")
+RE_COLON_SEMICOLON = re.compile(r'[:;]')
+RE_UNIT_POWERS = re.compile(r'\b([a-zA-Z]+)\^([-+]?\d+)\b')
+RE_TECH_SPLIT = re.compile(r'([./:?&=/_ \-\\#])')
+RE_EMAIL_SPLIT = re.compile(r'([._\-+])')
 
 _DOMAIN_SUFFIXES_RE = re.compile(r'\.(com|vn|net|org|edu|gov|io|biz|info)\b', re.IGNORECASE)
 _DOMAIN_SUFFIX_MAP = {
@@ -383,7 +388,7 @@ def expand_unit_powers(text):
         return f" {full_base} mũ {power_norm} "
 
     # Match word^[-]number
-    return re.sub(r'\b([a-zA-Z]+)\^([-+]?\d+)\b', _repl, text)
+    return RE_UNIT_POWERS.sub(_repl, text)
 
 def expand_letter(match):
     prefix, q1, char, q2 = match.groups()
@@ -435,7 +440,7 @@ def normalize_technical(text):
             rest = orig[1:]
 
         # Simple segments based on delimiters including backslash for Windows paths and # for URL fragments
-        segments = std_re.split(r'([./:?&=/_ \-\\#])', rest)
+        segments = RE_TECH_SPLIT.split(rest)
         idx = 0
         while idx < len(segments):
             s = segments[idx]
@@ -565,7 +570,7 @@ def normalize_emails(text):
 
         def _process_part(p, is_domain=False):
             # Split by delimiters but keep them: . _ - +
-            segments = re.split(r'([._\-+])', p)
+            segments = RE_EMAIL_SPLIT.split(p)
             res = []
             idx = 0
             while idx < len(segments):
@@ -714,7 +719,7 @@ def normalize_others(text):
     text = RE_CLEAN_QUOTES.sub('', text)
     
     # Remove single quotes only if they are not part of a word (start/end of word)
-    text = re.sub(r"(^|\s)['’]+|['’]+($|\s)", r"\1 \2", text)
+    text = RE_CLEAN_QUOTES_EDGES.sub(r"\1 \2", text)
     
     text = expand_symbols(text)
 
@@ -736,7 +741,7 @@ def normalize_others(text):
     text = RE_VERSION.sub(_expand_version, text)
 
     # 7. Final punctuation normalization: convert : and ; to commas for better prosody
-    text = re.sub(r'[:;]', ',', text)
+    text = RE_COLON_SEMICOLON.sub(',', text)
 
     # 8. Final cleanup of any remaining unsupported characters
     text = RE_CLEAN_OTHERS.sub(' ', text)
