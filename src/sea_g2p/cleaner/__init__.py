@@ -8,7 +8,8 @@ from .text_norm import (
     normalize_others, expand_measurement, expand_currency,
     expand_compound_units, expand_abbreviations, expand_standalone_letters,
     expand_scientific_notation, fix_english_style_numbers, expand_power_of_ten,
-    normalize_technical, normalize_emails, RE_TECHNICAL, RE_EMAIL
+    normalize_technical, normalize_emails, RE_TECHNICAL, RE_EMAIL,
+    _ACRONYMS_EXCEPTIONS_RE
 )
 
 def _expand_float(m):
@@ -89,17 +90,24 @@ def clean_vietnamese_text(text):
         return mask
 
     # Simple regex to protect existing tags, avoiding potential ReDoS in nested patterns
-    text = re.sub(r'___PROTECTED_EN_TAG_\d+___', protect, text)
+    text = re.sub(r'ENTOKEN\d+', protect, text, flags=re.IGNORECASE)
 
     # Normalize URLs and Emails early and protect them
     def protect_url_email(match):
         orig = match.group(0)
-        # First expand it
+        
+        # Priority 1: Email has @ (most specific pattern)
         if '@' in orig:
-            normed = normalize_emails(orig)
-        else:
-            normed = normalize_technical(orig)
-        # Then mask the result
+            return protect(re.Match if False else type('Match', (), {'group': lambda self, n: normalize_emails(orig)})())
+
+        # Priority 2: Check if it's explicitly in our specialized technical exceptions
+        # Move this after email to ensure email patterns aren't partially matched by exceptions
+        for pattern, replacement in _ACRONYMS_EXCEPTIONS_RE:
+            if pattern.fullmatch(orig):
+                return protect(re.Match if False else type('Match', (), {'group': lambda self, n: replacement})())
+
+        # Priority 3: Standard technical normalization (URLs, Paths, Versions, etc.)
+        normed = normalize_technical(orig)
         return protect(re.Match if False else type('Match', (), {'group': lambda self, n: normed})())
 
     # Order matters: Emails first as they are more specific than generic URLs
@@ -117,12 +125,21 @@ def clean_vietnamese_text(text):
     text = re.sub(r'(__start_en__.*?__end_en__|<en>.*?</en>)', protect, text, flags=re.IGNORECASE)
     text = expand_standalone_letters(text)
 
+    # Convert remaining dots between digits to ' chấm ' (for IPs, versions that survived)
+    text = re.sub(r'(\d+)\.(\d+)', r'\1 chấm \2', text)
+    # Recursively handle multiple dots like 10.10.10.10
+    while re.search(r'(\d+)\.(\d+)', text):
+        text = re.sub(r'(\d+)\.(\d+)', r'\1 chấm \2', text)
+
     for mask, original in mask_map.items():
         text = text.replace(mask, original)
         text = text.replace(mask.lower(), original)
 
     # Final conversion of any remaining __start_en__ tags
     text = text.replace('__start_en__', '<en>').replace('__end_en__', '</en>')
+    
+    # Finally, remove any other underscores after internal tag replacement
+    text = text.replace('_', ' ')
 
     text = _cleanup_whitespace(text)
     return text.lower()

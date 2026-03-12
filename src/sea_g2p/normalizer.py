@@ -24,7 +24,7 @@ class Normalizer:
 
         # Step 1: Detect and protect EN tags
         en_contents = []
-        placeholder_pattern = "___PROTECTED_EN_TAG_{}___"
+        placeholder_pattern = "ENTOKEN{}"
         
         def extract_en(match):
             en_contents.append(match.group(0))

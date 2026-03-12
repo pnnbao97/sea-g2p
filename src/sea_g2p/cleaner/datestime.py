@@ -24,16 +24,16 @@ def _expand_full_date(match):
     day, sep1, month, sep2, year = match.groups()
     if _is_valid_date(day, month):
         day = str(int(day))
-        month = str(int(month))
-        return f"ngày {n2w(day)} tháng {n2w(month)} năm {n2w(year)}"
+        m_val = "tư" if int(month) == 4 else n2w(str(int(month)))
+        return f"ngày {n2w(day)} tháng {m_val} năm {n2w(year)}"
     return match.group(0)
 
 def _expand_day_month(match):
     day, sep, month = match.groups()
     if _is_valid_date(day, month):
         day = str(int(day))
-        month = str(int(month))
-        return f"ngày {n2w(day)} tháng {n2w(month)}"
+        m_val = "tư" if int(month) == 4 else n2w(str(int(month)))
+        return f"ngày {n2w(day)} tháng {m_val}"
     return match.group(0)
 
 def _norm_time_part(s):
@@ -62,7 +62,7 @@ def _expand_time(match):
 def normalize_date(text):
     text = RE_FULL_DATE.sub(_expand_full_date, text)
     text = RE_MONTH_YEAR.sub(
-        lambda m: f"tháng {n2w(str(int(m.group(1))))} năm {n2w(m.group(3))}",
+        lambda m: f"tháng { 'tư' if int(m.group(1)) == 4 else n2w(str(int(m.group(1)))) } năm {n2w(m.group(3))}",
         text
     )
     text = RE_DAY_MONTH.sub(_expand_day_month, text)

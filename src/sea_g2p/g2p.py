@@ -6,14 +6,14 @@ import glob
 import sqlite3
 import threading
 import functools
+import base64
 from phonemizer import phonemize
 from phonemizer.backend.espeak.espeak import EspeakWrapper
-
-import base64
 
 # Configure logging
 logger = logging.getLogger("sea_g2p.G2P")
 
+@functools.lru_cache(maxsize=10000)
 def deobfuscate(encoded_text: str) -> str:
     if not encoded_text: return ""
     try:
@@ -28,6 +28,10 @@ class PhonemeDB:
     def __init__(self, db_path: str):
         self.db_path = db_path
         self._local = threading.local()
+        # Cache for lookup results to minimize DB queries
+        self._cache_merged = {}
+        self._cache_common = {}
+        self._cache_missing = set()
 
     def _get_conn(self):
         if not hasattr(self._local, "conn"):
@@ -47,32 +51,56 @@ class PhonemeDB:
         return self._local.conn
 
     def lookup_batch(self, words: list[str]) -> tuple[dict, dict]:
-        """Fetch multiple words from DB in two logical groups: merged and common."""
+        """Fetch multiple words from DB in two logical groups: merged and common (with caching)."""
         if not words: return {}, {}
-        conn = self._get_conn()
-        if not conn: return {}, {}
         
-        cursor = conn.cursor()
         merged_map = {}
         common_map = {}
+        to_query = []
         
+        for w in words:
+            if w in self._cache_merged:
+                merged_map[w] = self._cache_merged[w]
+            elif w in self._cache_common:
+                common_map[w] = self._cache_common[w]
+            elif w in self._cache_missing:
+                continue
+            else:
+                to_query.append(w)
+        
+        if not to_query:
+            return merged_map, common_map
+
+        conn = self._get_conn()
+        if not conn: return merged_map, common_map
+        
+        cursor = conn.cursor()
         chunk_size = 950
-        for i in range(0, len(words), chunk_size):
-            chunk = words[i : i + chunk_size]
+        for i in range(0, len(to_query), chunk_size):
+            chunk = to_query[i : i + chunk_size]
             placeholders = ','.join(['?'] * len(chunk))
 
             query_merged = "SELECT word, phone FROM merged WHERE word IN ({})".format(placeholders)
             cursor.execute(query_merged, chunk)
             for word, phone in cursor.fetchall():
-                merged_map[word] = deobfuscate(phone)
+                val = deobfuscate(phone)
+                merged_map[word] = val
+                self._cache_merged[word] = val
 
             query_common = "SELECT word, vi_phone, en_phone FROM common WHERE word IN ({})".format(placeholders)
             cursor.execute(query_common, chunk)
             for row in cursor.fetchall():
-                common_map[row[0]] = {
+                val = {
                     "vi": deobfuscate(row[1]), 
                     "en": deobfuscate(row[2])
                 }
+                common_map[row[0]] = val
+                self._cache_common[row[0]] = val
+        
+        # Track words that were not found in any table
+        for w in to_query:
+            if w not in merged_map and w not in common_map:
+                self._cache_missing.add(w)
         
         return merged_map, common_map
 
@@ -94,6 +122,7 @@ class G2P:
         self._setup_espeak()
 
     def _setup_espeak(self):
+        self.espeak_available = False
         system = platform.system()
         found = False
         if system == "Windows":
@@ -128,8 +157,16 @@ class G2P:
                     found = True
                     break
         
-        if not found:
-            logger.warning("\033[93m⚠️ eSpeak-NG not found. The system will rely on the built-in dictionary (covers ~99.9% words). Install eSpeak-NG for full fallback support.\033[0m")
+        if found:
+            try:
+                # Test call to ensure espeak is actually functional
+                phonemize(["check"], language='en-us', backend='espeak')
+                self.espeak_available = True
+            except Exception:
+                self.espeak_available = False
+        
+        if not self.espeak_available:
+            logger.warning("\033[93m⚠️ eSpeak-NG not found. The system will rely on the built-in dictionary (covers ~99.9% words). Performance may be affected for out-of-vocabulary words.\033[0m")
 
     def _espeak_fallback_batch(self, texts: list[str], language: str = 'en-us') -> list[str]:
         if not texts: return []
@@ -143,10 +180,12 @@ class G2P:
                 language_switch="remove-flags"
             )
             if isinstance(ph, str): ph = [ph]
-            return [p.strip() for p in ph]
+            res = [p.strip() for p in ph]
+            if res == texts: return None
+            return res
         except Exception as e:
-            logger.warning(f"eSpeak fallback ({language}) failed: {e}")
-            return texts
+            logger.warning(f"eSpeak runtime error ({language}): {e}")
+            return None
 
     def _propagate_language(self, tokens):
         if not tokens: return
@@ -201,7 +240,7 @@ class G2P:
         batch_token_lists = []
         all_words = set()
         global_unknown = set()
-        force_espeak_words = set()
+        en_tagged_words = set()
 
         for text in texts:
             sent_tokens = []
@@ -214,8 +253,8 @@ class G2P:
                         if sp:
                             sent_tokens.append({'lang': 'punct', 'content': sp, 'phone': sp})
                         else:
-                            sent_tokens.append({'lang': 'en', 'content': sw, 'phone': None, 'force_espeak': True})
-                            force_espeak_words.add(sw)
+                            sent_tokens.append({'lang': 'en', 'content': sw, 'phone': None, 'is_en_tag': True})
+                            en_tagged_words.add(sw)
                 elif punct:
                     sent_tokens.append({'lang': 'punct', 'content': punct, 'phone': punct})
                 elif word:
@@ -223,13 +262,34 @@ class G2P:
                     all_words.add(word.lower())
             batch_token_lists.append(sent_tokens)
 
-        # Include force_espeak_words so we can resolve them from dict before using eSpeak
-        all_lookup_words = all_words | {w.lower() for w in force_espeak_words}
+        # Include en_tagged_words so we can resolve them from dict before using eSpeak
+        all_lookup_words = all_words | {w.lower() for w in en_tagged_words}
+        
+        # If eSpeak is missing, we will need to split unknown words into characters.
+        # Pre-lookup all possible characters to optimize.
+        if not self.espeak_available:
+            all_chars = set()
+            for w in all_lookup_words:
+                all_chars.update(list(w))
+            all_lookup_words.update(all_chars)
+
         db_merged, db_common = self.db.lookup_batch(list(all_lookup_words))
+
+        def get_char_phone(char: str, target_lang: str) -> str:
+            """Helper to resolve phoneme for a single character."""
+            lw = char.lower()
+            if lw in custom: return custom[lw]
+            if lw in db_merged: 
+                return db_merged[lw].replace('<en>', '').replace('</en>', '').strip()
+            if lw in db_common:
+                res = db_common[lw]
+                p = res.get(target_lang) or res.get('vi') or res.get('en') or char
+                return p.replace('<en>', '').replace('</en>', '').strip()
+            return char
 
         for sent in batch_token_lists:
             for t in sent:
-                if t['lang'] == 'punct' or t.get('force_espeak'): continue
+                if t['lang'] == 'punct' or t.get('is_en_tag'): continue
                 lw = t['content'].lower()
 
                 if lw in custom:
@@ -245,37 +305,46 @@ class G2P:
                     t['lang'] = 'en'
 
         lut = {}
-        if force_espeak_words:
-            fe_words = sorted(list(force_espeak_words))
-            still_need_espeak = []
+        if en_tagged_words:
+            et_words = sorted(list(en_tagged_words))
+            still_need_fallback = []
 
-            for w in fe_words:
+            for w in et_words:
                 lw = w.lower()
                 if lw in custom:
                     lut[w] = f"<en>{custom[lw]}"
                 elif lw in db_merged:
                     val = db_merged[lw]
                     # Strip any existing <en> wrapper and re-apply cleanly
-                    clean_val = val.replace('<en>', '').replace('</en>', '').strip()
+                    clean_val = val.replace('<en>', '').strip()
                     lut[w] = f"<en>{clean_val}"
                 elif lw in db_common:
                     common_val = db_common[lw]
-                    if isinstance(common_val, dict):
-                        # Prefer English phoneme for words explicitly tagged <en>
-                        en_phone = common_val.get('en') or common_val.get('vi') or w
-                        lut[w] = f"<en>{en_phone}"
+                    # Only take English phoneme for words explicitly tagged <en>
+                    en_phone = common_val.get('en') if isinstance(common_val, dict) else common_val
+                    if en_phone:
+                        # Re-apply cleanly
+                        clean_en = en_phone.replace('<en>', '').strip()
+                        lut[w] = f"<en>{clean_en}"
                     else:
-                        lut[w] = f"<en>{common_val}"
+                        still_need_fallback.append(w)
                 else:
-                    still_need_espeak.append(w)
+                    still_need_fallback.append(w)
 
-            # eSpeak chỉ được gọi cho các từ thực sự không có trong từ điển
-            if still_need_espeak:
-                fe_phones = self._espeak_fallback_batch(still_need_espeak, 'en-us')
-                if fe_phones and fe_phones != still_need_espeak:
-                    lut.update({w: f"<en>{p}" for w, p in zip(still_need_espeak, fe_phones)})
+            # eSpeak/Char fallback chỉ được gọi cho các từ thực sự không có trong từ điển
+            if still_need_fallback:
+                et_phones = None
+                if self.espeak_available:
+                    et_phones = self._espeak_fallback_batch(still_need_fallback, 'en-us')
+                
+                if et_phones:
+                    lut.update({w: f"<en>{p}" for w, p in zip(still_need_fallback, et_phones)})
                 else:
-                    lut.update({w: p for w, p in zip(still_need_espeak, fe_phones)})
+                    # Fallback for <en> tags: split into characters and lookup 'en' phonemes
+                    # Case: eSpeak not available OR eSpeak failed at runtime
+                    for w in still_need_fallback:
+                        p = "".join(get_char_phone(c, 'en') for c in w)
+                        lut[w] = f"<en>{p}"
 
         if global_unknown:
             u_words = sorted(list(global_unknown))
@@ -283,19 +352,29 @@ class G2P:
             vi_words = [w for w in u_words if has_accent(w)]
             en_words = [w for w in u_words if not has_accent(w)]
 
-            if vi_words:
-                res_vi = self._espeak_fallback_batch(vi_words, 'vi')
-                lut.update(dict(zip(vi_words, res_vi)))
-            if en_words:
-                res_en = self._espeak_fallback_batch(en_words, 'en-us')
-                lut.update({w: f"<en>{p}" for w, p in zip(en_words, res_en)})
+            vi_res, en_res = None, None
+            if self.espeak_available:
+                if vi_words: vi_res = self._espeak_fallback_batch(vi_words, 'vi')
+                if en_words: en_res = self._espeak_fallback_batch(en_words, 'en-us')
+
+            if vi_res:
+                lut.update(dict(zip(vi_words, vi_res)))
+            elif vi_words: # Fallback vi
+                for w in vi_words:
+                    lut[w] = "".join(get_char_phone(c, 'vi') for c in w)
+
+            if en_res:
+                lut.update({w: f"<en>{p}" for w, p in zip(en_words, en_res)})
+            elif en_words: # Fallback en
+                for w in en_words:
+                    lut[w] = f"<en>{"".join(get_char_phone(c, 'en') for c in w)}"
 
         results = []
         for sent in batch_token_lists:
             for t in sent:
                 if t['phone'] is None and t['content'] in lut:
                     t['phone'] = lut[t['content']]
-                    if not t.get('force_espeak') and any(c in self._VI_ACCENTS for c in t['content'].lower()):
+                    if not t.get('is_en_tag') and any(c in self._VI_ACCENTS for c in t['content'].lower()):
                         t['lang'] = 'vi'
 
             self._propagate_language(sent)
