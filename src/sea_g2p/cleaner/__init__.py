@@ -9,7 +9,7 @@ from .text_norm import (
     expand_compound_units, expand_abbreviations, expand_standalone_letters,
     expand_scientific_notation, fix_english_style_numbers, expand_power_of_ten,
     normalize_technical, normalize_emails, RE_TECHNICAL, RE_EMAIL,
-    _ACRONYMS_EXCEPTIONS_RE
+    _RE_ACRONYMS_EXCEPTIONS
 )
 
 RE_POWER_OF_TEN_EXPLICIT = re.compile(r'\b(\d+(?:[.,]\d+)?)\s*[x*×]\s*10\^([-+]?\d+)\b', re.IGNORECASE)
@@ -128,9 +128,9 @@ def clean_vietnamese_text(text):
 
         # Priority 2: Check if it's explicitly in our specialized technical exceptions
         # Move this after email to ensure email patterns aren't partially matched by exceptions
-        for pattern, replacement in _ACRONYMS_EXCEPTIONS_RE:
-            if pattern.fullmatch(orig):
-                return protect(re.Match if False else type('Match', (), {'group': lambda self, n: replacement})())
+        if _RE_ACRONYMS_EXCEPTIONS.fullmatch(orig):
+            from .vi_resources import _combined_exceptions
+            return protect(re.Match if False else type('Match', (), {'group': lambda self, n: _combined_exceptions[orig]})())
 
         # Priority 3: Standard technical normalization (URLs, Paths, Versions, etc.)
         normed = normalize_technical(orig)
