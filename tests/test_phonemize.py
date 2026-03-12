@@ -1,53 +1,256 @@
 import pytest
-from sea_g2p import G2P
+from sea_g2p.g2p import G2P
+import os
 
 @pytest.fixture
-def g2p():
-    return G2P()
+def g2p_engine():
+    # Use the binary dict for Rust testing
+    bin_path = os.path.abspath('src/sea_g2p/phone_dict/phone_dict.bin')
+    return G2P(db_path=bin_path)
 
-def test_phonemize_vietnamese(g2p):
-    text = "Xin chào Việt Nam"
-    phonemes = g2p.convert(text)
-    assert isinstance(phonemes, str)
-    assert len(phonemes) > 0
+PHONEMIZE_CASES = [
+    ('không', 'xˌoŋ'),
+    ('một', 'mˈo6t̪'),
+    ('mười', 'mˈyə2j'),
+    ('mười một', 'mˈyə2j mˈo6t̪'),
+    ('hai mươi mốt', 'hˈaːj mˈyəj mˈoɜt̪'),
+    ('một trăm', 'mˈo6t̪ tʃˈam'),
+    ('một nghìn', 'mˈo6t̪ ŋˈi2n'),
+    ('một nghìn không trăm lẻ một', 'mˈo6t̪ ŋˈi2n xˌoŋ tʃˈam lˈɛ4 mˈo6t̪'),
+    ('một triệu', 'mˈo6t̪ tʃˈiɛ6w'),
+    ('một triệu hai trăm ba mươi bốn nghìn năm trăm sáu mươi bảy', 'mˈo6t̪ tʃˈiɛ6w hˈaːj tʃˈam bˈaː mˈyəj bˈoɜn ŋˈi2n nˈam tʃˈam sˈaɜw mˈyəj bˈa4j'),
+    ('một nghìn', 'mˈo6t̪ ŋˈi2n'),
+    ('một triệu', 'mˈo6t̪ tʃˈiɛ6w'),
+    ('ba phẩy một bốn', 'bˈaː fˈəɪ4 mˈo6t̪ bˈoɜn'),
+    ('một chấm ba', 'mˈo6t̪ tʃˈəɜm bˈaː'),
+    ('không chín một hai ba bốn năm sáu bảy tám', 'xˌoŋ tʃˈiɜn mˈo6t̪ hˈaːj bˈaː bˈoɜn nˈam sˈaɜw bˈa4j t̪ˈaːɜm'),
+    ('cộng tám bốn chín một hai ba bốn năm sáu bảy tám', 'kˈo6ŋ t̪ˈaːɜm bˈoɜn tʃˈiɜn mˈo6t̪ hˈaːj bˈaː bˈoɜn nˈam sˈaɜw bˈa4j t̪ˈaːɜm'),
+    ('thứ nhất', 'tˈyɜ ɲˈəɜt̪'),
+    ('thứ tư', 'tˈyɜ t̪ˈy'),
+    ('thứ năm', 'tˈyɜ nˈam'),
+    ('hạng nhất', 'hˈaː6ŋ ɲˈəɜt̪'),
+    ('thứ mười', 'tˈyɜ mˈyə2j'),
+    ('thứ mười', 'tˈyɜ mˈyə2j'),
+    ('ba nhân bốn', 'bˈaː ɲˈən bˈoɜn'),
+    ('mười nhân hai mươi', 'mˈyə2j ɲˈən hˈaːj mˈyəj'),
+    ('ngày hai mươi mốt tháng hai năm hai nghìn không trăm hai mươi lăm', 'ŋˈa2j hˈaːj mˈyəj mˈoɜt̪ tˈaːɜŋ hˈaːj nˈam hˈaːj ŋˈi2n xˌoŋ tʃˈam hˈaːj mˈyəj lˈam'),
+    ('ngày một tháng một năm hai nghìn không trăm hai mươi bốn', 'ŋˈa2j mˈo6t̪ tˈaːɜŋ mˈo6t̪ nˈam hˈaːj ŋˈi2n xˌoŋ tʃˈam hˈaːj mˈyəj bˈoɜn'),
+    ('ngày ba mươi mốt tháng mười hai năm hai nghìn không trăm hai mươi ba', 'ŋˈa2j bˈaː mˈyəj mˈoɜt̪ tˈaːɜŋ mˈyə2j hˈaːj nˈam hˈaːj ŋˈi2n xˌoŋ tʃˈam hˈaːj mˈyəj bˈaː'),
+    ('ngày ba mươi mốt tháng mười hai năm một nghìn chín trăm chín mươi bảy', 'ŋˈa2j bˈaː mˈyəj mˈoɜt̪ tˈaːɜŋ mˈyə2j hˈaːj nˈam mˈo6t̪ ŋˈi2n tʃˈiɜn tʃˈam tʃˈiɜn mˈyəj bˈa4j'),
+    ('ngày hai mươi mốt tháng hai', 'ŋˈa2j hˈaːj mˈyəj mˈoɜt̪ tˈaːɜŋ hˈaːj'),
+    ('ngày một tháng mười hai', 'ŋˈa2j mˈo6t̪ tˈaːɜŋ mˈyə2j hˈaːj'),
+    ('tháng hai năm hai nghìn không trăm hai mươi lăm', 'tˈaːɜŋ hˈaːj nˈam hˈaːj ŋˈi2n xˌoŋ tʃˈam hˈaːj mˈyəj lˈam'),
+    ('tháng mười hai năm hai nghìn không trăm hai mươi bốn', 'tˈaːɜŋ mˈyə2j hˈaːj nˈam hˈaːj ŋˈi2n xˌoŋ tʃˈam hˈaːj mˈyəj bˈoɜn'),
+    ('ba mươi hai xẹt không một', 'bˈaː mˈyəj hˈaːj sˈɛ6t̪ xˌoŋ mˈo6t̪'),
+    ('không một trên mười ba', 'xˌoŋ mˈo6t̪ tʃˈen mˈyə2j bˈaː'),
+    ('tháng ba năm hai nghìn không trăm hai mươi sáu', 'tˈaːɜŋ bˈaː nˈam hˈaːj ŋˈi2n xˌoŋ tʃˈam hˈaːj mˈyəj sˈaɜw'),
+    ('mười bốn giờ ba mươi phút', 'mˈyə2j bˈoɜn zˈəː2 bˈaː mˈyəj fˈuɜt̪'),
+    ('tám giờ không năm phút', 't̪ˈaːɜm zˈəː2 xˌoŋ nˈam fˈuɜt̪'),
+    ('không giờ không phút', 'xˌoŋ zˈəː2 xˌoŋ fˈuɜt̪'),
+    ('hai mươi ba giờ năm mươi chín phút', 'hˈaːj mˈyəj bˈaː zˈəː2 nˈam mˈyəj tʃˈiɜn fˈuɜt̪'),
+    ('mười hai giờ không phút không giây', 'mˈyə2j hˈaːj zˈəː2 xˌoŋ fˈuɜt̪ xˌoŋ zˈəɪ'),
+    ('mười giờ hai mươi phút', 'mˈyə2j zˈəː2 hˈaːj mˈyəj fˈuɜt̪'),
+    ('mười hai giờ không phút không giây', 'mˈyə2j hˈaːj zˈəː2 xˌoŋ fˈuɜt̪ xˌoŋ zˈəɪ'),
+    ('một trăm <en>u s d</en>', 'mˈo6t̪ tʃˈam jˈuː ˈɛs dˈiː'),
+    ('năm mươi <en>u s d</en>', 'nˈam mˈyəj jˈuː ˈɛs dˈiː'),
+    ('hai trăm <en>u s d</en>', 'hˈaːj tʃˈam jˈuː ˈɛs dˈiː'),
+    ('năm trăm đồng', 'nˈam tʃˈam ɗˈo2ŋ'),
+    ('năm mươi <en>euro</en>', 'nˈam mˈyəj jˈʊɹɹoʊ'),
+    ('một nghìn đồng', 'mˈo6t̪ ŋˈi2n ɗˈo2ŋ'),
+    ('bảy mươi lăm phần trăm', 'bˈa4j mˈyəj lˈam fˈə2n tʃˈam'),
+    ('mười lăm phẩy bốn phần trăm xuống còn tám phẩy ba phần trăm', 'mˈyə2j lˈam fˈəɪ4 bˈoɜn fˈə2n tʃˈam sˈuəɜŋ kˌɔ2n t̪ˈaːɜm fˈəɪ4 bˈaː fˈə2n tʃˈam'),
+    ('ba trăm bảy mươi tỷ <en>u s d</en>', 'bˈaː tʃˈam bˈa4j mˈyəj t̪ˈi4 jˈuː ˈɛs dˈiː'),
+    ('năm triệu đồng', 'nˈam tʃˈiɛ6w ɗˈo2ŋ'),
+    ('mười nghìn <en>u s d</en>', 'mˈyə2j ŋˈi2n jˈuː ˈɛs dˈiː'),
+    ('tám phẩy chín hai tỷ <en>u s d</en>', 't̪ˈaːɜm fˈəɪ4 tʃˈiɜn hˈaːj t̪ˈi4 jˈuː ˈɛs dˈiː'),
+    ('năm mươi ki lô mét', 'nˈam mˈyəj kˈi lˈo mˈɛɜt̪'),
+    ('một trăm mét', 'mˈo6t̪ tʃˈam mˈɛɜt̪'),
+    ('ba mươi xen ti mét', 'bˈaː mˈyəj sˈɛn t̪ˈi mˈɛɜt̪'),
+    ('năm mi li mét', 'nˈam mˈi lˈi mˈɛɜt̪'),
+    ('bảy mươi lăm ki lô gam', 'bˈa4j mˈyəj lˈam kˈi lˈo ɣˈaːm'),
+    ('năm trăm gam', 'nˈam tʃˈam ɣˈaːm'),
+    ('hai trăm năm mươi mi li lít', 'hˈaːj tʃˈam nˈam mˈyəj mˈi lˈi lˈiɜt̪'),
+    ('hai lít', 'hˈaːj lˈiɜt̪'),
+    ('mười héc ta', 'mˈyə2j hˈɛɜc t̪ˈaː'),
+    ('năm mươi mét vuông', 'nˈam mˈyəj mˈɛɜt̪ vˈuəŋ'),
+    ('hai mươi mét khối', 'hˈaːj mˈyəj mˈɛɜt̪ xˈoɜj'),
+    ('ba trăm nghìn ki lô mét', 'bˈaː tʃˈam ŋˈi2n kˈi lˈo mˈɛɜt̪'),
+    ('năm triệu ki lô mét', 'nˈam tʃˈiɛ6w kˈi lˈo mˈɛɜt̪'),
+    ('một phẩy năm héc ta', 'mˈo6t̪ fˈəɪ4 nˈam hˈɛɜc t̪ˈaː'),
+    ('một chấm năm héc ta', 'mˈo6t̪ tʃˈəɜm nˈam hˈɛɜc t̪ˈaː'),
+    ('<en>a n</en> trên <en>a s q</en>', 'ˈeɪ ˈɛn tʃˈen ˈeɪ ˈɛs kjˈuː'),
+    ('bảy trăm đến chín trăm', 'bˈa4j tʃˈam ɗˌeɜn tʃˈiɜn tʃˈam'),
+    ('không phẩy năm đến không phẩy chín', 'xˌoŋ fˈəɪ4 nˈam ɗˌeɜn xˌoŋ fˈəɪ4 tʃˈiɜn'),
+    ('thế kỷ hai mươi mốt', 'tˈeɜ kˈi4 hˈaːj mˈyəj mˈoɜt̪'),
+    ('chương bốn', 'tʃˈyəŋ bˈoɜn'),
+    ('hồi chín', 'hˈo2j tʃˈiɜn'),
+    ('phần ba', 'fˈə2n bˈaː'),
+    ('thế kỷ hai mươi', 'tˈeɜ kˈi4 hˈaːj mˈyəj'),
+    ('ký tự a', 'kˈiɜ t̪ˈy6 ˈaː'),
+    ('chữ bê', 'tʃˈy5 bˈe'),
+    ('ký tự xê', 'kˈiɜ t̪ˈy6 sˈe'),
+    ('chữ cái dét', 'tʃˈy5 kˌaːɜj zˈɛɜt̪'),
+    ('kí tự đắp liu', 'kˈiɜ t̪ˈy6 ɗˈaɜp lˈiw'),
+    ('uỷ ban nhân dân', 'wˈi4 bˈaːn ɲˈən zˈən'),
+    ('thành phố hồ chí minh', 'tˈe-2ɲ fˈoɜ hˈo2 tʃˈiɜ mˈiɲ'),
+    ('thành phố hồ chí minh', 'tˈe-2ɲ fˈoɜ hˈo2 tʃˈiɜ mˈiɲ'),
+    ('cảnh sát giao thông', 'kˈe-4ɲ sˈaːɜt̪ zˈaːw tˈoŋ'),
+    ('liên hợp quốc', 'lˈiɛn hˈəː6p kˈuəɜc'),
+    ('câu lạc bộ', 'kˈə1w lˈaː6c bˈo6'),
+    ('huấn luyện viên', 'hwˈəɜn lwˈiɛ6n vˈiɛn'),
+    ('tiến sĩ', 't̪ˈiɛɜn sˈi5'),
+    ('giáo sư', 'zˈaːɜw sˈy'),
+    ('trung học phổ thông', 'tʃˈuŋ hˈɔ6k fˈo4 tˈoŋ'),
+    ('trung học cơ sở', 'tʃˈuŋ hˈɔ6k kˈəː sˈəː4'),
+    ('<en>Hello</en>', 'həlˈoʊ'),
+    ('<en>Hello 123</en>', 'həlˈoʊ 123'),
+    ('xin chào <en>Good morning</en>', 'sˈin tʃˈaː2w ɡˈʊd mˈɔːɹnɪŋ'),
+    ('ngày hai mươi mốt tháng hai <en>February 21</en>', 'ŋˈa2j hˈaːj mˈyəj mˈoɜt̪ tˈaːɜŋ hˈaːj fˈɛbɹuːˌɛɹi 21'),
+    ('<en>AI</en> là trí tuệ nhân tạo', 'ˈaːj lˌaː2 tʃˈiɜ t̪wˈe6 ɲˈən t̪ˈaː6w'),
+    ('a và bê', 'ˈaː vˌaː2 bˈe'),
+    ('a cộng bê', 'ˈaː kˈo6ŋ bˈe'),
+    ('a bằng bê', 'ˈaː bˈa2ŋ bˈe'),
+    ('thăng một', 'tˈaŋ mˈo6t̪'),
+    ('text in brackets', 'tˈɛkst ˈɪn bɹˈækɪts'),
+    ('text in brackets', 'tˈɛkst ˈɪn bɹˈækɪts'),
+    ('giờ mỹ', 'zˈəː2 mˈi5'),
+    ('hiệu lực từ không giờ không một phút, giờ mỹ, trong vòng', 'hˈiɛ6w lˈy6c t̪ˌy2 xˌoŋ zˈəː2 xˌoŋ mˈo6t̪ fˈuɜt̪, zˈəː2 mˈi5, tʃˈɔŋ vˈɔ2ŋ'),
+    ('hiệu lực từ không giờ không một phút, giờ mỹ, trong vòng', 'hˈiɛ6w lˈy6c t̪ˌy2 xˌoŋ zˈəː2 xˌoŋ mˈo6t̪ fˈuɜt̪, zˈəː2 mˈi5, tʃˈɔŋ vˈɔ2ŋ'),
+    ('kết thúc, không giờ không một phút.', 'kˈeɜt̪ tˈuɜc, xˌoŋ zˈəː2 xˌoŋ mˈo6t̪ fˈuɜt̪.'),
+    ('chỉ số là bảy phẩy không năm, đường huyết là một chấm tám', 'tʃˈi4 sˈoɜ lˌaː2 bˈa4j fˈəɪ4 xˌoŋ nˈam, ɗˈyə2ŋ hwˈiɛɜt̪ lˌaː2 mˈo6t̪ tʃˈəɜm t̪ˈaːɜm'),
+    ('ta có! hôm nay thật kì lạ, ta sẽ đi, chơi', 't̪ˈaː kˈɔɜ! hˈom nˈaj tˈə6t̪ kˈi2 lˈaː6, t̪ˈaː sˌɛ5 ɗˈi, tʃˈəːj'),
+    ('đoạn một.\nđoạn hai.', 'ɗwˈaː6n mˈo6t̪. ɗwˈaː6n hˈaːj.'),
+    ('\nmười hai tiêm kích', 'mˈyə2j hˈaːj t̪ˈiɛm kˈiɜc'),
+    ('vân vân', 'vˈən vˈən'),
+    ('về việc', 'vˈe2 vˈiɛ6c'),
+    ('địa chỉ', 'ɗˈiə6 tʃˈi4'),
+    ('ngày hai mươi mốt tháng hai năm hai nghìn không trăm hai mươi lăm lúc mười bốn giờ ba mươi phút, giá vàng đạt một trăm <en>u s d</en> tại thành phố hồ chí minh', 'ŋˈa2j hˈaːj mˈyəj mˈoɜt̪ tˈaːɜŋ hˈaːj nˈam hˈaːj ŋˈi2n xˌoŋ tʃˈam hˈaːj mˈyəj lˈam lˌuɜc mˈyə2j bˈoɜn zˈəː2 bˈaː mˈyəj fˈuɜt̪, zˈaːɜ vˈaː2ŋ ɗˈaː6t̪ mˈo6t̪ tʃˈam jˈuː ˈɛs dˈiː t̪ˈaː6j tˈe-2ɲ fˈoɜ hˈo2 tʃˈiɜ mˈiɲ'),
+    ('thế kỷ hai mươi mốt chứng kiến sự phát triển của <en>AI</en> và vũ trụ học', 'tˈeɜ kˈi4 hˈaːj mˈyəj mˈoɜt̪ tʃˈyɜŋ kˈiɛɜn sˈy6 fˈaːɜt̪ tʃˈiɛ4n kˌuə4 ˈaːj vˌaː2 vˈu5 tʃˈu6 hˈɔ6k'),
+    ('đề án không sáu và chỉ thị không bốn', 'ɗˈe2 ˈaːɜn xˌoŋ sˈaɜw vˌaː2 tʃˈi4 tˈi6 xˌoŋ bˈoɜn'),
+    ('anh mờ đi bộ', 'ˈe-ɲ mˈəː2 ɗˈi bˈo6'),
+    ('vitamin gờ', 'vˈaɪɾəmɪn ɣˈəː2'),
+    ('lờ là tên riêng', 'lˈəː2 lˌaː2 t̪ˈen ɹˈiɛŋ'),
+    ('năm mét chiều dài', 'nˈam mˈɛɜt̪ tʃˈiɛ2w zˈaː2j'),
+    ('đơn vị ki lô mét', 'ɗˈəːn vˈi6 kˈi lˈo mˈɛɜt̪'),
+    ('liên hệ qua email <en>pnnbao</en> a còng <en>gmail</en> chấm com nhé.', 'lˈiɛn hˈe6 kwˈaː ˈiːmeɪl pˈiːˈɛnˈɛnbˈiːˈeɪˈoʊ ˈaː kˈɔ2ŋ dʒˈiːmˈeɪl tʃˈəɜm kˈɔm ɲˈɛɜ.'),
+    ('email, <en>contact</en> a còng <en>example</en> chấm com', 'ˈiːmeɪl, kˈɑːntækt ˈaː kˈɔ2ŋ ɛɡzˈæmpəl tʃˈəɜm kˈɔm'),
+    ('mô hình <en>b two b</en> rất phổ biến.', 'mˈo hˈi2ɲ bˈiː tˈuː bˈiː ɹˈəɜt̪ fˈo4 bˈiɛɜn.'),
+    ('tôi dùng camera ca ba.', 't̪ˈoj zˈu2ŋ kˈæmɹə kˈaː bˈaː.'),
+    ('mã số a một bê.', 'mˈaː5 sˈoɜ ˈaː mˈo6t̪ bˈe.'),
+    ('tôi đang học về <en>a i</en>.', 't̪ˈoj ɗˌaːŋ hˈɔ6k vˈe2 ˈeɪ ˈaɪ.'),
+    ('dự án <en>v y e</en>.', 'zˈy6 ˈaːɜn vˈiː wˈaɪ ˈiː.'),
+    ('tôi đi học', 't̪ˈoj ɗˈi hˈɔ6k'),
+    ('chào mừng bạn đến với <en>c t y</en>.', 'tʃˈaː2w mˈy2ŋ bˈaː6n ɗˌeɜn vˌəːɜj sˈiː tˈiː wˈaɪ.'),
+    ('truy cập <en>https</en> <en>vieneu</en> chấm <en>i o</en> để biết thêm chi tiết.', 'tʃwˈi kˈə6p ˌeɪtʃtˌiːtˈiːpˌiːˈɛs vˈiːˈaɪˈiːˈɛnˈiːjˈuː tʃˈəɜm ˈaɪ ˈoʊ ɗˌe4 bˈiɛɜt̪ tˈem tʃˈi t̪ˈiɛɜt̪.'),
+    ('website <en>www</en> chấm <en>google</en> chấm com rất hữu ích.', 'wˈɛbsaɪt dˌʌbəljˌuːdˌʌbəljˌuːdˈʌbəljˌuː tʃˈəɜm ɡˈuːɡəl tʃˈəɜm kˈɔm ɹˈəɜt̪ hˈi5w ˈiɜc.'),
+    ('trang web chính thức là <en>https</en> <en>openai</en> chấm com.', 'tʃˈaːŋ wˈɛb tʃˈiɜɲ tˈyɜc lˌaː2 ˌeɪtʃtˌiːtˈiːpˌiːˈɛs oʊpənˈaɪ tʃˈəɜm kˈɔm.'),
+    ('tài liệu nằm ở <en>www</en> chấm <en>example</en> chấm o rờ gờ gạch <en>docs</en>.', 't̪ˈaː2j lˈiɛ6w nˈa2m ˈəː4 dˌʌbəljˌuːdˌʌbəljˌuːdˈʌbəljˌuː tʃˈəɜm ɛɡzˈæmpəl tʃˈəɜm ˈɔ ɹˈəː2 ɣˈəː2 ɣˈe-6c dˈɑːks.'),
+    ('địa chỉ nhà tôi là một trăm hai mươi ba xẹt bốn đường nguyễn trãi.', 'ɗˈiə6 tʃˈi4 ɲˈaː2 t̪ˈoj lˌaː2 mˈo6t̪ tʃˈam hˈaːj mˈyəj bˈaː sˈɛ6t̪ bˈoɜn ɗˈyə2ŋ ŋwˈiɛ5n tʃˈaː5j.'),
+    ('tỷ lệ là một trăm xẹt hai.', 't̪ˈi4 lˈe6 lˌaː2 mˈo6t̪ tʃˈam sˈɛ6t̪ hˈaːj.'),
+    ('nếu ích lớn hơn năm và y nhỏ hơn hoặc bằng mười thì xấp xỉ xấp xỉ không.', 'nˌeɜw ˈiɜc lˈəːɜn hˈəːn nˈam vˌaː2 ˈi ɲˈɔ4 hˈəːn hwˌa6c bˈa2ŋ mˈyə2j tˌi2 sˈəɜp sˈi4 sˈəɜp sˈi4 xˌoŋ.'),
+    ('nhiệt độ là ba mươi độ xê cộng trừ hai độ xê.', 'ɲˈiɛ6t̪ ɗˈo6 lˌaː2 bˈaː mˈyəj ɗˈo6 sˈe kˈo6ŋ tʃˈy2 hˈaːj ɗˈo6 sˈe.'),
+    ('biểu thức lớn hơn hoặc bằng mười.', 'bˈiɛ4w tˈyɜc lˈəːɜn hˈəːn hwˌa6c bˈa2ŋ mˈyə2j.'),
+    ('dung lượng mười sáu <en>gigabyte</en>.', 'zˈuŋ lˈyə6ŋ mˈyə2j sˈaɜw ɡˈɪɡəbˌaɪt.'),
+    ('file nặng năm mươi <en>megabyte</en>.', 'fˈaɪl nˈa6ŋ nˈam mˈyəj mˈɛɡəbˌaɪt.'),
+    ('ổ cứng một <en>terabyte</en>.', 'ˈo4 kˈyɜŋ mˈo6t̪ tˈɛɹəbˌaɪt.'),
+    ('căn hộ bảy mươi lăm mét vuông.', 'kˈan hˈo6 bˈa4j mˈyəj lˈam mˈɛɜt̪ vˈuəŋ.'),
+    ('bể bơi một trăm mét khối.', 'bˈe4 bˈəːj mˈo6t̪ tʃˈam mˈɛɜt̪ xˈoɜj.'),
+    ('âm thanh tám mươi <en>decibel</en>.', 'ˈəm tˈe-ɲ t̪ˈaːɜm mˈyəj dˈɛsᵻbəl.'),
+    ('trọng lượng mười <en>pound</en>.', 'tʃˈɔ6ŋ lˈyə6ŋ mˈyə2j pˈaʊnd.'),
+    ('màn hình hai mươi bốn <en>inch</en>.', 'mˈaː2n hˈi2ɲ hˈaːj mˈyəj bˈoɜn ˈɪntʃ.'),
+    ('độ phân giải ba trăm <en>d p i</en>.', 'ɗˈo6 fˈən zˈaː4j bˈaː tʃˈam dˈiː pˈiː ˈaɪ.'),
+    ('độ pê hát của nước là bảy.', 'ɗˈo6 pˈe hˈaːɜt̪ kˌuə4 nˈyəɜc lˌaː2 bˈa4j.'),
+    ('ba chấm bốn sáu <en>u s d</en> trên <en>gallon</en>', 'bˈaː tʃˈəɜm bˈoɜn sˈaɜw jˈuː ˈɛs dˈiː tʃˈen ɡˈælən'),
+    ('email công việc, <en>admin</en> a còng <en>f p t</en> chấm <en>v n</en>', 'ˈiːmeɪl kˈoŋ vˈiɛ6c, ˈædmɪn ˈaː kˈɔ2ŋ ˈɛf pˈiː tˈiː tʃˈəɜm vˈiː ˈɛn'),
+    ('liên hệ hotmail, <en>test</en> a còng <en>hotmail</en> chấm com', 'lˈiɛn hˈe6 hˈɑːtmeɪl, tˈɛst ˈaː kˈɔ2ŋ hˈɑːtmeɪl tʃˈəɜm kˈɔm'),
+    ('liên hệ qua email <en>pnnbao</en> a còng <en>proton</en> chấm com nhé.', 'lˈiɛn hˈe6 kwˈaː ˈiːmeɪl pˈiːˈɛnˈɛnbˈiːˈeɪˈoʊ ˈaː kˈɔ2ŋ pɹˈoʊtɑːn tʃˈəɜm kˈɔm ɲˈɛɜ.'),
+    ('thăng một ki lô gam', 'tˈaŋ mˈo6t̪ kˈi lˈo ɣˈaːm'),
+    ('ông lưu trung thái, chủ tịch hội đồng quản trị <en>m b</en> cho biết, vốn hóa của ngân hàng đã tăng gần mười lần kể từ năm hai nghìn không trăm mười bảy, đạt khoảng tám phẩy năm tỷ <en>u s d</en>, tạo nền tảng cho mục tiêu mười tỷ <en>u s d</en> vào năm hai nghìn không trăm hai mươi bảy.', 'ˈoŋ lˈiw tʃˈuŋ tˈaːɜj, tʃˈu4 t̪ˈi6c hˈo6j ɗˈo2ŋ kwˈaː4n tʃˈi6 ˈɛm bˈiː tʃˌɔ bˈiɛɜt̪, vˈoɜn hwˈaːɜ kˌuə4 ŋˈən hˈaː2ŋ ɗˌaː5 t̪ˈaŋ ɣˈə2n mˈyə2j lˈə2n kˈe4 t̪ˌy2 nˈam hˈaːj ŋˈi2n xˌoŋ tʃˈam mˈyə2j bˈa4j, ɗˈaː6t̪ xwˌaː4ŋ t̪ˈaːɜm fˈəɪ4 nˈam t̪ˈi4 jˈuː ˈɛs dˈiː, t̪ˈaː6w nˈe2n t̪ˈaː4ŋ tʃˌɔ mˈu6c t̪ˈiɛw mˈyə2j t̪ˈi4 jˈuː ˈɛs dˈiː vˈaː2w nˈam hˈaːj ŋˈi2n xˌoŋ tʃˈam hˈaːj mˈyəj bˈa4j.'),
+    ('số tiền là một nghìn tỷ đồng.', 'sˈoɜ t̪ˈiɛ2n lˌaː2 mˈo6t̪ ŋˈi2n t̪ˈi4 ɗˈo2ŋ.'),
+    ('lời chào cao hơn mâm cỗ', 'lˈəː2j tʃˈaː2w kˈaːw hˈəːn mˈəm kˈo5'),
+    ('trân trọng', 'tʃˈən tʃˈɔ6ŋ'),
+    ('chào <en>world</en> xinh đẹp', 'tʃˈaː2w wˈɜːld sˈiɲ ɗˈɛ6p'),
+    ('nếu đã từng đọc cuốn sách trên của simon, hoặc đã xem anh thuyết trình về khái niệm tại sao trên diễn đàn <en>t e d</en> chấm com, thì có lẽ bạn không còn xa lạ với vòng tròn vàng.', 'nˌeɜw ɗˌaː5 t̪ˈy2ŋ ɗˈɔ6k kˈuəɜn sˈe-ɜc tʃˈen kˌuə4 sˈaɪmən, hwˌa6c ɗˌaː5 sˈɛm ˈe-ɲ twˈiɛɜt̪ tʃˈi2ɲ vˈe2 xˈaːɜj nˈiɛ6m t̪ˈaː6j sˈaːw tʃˈen zˈiɛ5n ɗˈaː2n tˈiː ˈiː dˈiː tʃˈəɜm kˈɔm, tˌi2 kˈɔɜ lˈɛ5 bˈaː6n xˌoŋ kˌɔ2n sˈaː lˈaː6 vˌəːɜj vˈɔ2ŋ tʃˈɔ2n vˈaː2ŋ.'),
+    ('mixedcase acronyms như chatgpt hay claude.', 'ˈɛmˈaɪˈɛksˈiːdˈiːsˈiːˈeɪˈɛsˈiː ˈækɹənˌɪmz ɲˌy tʃˈætɡpt hˈaj klˈɔːd.'),
+    ('unit mix, mười ki lô mét trên giờ và năm mét trên giây.', 'jˈuːnɪt mˈɪks, mˈyə2j kˈi lˈo mˈɛɜt̪ tʃˈen zˈəː2 vˌaː2 nˈam mˈɛɜt̪ tʃˈen zˈəɪ.'),
+    ('số cực lớn, một tỷ tỷ', 'sˈoɜ kˈy6c lˈəːɜn, mˈo6t̪ t̪ˈi4 t̪ˈi4'),
+    ('email với tên miền lạ, <en>user</en> a còng <en>domain</en> chấm <en>tech</en>', 'ˈiːmeɪl vˌəːɜj t̪ˈen mˈiɛ2n lˈaː6, jˈuːzɚ ˈaː kˈɔ2ŋ dəmˈeɪn tʃˈəɜm tˈɛk'),
+    ('a phẩy là một ký tự đặc biệt', 'ˈaː fˈəɪ4 lˌaː2 mˈo6t̪ kˈiɜ t̪ˈy6 ɗˈa6c bˈiɛ6t̪'),
+    ('đây là phút một phẩy', 'ɗˈəɪ lˌaː2 fˈuɜt̪ mˈo6t̪ fˈəɪ4'),
+    ("i don't know why", 'ˈaɪ dˈoʊnt nˈoʊ wˈaɪ'),
+    ("it's a beautiful day", 'ɪts ˈeɪ bjˈuːɾifəl dˈeɪ'),
+    ('giá của sản phẩm này là mười <en>u s d</en>', 'zˈaːɜ kˌuə4 sˈaː4n fˈə4m nˈa2j lˌaː2 mˈyə2j jˈuː ˈɛs dˈiː'),
+    ('giá ét pê năm trăm hôm nay là bốn nghìn hai trăm phẩy năm điểm', 'zˈaːɜ ˈɛɜt̪ pˈe nˈam tʃˈam hˈom nˈaj lˌaː2 bˈoɜn ŋˈi2n hˈaːj tʃˈam fˈəɪ4 nˈam ɗˈiɛ4m'),
+    ('trường hợp một phẩy hai ba phẩy bốn', 'tʃˈyə2ŋ hˈəː6p mˈo6t̪ fˈəɪ4 hˈaːj bˈaː fˈəɪ4 bˈoɜn'),
+    ('trường hợp một triệu hai trăm ba mươi bốn nghìn năm trăm sáu mươi bảy', 'tʃˈyə2ŋ hˈəː6p mˈo6t̪ tʃˈiɛ6w hˈaːj tʃˈam bˈaː mˈyəj bˈoɜn ŋˈi2n nˈam tʃˈam sˈaɜw mˈyəj bˈa4j'),
+    ('ba chấm hai nhân mười mũ năm ki lô mét', 'bˈaː tʃˈəɜm hˈaːj ɲˈən mˈyə2j mˈu5 nˈam kˈi lˈo mˈɛɜt̪'),
+    ('sáu chấm sáu hai sáu nhân mười mũ trừ ba mươi bốn', 'sˈaɜw tʃˈəɜm sˈaɜw hˈaːj sˈaɜw ɲˈən mˈyə2j mˈu5 tʃˈy2 bˈaː mˈyəj bˈoɜn'),
+    ('một chấm năm nhân mười mũ trừ ba', 'mˈo6t̪ tʃˈəɜm nˈam ɲˈən mˈyə2j mˈu5 tʃˈy2 bˈaː'),
+    ('tôi mua nó với giá một nghìn hai trăm chín mươi chín phẩy chín chín <en>u s d</en>.', 't̪ˈoj mˈuə nˈɔɜ vˌəːɜj zˈaːɜ mˈo6t̪ ŋˈi2n hˈaːj tʃˈam tʃˈiɜn mˈyəj tʃˈiɜn fˈəɪ4 tʃˈiɜn tʃˈiɜn jˈuː ˈɛs dˈiː.'),
+    ('ba phẩy năm <en>euro</en>', 'bˈaː fˈəɪ4 nˈam jˈʊɹɹoʊ'),
+    ('một trăm hai mươi nghìn yên', 'mˈo6t̪ tʃˈam hˈaːj mˈyəj ŋˈi2n ˈiɛn'),
+    ('một <en>gigabits per second</en>', 'mˈo6t̪ ɡˈɪɡəbˌɪts pɜː sˈɛkənd'),
+    ('một triệu hai trăm chín mươi chín nghìn bốn trăm chín mươi lăm', 'mˈo6t̪ tʃˈiɛ6w hˈaːj tʃˈam tʃˈiɜn mˈyəj tʃˈiɜn ŋˈi2n bˈoɜn tʃˈam tʃˈiɜn mˈyəj lˈam'),
+    ('một phẩy hai chín chín', 'mˈo6t̪ fˈəɪ4 hˈaːj tʃˈiɜn tʃˈiɜn'),
+    ('một nghìn hai trăm chín mươi chín phẩy năm', 'mˈo6t̪ ŋˈi2n hˈaːj tʃˈam tʃˈiɜn mˈyəj tʃˈiɜn fˈəɪ4 nˈam'),
+    ('giá cổ phiếu tăng từ không chấm không không không không bốn năm <en>u s d</en> lên một nghìn hai trăm ba mươi bốn phẩy năm sáu bảy tám <en>u s d</en> trong ba chấm năm nhân mười mũ sáu giao dịch.', 'zˈaːɜ kˈo4 fˈiɛɜw t̪ˈaŋ t̪ˌy2 xˌoŋ tʃˈəɜm xˌoŋ xˌoŋ xˌoŋ xˌoŋ bˈoɜn nˈam jˈuː ˈɛs dˈiː lˈen mˈo6t̪ ŋˈi2n hˈaːj tʃˈam bˈaː mˈyəj bˈoɜn fˈəɪ4 nˈam sˈaɜw bˈa4j t̪ˈaːɜm jˈuː ˈɛs dˈiː tʃˈɔŋ bˈaː tʃˈəɜm nˈam ɲˈən mˈyə2j mˈu5 sˈaɜw zˈaːw zˈi6c.'),
+    ('trang chủ là <en>https</en> <en>openai</en> chấm com.', 'tʃˈaːŋ tʃˈu4 lˌaː2 ˌeɪtʃtˌiːtˈiːpˌiːˈɛs oʊpənˈaɪ tʃˈəɜm kˈɔm.'),
+    ('repo nằm ở <en>github</en> chấm com gạch <en>user</en> gạch <en>project</en>.', 'ɹˈiːpoʊ nˈa2m ˈəː4 ɡˈɪthʌb tʃˈəɜm kˈɔm ɣˈe-6c jˈuːzɚ ɣˈe-6c pɹˈɑːdʒɛkt.'),
+    ('tài liệu đọc tại <en>docs</en> chấm <en>python</en> chấm o rờ gờ.', 't̪ˈaː2j lˈiɛ6w ɗˈɔ6k t̪ˈaː6j dˈɑːks tʃˈəɜm pˈaɪθən tʃˈəɜm ˈɔ ɹˈəː2 ɣˈəː2.'),
+    ('hãy gửi email đến <en>support</en> a còng <en>example</en> chấm com.', 'hˈa5j ɣˈy4j ˈiːmeɪl ɗˌeɜn səpˈɔːɹt ˈaː kˈɔ2ŋ ɛɡzˈæmpəl tʃˈəɜm kˈɔm.'),
+    ('địa chỉ <en>i p</en> là một chín hai chấm một sáu tám chấm một chấm một hoặc một không chấm không chấm không chấm một.', 'ɗˈiə6 tʃˈi4 ˈaɪ pˈiː lˌaː2 mˈo6t̪ tʃˈiɜn hˈaːj tʃˈəɜm mˈo6t̪ sˈaɜw t̪ˈaːɜm tʃˈəɜm mˈo6t̪ tʃˈəɜm mˈo6t̪ hwˌa6c mˈo6t̪ xˌoŋ tʃˈəɜm xˌoŋ tʃˈəɜm xˌoŋ tʃˈəɜm mˈo6t̪.'),
+    ('phiên bản phần mềm là một chấm hai năm chấm ba chấm bốn', 'fˈiɛn bˈaː4n fˈə2n mˈe2m lˌaː2 mˈo6t̪ tʃˈəɜm hˈaːj nˈam tʃˈəɜm bˈaː tʃˈəɜm bˈoɜn'),
+    ('<en>i p v</en> sáu là hai không không một hai chấm không <en>d b</en> tám hai chấm tám năm <en>a</en> ba hai chấm không không không không hai chấm không không không không hai chấm tám <en>a</en> hai <en>e</en> hai chấm không ba bảy không hai chấm bảy ba ba bốn', 'ˈaɪ pˈiː vˈiː sˈaɜw lˌaː2 hˈaːj xˌoŋ xˌoŋ mˈo6t̪ hˈaːj tʃˈəɜm xˌoŋ dˈiː bˈiː t̪ˈaːɜm hˈaːj tʃˈəɜm t̪ˈaːɜm nˈam ˈeɪ bˈaː hˈaːj tʃˈəɜm xˌoŋ xˌoŋ xˌoŋ xˌoŋ hˈaːj tʃˈəɜm xˌoŋ xˌoŋ xˌoŋ xˌoŋ hˈaːj tʃˈəɜm t̪ˈaːɜm ˈeɪ hˈaːj ˈiː hˈaːj tʃˈəɜm xˌoŋ bˈaː bˈa4j xˌoŋ hˈaːj tʃˈəɜm bˈa4j bˈaː bˈaː bˈoɜn'),
+    ('số một trăm hai mươi ba triệu bốn trăm năm mươi sáu nghìn bảy trăm tám mươi chín', 'sˈoɜ mˈo6t̪ tʃˈam hˈaːj mˈyəj bˈaː tʃˈiɛ6w bˈoɜn tʃˈam nˈam mˈyəj sˈaɜw ŋˈi2n bˈa4j tʃˈam t̪ˈaːɜm mˈyəj tʃˈiɜn'),
+    ('mã này là một chín hai chấm một sáu chấm hai', 'mˈaː5 nˈa2j lˌaː2 mˈo6t̪ tʃˈiɜn hˈaːj tʃˈəɜm mˈo6t̪ sˈaɜw tʃˈəɜm hˈaːj'),
+    ('file tải tại <en>f t p</en> <en>example</en> chấm o rờ gờ gạch <en>data</en> chấm <en>zip</en>.', 'fˈaɪl t̪ˈaː4j t̪ˈaː6j ˈɛf tˈiː pˈiː ɛɡzˈæmpəl tʃˈəɜm ˈɔ ɹˈəː2 ɣˈəː2 ɣˈe-6c dˈeɪɾə tʃˈəɜm zˈɪp.'),
+    ('nhiệt độ ngoài trời là âm ba chấm năm độ xê.', 'ɲˈiɛ6t̪ ɗˈo6 ŋwˈaː2j tʃˈəː2j lˌaː2 ˈəm bˈaː tʃˈəɜm nˈam ɗˈo6 sˈe.'),
+    ('anh ấy chạy mười nghìn mét trong hai mươi bảy phút bốn mươi lăm giây.', 'ˈe-ɲ ˈəɪɜ tʃˈa6j mˈyə2j ŋˈi2n mˈɛɜt̪ tʃˈɔŋ hˈaːj mˈyəj bˈa4j fˈuɜt̪ bˈoɜn mˈyəj lˈam zˈəɪ.'),
+    ('tỉ số <en>u s d</en> trên <en>e u r</en> đang tăng.', 't̪ˈi4 sˈoɜ jˈuː ˈɛs dˈiː tʃˈen ˈiː jˈuː ˈɑːɹ ɗˌaːŋ t̪ˈaŋ.'),
+    ('anh ta kiếm được một trăm hai mươi nghìn yên mỗi tháng.', 'ˈe-ɲ t̪ˈaː kˈiɛɜm ɗˌyə6c mˈo6t̪ tʃˈam hˈaːj mˈyəj ŋˈi2n ˈiɛn mˌo5j tˈaːɜŋ.'),
+    ('giá là năm mươi <en>u s d</en> cho mỗi sản phẩm.', 'zˈaːɜ lˌaː2 nˈam mˈyəj jˈuː ˈɛs dˈiː tʃˌɔ mˌo5j sˈaː4n fˈə4m.'),
+    ('phí dịch vụ là mười <en>euro</en> mỗi người.', 'fˈiɜ zˈi6c vˈu6 lˌaː2 mˈyə2j jˈʊɹɹoʊ mˌo5j ŋˈyə2j.'),
+    ('nó nặng mười <en>pound</en> cho mỗi bao.', 'nˈɔɜ nˈa6ŋ mˈyə2j pˈaʊnd tʃˌɔ mˌo5j bˈaːw.'),
+    ('giá là năm <en>pound</en> mỗi cái.', 'zˈaːɜ lˌaː2 nˈam pˈaʊnd mˌo5j kˌaːɜj.'),
+    ('thưởng là một nghìn won cho bạn.', 'tˈyə4ŋ lˌaː2 mˈo6t̪ ŋˈi2n wˈʌn tʃˌɔ bˈaː6n.'),
+    ('hằng số avogadro là sáu chấm không hai hai nhân mười mũ hai mươi ba mol mũ trừ một.', 'hˈa2ŋ sˈoɜ ˌævəɡˈædɹoʊ lˌaː2 sˈaɜw tʃˈəɜm xˌoŋ hˈaːj hˈaːj ɲˈən mˈyə2j mˈu5 hˈaːj mˈyəj bˈaː mˈɑːl mˈu5 tʃˈy2 mˈo6t̪.'),
+    ('giới hạn lim, ích đến không, sin, ích, trên ích bằng một.', 'zˈəːɜj hˈaː6n lˈim, ˈiɜc ɗˌeɜn xˌoŋ, sˈin, ˈiɜc, tʃˈen ˈiɜc bˈa2ŋ mˈo6t̪.'),
+    ('ông ấy là phó giáo sư tiến sĩ ngành <en>a i</en>.', 'ˈoŋ ˈəɪɜ lˌaː2 fˈɔɜ zˈaːɜw sˈy t̪ˈiɛɜn sˈi5 ŋˈe-2ɲ ˈeɪ ˈaɪ.'),
+    ('dữ liệu dạng <en>j son</en>.', 'zˈy5 lˈiɛ6w zˈaː6ŋ dʒˈeɪ sˈʌn.'),
+    ('du lịch tại u a e.', 'zˈu lˈi6c t̪ˈaː6j ˈu ˈaː ˈɛ.'),
+    ('chỉ số <en>v n</en> index giảm.', 'tʃˈi4 sˈoɜ vˈiː ˈɛn ˈɪndɛks zˈaː4m.'),
+    ('hệ điều hành <en>m s dos</en>.', 'hˈe6 ɗˈiɛ2w hˈe-2ɲ ˈɛm ˈɛs dˈɑːs.'),
+    ('dùng <en>m i five</en> và <en>m i six</en>.', 'zˈu2ŋ ˈɛm ˈaɪ fˈaɪv vˌaː2 ˈɛm ˈaɪ sˈɪks.'),
+    ('bảo mật <en>two f a</en>.', 'bˈaː4w mˈə6t̪ tˈuː ˈɛf ˈeɪ.'),
+    ('máy tính <en>t x zero</en>.', 'mˈaɜj t̪ˈiɜɲ tˈiː ˈɛks zˈiəɹoʊ.'),
+    ('file backup nằm ở gạch <en>home</en> gạch <en>user</en> gạch <en>data</en> gạch dưới <en>v</en> ba chấm hai chấm <en>tar</en> chấm <en>g z</en>.', 'fˈaɪl bˈækʌp nˈa2m ˈəː4 ɣˈe-6c hˈoʊm ɣˈe-6c jˈuːzɚ ɣˈe-6c dˈeɪɾə ɣˈe-6c zˈyəɜj vˈiː bˈaː tʃˈəɜm hˈaːj tʃˈəɜm tˈɑːɹ tʃˈəɜm dʒˈiː zˈiː.'),
+    ('log lỗi ghi tại <en>error</en> gạch dưới <en>log</en> gạch dưới hai không hai bốn gạch ngang một không gạch ngang hai một chấm <en>txt</en>.', 'lˈɔɡ lˈo5j ɣˈi t̪ˈaː6j ˈɛɹɚ ɣˈe-6c zˈyəɜj lˈɔɡ ɣˈe-6c zˈyəɜj hˈaːj xˌoŋ hˈaːj bˈoɜn ɣˈe-6c ŋˈaːŋ mˈo6t̪ xˌoŋ ɣˈe-6c ŋˈaːŋ hˈaːj mˈo6t̪ tʃˈəɜm tˌiːˌɛkstˈiː.'),
+    ('dân số thế giới khoảng bảy tỷ tám trăm tám mươi tám triệu người, khoảng bảy chấm chín bê.', 'zˈən sˈoɜ tˈeɜ zˈəːɜj xwˌaː4ŋ bˈa4j t̪ˈi4 t̪ˈaːɜm tʃˈam t̪ˈaːɜm mˈyəj t̪ˈaːɜm tʃˈiɛ6w ŋˈyə2j, xwˌaː4ŋ bˈa4j tʃˈəɜm tʃˈiɜn bˈe.'),
+    ('latency trung bình chỉ khoảng bốn mươi hai mi li giây trên request qua <en>rest</en> <en>a p i</en>.', 'lˈeɪtənsi tʃˈuŋ bˈi2ɲ tʃˈi4 xwˌaː4ŋ bˈoɜn mˈyəj hˈaːj mˈi lˈi zˈəɪ tʃˈen ɹᵻkwˈɛst kwˈaː ɹˈɛst ˈeɪ pˈiː ˈaɪ.'),
+    ('liên hệ qua email <en>research</en> chấm <en>ai</en> cộng <en>test</en> a còng <en>example</en> gạch ngang <en>domain</en> chấm o rờ gờ.', 'lˈiɛn hˈe6 kwˈaː ˈiːmeɪl ɹᵻsˈɜːtʃ tʃˈəɜm ˈaːj kˈo6ŋ tˈɛst ˈaː kˈɔ2ŋ ɛɡzˈæmpəl ɣˈe-6c ŋˈaːŋ dəmˈeɪn tʃˈəɜm ˈɔ ɹˈəː2 ɣˈəː2.'),
+    ('gửi báo cáo đến <en>admin</en> gạch dưới <en>v</en> hai a còng <en>server</en> chấm <en>ai</en>.', 'ɣˈy4j bˈaːɜw kˈaːɜw ɗˌeɜn ˈædmɪn ɣˈe-6c zˈyəɜj vˈiː hˈaːj ˈaː kˈɔ2ŋ sˈɜːvɚ tʃˈəɜm ˈaːj.'),
+    ('repo nằm ở <en>https</en> <en>github</en> chấm com gạch <en>user</en> gạch <en>project</en> gạch ngang <en>v</en> hai.', 'ɹˈiːpoʊ nˈa2m ˈəː4 ˌeɪtʃtˌiːtˈiːpˌiːˈɛs ɡˈɪthʌb tʃˈəɜm kˈɔm ɣˈe-6c jˈuːzɚ ɣˈe-6c pɹˈɑːdʒɛkt ɣˈe-6c ŋˈaːŋ vˈiː hˈaːj.'),
+    ('tại sao khi ích tám thì nó lại là tám ích, mà với lại hai mươi nhân tám bằng?', 't̪ˈaː6j sˈaːw xˌi ˈiɜc t̪ˈaːɜm tˌi2 nˈɔɜ lˈaː6j lˌaː2 t̪ˈaːɜm ˈiɜc, mˌaː2 vˌəːɜj lˈaː6j hˈaːj mˈyəj ɲˈən t̪ˈaːɜm bˈa2ŋ?'),
+    ('<en>ram</en> hệ thống là một trăm hai mươi tám <en>gigabyte</en> đê đê rờ năm sáu nghìn bốn trăm.', 'ɹˈaːm hˈe6 tˈoɜŋ lˌaː2 mˈo6t̪ tʃˈam hˈaːj mˈyəj t̪ˈaːɜm ɡˈɪɡəbˌaɪt ɗˈe ɗˈe ɹˈəː2 nˈam sˈaɜw ŋˈi2n bˈoɜn tʃˈam.'),
+    ('<en>c p u</en> core i chín mười bốn nghìn chín trăm ca chạy ở xung nhịp sáu gi ga héc nhưng nhiệt độ lên tới chín mươi lăm độ xê.', 'sˈiː pˈiː jˈuː kˈɔːɹ ˈi tʃˈiɜn mˈyə2j bˈoɜn ŋˈi2n tʃˈiɜn tʃˈam kˈaː tʃˈa6j ˈəː4 sˈuŋ ɲˈi6p sˈaɜw z ɣˈaː hˈɛɜc ɲˌyŋ ɲˈiɛ6t̪ ɗˈo6 lˈen t̪ˌəːɜj tʃˈiɜn mˈyəj lˈam ɗˈo6 sˈe.'),
+    ('đường dẫn windows, <en>c</en> hai chấm gạch <en>users</en> gạch <en>dev</en> gạch <en>data</en> gạch <en>report</en> gạch dưới hai không hai sáu gạch ngang không ba gạch ngang một một chấm <en>log</en>.', 'ɗˈyə2ŋ zˈə5n wˈɪndoʊz, sˈiː hˈaːj tʃˈəɜm ɣˈe-6c jˈuːzɚz ɣˈe-6c dˈɛv ɣˈe-6c dˈeɪɾə ɣˈe-6c ɹᵻpˈɔːɹt ɣˈe-6c zˈyəɜj hˈaːj xˌoŋ hˈaːj sˈaɜw ɣˈe-6c ŋˈaːŋ xˌoŋ bˈaː ɣˈe-6c ŋˈaːŋ mˈo6t̪ mˈo6t̪ tʃˈəɜm lˈɔɡ.'),
+    ('chuỗi có placeholder protected en tag không để kiểm tra xung đột.', 'tʃˈuə5j kˈɔɜ plˈeɪshoʊldɚ pɹətˈɛktᵻd ˈɛn tˈæɡ xˌoŋ ɗˌe4 kˈiɛ4m tʃˈaː sˈuŋ ɗˈo6t̪.'),
+    ('username của tôi là <en>user</en> gạch dưới hai không hai bốn gạch dưới <en>dev</en>.', 'jˈuːzɚnˌeɪm kˌuə4 t̪ˈoj lˌaː2 jˈuːzɚ ɣˈe-6c zˈyəɜj hˈaːj xˌoŋ hˈaːj bˈoɜn ɣˈe-6c zˈyəɜj dˈɛv.'),
+    ('gửi báo cáo đến <en>admin</en> gạch dưới <en>v</en> hai a còng <en>server</en> chấm <en>ai</en>.', 'ɣˈy4j bˈaːɜw kˈaːɜw ɗˌeɜn ˈædmɪn ɣˈe-6c zˈyəɜj vˈiː hˈaːj ˈaː kˈɔ2ŋ sˈɜːvɚ tʃˈəɜm ˈaːj.'),
+    ('máy chủ dự phòng là <en>http</en> một hai bảy chấm không chấm không chấm một hai chấm năm không không không gạch <en>health</en>.', 'mˈaɜj tʃˈu4 zˈy6 fˈɔ2ŋ lˌaː2 ˌeɪtʃtˌiːtˌiːpˈiː mˈo6t̪ hˈaːj bˈa4j tʃˈəɜm xˌoŋ tʃˈəɜm xˌoŋ tʃˈəɜm mˈo6t̪ hˈaːj tʃˈəɜm nˈam xˌoŋ xˌoŋ xˌoŋ ɣˈe-6c hˈɛlθ.'),
+    ('thiết bị mã <en>t x zero</en> vẫn còn trong bảo tàng.', 'tˈiɛɜt̪ bˌi6 mˈaː5 tˈiː ˈɛks zˈiəɹoʊ vˌə5n kˌɔ2n tʃˈɔŋ bˈaː4w t̪ˈaː2ŋ.'),
+    ('dataset gồm ba chấm hai triệu samples, khoảng một chấm tám <en>terabyte</en> audio.', 'dˈeɪɾəsˌɛt ɣˈo2m bˈaː tʃˈəɜm hˈaːj tʃˈiɛ6w sˈæmpəlz, xwˌaː4ŋ mˈo6t̪ tʃˈəɜm t̪ˈaːɜm tˈɛɹəbˌaɪt ˈɔːdɪˌoʊ.'),
+    ('<en>g p u</en> <en>n v d a</en> <en>r t x</en> bốn nghìn không trăm chín mươi có hai mươi bốn <en>gigabyte</en> gờ đê đê rờ sáu ích <en>v ram</en>.', 'dʒˈiː pˈiː jˈuː ˈɛn vˈiː dˈiː ˈeɪ ˈɑːɹ tˈiː ˈɛks bˈoɜn ŋˈi2n xˌoŋ tʃˈam tʃˈiɜn mˈyəj kˈɔɜ hˈaːj mˈyəj bˈoɜn ɡˈɪɡəbˌaɪt ɣˈəː2 ɗˈe ɗˈe ɹˈəː2 sˈaɜw ˈiɜc vˈiː ɹˈaːm.'),
+    ('<en>a p i</en> local chạy ở <en>http</en> <en>localhost</en> hai chấm tám không tám không gạch <en>api</en> gạch <en>v</en> hai hỏi <en>lang</en> bằng <en>v i</en> thăng <en>top</en>.', 'ˈeɪ pˈiː ˈaɪ lˈoʊkəl tʃˈa6j ˈəː4 ˌeɪtʃtˌiːtˌiːpˈiː lˈoʊkɐlhˌoʊst hˈaːj tʃˈəɜm t̪ˈaːɜm xˌoŋ t̪ˈaːɜm xˌoŋ ɣˈe-6c ˌeɪpˌiːˈaɪ ɣˈe-6c vˈiː hˈaːj hˈɔ4j lˈaːŋ bˈa2ŋ vˈiː ˈaɪ tˈaŋ tˈɑːp.'),
+    ('tỷ lệ pê trên e là hai tám chấm bảy ích.', 't̪ˈi4 lˈe6 pˈe tʃˈen ˈɛ lˌaː2 hˈaːj t̪ˈaːɜm tʃˈəɜm bˈa4j ˈiɜc.'),
+    ('câu lệnh <en>s q l</en>, <en>select</en> sao <en>from</en> users <en>where</en> id bằng một', 'kˈə1w lˈe6ɲ ˈɛs kjˈuː ˈɛl, sᵻlˈɛkt sˈaːw fɹʌm jˈuːzɚz wˈɛɹ aɪdˈiː bˈa2ŋ mˈo6t̪'),
+    ('<en>e p s</en> quý này đạt ba chấm bốn năm <en>u s d</en>. tiếng việt có dấu, hoà, hòa, hòa.', 'ˈiː pˈiː ˈɛs kwˈiɜ nˈa2j ɗˈaː6t̪ bˈaː tʃˈəɜm bˈoɜn nˈam jˈuː ˈɛs dˈiː. t̪ˈiɛɜŋ vˈiɛ6t̪ kˈɔɜ zˈəɜw, hwˈaː2, hwˈaː2, hwˈaː2.'),
+]
 
-def test_phonemize_english_tag(g2p):
-    text = "Học <en>machine learning</en> rất hay"
-    phonemes = g2p.convert(text)
-    assert isinstance(phonemes, str)
-    assert len(phonemes) > 0
-    assert any(c in phonemes for c in "əˈʃ")
-
-def test_phonemize_with_custom_dict(g2p):
-    custom_dict = {"robot": "rô bốt"}
-    text = "Tôi là robot"
-    phonemes = g2p.convert(text, phoneme_dict=custom_dict)
-    assert "rô bốt" in phonemes
-
-def test_phonemize_batch_consistency(g2p):
-    texts = ["Xin chào", "Việt Nam", "Chào <en>world</en>"]
-    results = g2p.phonemize_batch(texts)
-
-    assert len(results) == 3
-    for res in results:
-        assert isinstance(res, str)
-        assert len(res) > 0
-
-    assert results[0] == g2p.convert(texts[0])
-    assert results[1] == g2p.convert(texts[1])
-    assert results[2] == g2p.convert(texts[2])
-
-def test_primes_and_apostrophes(g2p):
-    # Note: G2P class expects normalized text. 
-    # Normalization of A' -> 'a phẩy' and 1' -> 'một phẩy' is tested in test_normalize.py
-    
-    # Test Phonemization of the expanded prime forms
-    assert "fˈəɪ4" in g2p.convert("a phẩy")
-    assert "mˈo6t̪ fˈəɪ4" in g2p.convert("một phẩy")
-    
-    # Test English apostrophes within words (these are kept by normalizer and handled by G2P)
-    res_dont = g2p.convert("don't")
-    assert "dˈoʊnt" in res_dont
-    
-    res_its = g2p.convert("it's")
-    assert "ɪts" in res_its
+@pytest.mark.parametrize('norm_text, expected_phonemes', PHONEMIZE_CASES)
+def test_phonemize_parity(g2p_engine, norm_text, expected_phonemes):
+    actual = g2p_engine.convert(norm_text)
+    # Basic normalization for comparison
+    actual_clean = ' '.join(actual.split())
+    expected_clean = ' '.join(expected_phonemes.split())
+    assert actual_clean == expected_clean

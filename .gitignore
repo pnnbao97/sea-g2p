@@ -8,5 +8,13 @@ wheels/
 .pytest_cache/
 bak/
 
+# Compiled extensions
+*.pyd
+*.so
+*.pdb
+
+# Rust
+target/
+
 # Virtual environments
 .venv

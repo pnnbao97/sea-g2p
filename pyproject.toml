@@ -1,6 +1,6 @@
 [build-system]
-requires = ["setuptools>=61.0", "wheel"]
-build-backend = "setuptools.build_meta"
+requires = ["maturin>=1.0,<2.0"]
+build-backend = "maturin"
 
 [tool.uv]
 index-strategy = "unsafe-best-match"
@@ -16,7 +16,7 @@ url = "https://pypi.org/simple"
 
 [project]
 name = "sea-g2p"
-version = "0.4.7"
+version = "0.4.8"
 description = "Fast multilingual text-to-phoneme converter for South East Asian languages."
 readme = "README.md"
 license = { file = "LICENSE" }
@@ -75,12 +75,11 @@ dev = [
 [tool.pytest.ini_options]
 pythonpath = ["src"]
 
-[tool.setuptools]
-package-dir = {"" = "src"}
+[tool.maturin]
+module-name = "sea_g2p.sea_g2p_rs"
+python-source = "src"
+features = ["pyo3/extension-module"]
 
-[tool.setuptools.packages.find]
-where = ["src"]
-include = ["sea_g2p*"]
-
-[tool.setuptools.package-data]
-sea_g2p = ["phone_dict/*.db"]
+include = [
+    { path = "src/sea_g2p/phone_dict/phone_dict.bin", format = ["wheel", "sdist"] }
+]
