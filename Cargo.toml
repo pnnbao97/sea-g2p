@@ -8,7 +8,7 @@ name = "sea_g2p_rs"
 crate-type = ["cdylib"]
 
 [dependencies]
-pyo3 = { version = "0.23", features = ["extension-module", "abi3-py310"] }
+pyo3 = { version = "0.23", features = ["extension-module", "abi3-py310", "generate-import-lib"] }
 regex = "1.10"
 once_cell = "1.19"
 memmap2 = "0.9"
