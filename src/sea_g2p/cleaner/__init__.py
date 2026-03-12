@@ -78,6 +78,11 @@ def _cleanup_whitespace(text):
     text = re.sub(r',\s*,', ',', text)
     text = re.sub(r',\s*([.!?;])', r'\1', text)
     text = re.sub(r'\s+([,.!?;:])', r'\1', text)
+    
+    # Add space after punctuation if missing (e.g. "USD.Tiếng Việt" -> "USD. Tiếng Việt")
+    # But carefully avoiding tags like <en> or numbers (already handled if they meant to be decimals)
+    text = re.sub(r'([.,!?;:])(?=[^\s\d<])', r'\1 ', text)
+    
     return text.strip().strip(',')
 
 def clean_vietnamese_text(text):

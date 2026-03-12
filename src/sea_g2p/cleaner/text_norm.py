@@ -190,7 +190,7 @@ _SYMBOLS_MAP = {
     '≥': ' lớn hơn hoặc bằng ', '≤': ' nhỏ hơn hoặc bằng ',
     '±': ' cộng trừ ', '≈': ' xấp xỉ ',
     '/': ' trên ', '→': ' đến ', '÷': ' chia ',
-    '*': ' nhân ', '×': ' nhân ', '^': ' mũ ', '~': ' khoảng '
+    '*': ' sao ', '×': ' nhân ', '^': ' mũ ', '~': ' khoảng '
 }
 
 def _expand_scientific(num_str):
@@ -610,7 +610,7 @@ def normalize_emails(text):
 
     return RE_EMAIL.sub(_repl_email, text)
 
-WORD_LIKE_ACRONYMS = {"UNESCO", "NASA", "NATO", "ASEAN", "OPEC", "SARS", "FIFA", "UNIC", "RAM", "VRAM", "COVID", "IELTS", "STEM", "SWAT", "SEAL", "WASP", "COBOL", "BASIC", "OLED", "COVAX", "BRICS", "APEC", "VUCA", "PERMA", "DINK", "MENA", "EPIC", "OASIS", "BASE", "DART", "IDEA", "CHAOS", "SMART", "FANG", "BLEU", "REST"}
+WORD_LIKE_ACRONYMS = {"UNESCO", "NASA", "NATO", "ASEAN", "OPEC", "SARS", "FIFA", "UNIC", "RAM", "VRAM", "COVID", "IELTS", "STEM", "SWAT", "SEAL", "WASP", "COBOL", "BASIC", "OLED", "COVAX", "BRICS", "APEC", "VUCA", "PERMA", "DINK", "MENA", "EPIC", "OASIS", "BASE", "DART", "IDEA", "CHAOS", "SMART", "FANG", "BLEU", "REST", "ERROR", "SELECT", "FROM", "WHERE"}
 # AT&T
 def normalize_acronyms(text):
     sentences = RE_SENTENCE_SPLIT.split(text)
