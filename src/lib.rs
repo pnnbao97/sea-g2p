@@ -1,5 +1,26 @@
 use pyo3::prelude::*;
 pub mod g2p;
+pub mod normalizer;
+
+#[pyclass]
+struct Normalizer {
+    inner: normalizer::Normalizer,
+}
+
+#[pymethods]
+impl Normalizer {
+    #[new]
+    #[pyo3(signature = (lang = "vi"))]
+    fn new(lang: &str) -> Self {
+        Normalizer {
+            inner: normalizer::Normalizer::new(lang),
+        }
+    }
+
+    fn normalize(&self, text: &str) -> String {
+        self.inner.normalize(text)
+    }
+}
 
 #[pyclass]
 struct G2P {
@@ -28,5 +49,6 @@ impl G2P {
 #[pymodule]
 fn sea_g2p_rs(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<G2P>()?;
+    m.add_class::<Normalizer>()?;
     Ok(())
 }
