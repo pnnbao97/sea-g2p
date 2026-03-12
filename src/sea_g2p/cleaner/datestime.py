@@ -13,6 +13,8 @@ RE_MONTH_YEAR = re.compile(r"\b(\d{1,2})" + _date_seperator + r"(\d{4})\b", re.I
 RE_FULL_TIME = re.compile(r"\b(\d+)(g|:|h)(\d{1,2})(p|:|m)(\d{1,2})(?:\s*(giây|s|g))?\b", re.IGNORECASE)
 RE_TIME = re.compile(r"\b(\d+)(g|:|h)(\d{1,2})(?:\s*(phút|p|m))?\b", re.IGNORECASE)
 RE_REDUNDANT_NGAY = re.compile(r'\bngày\s+ngày\b', re.IGNORECASE)
+RE_REDUNDANT_THANG = re.compile(r'\btháng\s+tháng\b', re.IGNORECASE)
+RE_REDUNDANT_NAM = re.compile(r'\bnăm\s+năm\b', re.IGNORECASE)
 
 def _is_valid_date(day, month):
     try:
@@ -67,8 +69,8 @@ def normalize_date(text):
     )
     text = RE_DAY_MONTH.sub(_expand_day_month, text)
     text = RE_REDUNDANT_NGAY.sub('ngày', text)
-    text = re.sub(r'\btháng\s+tháng\b', 'tháng', text, flags=re.IGNORECASE)
-    text = re.sub(r'\bnăm\s+năm\b', 'năm', text, flags=re.IGNORECASE)
+    text = RE_REDUNDANT_THANG.sub('tháng', text)
+    text = RE_REDUNDANT_NAM.sub('năm', text)
     return text
 
 def normalize_time(text):

@@ -12,6 +12,27 @@ from .text_norm import (
     _ACRONYMS_EXCEPTIONS_RE
 )
 
+RE_POWER_OF_TEN_EXPLICIT = re.compile(r'\b(\d+(?:[.,]\d+)?)\s*[x*×]\s*10\^([-+]?\d+)\b', re.IGNORECASE)
+RE_POWER_OF_TEN_IMPLICIT = re.compile(r'\b10\^([-+]?\d+)\b')
+RE_RANGE = re.compile(r'(\d+(?:[,.]\d+)?)\s*[–\-—]\s*(\d+(?:[,.]\d+)?)')
+RE_DASH_TO_COMMA = re.compile(r'(?<=\s)[–\-—](?=\s)')
+RE_TO_SANG = re.compile(r'\s*(?:->|=>)\s*')
+RE_ENGLISH_STYLE_NUMBERS = re.compile(r'\b\d{1,3}(?:,\d{3})+(?:\.\d+)?\b')
+RE_MULTI_COMMA = re.compile(r'\b(\d+(?:,\d+){2,})\b')
+RE_FLOAT_WITH_COMMA = re.compile(r'(?<![\d.])(\d+(?:\.\d{3})*),(\d+)(%)?')
+RE_STRIP_DOT_SEP_RE = re.compile(r'(?<![\d.])\d+(?:\.\d{3})+(?![\d.])')
+
+RE_EXTRA_SPACES = re.compile(r'[ \t\xA0]+')
+RE_EXTRA_COMMAS = re.compile(r',\s*,')
+RE_COMMA_BEFORE_PUNCT = re.compile(r',\s*([.!?;])')
+RE_SPACE_BEFORE_PUNCT = re.compile(r'\s+([,.!?;:])')
+RE_MISSING_SPACE_AFTER_PUNCT = re.compile(r'([.,!?;:])(?=[^\s\d<])')
+
+RE_ENTOKEN = re.compile(r'ENTOKEN\d+', flags=re.IGNORECASE)
+RE_INTERNAL_EN_TAG = re.compile(r'(__start_en__.*?__end_en__|<en>.*?</en>)', flags=re.IGNORECASE)
+RE_DOT_BETWEEN_DIGITS = re.compile(r'(\d+)\.(\d+)')
+
+
 def _expand_float(m):
     int_part = n2w(m.group(1).replace('.', ''))
     dec_part = m.group(2).rstrip('0')
@@ -30,23 +51,23 @@ def _strip_dot_sep(m):
 def _normalize_pre_number(text):
     # Handle explicit powers of ten: 1.5×10^-3 or 1.5x10^3 or 1.5*10^3
     # Anchored regex to reduce search space and avoid ReDoS
-    text = re.sub(r'\b(\d+(?:[.,]\d+)?)\s*[x*×]\s*10\^([-+]?\d+)\b', expand_power_of_ten, text, flags=re.IGNORECASE)
-    text = re.sub(r'\b10\^([-+]?\d+)\b', lambda m: f"mười mũ {('trừ ' + n2w(m.group(1)[1:])) if m.group(1).startswith('-') else n2w(m.group(1).replace('+', ''))}", text)
+    text = RE_POWER_OF_TEN_EXPLICIT.sub(expand_power_of_ten, text)
+    text = RE_POWER_OF_TEN_IMPLICIT.sub(lambda m: f"mười mũ {('trừ ' + n2w(m.group(1)[1:])) if m.group(1).startswith('-') else n2w(m.group(1).replace('+', ''))}", text)
     
     text = expand_abbreviations(text)
     text = normalize_date(text)
     text = normalize_time(text)
     
     def _range_sub(m):
-        n1 = re.sub(r'[,.]', '', m.group(1))
-        n2 = re.sub(r'[,.]', '', m.group(2))
+        n1 = m.group(1).replace(',', '').replace('.', '')
+        n2 = m.group(2).replace(',', '').replace('.', '')
         # Only treat as a numeric range if digit counts are similar (within 1)
         if abs(len(n1) - len(n2)) <= 1:
             return f'{m.group(1)} đến {m.group(2)}'
         return f'{m.group(1)} {m.group(2)}'
-    text = re.sub(r'(\d+(?:[,.]\d+)?)\s*[–\-—]\s*(\d+(?:[,.]\d+)?)', _range_sub, text)
-    text = re.sub(r'(?<=\s)[–\-—](?=\s)', ',', text)
-    text = re.sub(r'\s*(?:->|=>)\s*', ' sang ', text)
+    text = RE_RANGE.sub(_range_sub, text)
+    text = RE_DASH_TO_COMMA.sub(',', text)
+    text = RE_TO_SANG.sub(' sang ', text)
     return text
 
 def _normalize_units_currency(text):
@@ -55,17 +76,17 @@ def _normalize_units_currency(text):
     text = expand_measurement(text)
     text = expand_currency(text)
 
-    text = re.sub(r'\b\d{1,3}(?:,\d{3})+(?:\.\d+)?\b', fix_english_style_numbers, text)
+    text = RE_ENGLISH_STYLE_NUMBERS.sub(fix_english_style_numbers, text)
 
     def _expand_multi_comma(m):
         res = []
         for s in m.group(1).split(','):
             res.append(' '.join(n2w_single(c) for c in s))
         return ' phẩy '.join(res)
-    text = re.sub(r'\b(\d+(?:,\d+){2,})\b', _expand_multi_comma, text)
+    text = RE_MULTI_COMMA.sub(_expand_multi_comma, text)
 
-    text = re.sub(r'(?<![\d.])(\d+(?:\.\d{3})*),(\d+)(%)?', _expand_float, text)
-    text = re.sub(r'(?<![\d.])\d+(?:\.\d{3})+(?![\d.])', _strip_dot_sep, text)
+    text = RE_FLOAT_WITH_COMMA.sub(_expand_float, text)
+    text = RE_STRIP_DOT_SEP_RE.sub(_strip_dot_sep, text)
     return text
 
 def _normalize_post_number(text):
@@ -74,14 +95,14 @@ def _normalize_post_number(text):
     return text
 
 def _cleanup_whitespace(text):
-    text = re.sub(r'[ \t\xA0]+', ' ', text)
-    text = re.sub(r',\s*,', ',', text)
-    text = re.sub(r',\s*([.!?;])', r'\1', text)
-    text = re.sub(r'\s+([,.!?;:])', r'\1', text)
+    text = RE_EXTRA_SPACES.sub(' ', text)
+    text = RE_EXTRA_COMMAS.sub(',', text)
+    text = RE_COMMA_BEFORE_PUNCT.sub(r'\1', text)
+    text = RE_SPACE_BEFORE_PUNCT.sub(r'\1', text)
     
     # Add space after punctuation if missing (e.g. "USD.Tiếng Việt" -> "USD. Tiếng Việt")
     # But carefully avoiding tags like <en> or numbers (already handled if they meant to be decimals)
-    text = re.sub(r'([.,!?;:])(?=[^\s\d<])', r'\1 ', text)
+    text = RE_MISSING_SPACE_AFTER_PUNCT.sub(r'\1 ', text)
     
     return text.strip().strip(',')
 
@@ -95,7 +116,7 @@ def clean_vietnamese_text(text):
         return mask
 
     # Simple regex to protect existing tags, avoiding potential ReDoS in nested patterns
-    text = re.sub(r'ENTOKEN\d+', protect, text, flags=re.IGNORECASE)
+    text = RE_ENTOKEN.sub(protect, text)
 
     # Normalize URLs and Emails early and protect them
     def protect_url_email(match):
@@ -127,14 +148,14 @@ def clean_vietnamese_text(text):
     text = _normalize_post_number(text)
 
     # Protect internally generated tags before standalone letter expansion
-    text = re.sub(r'(__start_en__.*?__end_en__|<en>.*?</en>)', protect, text, flags=re.IGNORECASE)
+    text = RE_INTERNAL_EN_TAG.sub(protect, text)
     text = expand_standalone_letters(text)
 
     # Convert remaining dots between digits to ' chấm ' (for IPs, versions that survived)
-    text = re.sub(r'(\d+)\.(\d+)', r'\1 chấm \2', text)
+    text = RE_DOT_BETWEEN_DIGITS.sub(r'\1 chấm \2', text)
     # Recursively handle multiple dots like 10.10.10.10
-    while re.search(r'(\d+)\.(\d+)', text):
-        text = re.sub(r'(\d+)\.(\d+)', r'\1 chấm \2', text)
+    while RE_DOT_BETWEEN_DIGITS.search(text):
+        text = RE_DOT_BETWEEN_DIGITS.sub(r'\1 chấm \2', text)
 
     for mask, original in mask_map.items():
         text = text.replace(mask, original)
