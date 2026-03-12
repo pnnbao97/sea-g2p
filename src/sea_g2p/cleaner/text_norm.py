@@ -42,7 +42,7 @@ _measurement_key_vi = {
     "db": "__start_en__decibel__end_en__", "oz": "__start_en__ounce__end_en__", "lb": "__start_en__pound__end_en__", "lbs": "__start_en__pounds__end_en__",
     "ft": "__start_en__feet__end_en__", "in": "__start_en__inch__end_en__", "dpi": "__start_en__d p i__end_en__", "pH": "pê hát",
     "gbps": "__start_en__gigabits per second__end_en__", "mbps": "__start_en__megabits per second__end_en__", "kbps": "__start_en__kilobits per second__end_en__",
-    "gallon": "__start_en__gallon__end_en__", "mol": "mol", "ms": "mi li giây"
+    "gallon": "__start_en__gallon__end_en__", "mol": "mol", "ms": "mi li giây", "M": "triệu"
 }
 
 _currency_key = {
@@ -69,6 +69,7 @@ _acronyms_exceptions_vi = {
 _technical_terms = {
     "JSON": "__start_en__j son__end_en__",
     "VRAM": "__start_en__v ram__end_en__",
+    "NVIDIA": "__start_en__n v d a__end_en__",
     "VN-Index": "__start_en__v n__end_en__ index",
     "MS DOS": "__start_en__m s dos__end_en__",
     "MS-DOS": "__start_en__m s dos__end_en__",
@@ -94,6 +95,8 @@ RE_TECHNICAL = re.compile(r'''
     |
     (?<!\w)/[a-zA-Z0-9._\-/]{2,}\b
     |
+    \b[a-zA-Z]:\\[a-zA-Z0-9._\\\-]+\b
+    |
     \b[a-zA-Z0-9._\-]+\.(?:txt|log|tar|gz|zip|sh|py|js|cpp|h|json|xml|yaml|yml|md|csv|pdf|docx|xlsx|exe|dll|so|config)\b
     |
     \b[a-zA-Z][a-zA-Z0-9]*(?:[._\-][a-zA-Z0-9]+){2,}\b
@@ -113,7 +116,7 @@ RE_TEMP_C = re.compile(r'(\d+(?:[.,]\d+)?)\s*°\s*c\b', re.IGNORECASE)
 RE_TEMP_F = re.compile(r'(\d+(?:[.,]\d+)?)\s*°\s*f\b', re.IGNORECASE)
 RE_DEGREE = re.compile(r'°')
 RE_VERSION = re.compile(r'\b(\d+(?:\.\d+)+)\b')
-RE_CLEAN_OTHERS = re.compile(r'[^\w\sàáảãạăắằẳẵặâấầẩẫậèéẻẽẹêếềểễệìíỉĩịòóỏõọôốồổỗộơớờởỡợùúủũụưứừửữỳýỷỹỵđ.,!?_\'’]')
+RE_CLEAN_OTHERS = re.compile(r'[^a-zA-Z0-9\sàáảãạăắằẳẵặâấầẩẫậèéẻẽẹêếềểễệìíỉĩịòóỏõọôốồổỗộơớờởỡợùúủũụưứừửữựỳýỷỹỵđÀÁẢÃẠĂẮẰẲẴẶÂẤẦẨẪẬÈÉẺẼẸÊẾỀỂỄỆÌÍỈĨỊÒÓỎÕỌÔỐỒỔỖỘƠỚỜỞỠỢÙÚỦŨỤƯỨỪỬỮỰỲÝỶỸỴĐ.,!?_\'’]')
 RE_CLEAN_QUOTES = re.compile(r'["“”"]')
 RE_PRIME = re.compile(r"(\b[a-zA-Z0-9])['’](?!\w)")
 
@@ -152,15 +155,18 @@ RE_PERCENTAGE = re.compile(rf"{_NUMERIC_P}\s*%", re.IGNORECASE)
 
 # Pre-compile measurement and currency unit patterns
 _MEASUREMENT_PATTERNS = []
-for unit, full in sorted(_measurement_key_vi.items(), key=lambda x: len(x[0]), reverse=True):
-    pattern = re.compile(rf"(?<![\d.,]){_NUMERIC_P}{_MAGNITUDE_P}\s*{unit}\b", re.IGNORECASE)
-
+for unit, full in sorted(_measurement_key_vi.items(), key=lambda x: (len(x[0]), x[0].isupper()), reverse=True):
+    # Specialized handling for M (Million) to be case-sensitive if it's 1-char
+    flags = re.IGNORECASE
+    if unit == 'M' or unit == 'm':
+        flags = 0 # Case sensitive for M/m to distinguish million/meter
+    
+    pattern = re.compile(rf"(?<![\d.,]){_NUMERIC_P}{_MAGNITUDE_P}\s*{unit}\b", flags)
+    
     standalone_pattern = None
-    safe_standalone = [
-        "km", "cm", "mm", "kg", "mg", "usd", "vnd", "ph"
-    ]
+    safe_standalone = ["km", "cm", "mm", "kg", "mg", "usd", "vnd", "ph"]
     if unit.lower() in safe_standalone:
-        standalone_pattern = re.compile(rf"(?<![\d.,])\b{unit}\b", re.IGNORECASE)
+        standalone_pattern = re.compile(rf"(?<![\d.,])\b{unit}\b", flags)
 
     _MEASUREMENT_PATTERNS.append((pattern, standalone_pattern, full))
 
@@ -327,9 +333,16 @@ def expand_currency(text):
 def expand_compound_units(text):
     def _repl_compound(m):
         num_str = m.group(1) if m.group(1) else ""
+        
+        if not num_str:
+            return m.group(0)
+
         num = _expand_number_with_sep(num_str)
-        u1 = m.group(2).lower()
-        u2 = m.group(3).lower()
+        u1_raw = m.group(2)
+        u2_raw = m.group(3)
+        u1 = u1_raw.lower()
+        u2 = u2_raw.lower()
+
         full1 = _measurement_key_vi.get(u1, _currency_key.get(u1, u1))
         full2 = _measurement_key_vi.get(u2, _currency_key.get(u2, u2))
         res = f" {full1} trên {full2} "
@@ -421,8 +434,8 @@ def normalize_technical(text):
             res.append('gạch')
             rest = orig[1:]
 
-        # Simple segments based on delimiters
-        segments = std_re.split(r'([./:?&=/_ \-])', rest)
+        # Simple segments based on delimiters including backslash for Windows paths and # for URL fragments
+        segments = std_re.split(r'([./:?&=/_ \-\\#])', rest)
         idx = 0
         while idx < len(segments):
             s = segments[idx]
@@ -430,11 +443,11 @@ def normalize_technical(text):
                 idx += 1
                 continue
 
-            if s == '.':
+            elif s == '.':
                 # Peek next segment for suffix map
                 next_seg = ""
                 for j in range(idx + 1, len(segments)):
-                    if segments[j] and segments[j] not in './:?&=/_ -':
+                    if segments[j] and segments[j] not in './:?&=/_ -\\':
                         next_seg = segments[j]
                         break
                 if next_seg.lower() in _DOMAIN_SUFFIX_MAP:
@@ -449,6 +462,8 @@ def normalize_technical(text):
                 res.append('chấm')
             elif s == '/':
                 res.append('gạch')
+            elif s == '\\':
+                res.append('gạch')
             elif s == '-':
                 res.append('gạch ngang')
             elif s == '_':
@@ -461,11 +476,13 @@ def normalize_technical(text):
                 res.append('và')
             elif s == '=':
                 res.append('bằng')
+            elif s == '#':
+                res.append('thăng')
             elif s.lower() in _DOMAIN_SUFFIX_MAP:
                 res.append(_DOMAIN_SUFFIX_MAP[s.lower()])
             elif s.isalnum() and s.isascii():
                 if s.isdigit():
-                    # In technical contexts (filenames, IDs), read digits individually
+                    # Technical IDs, hex segments, versions usually read as individual digits
                     res.append(" ".join(n2w_single(c) for c in s))
                 else:
                     # Split into letters and digits
@@ -477,17 +494,20 @@ def normalize_technical(text):
                             else:
                                 val = t.lower()
                                 if t.isupper() and len(t) <= 4:
-                                    val = " ".join(val)
+                                    val = " ".join(val.lower())
                                 elif len(val) <= 2 and len(val) > 0:
-                                    val = " ".join(val)
+                                    val = " ".join(val.lower())
                                 res.append(f"__start_en__{val}__end_en__")
                     else:
-                        val = s.lower()
-                        if s.isupper() and len(s) <= 4:
-                            val = " ".join(val)
-                        elif len(val) <= 2 and len(val) > 0: # e.g. 'io' -> 'i o'
-                            val = " ".join(val)
-                        res.append(f"__start_en__{val}__end_en__")
+                        if s.isdigit():
+                            res.append(" ".join(n2w_single(c) for c in s))
+                        else:
+                            val = s.lower()
+                            if s.isupper() and len(s) <= 4:
+                                val = " ".join(val)
+                            elif len(val) <= 2 and len(val) > 0: # e.g. 'io' -> 'i o'
+                                val = " ".join(val)
+                            res.append(f"__start_en__{val}__end_en__")
             else:
                 for char in s.lower():
                     if char.isalnum():

@@ -93,7 +93,7 @@ TEST_CASES = [
     ("5 triệu km", "năm triệu ki lô mét"),
     ("1,5 ha", "một phẩy năm héc ta"),
     ("1.5 ha", "một chấm năm héc ta"),
-    ("AN/ASQ", "an trên asq"),
+    ("AN/ASQ", "<en>a n</en> trên <en>a s q</en>"),
 
     # ─── 10. KHOẢNG / DÃY SỐ ──────────────────────────────────────────────────
     ("700-900", "bảy trăm đến chín trăm"),
@@ -273,7 +273,7 @@ TEST_CASES = [
     ("File tải tại ftp://example.org/data.zip.", "file tải tại <en>f t p</en> <en>example</en> chấm o rờ gờ gạch <en>data</en> chấm <en>zip</en>."),
     ("Nhiệt độ ngoài trời là -3.5°C.", "nhiệt độ ngoài trời là âm ba chấm năm độ xê."),
     ("Anh ấy chạy 10.000m trong 27:45.", "anh ấy chạy mười nghìn mét trong hai mươi bảy phút bốn mươi lăm giây."),
-    ("Tỉ số USD/EUR đang tăng.", "tỉ số <en>u s d</en> trên <en>euro</en> đang tăng."),
+    ("Tỉ số USD/EUR đang tăng.", "tỉ số <en>u s d</en> trên <en>e u r</en> đang tăng."),
     ("Anh ta kiếm được ¥120000 mỗi tháng.", "anh ta kiếm được một trăm hai mươi nghìn yên mỗi tháng."),
     ("Giá là $50 cho mỗi sản phẩm.", "giá là năm mươi <en>u s d</en> cho mỗi sản phẩm."),
     ("Phí dịch vụ là €10 mỗi người.", "phí dịch vụ là mười <en>euro</en> mỗi người."),
@@ -290,7 +290,9 @@ TEST_CASES = [
     ("Dùng MI5 và MI6.", "dùng <en>m i five</en> và <en>m i six</en>."),
     ("Bảo mật 2FA.", "bảo mật <en>two f a</en>."),
     ("Máy tính TX-0.", "máy tính <en>t x zero</en>."),
-    
+    ("File backup nằm ở /home/user/data_v3.2.tar.gz.", "file backup nằm ở gạch <en>home</en> gạch <en>user</en> gạch <en>data</en> gạch dưới <en>v</en> ba chấm hai chấm <en>tar</en> chấm <en>g z</en>."),
+    ("Log lỗi ghi tại error_log_2024-10-21.txt.", "log lỗi ghi tại <en>error</en> gạch dưới <en>log</en> gạch dưới hai không hai bốn gạch ngang một không gạch ngang hai một chấm <en>txt</en>."),
+
     # ─── 30. EXTREME CASES ─────────────────────────────────────
     ("Dân số thế giới khoảng 7,888,000,000 người (~7.9B).",
      "dân số thế giới khoảng bảy tỷ tám trăm tám mươi tám triệu người, khoảng bảy chấm chín bê."),
@@ -308,7 +310,19 @@ TEST_CASES = [
     # Dấu - giữa 2 số có số chữ số chênh lệch > 1 → không phải range → giữ nguyên
     ("RAM hệ thống là 128GB DDR5-6400.",
      "<en>ram</en> hệ thống là một trăm hai mươi tám <en>gigabyte</en> đê đê rờ năm sáu nghìn bốn trăm."),
-    ("CPU Core i9-14900K chạy ở xung nhịp 6,0 GHz nhưng nhiệt độ lên tới 95°C.", "<en>c p u</en> core i chín mười bốn nghìn chín trăm ca chạy ở xung nhịp sáu gi ga héc nhưng nhiệt độ lên tới chín mươi lăm độ xê.")
+    ("CPU Core i9-14900K chạy ở xung nhịp 6,0 GHz nhưng nhiệt độ lên tới 95°C.", "<en>c p u</en> core i chín mười bốn nghìn chín trăm ca chạy ở xung nhịp sáu gi ga héc nhưng nhiệt độ lên tới chín mươi lăm độ xê."),
+
+    # ─── 32. TECHNICAL REGRESSION TESTS ──────────────────────────────────────
+    ("Đường dẫn Windows: C:\\Users\\dev\\data\\report_2026-03-11.log.", "đường dẫn windows, <en>c</en> hai chấm gạch <en>users</en> gạch <en>dev</en> gạch <en>data</en> gạch <en>report</en> gạch dưới hai không hai sáu gạch ngang không ba gạch ngang một một chấm <en>log</en>."),
+    ("Chuỗi có placeholder ___PROTECTED_EN_TAG_0___ để kiểm tra xung đột.", "chuỗi có placeholder protected en tag không để kiểm tra xung đột."),
+    ("Username của tôi là user_2024_dev.", "username của tôi là <en>user</en> gạch dưới hai không hai bốn gạch dưới <en>dev</en>."),
+    ("Gửi báo cáo đến admin_v2@server.ai.", "gửi báo cáo đến <en>admin</en> gạch dưới <en>v</en> hai a còng <en>server</en> chấm <en>ai</en>."),
+    ("Máy chủ dự phòng là http://127.0.0.1:5000/health.", "máy chủ dự phòng là <en>http</en> một hai bảy chấm không chấm không chấm một hai chấm năm không không không gạch <en>health</en>."),
+    ("Thiết bị mã TX-0 vẫn còn trong bảo tàng.", "thiết bị mã <en>t x zero</en> vẫn còn trong bảo tàng."),
+    ("Dataset gồm 3.2M samples (~1.8TB audio).", "dataset gồm ba chấm hai triệu samples, khoảng một chấm tám <en>terabyte</en> audio."),
+    ("GPU NVIDIA RTX 4090 có 24GB GDDR6X VRAM.", "<en>g p u</en> <en>n v d a</en> <en>r t x</en> bốn nghìn không trăm chín mươi có hai mươi bốn <en>gigabyte</en> gờ đê đê rờ sáu ích <en>v ram</en>."),
+    ("API local chạy ở http://localhost:8080/api/v2?lang=vi#top.", "<en>a p i</en> local chạy ở <en>http</en> <en>localhost</en> hai chấm tám không tám không gạch <en>api</en> gạch <en>v</en> hai hỏi <en>lang</en> bằng <en>v i</en> thăng <en>top</en>."),
+    ("Tỷ lệ P/E là 28.7x.", "tỷ lệ pê trên e là hai tám chấm bảy ích.")
 ]
 
 @pytest.mark.parametrize("input_text, expected", TEST_CASES)
