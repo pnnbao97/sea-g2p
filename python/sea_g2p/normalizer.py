@@ -1,6 +1,6 @@
 import re
 import unicodedata
-from .cleaner import clean_vietnamese_text
+from .vi_cleaner import clean_vietnamese_text
 
 class Normalizer:
     """

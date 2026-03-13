@@ -55,7 +55,18 @@ print(phonemes)
 - **Zero Dependency**: Pre-compiled wheels for Windows, Linux, and macOS.
 - **Smart Normalization**: Specialized for Vietnamese (numbers, dates, technical terms).
 - **Bilingual Support**: Handles mixed Vietnamese/English text seamlessly.
-- **Character Fallback**: Built-in intelligent fallback for unknown words.
+
+## 📊 Performance
+
+The following benchmarks were conducted on a dataset of **100,000 words** (26,000+ lines):
+
+| Module | Language | Implementation | Throughput | Avg Time/Line |
+| :--- | :--- | :--- | :--- | :--- |
+| **Normalizer** | Vietnamese | Python | **~39,000 words/s** | 0.09 ms |
+| **G2P** | Multilingual | Rust Core | **~480,000 words/s** | 0.007 ms |
+
+**Total Pipeline Throughput**: **~36,000 words/s**
+*(Tested on CPython 3.12, Windows 11)*
 
 ## Technical Architecture
 

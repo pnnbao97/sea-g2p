@@ -172,7 +172,7 @@ def fix_english_style_numbers(m):
     return val
 
 def expand_power_of_ten(m):
-    from .others import normalize_others
+    from .misc import normalize_others
     base = m.group(1)
     exp = m.group(2)
     base_norm = normalize_others(base).strip()
