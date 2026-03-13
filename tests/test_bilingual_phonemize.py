@@ -9,18 +9,6 @@ class TestBilingualPhonemize(unittest.TestCase):
     Test suite kiểm tra logic phonemize song ngữ và cơ chế lan truyền (propagation).
     """
 
-    def setUp(self):
-        # Skip all tests in this file if espeak is not working properly
-        import subprocess
-        try:
-            # We also check if it actually returns phonemes, not just exists
-            # Added -x to get phonemes on stdout even if audio fails
-            res = subprocess.run(["espeak-ng", "-x", "test"], capture_output=True, text=True, shell=False)
-            if not res.stdout.strip():
-                self.skipTest("espeak-ng not returning output")
-        except (subprocess.CalledProcessError, FileNotFoundError):
-            self.skipTest("espeak-ng not installed")
-
     def assert_propagation(self, natural_text, tagged_text):
         """Kiểm tra câu tự nhiên phải cho ra phoneme giống hệt câu có tag."""
         p_nat = g2p.convert(natural_text)
