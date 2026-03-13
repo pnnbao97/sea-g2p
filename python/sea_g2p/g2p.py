@@ -1,6 +1,5 @@
 import os
 import logging
-from typing import List, Dict, Optional
 
 logger = logging.getLogger("sea_g2p.G2P")
 
@@ -24,26 +23,14 @@ class G2P:
                 "Please install the package correctly or rebuild the extension."
             )
             
-        # Try to find the binary dictionary
+        # Tự động tìm file binary dict nằm trong cùng package
         if db_path is None:
-            bin_path = os.path.join(os.path.dirname(__file__), "phone_dict", "phone_dict.bin")
-            if os.path.exists(bin_path):
-                db_path = bin_path
-            else:
-                # Fallback lookup in common project locations
-                search_paths = [
-                    os.path.join(os.getcwd(), "src", "sea_g2p", "phone_dict", "phone_dict.bin"),
-                    os.path.join(os.path.dirname(os.path.dirname(__file__)), "phone_dict", "phone_dict.bin")
-                ]
-                for p in search_paths:
-                    if os.path.exists(p):
-                        db_path = p
-                        break
+            db_path = os.path.join(os.path.dirname(__file__), "phone_dict", "phone_dict.bin")
         
         if not db_path or not os.path.exists(db_path):
             raise FileNotFoundError(
-                f"Phoneme dictionary not found. Expected a .bin file. "
-                f"Searched in: {db_path or 'default paths'}"
+                f"Phoneme dictionary not found at: {db_path}. "
+                "Please ensure the package is installed correctly."
             )
 
         try:
@@ -57,7 +44,7 @@ class G2P:
         """Convert a single text string to phonemes."""
         return self._rust_engine.phonemize(text)
 
-    def phonemize_batch(self, texts: List[str], **kwargs) -> List[str]:
+    def phonemize_batch(self, texts: list[str], **kwargs) -> list[str]:
         """Convert a batch of text strings to phonemes."""
         if not texts:
             return []
