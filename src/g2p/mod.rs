@@ -217,10 +217,10 @@ impl G2PEngine {
                         let mut phone_val = None;
                         
                         if let Some(p) = self.cached_lookup_merged(&lw) {
-                            phone_val = Some(p.replace("<en>", "").replace("</en>", "").trim().to_string());
+                            phone_val = Some(p.replace("<en>", "").trim().to_string());
                         } else if let Some((_, en)) = self.cached_lookup_common(&lw) {
                             if !en.is_empty() {
-                                phone_val = Some(en.replace("<en>", "").replace("</en>", "").trim().to_string());
+                                phone_val = Some(en.replace("<en>", "").trim().to_string());
                             }
                         }
 
@@ -244,15 +244,15 @@ impl G2PEngine {
                     tokens.push(Token {
                         lang: lang.to_string(),
                         content: word.as_str().to_string(),
-                        phone: Some(p.replace("<en>", "").replace("</en>", "").trim().to_string()),
+                        phone: Some(p.replace("<en>", "").trim().to_string()),
                     });
                 } else if let Some((vi, en)) = self.cached_lookup_common(&lw) {
                     tokens.push(Token {
                         lang: "common".to_string(),
                         content: word.as_str().to_string(),
                         phone: Some(format!("\x1F{}\x1F{}\x1F",
-                        vi.replace("<en>", "").replace("</en>", "").trim(),
-                        en.replace("<en>", "").replace("</en>", "").trim()
+                        vi.trim(), 
+                        en.replace("<en>", "").trim()
                     )),
                     });
                 } else {
@@ -297,16 +297,16 @@ impl G2PEngine {
                     t.content.chars().map(|c| {
                         let cl = c.to_lowercase().to_string();
                         if let Some(cp) = self.cached_lookup_merged(&cl) {
-                            cp.replace("<en>", "").replace("</en>", "").trim().to_string()
+                            cp.replace("<en>", "").trim().to_string()
                         } else if let Some((v, e)) = self.cached_lookup_common(&cl) {
                             let p = if t.lang == "en" && !e.is_empty() { e } else { if !v.is_empty() { v } else { e } };
-                            p.replace("<en>", "").replace("</en>", "").trim().to_string()
+                            p.replace("<en>", "").trim().to_string()
                         } else {
                             cl
                         }
                     }).collect::<Vec<String>>().join("")
                 };
-                result.push(phone.replace("<en>", "").replace("</en>", "").trim().to_string());
+                result.push(phone.trim().to_string());
             }
         }
 
