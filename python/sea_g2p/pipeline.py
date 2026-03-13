@@ -9,9 +9,8 @@ class SEAPipeline:
     def run(self, text: str) -> str:
         """
         Run the full text-to-phoneme pipeline: normalization followed by phonemization.
+        Uses a single call to the Rust core for maximum efficiency.
         """
         if not text:
             return ""
-        normalized_text = self.normalizer.normalize(text)
-        phonemes = self.g2p.convert(normalized_text)
-        return phonemes
+        return self.g2p._rust_engine.pipeline(text)

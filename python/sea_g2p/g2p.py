@@ -34,7 +34,7 @@ class G2P:
             )
 
         try:
-            self._rust_engine = _RustG2P(db_path)
+            self._rust_engine = _RustG2P(db_path, lang=lang)
             logger.debug(f"Initialized Rust G2P engine with {db_path}")
         except Exception as e:
             logger.error(f"Failed to initialize Rust G2P engine: {e}")

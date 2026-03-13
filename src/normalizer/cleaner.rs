@@ -1,6 +1,7 @@
 use aho_corasick::AhoCorasick;
 use fancy_regex::{Regex as FancyRegex, Captures as FancyCaptures};
-use regex::Regex as StdRegex;
+use regex::{Regex as StdRegex, Captures as StdCaptures};
+use unicode_normalization::UnicodeNormalization;
 use once_cell::sync::Lazy;
 use std::collections::HashMap;
 use super::num2vi::{n2w, n2w_single, get_unit_word};
@@ -9,7 +10,7 @@ use super::vi_resources::*;
 // Standard Regex patterns (no look-around needed)
 static RE_POWER_OF_TEN_EXPLICIT: Lazy<StdRegex> = Lazy::new(|| StdRegex::new(r"(?i)\b(\d+(?:[.,]\d+)?)\s*[x*×]\s*10\^([-+]?\d+)\b").unwrap());
 static RE_POWER_OF_TEN_IMPLICIT: Lazy<StdRegex> = Lazy::new(|| StdRegex::new(r"(?i)\b10\^([-+]?\d+)\b").unwrap());
-static RE_RANGE: Lazy<StdRegex> = Lazy::new(|| StdRegex::new(r"(\d+(?:[,.]\d+)?)\s*[–\-—]\s*(\d+(?:[,.]\d+)?)").unwrap());
+static RE_RANGE: Lazy<StdRegex> = Lazy::new(|| StdRegex::new(r"\b(\d+(?:[,.]\d+)?)\s*[–\-—]\s*(\d+(?:[,.]\d+)?)\b").unwrap());
 static RE_TO_SANG: Lazy<StdRegex> = Lazy::new(|| StdRegex::new(r"(?i)\s*(?:->|=>)\s*").unwrap());
 static RE_ENGLISH_STYLE_NUMBERS: Lazy<StdRegex> = Lazy::new(|| StdRegex::new(r"\b\d{1,3}(?:,\d{3})+(?:\.\d+)?\b").unwrap());
 static RE_MULTI_COMMA: Lazy<StdRegex> = Lazy::new(|| StdRegex::new(r"\b(\d+(?:,\d+){2,})\b").unwrap());
@@ -28,7 +29,7 @@ static RE_COMPOUND_UNIT: Lazy<StdRegex> = Lazy::new(|| StdRegex::new(r"(?i)\b(\d
 static RE_CURRENCY_PREFIX_SYMBOL: Lazy<StdRegex> = Lazy::new(|| StdRegex::new(&format!(r"(?i)([$€¥£₩])\s*{}{}", NUMERIC_P, MAGNITUDE_P)).unwrap());
 static RE_CURRENCY_SUFFIX_SYMBOL: Lazy<StdRegex> = Lazy::new(|| StdRegex::new(&format!(r"(?i){}{}([$€¥£₩])", NUMERIC_P, MAGNITUDE_P)).unwrap());
 static RE_PERCENTAGE: Lazy<StdRegex> = Lazy::new(|| StdRegex::new(&format!(r"(?i){}\s*%", NUMERIC_P)).unwrap());
-static RE_LETTER: Lazy<StdRegex> = Lazy::new(|| StdRegex::new(r#"(?i)(chữ|chữ cái|kí tự|ký tự)\s+(['"]?)([a-z])(['"]?)\b"#).unwrap());
+static RE_LETTER: Lazy<StdRegex> = Lazy::new(|| StdRegex::new(r#"(?i)(chữ|chữ cái|kí tự|ký tự|kỳ tự)\s+(['"]?)([a-z])(['"]?)\b"#).unwrap());
 static RE_SENTENCE_SPLIT: Lazy<StdRegex> = Lazy::new(|| StdRegex::new(r"([.!?]+(?:\s+|$))").unwrap());
 static RE_ALPHANUMERIC: Lazy<StdRegex> = Lazy::new(|| StdRegex::new(r"\b(\d+)([a-zA-Z])\b").unwrap());
 static RE_BRACKETS: Lazy<StdRegex> = Lazy::new(|| StdRegex::new(r"[\(\[\{]\s*(.*?)\s*[\)\]\}]").unwrap());
@@ -96,13 +97,19 @@ static NUMERIC_P: &str = r"(\d+(?:[.,]\d+)*)";
 static RE_ACRONYMS_EXCEPTIONS_AC: Lazy<AhoCorasick> = Lazy::new(|| {
     let mut keys: Vec<String> = COMBINED_EXCEPTIONS.keys().map(|k| k.to_string()).collect();
     keys.sort_by_key(|k| std::cmp::Reverse(k.len()));
-    AhoCorasick::new(keys).unwrap()
+    aho_corasick::AhoCorasickBuilder::new()
+        .match_kind(aho_corasick::MatchKind::LeftmostLongest)
+        .build(keys)
+        .unwrap()
 });
 
 static ABBRS_AC: Lazy<AhoCorasick> = Lazy::new(|| {
     let mut keys: Vec<String> = ABBRS_MAP.keys().map(|k| k.to_string()).collect();
     keys.sort_by_key(|k| std::cmp::Reverse(k.len()));
-    AhoCorasick::new(keys).unwrap()
+    aho_corasick::AhoCorasickBuilder::new()
+        .match_kind(aho_corasick::MatchKind::LeftmostLongest)
+        .build(keys)
+        .unwrap()
 });
 
 static SYMBOLS_AC: Lazy<AhoCorasick> = Lazy::new(|| {
@@ -160,14 +167,14 @@ fn expand_number_with_sep(num_str: &str) -> String {
             let s = num_str.replace(',', "");
             let parts: Vec<&str> = s.split('.').collect();
             let dec = parts[1].trim_end_matches('0');
-            if dec.is_empty() { return n2w(parts[0]); }
-            return format!("{} phẩy {}", n2w(parts[0]), n2w_single(dec));
+            if dec.is_empty() { return n2w(&parts[0]); }
+            return format!("{} phẩy {}", n2w(&parts[0]), n2w_single(dec));
         } else { // Vietnamese
             let s = num_str.replace('.', "");
             let parts: Vec<&str> = s.split(',').collect();
             let dec = parts[1].trim_end_matches('0');
-            if dec.is_empty() { return n2w(parts[0]); }
-            return format!("{} phẩy {}", n2w(parts[0]), n2w_single(dec));
+            if dec.is_empty() { return n2w(&parts[0]); }
+            return format!("{} phẩy {}", n2w(&parts[0]), n2w_single(dec));
         }
     }
 
@@ -292,11 +299,11 @@ fn normalize_technical(text: &str) -> String {
             idx += 1;
         }
         res.join(" ").replace("  ", " ").trim().to_string()
-    }).unwrap().to_string()
+    }).to_string()
 }
 
 fn normalize_emails(text: &str) -> String {
-    RE_EMAIL.replace_all(text, |cap: &regex::Captures| {
+    RE_EMAIL.replace_all(text, |cap: &StdCaptures| {
         let email = cap.get(0).unwrap().as_str();
         let parts: Vec<&str> = email.split('@').collect();
         if parts.len() != 2 { return email.to_string(); }
@@ -308,7 +315,7 @@ fn normalize_emails(text: &str) -> String {
             if s.is_empty() { return String::new(); }
             if s.chars().all(|c: char| c.is_ascii_digit()) { return n2w(s); }
             if s.chars().all(|c: char| c.is_alphanumeric() && c.is_ascii()) {
-                let std_re_sub = regex::Regex::new(r"[a-zA-Z]+|\d+").unwrap();
+                let std_re_sub = StdRegex::new(r"[a-zA-Z]+|\d+").unwrap();
                 let sub_tokens: Vec<&str> = std_re_sub.find_iter(s).map(|m| m.as_str()).collect();
                 if sub_tokens.len() > 1 {
                     let mut res_parts = Vec::new();
@@ -380,7 +387,7 @@ fn normalize_emails(text: &str) -> String {
 }
 
 fn normalize_pre_number(mut text: String) -> String {
-    text = RE_POWER_OF_TEN_EXPLICIT.replace_all(&text, |cap: &regex::Captures| {
+    text = RE_POWER_OF_TEN_EXPLICIT.replace_all(&text, |cap: &StdCaptures| {
         let base = cap.get(1).unwrap().as_str();
         let exp = cap.get(2).unwrap().as_str();
         let base_norm = normalize_others(base.to_string());
@@ -389,7 +396,7 @@ fn normalize_pre_number(mut text: String) -> String {
         format!(" {} nhân mười mũ {} ", base_norm.trim(), exp_norm)
     }).to_string();
 
-    text = RE_POWER_OF_TEN_IMPLICIT.replace_all(&text, |cap: &regex::Captures| {
+    text = RE_POWER_OF_TEN_IMPLICIT.replace_all(&text, |cap: &StdCaptures| {
         let exp = cap.get(1).unwrap().as_str();
         let exp_val = exp.replace('+', "");
         let exp_norm = if exp_val.starts_with('-') { format!("trừ {}", n2w(&exp_val[1..])) } else { n2w(&exp_val) };
@@ -411,18 +418,20 @@ fn normalize_pre_number(mut text: String) -> String {
     text = normalize_date(text);
     text = normalize_time(text);
 
-    text = RE_RANGE.replace_all(&text, |cap: &regex::Captures| {
-        let n1 = cap.get(1).unwrap().as_str().replace(',', "").replace('.', "");
-        let n2 = cap.get(2).unwrap().as_str().replace(',', "").replace('.', "");
+    text = RE_RANGE.replace_all(&text, |cap: &StdCaptures| {
+        let n1_raw = cap.get(1).unwrap().as_str();
+        let n2_raw = cap.get(2).unwrap().as_str();
+        let n1 = n1_raw.replace(',', "").replace('.', "");
+        let n2 = n2_raw.replace(',', "").replace('.', "");
         if (n1.len() as i32 - n2.len() as i32).abs() <= 1 {
-            format!("{} đến {}", cap.get(1).unwrap().as_str(), cap.get(2).unwrap().as_str())
+            format!("{} đến {}", n1_raw, n2_raw)
         } else {
-            format!("{} {}", cap.get(1).unwrap().as_str(), cap.get(2).unwrap().as_str())
+            format!("{} - {}", n1_raw, n2_raw)
         }
     }).to_string();
 
-    text = RE_DASH_TO_COMMA.replace_all(&text, |_: &FancyCaptures| ",").unwrap().to_string();
-    text = RE_TO_SANG.replace_all(&text, |_: &regex::Captures| " sang ").to_string();
+    text = RE_DASH_TO_COMMA.replace_all(&text, |_: &FancyCaptures| ",").to_string();
+    text = RE_TO_SANG.replace_all(&text, |_: &StdCaptures| " sang ").to_string();
 
     text
 }
@@ -439,7 +448,7 @@ fn normalize_date(mut text: String) -> String {
     static RE_DAY_MONTH_STD: Lazy<StdRegex> = Lazy::new(|| StdRegex::new(r"(?i)\b(\d{1,2})(/|-)(\d{1,2})\b").unwrap());
     static RE_MONTH_YEAR_STD: Lazy<StdRegex> = Lazy::new(|| StdRegex::new(r"(?i)\b(\d{1,2})(/|-|\.)(\d{4})\b").unwrap());
 
-    text = RE_FULL_DATE_STD.replace_all(&text, |cap: &regex::Captures| {
+    text = RE_FULL_DATE_STD.replace_all(&text, |cap: &StdCaptures| {
         let d = cap.get(1).unwrap().as_str();
         let m = cap.get(3).unwrap().as_str();
         let y = cap.get(5).unwrap().as_str();
@@ -449,14 +458,14 @@ fn normalize_date(mut text: String) -> String {
         } else { cap.get(0).unwrap().as_str().to_string() }
     }).to_string();
 
-    text = RE_MONTH_YEAR_STD.replace_all(&text, |cap: &regex::Captures| {
+    text = RE_MONTH_YEAR_STD.replace_all(&text, |cap: &StdCaptures| {
         let m = cap.get(1).unwrap().as_str();
         let y = cap.get(3).unwrap().as_str();
         let m_val = if m.parse::<i32>().unwrap() == 4 { "tư".to_string() } else { n2w(&m.parse::<i32>().unwrap().to_string()) };
         format!("tháng {} năm {}", m_val, n2w(y))
     }).to_string();
 
-    text = RE_DAY_MONTH_STD.replace_all(&text, |cap: &regex::Captures| {
+    text = RE_DAY_MONTH_STD.replace_all(&text, |cap: &StdCaptures| {
         let d = cap.get(1).unwrap().as_str();
         let m = cap.get(3).unwrap().as_str();
         if is_valid_date(d, m) {
@@ -475,14 +484,14 @@ fn normalize_time(mut text: String) -> String {
     static RE_FULL_TIME_STD: Lazy<StdRegex> = Lazy::new(|| StdRegex::new(r"(?i)\b(\d+)(g|:|h)(\d{1,2})(p|:|m)(\d{1,2})(?:\s*(giây|s|g))?\b").unwrap());
     static RE_TIME_SHORT_STD: Lazy<StdRegex> = Lazy::new(|| StdRegex::new(r"(?i)\b(\d+)(g|:|h)(\d{1,2})(?:\s*(phút|p|m))?\b").unwrap());
 
-    text = RE_FULL_TIME_STD.replace_all(&text, |cap: &regex::Captures| {
+    text = RE_FULL_TIME_STD.replace_all(&text, |cap: &StdCaptures| {
         let h = cap.get(1).unwrap().as_str();
         let m = cap.get(3).unwrap().as_str();
         let s = cap.get(5).unwrap().as_str();
         format!("{} giờ {} phút {} giây", n2w(if h == "00" { "0" } else { h }), n2w(if m == "00" { "0" } else { m }), n2w(if s == "00" { "0" } else { s }))
     }).to_string();
 
-    text = RE_TIME_SHORT_STD.replace_all(&text, |cap: &regex::Captures| {
+    text = RE_TIME_SHORT_STD.replace_all(&text, |cap: &StdCaptures| {
         let h = cap.get(1).unwrap().as_str();
         let sep = cap.get(2).unwrap().as_str();
         let m = cap.get(3).unwrap().as_str();
@@ -504,11 +513,11 @@ fn normalize_time(mut text: String) -> String {
 }
 
 fn normalize_units_currency(mut text: String) -> String {
-    text = StdRegex::new(r"(?i)\b(\d+(?:[.,]\d+)?e[+-]?\d+)\b").unwrap().replace_all(&text, |cap: &regex::Captures| {
+    text = StdRegex::new(r"(?i)\b(\d+(?:[.,]\d+)?e[+-]?\d+)\b").unwrap().replace_all(&text, |cap: &StdCaptures| {
         expand_number_with_sep(cap.get(1).unwrap().as_str())
     }).to_string();
 
-    text = RE_COMPOUND_UNIT.replace_all(&text, |cap: &regex::Captures| {
+    text = RE_COMPOUND_UNIT.replace_all(&text, |cap: &StdCaptures| {
         let num_str = cap.get(1).map(|m| m.as_str()).unwrap_or("");
         if num_str.is_empty() { return cap.get(0).unwrap().as_str().to_string(); }
         let num_norm = expand_number_with_sep(num_str);
@@ -525,14 +534,14 @@ fn normalize_units_currency(mut text: String) -> String {
         let unit = cap.get(3).unwrap().as_str();
         let full = if unit == "M" { "triệu" } else if unit == "m" { "mét" } else { ALL_UNITS_MAP.get(&unit.to_lowercase()).map(|s| s.as_str()).unwrap_or(unit) };
         format!("{} {} {}", expand_number_with_sep(num), mag, full).replace("  ", " ").trim().to_string()
-    }).unwrap().to_string();
+    }).to_string();
 
     text = RE_STANDALONE_UNIT.replace_all(&text, |cap: &FancyCaptures| {
         let unit = cap.get(1).unwrap().as_str().to_lowercase();
         format!(" {} ", ALL_UNITS_MAP.get(&unit).cloned().unwrap_or(unit))
-    }).unwrap().to_string();
+    }).to_string();
 
-    let repl_symbol = |cap: &regex::Captures, is_prefix: bool| {
+    let repl_symbol = |cap: &StdCaptures, is_prefix: bool| {
         let symbol = if is_prefix { cap.get(1).unwrap().as_str() } else { cap.get(3).unwrap().as_str() };
         let num = if is_prefix { cap.get(2).unwrap().as_str() } else { cap.get(1).unwrap().as_str() };
         let mag = if is_prefix { cap.get(3).map(|m| m.as_str()).unwrap_or("") } else { cap.get(2).map(|m| m.as_str()).unwrap_or("") };
@@ -540,11 +549,11 @@ fn normalize_units_currency(mut text: String) -> String {
         format!("{} {} {}", expand_number_with_sep(num), mag, full).replace("  ", " ").trim().to_string()
     };
 
-    text = RE_CURRENCY_PREFIX_SYMBOL.replace_all(&text, |cap: &regex::Captures| repl_symbol(cap, true)).to_string();
-    text = RE_CURRENCY_SUFFIX_SYMBOL.replace_all(&text, |cap: &regex::Captures| repl_symbol(cap, false)).to_string();
-    text = RE_PERCENTAGE.replace_all(&text, |cap: &regex::Captures| format!("{} phần trăm", expand_number_with_sep(cap.get(1).unwrap().as_str()))).to_string();
+    text = RE_CURRENCY_PREFIX_SYMBOL.replace_all(&text, |cap: &StdCaptures| repl_symbol(cap, true)).to_string();
+    text = RE_CURRENCY_SUFFIX_SYMBOL.replace_all(&text, |cap: &StdCaptures| repl_symbol(cap, false)).to_string();
+    text = RE_PERCENTAGE.replace_all(&text, |cap: &StdCaptures| format!("{} phần trăm", expand_number_with_sep(cap.get(1).unwrap().as_str()))).to_string();
 
-    text = RE_ENGLISH_STYLE_NUMBERS.replace_all(&text, |cap: &regex::Captures| {
+    text = RE_ENGLISH_STYLE_NUMBERS.replace_all(&text, |cap: &StdCaptures| {
         let val = cap.get(0).unwrap().as_str();
         let has_comma = val.contains(',');
         let has_dot = val.contains('.');
@@ -557,7 +566,7 @@ fn normalize_units_currency(mut text: String) -> String {
         }
     }).to_string();
 
-    text = RE_MULTI_COMMA.replace_all(&text, |cap: &regex::Captures| {
+    text = RE_MULTI_COMMA.replace_all(&text, |cap: &StdCaptures| {
         cap.get(1).unwrap().as_str().split(',').map(|s| n2w_single(s)).collect::<Vec<String>>().join(" phẩy ")
     }).to_string();
 
@@ -567,9 +576,9 @@ fn normalize_units_currency(mut text: String) -> String {
         let mut res = if dec_part.is_empty() { int_part } else { format!("{} phẩy {}", int_part, n2w_single(dec_part)) };
         if cap.get(3).is_some() { res.push_str(" phần trăm"); }
         format!(" {} ", res)
-    }).unwrap().to_string();
+    }).to_string();
 
-    text = RE_STRIP_DOT_SEP_RE.replace_all(&text, |cap: &FancyCaptures| cap.get(0).unwrap().as_str().replace('.', "")).unwrap().to_string();
+    text = RE_STRIP_DOT_SEP_RE.replace_all(&text, |cap: &FancyCaptures| cap.get(0).unwrap().as_str().replace('.', "")).to_string();
 
     text
 }
@@ -587,20 +596,26 @@ fn normalize_others(mut text: String) -> String {
     for mat in RE_ACRONYMS_EXCEPTIONS_AC.find_iter(&text) {
         new_text.push_str(&text[last_match..mat.start()]);
         let key = &text[mat.start()..mat.end()];
-        new_text.push_str(COMBINED_EXCEPTIONS.get(key).unwrap());
+        let replacement = COMBINED_EXCEPTIONS.get(key).unwrap();
+
+        if mat.start() > 0 && !new_text.is_empty() && !new_text.ends_with(|c: char| c.is_whitespace()) && !replacement.starts_with(|c: char| c.is_whitespace()) {
+            new_text.push(' ');
+        }
+
+        new_text.push_str(replacement);
         last_match = mat.end();
     }
     new_text.push_str(&text[last_match..]);
     text = new_text;
 
-    text = RE_SLASH_NUMBER.replace_all(&text, |cap: &regex::Captures| {
+    text = RE_SLASH_NUMBER.replace_all(&text, |cap: &StdCaptures| {
         let n1 = cap.get(1).unwrap().as_str();
         let n2 = cap.get(2).unwrap().as_str();
         if n1.len() > 2 || n1.parse::<i32>().unwrap_or(0) > 31 { format!("{} xẹt {}", n2w(n1), n2w(n2)) }
         else { format!("{} trên {}", n2w(n1), n2w(n2)) }
     }).to_string();
 
-    text = RE_DOMAIN_SUFFIXES.replace_all(&text, |cap: &regex::Captures| {
+    text = RE_DOMAIN_SUFFIXES.replace_all(&text, |cap: &StdCaptures| {
         format!(" chấm {} ", DOMAIN_SUFFIX_MAP_LAZY.get(&cap.get(1).unwrap().as_str().to_lowercase()).cloned().unwrap_or(cap.get(1).unwrap().as_str().to_string()))
     }).to_string();
 
@@ -614,16 +629,16 @@ fn normalize_others(mut text: String) -> String {
             else { result += v; }
         }
         format!(" {} ", n2w(&result.to_string()))
-    }).unwrap().to_string();
+    }).to_string();
 
-    text = RE_LETTER.replace_all(&text, |cap: &regex::Captures| {
+    text = RE_LETTER.replace_all(&text, |cap: &StdCaptures| {
         let prefix = cap.get(1).unwrap().as_str();
         let c = cap.get(3).unwrap().as_str().to_lowercase();
         if let Some(v) = LETTER_KEY_VI.get(&c) { format!("{} {} ", prefix, v) }
         else { cap.get(0).unwrap().as_str().to_string() }
     }).to_string();
 
-    text = RE_ALPHANUMERIC.replace_all(&text, |cap: &regex::Captures| {
+    text = RE_ALPHANUMERIC.replace_all(&text, |cap: &StdCaptures| {
         let num = cap.get(1).unwrap().as_str();
         let c = cap.get(2).unwrap().as_str().to_lowercase();
         if let Some(v) = LETTER_KEY_VI.get(&c) {
@@ -637,9 +652,9 @@ fn normalize_others(mut text: String) -> String {
     text = RE_PRIME.replace_all(&text, |cap: &FancyCaptures| {
         let val = cap.get(1).unwrap().as_str().to_lowercase();
         format!("{} phẩy", if val.chars().all(|c: char| c.is_ascii_digit()) { n2w_single(&val) } else { LETTER_KEY_VI.get(&val).cloned().unwrap_or(val.to_string()) })
-    }).unwrap().to_string();
+    }).to_string();
 
-    text = RE_UNIT_POWERS.replace_all(&text, |cap: &regex::Captures| {
+    text = RE_UNIT_POWERS.replace_all(&text, |cap: &StdCaptures| {
         let base = cap.get(1).unwrap().as_str();
         let power = cap.get(2).unwrap().as_str();
         let p_norm = if power.starts_with('-') { format!("trừ {}", n2w(&power[1..])) } else { n2w(&power.replace('+', "")) };
@@ -649,7 +664,11 @@ fn normalize_others(mut text: String) -> String {
     }).to_string();
 
     text = RE_CLEAN_QUOTES.replace_all(&text, "").to_string();
-    text = RE_CLEAN_QUOTES_EDGES.replace_all(&text, |cap: &FancyCaptures| format!("{} {}", cap.get(1).unwrap().as_str(), cap.get(2).unwrap().as_str())).unwrap().to_string();
+    text = RE_CLEAN_QUOTES_EDGES.replace_all(&text, |cap: &FancyCaptures| {
+        let g1 = cap.get(1).map(|m| m.as_str()).unwrap_or("");
+        let g2 = cap.get(2).map(|m| m.as_str()).unwrap_or("");
+        format!("{}{}", g1, g2)
+    }).to_string();
 
     // Use Aho-Corasick for symbols
     let mut new_text = String::with_capacity(text.len());
@@ -663,7 +682,7 @@ fn normalize_others(mut text: String) -> String {
     new_text.push_str(&text[last_match..]);
     text = new_text;
 
-    text = RE_BRACKETS.replace_all(&text, |cap: &regex::Captures| format!(", {}, ", cap.get(1).unwrap().as_str())).to_string();
+    text = RE_BRACKETS.replace_all(&text, ", $1, ").to_string();
     text = RE_STRIP_BRACKETS.replace_all(&text, " ").to_string();
 
     text = RE_TEMP_C_NEG.replace_all(&text, "âm $1 độ xê").to_string();
@@ -674,7 +693,7 @@ fn normalize_others(mut text: String) -> String {
 
     text = normalize_acronyms(&text);
 
-    text = RE_VERSION.replace_all(&text, |cap: &regex::Captures| {
+    text = RE_VERSION.replace_all(&text, |cap: &StdCaptures| {
         cap.get(1).unwrap().as_str().split('.').map(|s| n2w_single(s)).collect::<Vec<String>>().join(" chấm ")
     }).to_string();
 
@@ -690,40 +709,33 @@ fn normalize_acronyms(text: &str) -> String {
         let sep = if i+1 < caps.len() { caps[i+1] } else { "" };
         if s.is_empty() { processed.push(sep.to_string()); continue; }
 
-        let words: Vec<&str> = s.split_whitespace().collect();
-        let mut has_alpha = false;
-        let mut all_alpha_is_caps = true;
-        for w in words {
-            for c in w.chars() {
-                if c.is_alphabetic() {
-                    has_alpha = true;
-                    if !c.is_uppercase() {
-                        all_alpha_is_caps = false;
-                    }
+        s = RE_ACRONYM.replace_all(&s, |cap: &FancyCaptures| {
+            let word = cap.get(0).unwrap().as_str();
+            if word.chars().all(|c: char| c.is_ascii_digit()) { return word.to_string(); }
+            if WORD_LIKE_ACRONYMS.contains(&word) { return format!("__start_en__{}__end_en__", word.to_lowercase()); }
+
+            let mut is_numeric_acronym = false;
+            if word.chars().any(|c: char| c.is_ascii_digit()) {
+                let letters = word.chars().filter(|c| c.is_alphabetic()).count();
+                let digits = word.chars().filter(|c| c.is_ascii_digit()).count();
+                if letters > 0 && digits > 0 && word.len() <= 10 {
+                    is_numeric_acronym = true;
                 }
             }
-        }
-        let is_all_caps = has_alpha && all_alpha_is_caps;
 
-        if !is_all_caps {
-            s = RE_ACRONYM.replace_all(&s, |cap: &FancyCaptures| {
-                let word = cap.get(0).unwrap().as_str();
-                if word.chars().all(|c: char| c.is_ascii_digit()) { return word.to_string(); }
-                if WORD_LIKE_ACRONYMS.contains(&word) { return format!("__start_en__{}__end_en__", word.to_lowercase()); }
-                if word.chars().any(|c: char| c.is_ascii_digit()) {
-                    return word.chars().map(|c: char| if c.is_ascii_digit() { get_unit_word(c).to_string() } else { LETTER_KEY_VI.get(&c.to_lowercase().to_string()).cloned().unwrap_or(c.to_string()) }).collect::<Vec<String>>().join(" ");
-                }
-                let spaced: String = word.chars().filter(|c: &char| c.is_alphanumeric()).map(|c: char| c.to_lowercase().to_string()).collect::<Vec<String>>().join(" ");
-                if spaced.is_empty() { word.to_string() } else { format!("__start_en__{}__end_en__", spaced) }
-            }).unwrap().to_string();
-        }
+            if is_numeric_acronym {
+                return word.chars().map(|c: char| if c.is_ascii_digit() { get_unit_word(c).to_string() } else { LETTER_KEY_VI.get(&c.to_lowercase().to_string()).cloned().unwrap_or(c.to_string()) }).collect::<Vec<String>>().join(" ");
+            }
+            let spaced: String = word.chars().filter(|c: &char| c.is_alphanumeric()).map(|c: char| c.to_lowercase().to_string()).collect::<Vec<String>>().join(" ");
+            if spaced.is_empty() { word.to_string() } else { format!("__start_en__{}__end_en__", spaced) }
+        }).to_string();
         processed.push(format!("{}{}", s, sep));
     }
     processed.join("")
 }
 
 fn normalize_number_vi(mut text: String) -> String {
-    text = RE_ORDINAL.replace_all(&text, |cap: &regex::Captures| {
+    text = RE_ORDINAL.replace_all(&text, |cap: &StdCaptures| {
         let prefix = cap.get(1).unwrap().as_str();
         let space = cap.get(2).unwrap().as_str();
         let num = cap.get(3).unwrap().as_str();
@@ -732,24 +744,24 @@ fn normalize_number_vi(mut text: String) -> String {
         else { format!("{}{}{}", prefix, space, n2w(num)) }
     }).to_string();
 
-    text = RE_MULTIPLY.replace_all(&text, |cap: &regex::Captures| {
+    text = RE_MULTIPLY.replace_all(&text, |cap: &StdCaptures| {
         format!("{} nhân {}", n2w(cap.get(1).unwrap().as_str()), n2w(cap.get(3).unwrap().as_str()))
     }).to_string();
 
-    text = RE_PHONE.replace_all(&text, |cap: &regex::Captures| n2w_single(cap.get(0).unwrap().as_str().trim())).to_string();
+    text = RE_PHONE.replace_all(&text, |cap: &StdCaptures| n2w_single(cap.get(0).unwrap().as_str().trim())).to_string();
 
     text = RE_NUMBER_START.replace_all(&text, |cap: &FancyCaptures| {
         let neg = cap.get(1).is_some();
         let num = cap.get(2).unwrap().as_str();
-        format!("{} ", num_to_words(num, neg))
-    }).unwrap().to_string();
+        num_to_words(num, neg)
+    }).to_string();
 
     text = RE_NUMBER.replace_all(&text, |cap: &FancyCaptures| {
         let prefix = cap.get(1).unwrap().as_str();
         let neg = cap.get(2).is_some();
         let num = cap.get(3).unwrap().as_str();
-        format!("{} {} ", prefix, num_to_words(num, neg))
-    }).unwrap().to_string();
+        format!("{} {}", prefix, num_to_words(num, neg))
+    }).to_string();
 
     text
 }
@@ -771,7 +783,7 @@ fn cleanup_whitespace(mut text: String) -> String {
     text = RE_EXTRA_COMMAS.replace_all(&text, ",").to_string();
     text = RE_COMMA_BEFORE_PUNCT.replace_all(&text, "$1").to_string();
     text = RE_SPACE_BEFORE_PUNCT.replace_all(&text, "$1").to_string();
-    text = RE_MISSING_SPACE_AFTER_PUNCT.replace_all(&text, |cap: &FancyCaptures| format!("{} ", cap.get(1).unwrap().as_str())).unwrap().to_string();
+    text = RE_MISSING_SPACE_AFTER_PUNCT.replace_all(&text, |cap: &FancyCaptures| format!("{} ", cap.get(1).unwrap().as_str())).to_string();
     text.trim().trim_matches(',').to_string()
 }
 
@@ -788,7 +800,7 @@ pub fn clean_vietnamese_text(mut text: String) -> String {
         mask
     };
 
-    text = RE_ENTOKEN.replace_all(&text, |cap: &regex::Captures| protect(cap.get(0).unwrap().as_str())).to_string();
+    text = RE_ENTOKEN.replace_all(&text, |cap: &StdCaptures| protect(cap.get(0).unwrap().as_str())).to_string();
 
     let mut protect_url_email = |orig: &str| {
         if orig.contains('@') { return protect(&normalize_emails(orig)); }
@@ -796,14 +808,14 @@ pub fn clean_vietnamese_text(mut text: String) -> String {
         protect(&normalize_technical(orig))
     };
 
-    text = RE_EMAIL.replace_all(&text, |cap: &regex::Captures| protect_url_email(cap.get(0).unwrap().as_str())).to_string();
-    text = RE_TECHNICAL.replace_all(&text, |cap: &FancyCaptures| protect_url_email(cap.get(0).unwrap().as_str())).unwrap().to_string();
+    text = RE_EMAIL.replace_all(&text, |cap: &StdCaptures| protect_url_email(cap.get(0).unwrap().as_str())).to_string();
+    text = RE_TECHNICAL.replace_all(&text, |cap: &FancyCaptures| protect_url_email(cap.get(0).unwrap().as_str())).to_string();
 
     text = normalize_pre_number(text);
     text = normalize_units_currency(text);
     text = normalize_post_number(text);
 
-    text = RE_INTERNAL_EN_TAG.replace_all(&text, |cap: &regex::Captures| protect(cap.get(0).unwrap().as_str())).to_string();
+    text = RE_INTERNAL_EN_TAG.replace_all(&text, |cap: &StdCaptures| protect(cap.get(0).unwrap().as_str())).to_string();
 
     text = RE_STANDALONE_LETTER.replace_all(&text, |cap: &FancyCaptures| {
         let c = cap.get(1).unwrap().as_str();
@@ -811,12 +823,13 @@ pub fn clean_vietnamese_text(mut text: String) -> String {
         let lower = c.to_lowercase();
         if let Some(v) = LETTER_KEY_VI.get(&lower) {
             if c.chars().next().unwrap().is_uppercase() && dot == "." { format!(" {} ", v) }
-            else { format!(" {}{} ", v, dot) }
+            else if dot == "." { format!(" {}. ", v) }
+            else { format!(" {} ", v) }
         } else { cap.get(0).unwrap().as_str().to_string() }
-    }).unwrap().to_string();
+    }).to_string();
 
     while RE_DOT_BETWEEN_DIGITS.is_match(&text) {
-        text = RE_DOT_BETWEEN_DIGITS.replace_all(&text, |cap: &regex::Captures| format!("{} chấm {}", cap.get(1).unwrap().as_str(), cap.get(2).unwrap().as_str())).to_string();
+        text = RE_DOT_BETWEEN_DIGITS.replace_all(&text, |cap: &StdCaptures| format!("{} chấm {}", cap.get(1).unwrap().as_str(), cap.get(2).unwrap().as_str())).to_string();
     }
 
     for (mask, original) in &mask_map {
@@ -825,5 +838,6 @@ pub fn clean_vietnamese_text(mut text: String) -> String {
     }
 
     text = text.replace("__start_en__", "<en>").replace("__end_en__", "</en>").replace('_', " ");
-    cleanup_whitespace(text).to_lowercase()
+    let cleaned = cleanup_whitespace(text).to_lowercase();
+    cleaned.nfc().collect::<String>()
 }
