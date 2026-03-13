@@ -1,50 +1,27 @@
-import re
-import unicodedata
-from .cleaner import clean_vietnamese_text
+import logging
+from .sea_g2p_rs import Normalizer as _RustNormalizer
 
 class Normalizer:
     """
     A text normalizer for Vietnamese Text-to-Speech systems.
     Converts numbers, dates, units, and special characters into readable Vietnamese text.
+    Uses a fast Rust core for high performance.
     """
     
     def __init__(self, lang: str = "vi") -> None:
         self.lang = lang
         if lang != "vi":
-            import logging
-            logging.getLogger("sea_g2p.Normalizer").warning(f"Language '{lang}' is not fully supported for normalization yet. Falling back to 'vi'.")
+            logging.getLogger("sea_g2p.Normalizer").warning(
+                f"Language '{lang}' is not fully supported for normalization yet. Falling back to 'vi'."
+            )
+        try:
+            self._rust_normalizer = _RustNormalizer()
+        except Exception as e:
+            logging.getLogger("sea_g2p.Normalizer").error(f"Failed to initialize Rust normalizer: {e}")
+            raise
     
     def normalize(self, text: str) -> str:
-        """Main normalization pipeline with EN tag protection."""
+        """Main normalization pipeline powered by Rust."""
         if not text:
             return ""
-
-        # Pre-normalization: Ensure NFC format for Vietnamese characters
-        text = unicodedata.normalize('NFC', text)
-
-        # Step 1: Detect and protect EN tags
-        en_contents = []
-        placeholder_pattern = "ENTOKEN{}"
-        
-        def extract_en(match):
-            en_contents.append(match.group(0))
-            return placeholder_pattern.format(len(en_contents) - 1)
-        
-        text = re.sub(r'<en>.*?</en>', extract_en, text, flags=re.IGNORECASE)
-        
-        # Step 2: Core Normalization
-        text = clean_vietnamese_text(text)
-        
-        # Final cleanup - preserve newlines
-        text = text.lower()
-        text = re.sub(r'[ \t\xA0]+', ' ', text).strip()
-        
-        # Step 3: Restore EN tags
-        for idx, en_content in enumerate(en_contents):
-            placeholder = placeholder_pattern.format(idx).lower()
-            text = text.replace(placeholder, en_content)
-        
-        # Final whitespace cleanup - preserve newlines
-        text = re.sub(r'[ \t\xA0]+', ' ', text).strip()
-        
-        return text
+        return self._rust_normalizer.normalize(text)
