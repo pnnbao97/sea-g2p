@@ -30,22 +30,6 @@ jobs:
         enable-cache: true
         version: "latest"
 
-    - name: Install espeak-ng (Linux)
-      if: runner.os == 'Linux'
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y espeak-ng
-
-    - name: Install espeak-ng (macOS)
-      if: runner.os == 'macOS'
-      run: |
-        brew install espeak-ng
-
-    - name: Install espeak-ng (Windows)
-      if: runner.os == 'Windows'
-      run: |
-        choco install espeak-ng -y
-
     - name: Install dependencies
       run: |
         uv sync --all-extras --dev

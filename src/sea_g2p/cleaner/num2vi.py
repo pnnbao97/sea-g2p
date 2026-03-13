@@ -64,13 +64,8 @@ def n2w_hundreds(numbers: str) -> str:
     if u_digit != '0':
         if u_digit == '1' and t_digit not in ('0', '1'):
             res.append("mốt")
-        elif u_digit == '5' and (t_digit != '0' or (h_digit != '0' or len(numbers) == 3)):
+        elif u_digit == '5' and t_digit != '0':
             res.append("lăm")
-        elif u_digit == '4' and t_digit not in ('0', '1'):
-            # In some regions, 4 is 'tư' in certain positions,
-            # but usually TTS uses 'bốn' unless specified.
-            # The previous implementation used 'bốn'.
-            res.append(units[u_digit])
         else:
             res.append(units[u_digit])
 

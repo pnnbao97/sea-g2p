@@ -16,6 +16,10 @@ TEST_CASES = [
     ("100",      "một trăm"),
     ("1000",     "một nghìn"),
     ("1001",     "một nghìn không trăm lẻ một"),
+    ("1005",     "một nghìn không trăm lẻ năm"),
+    ("115",      "một trăm mười lăm"),
+    ("45.565",   "bốn mươi lăm nghìn năm trăm sáu mươi lăm"),
+    ("45.005",   "bốn mươi lăm nghìn không trăm lẻ năm"),
     ("1000000",  "một triệu"),
     ("1234567",  "một triệu hai trăm ba mươi bốn nghìn năm trăm sáu mươi bảy"),
 

@@ -16,7 +16,7 @@ url = "https://pypi.org/simple"
 
 [project]
 name = "sea-g2p"
-version = "0.5.2"
+version = "0.5.3"
 description = "Fast multilingual text-to-phoneme converter for South East Asian languages."
 readme = "README.md"
 license = { file = "LICENSE" }
