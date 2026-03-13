@@ -25,7 +25,7 @@ class G2P:
             
         # Tự động tìm file binary dict nằm trong cùng package
         if db_path is None:
-            db_path = os.path.join(os.path.dirname(__file__), "phone_dict", "phone_dict.bin")
+            db_path = os.path.join(os.path.dirname(__file__), "sea_g2p.bin")
         
         if not db_path or not os.path.exists(db_path):
             raise FileNotFoundError(

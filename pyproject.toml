@@ -16,7 +16,7 @@ url = "https://pypi.org/simple"
 
 [project]
 name = "sea-g2p"
-version = "0.5.6"
+version = "0.5.7"
 description = "Fast multilingual text-to-phoneme converter for South East Asian languages."
 readme = "README.md"
 license = { file = "LICENSE" }
@@ -79,5 +79,5 @@ python-source = "python"
 features = ["pyo3/extension-module"]
 
 include = [
-    { path = "python/sea_g2p/phone_dict/phone_dict.bin", format = ["wheel", "sdist"] }
+    { path = "python/sea_g2p/sea_g2p.bin", format = ["wheel", "sdist"] }
 ]
