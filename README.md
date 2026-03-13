@@ -5,6 +5,14 @@
 Fast multilingual text-to-phoneme converter for South East Asian languages.  
 >**Author**: [Pham Nguyen Ngoc Bao](https://github.com/pnnbao97)
 
+## 🚀 Used By
+
+SEA-G2P is the core phonemization engine powering:
+
+- [**VieNeu-TTS**](https://github.com/pnnbao97/VieNeu-TTS): An advanced on-device Vietnamese Text-to-Speech model with instant voice cloning.
+
+By using SEA-G2P, VieNeu-TTS achieves high-fidelity pronunciation and seamless Vietnamese-English code-switching.
+
 ## Installation
 
 ```bash
@@ -48,6 +56,16 @@ print(phonemes)
 - **Smart Normalization**: Specialized for Vietnamese (numbers, dates, technical terms).
 - **Bilingual Support**: Handles mixed Vietnamese/English text seamlessly.
 - **Character Fallback**: Built-in intelligent fallback for unknown words.
+
+## Technical Architecture
+
+SEA-G2P is designed for maximum performance in production environments:
+
+- **Memory Mapping (mmap)**: Instead of loading a huge JSON/SQLite into RAM, we use a custom binary format (`.bin`) mapped directly into memory. This allows near-instant startup and extremely low memory overhead.
+- **String Pooling**: To minimize file size, all unique strings (words and phonemes) are stored once in a global string pool and referenced by 4-byte IDs.
+- **Binary Search**: Words are pre-sorted during the build process, allowing `O(log n)` lookup speeds directly on the memory-mapped data.
+
+For full details on the specification, see [src/g2p/mod.rs](src/g2p/mod.rs).
 
 ## Development
 
