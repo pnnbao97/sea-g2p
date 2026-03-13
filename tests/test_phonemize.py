@@ -1,12 +1,9 @@
 import pytest
 from sea_g2p.g2p import G2P
-import os
 
 @pytest.fixture
 def g2p_engine():
-    # Use the binary dict for Rust testing
-    bin_path = os.path.abspath('src/sea_g2p/phone_dict/phone_dict.bin')
-    return G2P(db_path=bin_path)
+    return G2P()
 
 PHONEMIZE_CASES = [
     ('không', 'xˌoŋ'),
