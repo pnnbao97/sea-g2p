@@ -141,7 +141,7 @@ PHONEMIZE_CASES = [
     ('dự án <en>v y e</en>.', 'zˈy6 ˈaːɜn vˈiː wˈaɪ ˈiː.'),
     ('tôi đi học', 't̪ˈoj ɗˈi hˈɔ6k'),
     ('chào mừng bạn đến với <en>c t y</en>.', 'tʃˈaː2w mˈy2ŋ bˈaː6n ɗˌeɜn vˌəːɜj sˈiː tˈiː wˈaɪ.'),
-    ('truy cập <en>https</en> <en>vieneu</en> chấm <en>i o</en> để biết thêm chi tiết.', 'tʃwˈi kˈə6p ˌeɪtʃtˌiːtˈiːpˌiːˈɛs vˈiːˈaɪˈiːˈɛnˈiːjˈuː tʃˈəɜm ˈaɪ ˈoʊ ɗˌe4 bˈiɛɜt̪ tˈem tʃˈi t̪ˈiɛɜt̪.'),
+    ('truy cập <en>https</en> <en>vieneu</en> chấm <en>i o</en> để biết thêm chi tiết.', 'tʃwˈi kˈə6p ˌeɪtʃtˌiːtˈiːpˌiːˈɛs vˈiːnɔɪ tʃˈəɜm ˈaɪ ˈoʊ ɗˌe4 bˈiɛɜt̪ tˈem tʃˈi t̪ˈiɛɜt̪.'),
     ('website <en>www</en> chấm <en>google</en> chấm com rất hữu ích.', 'wˈɛbsaɪt dˌʌbəljˌuːdˌʌbəljˌuːdˈʌbəljˌuː tʃˈəɜm ɡˈuːɡəl tʃˈəɜm kˈɔm ɹˈəɜt̪ hˈi5w ˈiɜc.'),
     ('trang web chính thức là <en>https</en> <en>openai</en> chấm com.', 'tʃˈaːŋ wˈɛb tʃˈiɜɲ tˈyɜc lˌaː2 ˌeɪtʃtˌiːtˈiːpˌiːˈɛs oʊpənˈaɪ tʃˈəɜm kˈɔm.'),
     ('tài liệu nằm ở <en>www</en> chấm <en>example</en> chấm o rờ gờ gạch <en>docs</en>.', 't̪ˈaː2j lˈiɛ6w nˈa2m ˈəː4 dˌʌbəljˌuːdˌʌbəljˌuːdˈʌbəljˌuː tʃˈəɜm ɛɡzˈæmpəl tʃˈəɜm ˈɔ ɹˈəː2 ɣˈəː2 ɣˈe-6c dˈɑːks.'),
