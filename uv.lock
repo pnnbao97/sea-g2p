@@ -107,7 +107,7 @@ wheels = [
 
 [[package]]
 name = "sea-g2p"
-version = "0.5.3"
+version = "0.5.5"
 source = { editable = "." }
 
 [package.optional-dependencies]
