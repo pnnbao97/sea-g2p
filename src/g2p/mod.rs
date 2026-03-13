@@ -127,8 +127,13 @@ use std::sync::RwLock;
 
 pub struct G2PEngine {
     pub dict: PhonemeDict,
-    merged_cache: RwLock<HashMap<String, Option<String>>>,
-    common_cache: RwLock<HashMap<String, Option<(String, String)>>>,
+    // Hits-only caches: only contain words that were found in the dict
+    merged_cache: RwLock<HashMap<String, String>>,
+    common_cache: RwLock<HashMap<String, (String, String)>>,
+    // Shared miss set: tracks OOV words so we skip dict binary search on repeat
+    // Dict is immutable, so a miss is always a miss — no eviction needed.
+    missing_merged: RwLock<std::collections::HashSet<String>>,
+    missing_common: RwLock<std::collections::HashSet<String>>,
 }
 
 impl G2PEngine {
@@ -137,38 +142,66 @@ impl G2PEngine {
             dict: PhonemeDict::new(dict_path)?,
             merged_cache: RwLock::new(HashMap::with_capacity(2048)),
             common_cache: RwLock::new(HashMap::with_capacity(1024)),
+            missing_merged: RwLock::new(std::collections::HashSet::new()),
+            missing_common: RwLock::new(std::collections::HashSet::new()),
         })
     }
 
     fn cached_lookup_merged(&self, word: &str) -> Option<String> {
+        // 1. Check hits cache
         {
-            let read_guard = self.merged_cache.read().unwrap();
-            if let Some(cached) = read_guard.get(word) {
-                return cached.clone();
+            let r = self.merged_cache.read().unwrap();
+            if let Some(v) = r.get(word) { return Some(v.clone()); }
+        }
+        // 2. Check miss set — skip expensive binary search
+        {
+            let m = self.missing_merged.read().unwrap();
+            if m.contains(word) { return None; }
+        }
+        // 3. Binary search in mmap
+        match self.dict.lookup_merged(word) {
+            Some(s) => {
+                let val = s.to_string();
+                let mut w = self.merged_cache.write().unwrap();
+                if w.len() >= 10_000 { w.clear(); }
+                w.insert(word.to_string(), val.clone());
+                Some(val)
+            }
+            None => {
+                let mut m = self.missing_merged.write().unwrap();
+                // HashSet<String> is cheap — allow large miss set
+                if m.len() < 50_000 { m.insert(word.to_string()); }
+                None
             }
         }
-        let res = self.dict.lookup_merged(word).map(|s| s.to_string());
-        let mut write_guard = self.merged_cache.write().unwrap();
-        // Limit cache size to 10k items
-        if write_guard.len() < 10000 {
-            write_guard.insert(word.to_string(), res.clone());
-        }
-        res
     }
 
     fn cached_lookup_common(&self, word: &str) -> Option<(String, String)> {
+        // 1. Check hits cache
         {
-            let read_guard = self.common_cache.read().unwrap();
-            if let Some(cached) = read_guard.get(word) {
-                return cached.clone();
+            let r = self.common_cache.read().unwrap();
+            if let Some(v) = r.get(word) { return Some(v.clone()); }
+        }
+        // 2. Check miss set
+        {
+            let m = self.missing_common.read().unwrap();
+            if m.contains(word) { return None; }
+        }
+        // 3. Binary search in mmap
+        match self.dict.lookup_common(word) {
+            Some((v, e)) => {
+                let val = (v.to_string(), e.to_string());
+                let mut w = self.common_cache.write().unwrap();
+                if w.len() >= 5_000 { w.clear(); }
+                w.insert(word.to_string(), val.clone());
+                Some(val)
+            }
+            None => {
+                let mut m = self.missing_common.write().unwrap();
+                if m.len() < 50_000 { m.insert(word.to_string()); }
+                None
             }
         }
-        let res = self.dict.lookup_common(word).map(|(v, e)| (v.to_string(), e.to_string()));
-        let mut write_guard = self.common_cache.write().unwrap();
-        if write_guard.len() < 5000 {
-            write_guard.insert(word.to_string(), res.clone());
-        }
-        res
     }
 
     pub fn phonemize(&self, text: &str) -> String {
@@ -217,7 +250,10 @@ impl G2PEngine {
                     tokens.push(Token {
                         lang: "common".to_string(),
                         content: word.as_str().to_string(),
-                        phone: Some(format!("|{}|{}|", vi, en)), 
+                        phone: Some(format!("\x1F{}\x1F{}\x1F",
+                        vi.replace("<en>", "").replace("</en>", "").trim(),
+                        en.replace("<en>", "").replace("</en>", "").trim()
+                    )),
                     });
                 } else {
                     let has_vi_accent = lw.chars().any(|c| VI_ACCENTS.contains(c));
@@ -244,9 +280,15 @@ impl G2PEngine {
                 result.push(t.content);
             } else {
                 let phone = if let Some(p) = t.phone {
-                    if p.starts_with('|') && p.ends_with('|') {
-                        let parts: Vec<&str> = p[1..p.len()-1].split('|').collect();
-                        if t.lang == "en" { parts[1].to_string() } else { parts[0].to_string() }
+                    if p.starts_with('\x1F') && p.ends_with('\x1F') {
+                        // Format: \x1Fvi_phone\x1Fen_phone\x1F
+                        let inner = &p[1..p.len()-1];
+                        let sep = inner.find('\x1F').unwrap_or(inner.len());
+                        if t.lang == "en" {
+                            if sep + 1 <= inner.len() { inner[sep+1..].to_string() } else { String::new() }
+                        } else {
+                            inner[..sep].to_string()
+                        }
                     } else {
                         p
                     }
@@ -269,7 +311,7 @@ impl G2PEngine {
         }
 
         let joined = result.join(" ");
-        joined.replace(" .", ".").replace(" ,", ",").replace(" !", "!").replace(" ?", "?")
+        joined.replace(" .", ".").replace(" ,", ",").replace(" !", "!").replace(" ?", "?").replace(" ;", ";").replace(" :", ":")
     }
 
     fn propagate_language(&self, tokens: &mut Vec<Token>) {
@@ -281,10 +323,16 @@ impl G2PEngine {
                 while i < n && tokens[i].lang == "common" { i += 1; }
                 let end = i - 1;
 
+                let is_stop_punct = |t: &Token| -> bool {
+                    t.content.chars().next()
+                        .map(|c| t.content.len() == c.len_utf8() && ".!?;:()[]{}".contains(c))
+                        .unwrap_or(false)
+                };
+
                 let mut left_anchor = None;
                 let mut left_dist = 999;
                 for l in (0..start).rev() {
-                    if tokens[l].lang == "punct" && ".!?;:()[]{}".contains(&tokens[l].content) { break; }
+                    if is_stop_punct(&tokens[l]) { break; }
                     if tokens[l].lang == "vi" || tokens[l].lang == "en" {
                         left_anchor = Some(tokens[l].lang.clone());
                         left_dist = start - l;
@@ -295,7 +343,7 @@ impl G2PEngine {
                 let mut right_anchor = None;
                 let mut right_dist = 999;
                 for r in (end + 1)..n {
-                    if tokens[r].lang == "punct" && ".!?;:()[]{}".contains(&tokens[r].content) { break; }
+                    if is_stop_punct(&tokens[r]) { break; }
                     if tokens[r].lang == "vi" || tokens[r].lang == "en" {
                         right_anchor = Some(tokens[r].lang.clone());
                         right_dist = r - end;

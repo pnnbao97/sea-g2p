@@ -11,8 +11,6 @@ Fast multilingual text-to-phoneme converter for South East Asian languages.
 pip install sea-g2p
 ```
 
-Requires `espeak-ng` only for fallback (built-in dictionary already covers ~99.9% of words).
-
 ## Usage
 
 ### Simple Pipeline
@@ -45,11 +43,11 @@ print(phonemes)
 
 ## Features
 
-- Fast dictionary-based lookup using SQLite.
-- Vietnamese text normalization (numbers, dates, units).
-- Bilingual support (Vietnamese/English).
-- Batch processing for efficiency.
-- eSpeak-NG fallback for unknown words.
+- **Blazing Fast**: Core engine rewritten in Rust with binary mmap lookup.
+- **Zero Dependency**: Pre-compiled wheels for Windows, Linux, and macOS.
+- **Smart Normalization**: Specialized for Vietnamese (numbers, dates, technical terms).
+- **Bilingual Support**: Handles mixed Vietnamese/English text seamlessly.
+- **Character Fallback**: Built-in intelligent fallback for unknown words.
 
 ## Development
 
