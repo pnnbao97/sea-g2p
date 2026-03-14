@@ -160,7 +160,6 @@ def normalize_others(text):
 
     # 4. Misc
     text = RE_BRACKETS.sub(r', \1, ', text)
-    text = text.replace('(', ' ( ').replace(')', ' ) ').replace(';', ' ; ')
     text = RE_STRIP_BRACKETS.sub(' ', text)
     text = expand_temperatures(text)
     text = normalize_acronyms(text)

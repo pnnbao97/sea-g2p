@@ -2,35 +2,14 @@ import re
 from .num2vi import n2w, n2w_single, n2w_decimal
 from .symbols import vietnamese_set
 
-_normal_number_re        = r"[\d]+"
-_float_number_re         = r"[\d]+[,]{1}[\d]+"
-_decimal_number_re       = r"[\d]+[.]{1}[\d]+"
-_number_with_one_dot     = r"[\d]+[.]{1}[\d]{3}"
-_number_with_two_dot     = r"[\d]+[.]{1}[\d]{3}[.]{1}[\d]{3}"
-_number_with_three_dot   = r"[\d]+[.]{1}[\d]{3}[.]{1}[\d]{3}[.]{1}[\d]{3}"
-_number_with_one_space   = r"[\d]+[\s]{1}[\d]{3}"
-_number_with_two_space   = r"[\d]+[\s]{1}[\d]{3}[\s]{1}[\d]{3}"
-_number_with_three_space = r"[\d]+[\s]{1}[\d]{3}[\s]{1}[\d]{3}[\s]{1}[\d]{3}"
-
-_number_combined = (
-    r"("
-    + _float_number_re + "|"
-    + _number_with_three_dot + "|"
-    + _number_with_two_dot + "|"
-    + _number_with_one_dot + "|"
-    + _decimal_number_re + "|"
-    + _number_with_three_space + "|"
-    + _number_with_two_space + "|"
-    + _number_with_one_space + "|"
-    + _normal_number_re
-    + r")"
-)
-
 # Compiled Regular Expressions
-# Avoiding nested quantifiers and overlapping patterns to mitigate ReDoS.
-RE_NUMBER = re.compile(r"(\D|^)(?P<neg>[-–—])?" + _number_combined + r"(?!\d)")
-RE_NUMBER_START = re.compile(r"^(?P<neg>[-–—])?" + _number_combined + r"(?!\d)", re.MULTILINE)
-RE_MULTIPLY = re.compile(r"(" + _normal_number_re + r")(x|\sx\s)(" + _normal_number_re + r")")
+# Mitigation of ReDoS by using lookbehind and ordered non-overlapping patterns.
+RE_NUMBER = re.compile(
+    r"(?<!\d)(?P<neg>[-–—])?"
+    r"(\d+(?:,\d+|(?:\.\d{3})+(?!\d)|\.\d+|(?:\s\d{3})+(?!\d))?)"
+    r"(?!\d)"
+)
+RE_MULTIPLY = re.compile(r"(\d+)(x|\sx\s)(\d+)")
 RE_ORDINAL = re.compile(r"(thứ|hạng)(\s+)(\d+)\b", re.IGNORECASE)
 RE_PHONE = re.compile(r"((\+84|84|0|0084)(3|5|7|8|9)[0-9]{8})")
 RE_DOT_SEP = re.compile(r"\d+(\.\d{3})+")
@@ -56,48 +35,41 @@ def _num_to_words(number: str, negative: bool = False) -> str:
     return n2w(number)
 
 def _expand_number(match):
-    prefix = match.group(1)
-    negative_symbol = match.group('neg')
-    # Groups in _number_combined start at index 3 because of prefix group
-    number = match.group(3)
+    start = match.start()
+    text = match.string
+    prefix_char = text[start-1] if start > 0 else ""
+
+    neg_symbol = match.group('neg')
+    number_str = match.group(2)
 
     is_neg = False
-    if negative_symbol:
-        if not prefix or prefix.isspace() or prefix in "([;,.":
+    if neg_symbol:
+        if not prefix_char or prefix_char.isspace() or prefix_char in "([;,.":
             is_neg = True
 
-    word = _num_to_words(number, is_neg)
+    word = _num_to_words(number_str, is_neg)
+    if neg_symbol and not is_neg:
+        word = neg_symbol + word
 
-    if negative_symbol and not is_neg:
-        word = negative_symbol + word
-
-    return prefix + " " + word + " "
-
-def _expand_number_start(match):
-    negative_symbol = match.group('neg')
-    number = match.group(2)
-    word = _num_to_words(number, bool(negative_symbol))
-    return word + " "
+    return " " + word + " "
 
 def _expand_phone(match):
     return n2w_single(match.group(0).strip())
 
 def _expand_ordinal(match):
-    prefix, space, number = match.groups(0)
+    prefix, space, number = match.groups()
     if number == "1": return prefix + space + "nhất"
     if number == "4": return prefix + space + "tư"
     return prefix + space + n2w(number)
 
 def _expand_multiply_number(match):
-    n1, _, n2 = match.groups(0)
+    n1, _, n2 = match.groups()
     return n2w(n1) + " nhân " + n2w(n2)
 
 def normalize_number_vi(text):
     text = RE_ORDINAL.sub(_expand_ordinal, text)
     text = RE_MULTIPLY.sub(_expand_multiply_number, text)
     text = RE_PHONE.sub(_expand_phone, text)
-    # 1. Start of string OR start of line (handling newlines preserved by normalization)
-    text = RE_NUMBER_START.sub(_expand_number_start, text)
-    # 2. Anywhere else (preceded by a non-digit)
+    # Process numbers with a single pass handling negative signs via context
     text = RE_NUMBER.sub(_expand_number, text)
     return text
