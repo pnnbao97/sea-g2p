@@ -43,7 +43,7 @@ _measurement_key_vi = {
 
 _currency_key = {
     "usd": "__start_en__u s d__end_en__",
-    "vnd": "việt nam đồng", "vnđ": "việt nam đồng", "đ": "đồng", "v n d": "việt nam đồng", "v n đ": "việt nam đồng", "€": "__start_en__euro__end_en__", "euro": "__start_en__euro__end_en__", "eur": "__start_en__euro__end_en__",
+    "vnd": "đồng", "đ": "đồng", "v n d": "đồng", "v n đ": "đồng", "€": "__start_en__euro__end_en__", "euro": "__start_en__euro__end_en__", "eur": "__start_en__euro__end_en__",
     "¥": "yên", "yên": "yên", "jpy": "yên", "%": "phần trăm"
 }
 

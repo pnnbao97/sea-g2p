@@ -20,7 +20,7 @@ RE_TECHNICAL = re.compile(r'''
     \b(?:[a-fA-F0-9]{1,4}:){3,7}[a-fA-F0-9]{1,4}\b
 ''', re.VERBOSE | re.IGNORECASE)
 
-RE_EMAIL = re.compile(r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b')
+RE_EMAIL = re.compile(r'\b[A-Za-z0-9._%+-]{1,64}@[A-Za-z0-9.-]{1,255}\.[A-Z|a-z]{2,10}\b')
 RE_TECH_SPLIT = re.compile(r'([./:?&=/_ \-\\#])')
 RE_EMAIL_SPLIT = re.compile(r'([._\-+])')
 RE_SLASH_NUMBER = re.compile(r'\b(\d+)/(\d+)\b')

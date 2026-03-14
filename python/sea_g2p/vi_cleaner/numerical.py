@@ -1,18 +1,13 @@
 import re
 from .num2vi import n2w, n2w_single, n2w_decimal
-from .symbols import vietnamese_set
 
 # Compiled Regular Expressions
-# Mitigation of ReDoS by using lookbehind and ordered non-overlapping patterns.
-RE_NUMBER = re.compile(
-    r"(?<!\d)(?P<neg>[-–—])?"
-    r"(\d+(?:,\d+|(?:\.\d{3})+(?!\d)|\.\d+|(?:\s\d{3})+(?!\d))?)"
-    r"(?!\d)"
-)
-RE_MULTIPLY = re.compile(r"(\d{1,15})(x|\sx\s)(\d{1,15})")
-RE_ORDINAL = re.compile(r"(thứ|hạng)(\s+)(\d+)\b", re.IGNORECASE)
-RE_PHONE = re.compile(r"((\+84|84|0|0084)(3|5|7|8|9)[0-9]{8})")
-RE_DOT_SEP = re.compile(r"\d+(\.\d{3})+")
+# Mitigation of ReDoS by using lookbehind and simple patterns with repetition limits.
+RE_NUMBER = re.compile(r"(?<!\d)(?P<neg>[-–—])?(?P<num>\d{1,20}(?:(?:[.,\s]\d{3}){1,15}|[.,]\d{1,10})?)(?!\d)")
+RE_MULTIPLY = re.compile(r"(?P<n1>\d{1,20})\s*[xX×]\s*(?P<n2>\d{1,20})")
+RE_ORDINAL = re.compile(r"(?P<prefix>thứ|hạng)\s+(?P<num>\d{1,20})\b", re.IGNORECASE)
+RE_PHONE = re.compile(r"(?<!\d)(?:\+84|84|0|0084)[35789]\d{8}(?!\d)")
+RE_DOT_SEP = re.compile(r"\d{1,3}(?:\.\d{3}){1,15}")
 
 def _normalize_dot_sep(number: str) -> str:
     if RE_DOT_SEP.fullmatch(number):
@@ -20,6 +15,13 @@ def _normalize_dot_sep(number: str) -> str:
     return number
 
 def _num_to_words(number: str, negative: bool = False) -> str:
+    # Handle space-separated clusters that aren't valid thousand-separated numbers
+    if " " in number:
+        parts = number.split()
+        if not all(len(p) == 3 for p in parts[1:]):
+            res = " ".join(n2w(p) for p in parts)
+            return (("âm " if negative else "") + res).strip()
+
     # First check if it's a decimal with dot BEFORE stripping any dots
     if "." in number and not RE_DOT_SEP.fullmatch(number):
         parts = number.replace(" ", "").split(".")
@@ -40,7 +42,7 @@ def _expand_number(match):
     prefix_char = text[start-1] if start > 0 else ""
 
     neg_symbol = match.group('neg')
-    number_str = match.group(2)
+    number_str = match.group('num')
 
     is_neg = False
     if neg_symbol:
@@ -57,13 +59,15 @@ def _expand_phone(match):
     return n2w_single(match.group(0).strip())
 
 def _expand_ordinal(match):
-    prefix, space, number = match.groups()
-    if number == "1": return prefix + space + "nhất"
-    if number == "4": return prefix + space + "tư"
-    return prefix + space + n2w(number)
+    prefix = match.group('prefix')
+    number = match.group('num')
+    if number == "1": return prefix + " nhất"
+    if number == "4": return prefix + " tư"
+    return prefix + " " + n2w(number)
 
 def _expand_multiply_number(match):
-    n1, _, n2 = match.groups()
+    n1 = match.group('n1')
+    n2 = match.group('n2')
     return n2w(n1) + " nhân " + n2w(n2)
 
 def normalize_number_vi(text):

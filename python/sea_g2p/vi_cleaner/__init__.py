@@ -23,24 +23,16 @@ from .technical import (
 RE_POWER_OF_TEN_EXPLICIT = re.compile(r'\b(\d+(?:[.,]\d+)?)\s*[x*×]\s*10\^([-+]?\d+)\b', re.IGNORECASE)
 RE_POWER_OF_TEN_IMPLICIT = re.compile(r'\b10\^([-+]?\d+)\b')
 RE_PHONE_WITH_DASH = re.compile(r'\b(0\d{2,3})[–\-—](\d{3,4})[–\-—](\d{4})\b')
-RE_RANGE = re.compile(
-    r'(?<![\d.,])'
-    r'(\d{1,15}(?:[,.]\d{1,15})?)'
-    r'(?P<s1>\s*)'
-    r'[–\-—]'
-    r'(?P<s2>\s*)'
-    r'(\d{1,15}(?:[,.]\d{1,15})?)'
-    r'(?![\d.,])'
-)
+RE_RANGE = re.compile(r'(\d+(?:[,.]\d+)?)(?P<s1>\s*)[–\-—](?P<s2>\s*)(\d+(?:[,.]\d+)?)')
 RE_CONTEXT_TRU = re.compile(r'\b(bằng|tính|kết quả)\s+(\d+(?:[.,]\d+)?)\s*[-–—]\s*(\d+(?:[.,]\d+)?)\b', re.IGNORECASE)
 RE_CONTEXT_TRU_POST = re.compile(r'\b(\d+(?:[.,]\d+)?)\s*[-–—]\s*(\d+(?:[.,]\d+)?)\s+(bằng|tính|kết quả)\b', re.IGNORECASE)
 RE_CONTEXT_DEN = re.compile(r'\b(từ|khoảng|trong)\s+(\d+(?:[.,]\d+)?)\s*[-–—]\s*(\d+(?:[.,]\d+)?)\b', re.IGNORECASE)
 RE_DASH_TO_COMMA = re.compile(r'(?<=\s)[–\-—](?=\s)')
 RE_TO_SANG = re.compile(r'\s*(?:->|=>)\s*')
-RE_ENGLISH_STYLE_NUMBERS = re.compile(r'\b\d{1,3}(?:,\d{3})+(?:\.\d+)?\b')
-RE_MULTI_COMMA = re.compile(r'\b(\d+(?:,\d+){2,})\b')
-RE_FLOAT_WITH_COMMA = re.compile(r'(?<![\d.])(\d+(?:\.\d{3})*),(\d+)(%)?')
-RE_STRIP_DOT_SEP_RE = re.compile(r'(?<![\d.])\d+(?:\.\d{3})+(?![\d.])')
+RE_ENGLISH_STYLE_NUMBERS = re.compile(r'\b\d{1,3}(?:,\d{3}){1,10}(?:\.\d{1,10})?\b')
+RE_MULTI_COMMA = re.compile(r'\b(\d+(?:,\d+){2,10})\b')
+RE_FLOAT_WITH_COMMA = re.compile(r'(?<![\d.])(\d+(?:\.\d{3}){0,10}),(\d{1,10})(%)?')
+RE_STRIP_DOT_SEP_RE = re.compile(r'(?<![\d.])\d+(?:\.\d{3}){1,10}(?![\d.])')
 
 RE_EXTRA_SPACES = re.compile(r'[ \t\xA0]+')
 RE_EXTRA_COMMAS = re.compile(r',\s*,')

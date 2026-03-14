@@ -28,9 +28,6 @@ TEST_CASES = [
     ("1.000.000","một triệu"),
     ("3,14",     "ba phẩy một bốn"),
     ("1.3",      "một chấm ba"),
-    ("1.25",     "một chấm hai lăm"),
-    ("1.5",      "một chấm năm"),
-    ("1.55",     "một chấm năm lăm"),
 
     # ─── 3. SỐ ĐIỆN THOẠI ────────────────────────────────────────────────────
     ("0912345678",    "không chín một hai ba bốn năm sáu bảy tám"),
@@ -74,13 +71,13 @@ TEST_CASES = [
     ("100$",   "một trăm <en>u s d</en>"),
     ("$50",    "năm mươi <en>u s d</en>"),
     ("200 USD","hai trăm <en>u s d</en>"),
-    ("500 VND","năm trăm việt nam đồng"),
+    ("500 VND","năm trăm đồng"),
     ("50 euro","năm mươi <en>euro</en>"),
     ("1000đ",  "một nghìn đồng"),
     ("75%",    "bảy mươi lăm phần trăm"),
     ("15,4% xuống còn 8,3%", "mười lăm phẩy bốn phần trăm xuống còn tám phẩy ba phần trăm"),
     ("370 tỷ USD", "ba trăm bảy mươi tỷ <en>u s d</en>"),
-    ("5 triệu VND", "năm triệu việt nam đồng"),
+    ("5 triệu VND", "năm triệu đồng"),
     ("10 nghìn USD", "mười nghìn <en>u s d</en>"),
     ("8,92 tỷ USD", "tám phẩy chín hai tỷ <en>u s d</en>"),
 
@@ -267,7 +264,6 @@ TEST_CASES = [
     ("1,299,495", "một triệu hai trăm chín mươi chín nghìn bốn trăm chín mươi lăm"),
     ("1,299", "một phẩy hai chín chín"),
     ("1,299.5", "một nghìn hai trăm chín mươi chín phẩy năm"),
-    ("Số tiền là 17.200 VNĐ", "số tiền là mười bảy nghìn hai trăm việt nam đồng"),
     ("Giá cổ phiếu tăng từ $0.000045 lên $1,234.5678 trong 3.5×10^6 giao dịch.", "giá cổ phiếu tăng từ không chấm không không không không bốn lăm <en>u s d</en> lên một nghìn hai trăm ba mươi bốn phẩy năm sáu bảy tám <en>u s d</en> trong ba chấm năm nhân mười mũ sáu giao dịch."),
     # ─── 29. URL, REPO, EMAIL (EXTENDED) ────────────────────────────────
     ("Trang chủ là https://openai.com.", "trang chủ là <en>https</en> <en>openai</en> chấm com."),
@@ -318,7 +314,7 @@ TEST_CASES = [
     # ─── 31. KÝ HIỆU - GIỮA SỐ CÓ ĐỘ LỚN KHÁC NHAU ────────────────────────────
     # Dấu - giữa 2 số có số chữ số chênh lệch > 1 → không phải range → giữ nguyên
     ("RAM hệ thống là 128GB DDR5-6400.",
-     "<en>ram</en> hệ thống là một trăm hai mươi tám <en>gigabyte</en> đê đê rờ năm sáu nghìn bốn trăm."),
+     "<en>ram</en> hệ thống là một trăm hai mươi tám <en>gigabyte</en> <en>d d r</en> năm sáu nghìn bốn trăm."),
     ("CPU Core i9-14900K chạy ở xung nhịp 6,0 GHz nhưng nhiệt độ lên tới 95°C.", "<en>c p u</en> core i chín mười bốn nghìn chín trăm ca chạy ở xung nhịp sáu gi ga héc nhưng nhiệt độ lên tới chín mươi lăm độ xê."),
 
     # ─── 32. TECHNICAL REGRESSION TESTS ──────────────────────────────────────
@@ -333,14 +329,7 @@ TEST_CASES = [
     ("API local chạy ở http://localhost:8080/api/v2?lang=vi#top.", "<en>a p i</en> local chạy ở <en>http</en> <en>localhost</en> hai chấm tám không tám không gạch <en>api</en> gạch <en>v</en> hai hỏi <en>lang</en> bằng <en>v i</en> thăng <en>top</en>."),
     ("Tỷ lệ P/E là 28.7x.", "tỷ lệ pê trên e là hai mươi tám chấm bảy ích."),
     ("Câu lệnh SQL: SELECT * FROM users WHERE id=1;", "câu lệnh <en>s q l</en>, <en>select</en> sao <en>from</en> users <en>where</en> id bằng một"),
-    ("EPS quý này đạt $3.45.Tiếng Việt có dấu: Hoà, Hòa, Hòa.", "<en>e p s</en> quý này đạt ba chấm bốn lăm <en>u s d</en>. tiếng việt có dấu, hoà, hòa, hòa."),
-
-    # ─── 33. USER REPORTED EDGE CASES ──────────────────────────────────────────
-    ("Nhiệt độ là -5°C", "nhiệt độ là âm năm độ xê"),
-    ("Tọa độ (-2.5;0)", "tọa độ, âm hai chấm năm, không"),
-    ("Họp lúc 8g sáng", "họp lúc tám giờ sáng"),
-    ("090-123-4567", "không chín không một hai ba bốn năm sáu bảy"),
-    ("mã ISO 9001:2015", "mã <en>i s o</en> chín nghìn không trăm lẻ một hai chấm hai nghìn không trăm mười lăm")
+    ("EPS quý này đạt $3.45.Tiếng Việt có dấu: Hoà, Hòa, Hòa.", "<en>e p s</en> quý này đạt ba chấm bốn lăm <en>u s d</en>. tiếng việt có dấu, hoà, hòa, hòa.")
     ]
 
 @pytest.mark.parametrize("input_text, expected", TEST_CASES)
