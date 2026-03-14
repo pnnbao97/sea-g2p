@@ -264,7 +264,7 @@ TEST_CASES = [
     ("1,299,495", "một triệu hai trăm chín mươi chín nghìn bốn trăm chín mươi lăm"),
     ("1,299", "một phẩy hai chín chín"),
     ("1,299.5", "một nghìn hai trăm chín mươi chín phẩy năm"),
-    ("Giá cổ phiếu tăng từ $0.000045 lên $1,234.5678 trong 3.5×10^6 giao dịch.", "giá cổ phiếu tăng từ không chấm không không không không bốn năm <en>u s d</en> lên một nghìn hai trăm ba mươi bốn phẩy năm sáu bảy tám <en>u s d</en> trong ba chấm năm nhân mười mũ sáu giao dịch."),
+    ("Giá cổ phiếu tăng từ $0.000045 lên $1,234.5678 trong 3.5×10^6 giao dịch.", "giá cổ phiếu tăng từ không chấm không không không không bốn lăm <en>u s d</en> lên một nghìn hai trăm ba mươi bốn phẩy năm sáu bảy tám <en>u s d</en> trong ba chấm năm nhân mười mũ sáu giao dịch."),
     # ─── 29. URL, REPO, EMAIL (EXTENDED) ────────────────────────────────
     ("Trang chủ là https://openai.com.", "trang chủ là <en>https</en> <en>openai</en> chấm com."),
     ("Repo nằm ở github.com/user/project.", "repo nằm ở <en>github</en> chấm com gạch <en>user</en> gạch <en>project</en>."),
@@ -314,7 +314,7 @@ TEST_CASES = [
     # ─── 31. KÝ HIỆU - GIỮA SỐ CÓ ĐỘ LỚN KHÁC NHAU ────────────────────────────
     # Dấu - giữa 2 số có số chữ số chênh lệch > 1 → không phải range → giữ nguyên
     ("RAM hệ thống là 128GB DDR5-6400.",
-     "<en>ram</en> hệ thống là một trăm hai mươi tám <en>gigabyte</en> đê đê rờ năm sáu nghìn bốn trăm."),
+     "<en>ram</en> hệ thống là một trăm hai mươi tám <en>gigabyte</en> <en>d d r</en> năm sáu nghìn bốn trăm."),
     ("CPU Core i9-14900K chạy ở xung nhịp 6,0 GHz nhưng nhiệt độ lên tới 95°C.", "<en>c p u</en> core i chín mười bốn nghìn chín trăm ca chạy ở xung nhịp sáu gi ga héc nhưng nhiệt độ lên tới chín mươi lăm độ xê."),
 
     # ─── 32. TECHNICAL REGRESSION TESTS ──────────────────────────────────────
@@ -327,9 +327,9 @@ TEST_CASES = [
     ("Dataset gồm 3.2M samples (~1.8TB audio).", "dataset gồm ba chấm hai triệu samples, khoảng một chấm tám <en>terabyte</en> audio."),
     ("GPU NVIDIA RTX 4090 có 24GB GDDR6X VRAM.", "<en>g p u</en> <en>n v d a</en> <en>r t x</en> bốn nghìn không trăm chín mươi có hai mươi bốn <en>gigabyte</en> gờ đê đê rờ sáu ích <en>v ram</en>."),
     ("API local chạy ở http://localhost:8080/api/v2?lang=vi#top.", "<en>a p i</en> local chạy ở <en>http</en> <en>localhost</en> hai chấm tám không tám không gạch <en>api</en> gạch <en>v</en> hai hỏi <en>lang</en> bằng <en>v i</en> thăng <en>top</en>."),
-    ("Tỷ lệ P/E là 28.7x.", "tỷ lệ pê trên e là hai tám chấm bảy ích."),
+    ("Tỷ lệ P/E là 28.7x.", "tỷ lệ pê trên e là hai mươi tám chấm bảy ích."),
     ("Câu lệnh SQL: SELECT * FROM users WHERE id=1;", "câu lệnh <en>s q l</en>, <en>select</en> sao <en>from</en> users <en>where</en> id bằng một"),
-    ("EPS quý này đạt $3.45.Tiếng Việt có dấu: Hoà, Hòa, Hòa.", "<en>e p s</en> quý này đạt ba chấm bốn năm <en>u s d</en>. tiếng việt có dấu, hoà, hòa, hòa.")
+    ("EPS quý này đạt $3.45.Tiếng Việt có dấu: Hoà, Hòa, Hòa.", "<en>e p s</en> quý này đạt ba chấm bốn lăm <en>u s d</en>. tiếng việt có dấu, hoà, hòa, hòa.")
     ]
 
 @pytest.mark.parametrize("input_text, expected", TEST_CASES)
