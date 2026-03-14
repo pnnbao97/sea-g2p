@@ -168,7 +168,7 @@ PHONEMIZE_CASES = [
     ('trân trọng', 'tʃˈən tʃˈɔ6ŋ'),
     ('chào <en>world</en> xinh đẹp', 'tʃˈaː2w wˈɜːld sˈiɲ ɗˈɛ6p'),
     ('nếu đã từng đọc cuốn sách trên của simon, hoặc đã xem anh thuyết trình về khái niệm tại sao trên diễn đàn <en>t e d</en> chấm com, thì có lẽ bạn không còn xa lạ với vòng tròn vàng.', 'nˌeɜw ɗˌaː5 t̪ˈy2ŋ ɗˈɔ6k kˈuəɜn sˈe-ɜc tʃˈen kˌuə4 sˈaɪmən, hwˌa6c ɗˌaː5 sˈɛm ˈe-ɲ twˈiɛɜt̪ tʃˈi2ɲ vˈe2 xˈaːɜj nˈiɛ6m t̪ˈaː6j sˈaːw tʃˈen zˈiɛ5n ɗˈaː2n tˈiː ˈiː dˈiː tʃˈəɜm kˈɔm, tˌi2 kˈɔɜ lˈɛ5 bˈaː6n xˌoŋ kˌɔ2n sˈaː lˈaː6 vˌəːɜj vˈɔ2ŋ tʃˈɔ2n vˈaː2ŋ.'),
-    ('mixedcase acronyms như chatgpt hay claude.', 'ˈɛmˈaɪˈɛksˈiːdˈiːsˈiːˈeɪˈɛsˈiː ˈækɹənˌɪmz ɲˌy tʃˈætɡpt hˈaj klˈɔːd.'),
+    ('mixedcase acronyms như chatgpt hay claude.', 'mˈɪkst kˈeɪs ˈækɹənˌɪmz ɲˌy tʃˈætɡpt hˈaj klˈɔːd.'),
     ('unit mix, mười ki lô mét trên giờ và năm mét trên giây.', 'jˈuːnɪt mˈɪks, mˈyə2j kˈi lˈo mˈɛɜt̪ tʃˈen zˈəː2 vˌaː2 nˈam mˈɛɜt̪ tʃˈen zˈəɪ.'),
     ('số cực lớn, một tỷ tỷ', 'sˈoɜ kˈy6c lˈəːɜn, mˈo6t̪ t̪ˈi4 t̪ˈi4'),
     ('email với tên miền lạ, <en>user</en> a còng <en>domain</en> chấm <en>tech</en>', 'ˈiːmeɪl vˌəːɜj t̪ˈen mˈiɛ2n lˈaː6, jˈuːzɚ ˈaː kˈɔ2ŋ dəmˈeɪn tʃˈəɜm tˈɛk'),

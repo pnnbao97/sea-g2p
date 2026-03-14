@@ -17,7 +17,7 @@ def benchmark():
         "Mời bạn uống cốc café 20k.",
         "Tỉ giá USD/VND hiện nay là 24.500.",
         "Ông ấy sinh năm 1990.",
-    ] * 1000  # 10,000 sentences
+    ] * 100000  # 10,000 sentences
     
     print(f"Benchmarking with {len(test_sentences)} sentences...")
     
