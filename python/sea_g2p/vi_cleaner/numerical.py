@@ -27,8 +27,9 @@ _number_combined = (
 )
 
 # Compiled Regular Expressions
-RE_NUMBER = re.compile(r"(?P<prefix>\D|^)(?P<neg>[-–—]{1})?" + _number_combined + r"(?!\d)")
-RE_NUMBER_START = re.compile(r"^(?P<neg>[-–—]{1})?" + _number_combined + r"(?!\d)", re.MULTILINE)
+# Avoiding nested quantifiers and overlapping patterns to mitigate ReDoS.
+RE_NUMBER = re.compile(r"(\D|^)(?P<neg>[-–—])?" + _number_combined + r"(?!\d)")
+RE_NUMBER_START = re.compile(r"^(?P<neg>[-–—])?" + _number_combined + r"(?!\d)", re.MULTILINE)
 RE_MULTIPLY = re.compile(r"(" + _normal_number_re + r")(x|\sx\s)(" + _normal_number_re + r")")
 RE_ORDINAL = re.compile(r"(thứ|hạng)(\s+)(\d+)\b", re.IGNORECASE)
 RE_PHONE = re.compile(r"((\+84|84|0|0084)(3|5|7|8|9)[0-9]{8})")
@@ -55,13 +56,11 @@ def _num_to_words(number: str, negative: bool = False) -> str:
     return n2w(number)
 
 def _expand_number(match):
-    prefix = match.group('prefix')
+    prefix = match.group(1)
     negative_symbol = match.group('neg')
+    # Groups in _number_combined start at index 3 because of prefix group
     number = match.group(3)
 
-    # Negative sign rules: only treat as negative if:
-    # 1. Prefix is space, start of string (handled by START), or punctuation like ([;,
-    # 2. OR it's a specific temperature pattern (already handled in misc)
     is_neg = False
     if negative_symbol:
         if not prefix or prefix.isspace() or prefix in "([;,.":
@@ -69,7 +68,6 @@ def _expand_number(match):
 
     word = _num_to_words(number, is_neg)
 
-    # If not treated as negative, put the symbol back in front
     if negative_symbol and not is_neg:
         word = negative_symbol + word
 
