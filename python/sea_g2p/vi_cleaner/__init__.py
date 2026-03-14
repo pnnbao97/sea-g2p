@@ -23,7 +23,7 @@ from .technical import (
 RE_POWER_OF_TEN_EXPLICIT = re.compile(r'\b(\d+(?:[.,]\d+)?)\s*[x*×]\s*10\^([-+]?\d+)\b', re.IGNORECASE)
 RE_POWER_OF_TEN_IMPLICIT = re.compile(r'\b10\^([-+]?\d+)\b')
 RE_PHONE_WITH_DASH = re.compile(r'\b(0\d{2,3})[–\-—](\d{3,4})[–\-—](\d{4})\b')
-RE_RANGE = re.compile(r'(\d+(?:[,.]\d+)?)(?P<s1>\s*)[–\-—](?P<s2>\s*)(\d+(?:[,.]\d+)?)')
+RE_RANGE = re.compile(r'(?<![\d.,])(\d+(?:[,.]\d+)?)(?P<s1>\s*)[–\-—](?P<s2>\s*)(\d+(?:[,.]\d+)?)(?![\d.,])')
 RE_CONTEXT_TRU = re.compile(r'\b(bằng|tính|kết quả)\s+(\d+(?:[.,]\d+)?)\s*[-–—]\s*(\d+(?:[.,]\d+)?)\b', re.IGNORECASE)
 RE_CONTEXT_TRU_POST = re.compile(r'\b(\d+(?:[.,]\d+)?)\s*[-–—]\s*(\d+(?:[.,]\d+)?)\s+(bằng|tính|kết quả)\b', re.IGNORECASE)
 RE_CONTEXT_DEN = re.compile(r'\b(từ|khoảng|trong)\s+(\d+(?:[.,]\d+)?)\s*[-–—]\s*(\d+(?:[.,]\d+)?)\b', re.IGNORECASE)
