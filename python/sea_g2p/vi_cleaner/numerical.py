@@ -9,7 +9,7 @@ RE_NUMBER = re.compile(
     r"(\d+(?:,\d+|(?:\.\d{3})+(?!\d)|\.\d+|(?:\s\d{3})+(?!\d))?)"
     r"(?!\d)"
 )
-RE_MULTIPLY = re.compile(r"(\d+)(x|\sx\s)(\d+)")
+RE_MULTIPLY = re.compile(r"(\d{1,15})(x|\sx\s)(\d{1,15})")
 RE_ORDINAL = re.compile(r"(thứ|hạng)(\s+)(\d+)\b", re.IGNORECASE)
 RE_PHONE = re.compile(r"((\+84|84|0|0084)(3|5|7|8|9)[0-9]{8})")
 RE_DOT_SEP = re.compile(r"\d+(\.\d{3})+")
