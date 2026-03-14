@@ -19,8 +19,11 @@ impl G2P {
         Ok(self.engine.phonemize(text))
     }
 
-    fn phonemize_batch(&self, texts: Vec<String>) -> PyResult<Vec<String>> {
-        Ok(texts.into_iter().map(|t| self.engine.phonemize(&t)).collect())
+    fn phonemize_batch(&self, py: Python<'_>, texts: Vec<String>) -> PyResult<Vec<String>> {
+        py.allow_threads(|| {
+            use rayon::prelude::*;
+            Ok(texts.into_par_iter().map(|t| self.engine.phonemize(&t)).collect())
+        })
     }
 }
 

@@ -1,6 +1,6 @@
 import re
 import unicodedata
-from .vi_cleaner import clean_vietnamese_text
+from .vi_cleaner import clean_vietnamese_text, RE_EXTRA_SPACES
 
 class Normalizer:
     """
@@ -35,16 +35,19 @@ class Normalizer:
         # Step 2: Core Normalization
         text = clean_vietnamese_text(text)
         
-        # Final cleanup - preserve newlines
+        # Final cleanup
         text = text.lower()
-        text = re.sub(r'[ \t\xA0]+', ' ', text).strip()
+        # Single pass for common whitespace fixes
+        text = RE_EXTRA_SPACES.sub(' ', text).strip()
         
         # Step 3: Restore EN tags
-        for idx, en_content in enumerate(en_contents):
-            placeholder = placeholder_pattern.format(idx).lower()
-            text = text.replace(placeholder, en_content)
+        if en_contents:
+            for idx, en_content in enumerate(en_contents):
+                placeholder = placeholder_pattern.format(idx).lower()
+                text = text.replace(placeholder, en_content)
         
-        # Final whitespace cleanup - preserve newlines
-        text = re.sub(r'[ \t\xA0]+', ' ', text).strip()
+        # Final whitespace cleanup - already mostly done, just one more pass to be safe
+        if ' ' in text: # Simple check to avoid regex if not needed
+             text = RE_EXTRA_SPACES.sub(' ', text).strip()
         
         return text

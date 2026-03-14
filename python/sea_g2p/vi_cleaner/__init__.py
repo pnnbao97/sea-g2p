@@ -162,13 +162,14 @@ def clean_vietnamese_text(text):
         
         # Priority 1: Email has @ (most specific pattern)
         if '@' in orig:
-            return protect(re.Match if False else type('Match', (), {'group': lambda self, n: normalize_emails(orig)})())
+            # Create a mock match object to satisfy normalize_emails if it expects one
+            # Alternatively, if normalize_emails accepts string, just pass it
+            return protect(type('Match', (), {'group': lambda s, n=0: normalize_emails(orig)})())
 
         # Priority 2: Check if it's explicitly in our specialized technical exceptions
-        # Move this after email to ensure email patterns aren't partially matched by exceptions
         if RE_ACRONYMS_EXCEPTIONS.fullmatch(orig):
             from .vi_resources import _combined_exceptions
-            return protect(re.Match if False else type('Match', (), {'group': lambda self, n: _combined_exceptions[orig]})())
+            return protect(type('Match', (), {'group': lambda s, n=0: _combined_exceptions[orig]})())
 
         # Priority 3: Standard technical normalization (URLs, Paths, Versions, etc.)
         normed = normalize_technical(orig)
@@ -190,10 +191,11 @@ def clean_vietnamese_text(text):
     text = expand_standalone_letters(text)
 
     # Convert remaining dots between digits to ' chấm ' (for IPs, versions that survived)
-    text = RE_DOT_BETWEEN_DIGITS.sub(r'\1 chấm \2', text)
-    # Recursively handle multiple dots like 10.10.10.10
-    while RE_DOT_BETWEEN_DIGITS.search(text):
+    # Optimization: use sub with a function for recursive-like replacement in one pass or use a simpler while
+    if '.' in text:
         text = RE_DOT_BETWEEN_DIGITS.sub(r'\1 chấm \2', text)
+        while RE_DOT_BETWEEN_DIGITS.search(text):
+            text = RE_DOT_BETWEEN_DIGITS.sub(r'\1 chấm \2', text)
 
     for mask, original in mask_map.items():
         text = text.replace(mask, original)
