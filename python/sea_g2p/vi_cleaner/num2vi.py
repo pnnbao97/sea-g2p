@@ -135,3 +135,18 @@ def n2w_single(number: str) -> str:
     if not clean_number:
         return str(number)
     return process_n2w_single(clean_number)
+
+def n2w_decimal(number: str) -> str:
+    """Convert decimal part to words, handling 'lăm' for trailing 5."""
+    # Special case: don't strip dots if we want to handle internal dots elsewhere,
+    # but here we usually expect a string of digits from a decimal part.
+    clean_number = str(number).translate(str.maketrans('', '', ' -.,'))
+    if not clean_number:
+        return str(number)
+    res = []
+    for i, d in enumerate(clean_number):
+        if d == '5' and i == len(clean_number) - 1 and i > 0 and clean_number[i-1] != '0':
+            res.append("lăm")
+        elif d in units:
+            res.append(units[d])
+    return " ".join(res)

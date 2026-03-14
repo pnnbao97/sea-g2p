@@ -1,5 +1,5 @@
 import re
-from .num2vi import n2w, n2w_single
+from .num2vi import n2w, n2w_single, n2w_decimal
 from .vi_resources import (
     _measurement_key_vi, _currency_key, _CURRENCY_SYMBOL_MAP, _MAGNITUDE_P, _NUMERIC_P
 )
@@ -14,11 +14,11 @@ def _expand_scientific(num_str):
     if base.count('.') == 1:
         parts = base.split('.')
         dec_part = parts[1].rstrip('0')
-        base_norm = f"{n2w(parts[0])} chấm {n2w_single(dec_part)}" if dec_part else n2w(parts[0])
+        base_norm = f"{n2w(parts[0])} chấm {n2w_decimal(dec_part)}" if dec_part else n2w(parts[0])
     elif base.count(',') == 1:
         parts = base.split(',')
         dec_part = parts[1].rstrip('0')
-        base_norm = f"{n2w(parts[0])} phẩy {n2w_single(dec_part)}" if dec_part else n2w(parts[0])
+        base_norm = f"{n2w(parts[0])} phẩy {n2w_decimal(dec_part)}" if dec_part else n2w(parts[0])
     else:
         base_norm = n2w(base.replace(',', '').replace('.', ''))
 
@@ -36,7 +36,7 @@ def _expand_mixed_sep(num_str):
     dec_part = parts[1].rstrip('0')
     if not dec_part:
         return n2w(parts[0])
-    return f"{n2w(parts[0])} phẩy {n2w_single(dec_part)}"
+    return f"{n2w(parts[0])} phẩy {n2w_decimal(dec_part)}"
 
 def _expand_single_sep(num_str):
     if ',' in num_str:
@@ -48,7 +48,7 @@ def _expand_single_sep(num_str):
         dec_part = parts[1].rstrip('0')
         if not dec_part:
             return n2w(parts[0])
-        return f"{n2w(parts[0])} phẩy {n2w_single(dec_part)}"
+        return f"{n2w(parts[0])} phẩy {n2w_decimal(dec_part)}"
 
     parts = num_str.split('.')
     if len(parts) > 2 or (len(parts) == 2 and len(parts[1]) == 3):
@@ -58,7 +58,7 @@ def _expand_single_sep(num_str):
     dec_part = parts[1].rstrip('0')
     if not dec_part:
         return n2w(parts[0])
-    return f"{n2w(parts[0])} chấm {n2w_single(dec_part)}"
+    return f"{n2w(parts[0])} chấm {n2w_decimal(dec_part)}"
 
 def _expand_number_with_sep(num_str):
     if not num_str: return ""

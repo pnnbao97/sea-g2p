@@ -1,6 +1,6 @@
 import re
 import string
-from .num2vi import n2w, n2w_single
+from .num2vi import n2w, n2w_single, n2w_decimal
 
 from .numerical import normalize_number_vi
 from .datestime import normalize_date, normalize_time
@@ -22,7 +22,11 @@ from .technical import (
 
 RE_POWER_OF_TEN_EXPLICIT = re.compile(r'\b(\d+(?:[.,]\d+)?)\s*[x*×]\s*10\^([-+]?\d+)\b', re.IGNORECASE)
 RE_POWER_OF_TEN_IMPLICIT = re.compile(r'\b10\^([-+]?\d+)\b')
-RE_RANGE = re.compile(r'(\d+(?:[,.]\d+)?)\s*[–\-—]\s*(\d+(?:[,.]\d+)?)')
+RE_PHONE_WITH_DASH = re.compile(r'\b(0\d{2,3})[–\-—](\d{3,4})[–\-—](\d{4})\b')
+RE_RANGE = re.compile(r'(\d+(?:[,.]\d+)?)(?P<s1>\s*)[–\-—](?P<s2>\s*)(\d+(?:[,.]\d+)?)')
+RE_CONTEXT_TRU = re.compile(r'\b(bằng|tính|kết quả)\s+(\d+(?:[.,]\d+)?)\s*[-–—]\s*(\d+(?:[.,]\d+)?)\b', re.IGNORECASE)
+RE_CONTEXT_TRU_POST = re.compile(r'\b(\d+(?:[.,]\d+)?)\s*[-–—]\s*(\d+(?:[.,]\d+)?)\s+(bằng|tính|kết quả)\b', re.IGNORECASE)
+RE_CONTEXT_DEN = re.compile(r'\b(từ|khoảng|trong)\s+(\d+(?:[.,]\d+)?)\s*[-–—]\s*(\d+(?:[.,]\d+)?)\b', re.IGNORECASE)
 RE_DASH_TO_COMMA = re.compile(r'(?<=\s)[–\-—](?=\s)')
 RE_TO_SANG = re.compile(r'\s*(?:->|=>)\s*')
 RE_ENGLISH_STYLE_NUMBERS = re.compile(r'\b\d{1,3}(?:,\d{3})+(?:\.\d+)?\b')
@@ -47,7 +51,7 @@ def _expand_float(m):
     if not dec_part:
         res = int_part
     else:
-        res = f"{int_part} phẩy {n2w_single(dec_part)}"
+        res = f"{int_part} phẩy {n2w_decimal(dec_part)}"
     
     if m.group(3):
         res += " phần trăm"
@@ -60,6 +64,15 @@ def _normalize_pre_number(text):
     # Handle explicit powers of ten: 1.5×10^-3 or 1.5x10^3 or 1.5*10^3
     # Anchored regex to reduce search space and avoid ReDoS
     text = RE_POWER_OF_TEN_EXPLICIT.sub(expand_power_of_ten, text)
+
+    # Contextual subtraction/range logic (Tầng 1)
+    text = RE_CONTEXT_TRU.sub(r" \1 \2 trừ \3 ", text)
+    text = RE_CONTEXT_TRU_POST.sub(r" \1 trừ \2 \3 ", text)
+    text = RE_CONTEXT_DEN.sub(r" \1 \2 đến \3 ", text)
+
+    def _expand_phone_with_dash(m):
+        return f" {n2w_single(m.group(1) + m.group(2) + m.group(3))} "
+    text = RE_PHONE_WITH_DASH.sub(_expand_phone_with_dash, text)
     text = RE_POWER_OF_TEN_IMPLICIT.sub(lambda m: f"mười mũ {('trừ ' + n2w(m.group(1)[1:])) if m.group(1).startswith('-') else n2w(m.group(1).replace('+', ''))}", text)
     
     text = expand_abbreviations(text)
@@ -67,12 +80,21 @@ def _normalize_pre_number(text):
     text = normalize_time(text)
     
     def _range_sub(m):
-        n1 = m.group(1).replace(',', '').replace('.', '')
-        n2 = m.group(2).replace(',', '').replace('.', '')
+        n1_raw = m.group(1)
+        s1 = m.group('s1')
+        s2 = m.group('s2')
+        n2_raw = m.group(4)
+
+        # Symmetry Rule (Tầng 2): if space before but NO space after, it's negative candidate
+        if s1 and not s2:
+            return m.group(0)
+
+        n1 = n1_raw.replace(',', '').replace('.', '')
+        n2 = n2_raw.replace(',', '').replace('.', '')
         # Only treat as a numeric range if digit counts are similar (within 1)
         if abs(len(n1) - len(n2)) <= 1:
-            return f'{m.group(1)} đến {m.group(2)}'
-        return f'{m.group(1)} {m.group(2)}'
+            return f' {n1_raw} đến {n2_raw} '
+        return f' {n1_raw} {n2_raw} '
     text = RE_RANGE.sub(_range_sub, text)
     text = RE_DASH_TO_COMMA.sub(',', text)
     text = RE_TO_SANG.sub(' sang ', text)
@@ -89,7 +111,7 @@ def _normalize_units_currency(text):
     def _expand_multi_comma(m):
         res = []
         for s in m.group(1).split(','):
-            res.append(' '.join(n2w_single(c) for c in s))
+            res.append(n2w_decimal(s))
         return ' phẩy '.join(res)
     text = RE_MULTI_COMMA.sub(_expand_multi_comma, text)
 
@@ -172,8 +194,8 @@ def clean_vietnamese_text(text):
     # Final conversion of any remaining __start_en__ tags
     text = text.replace('__start_en__', '<en>').replace('__end_en__', '</en>')
     
-    # Finally, remove any other underscores after internal tag replacement
-    text = text.replace('_', ' ')
+    # Finally, remove any other underscores or hyphens after internal tag replacement
+    text = text.replace('_', ' ').replace('-', ' ')
 
     text = _cleanup_whitespace(text)
     return text.lower()

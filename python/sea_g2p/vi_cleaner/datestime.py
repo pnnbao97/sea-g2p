@@ -11,6 +11,8 @@ RE_DAY_MONTH = re.compile(r"\b(\d{1,2})" + _short_date_seperator + r"(\d{1,2})\b
 RE_MONTH_YEAR = re.compile(r"\b(\d{1,2})" + _date_seperator + r"(\d{4})\b", re.IGNORECASE)
 RE_FULL_TIME = re.compile(r"\b(\d+)(g|:|h)(\d{1,2})(p|:|m)(\d{1,2})(?:\s*(giây|s|g))?\b", re.IGNORECASE)
 RE_TIME = re.compile(r"\b(\d+)(g|:|h)(\d{1,2})(?:\s*(phút|p|m))?\b", re.IGNORECASE)
+RE_HOUR_CONTEXT = re.compile(r'\b(\d+)g\s*(sáng|trưa|chiều|tối|khuya)\b', re.IGNORECASE)
+RE_LUC_HOUR = re.compile(r'\blúc\s*(\d+)g\b', re.IGNORECASE)
 RE_REDUNDANT_NGAY = re.compile(r'\bngày\s+ngày\b', re.IGNORECASE)
 RE_REDUNDANT_THANG = re.compile(r'\btháng\s+tháng\b', re.IGNORECASE)
 RE_REDUNDANT_NAM = re.compile(r'\bnăm\s+năm\b', re.IGNORECASE)
@@ -78,4 +80,9 @@ def normalize_time(text):
         text
     )
     text = RE_TIME.sub(_expand_time, text)
+
+    # Contextual rules for 'g' as 'giờ'
+    text = RE_HOUR_CONTEXT.sub(lambda m: f"{n2w(m.group(1))} giờ {m.group(2)}", text)
+    text = RE_LUC_HOUR.sub(lambda m: f"lúc {n2w(m.group(1))} giờ", text)
+
     return text

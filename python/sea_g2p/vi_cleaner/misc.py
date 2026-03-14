@@ -1,5 +1,5 @@
 import re
-from .num2vi import n2w, n2w_single
+from .num2vi import n2w, n2w_single, n2w_decimal
 from .vi_resources import (
     _vi_letter_names, _letter_key_vi, _acronyms_exceptions_vi, _technical_terms,
     _DOMAIN_SUFFIX_MAP, _ROMAN_NUMERALS, _ABBRS, _SYMBOLS_MAP, WORD_LIKE_ACRONYMS
@@ -19,8 +19,9 @@ RE_TEMP_F_NEG = re.compile(r'-(\d+(?:[.,]\d+)?)\s*°\s*f\b', re.IGNORECASE)
 RE_TEMP_C = re.compile(r'(\d+(?:[.,]\d+)?)\s*°\s*c\b', re.IGNORECASE)
 RE_TEMP_F = re.compile(r'(\d+(?:[.,]\d+)?)\s*°\s*f\b', re.IGNORECASE)
 RE_DEGREE = re.compile(r'°')
-RE_VERSION = re.compile(r'\b(\d+(?:\.\d+)+)\b')
-RE_CLEAN_OTHERS = re.compile(r'[^a-zA-Z0-9\sàáảãạăắằẳẵặâấầẩẫậèéẻẽẹêếềểễệìíỉĩịòóỏõọôốồổỗộơớờởỡợùúủũụưứừửữựỳýỷỹỵđÀÁẢÃẠĂẮẰẲẴẶÂẤẦẨẪẬÈÉẺẼẸÊẾỀỂỄỆÌÍỈĨỊÒÓỎÕỌÔỐỒỔỖỘƠỚỜỞỠỢÙÚỦŨỤƯỨỪỬỮỰỲÝỶỸỴĐ.,!?_\'’]')
+RE_VERSION = re.compile(r'(?<![-–—])\b(\d+(?:\.\d+){2,})\b')
+RE_STANDARD_COLON = re.compile(r'\b(\d+):(\d+)\b')
+RE_CLEAN_OTHERS = re.compile(r'[^a-zA-Z0-9\sàáảãạăắằẳẵặâấầẩẫậèéẻẽẹêếềểễệìíỉĩịòóỏõọôốồổỗộơớờởỡợùúủũụưứừửữựỳýỷỹỵđÀÁẢÃẠĂẮẰẲẴẶÂẤẦẨẪẬÈÉẺẼẸÊẾỀỂỄỆÌÍỈĨỊÒÓỎÕỌÔỐỒỔỖỘƠỚỜỞỠỢÙÚỦŨỤƯỨỪỬỮỰỲÝỶỸỴĐ.,!?_\'’-]')
 RE_CLEAN_QUOTES = re.compile(r'["“”"]')
 RE_CLEAN_QUOTES_EDGES = re.compile(r"(^|\s)['’]+|['’]+($|\s)")
 RE_PRIME = re.compile(r"(\b[a-zA-Z0-9])['’](?!\w)")
@@ -137,6 +138,9 @@ def expand_temperatures(text):
     return RE_DEGREE.sub(' độ ', text)
 
 def normalize_others(text):
+    # 0. Preliminary expansion for decimals with dot in misc context if not already handled
+    # (actually handled by numerical, but we must be careful about RE_VERSION)
+
     # 1. Expand acronym exceptions in a single pass
     text = RE_ACRONYMS_EXCEPTIONS.sub(lambda m: _combined_exceptions[m.group(0)], text)
     text = normalize_slashes(text)
@@ -156,6 +160,7 @@ def normalize_others(text):
 
     # 4. Misc
     text = RE_BRACKETS.sub(r', \1, ', text)
+    text = text.replace('(', ' ( ').replace(')', ' ) ').replace(';', ' ; ')
     text = RE_STRIP_BRACKETS.sub(' ', text)
     text = expand_temperatures(text)
     text = normalize_acronyms(text)
@@ -164,5 +169,13 @@ def normalize_others(text):
         res = [" ".join(n2w_single(c) for c in s) for s in m.group(1).split('.')]
         return ' chấm '.join(res)
     text = RE_VERSION.sub(_expand_version, text)
+
+    def _expand_standard_colon(m):
+        from .numerical import _num_to_words
+        n1 = _num_to_words(m.group(1))
+        n2 = _num_to_words(m.group(2))
+        return f" {n1} hai chấm {n2} "
+    text = RE_STANDARD_COLON.sub(_expand_standard_colon, text)
+
     text = RE_COLON_SEMICOLON.sub(',', text)
     return RE_CLEAN_OTHERS.sub(' ', text)
