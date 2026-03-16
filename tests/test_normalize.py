@@ -340,7 +340,17 @@ TEST_CASES = [
     ("Tọa độ (-2.5;0)", "tọa độ, âm hai chấm năm, không"),
     ("Họp lúc 8g sáng", "họp lúc tám giờ sáng"),
     ("090-123-4567", "không chín không một hai ba bốn năm sáu bảy"),
-    ("mã ISO 9001:2015", "mã <en>i s o</en> chín nghìn không trăm lẻ một hai chấm hai nghìn không trăm mười lăm")
+    ("mã ISO 9001:2015", "mã <en>i s o</en> chín nghìn không trăm lẻ một hai chấm hai nghìn không trăm mười lăm"),
+    ("giải khối rubik 4x4x4 ngắn nhất.", "giải khối rubik bốn nhân bốn nhân bốn ngắn nhất."),
+    ("hình chữ nhật 3x4", "hình chữ nhật ba nhân bốn"),
+    ("màn hình 1920x1080", "màn hình một nghìn chín trăm hai mươi nhân một nghìn không trăm tám mươi"),
+    ("kích thước 10 x 20 x 30", "kích thước mười nhân hai mươi nhân ba mươi"),
+    ("kích thước 10 x 20 x 30 x 40", "kích thước mười nhân hai mươi nhân ba mươi nhân bốn mươi"),
+    ("kích thước 10 x 20 x 30 x 40 x 50", "kích thước mười nhân hai mươi nhân ba mươi nhân bốn mươi nhân năm mươi"),
+    ("phòng họp 5m x 10m", "phòng họp năm mét nhân mười mét"),
+    ("diện tích 5×10 m2", "diện tích năm nhân mười mét vuông"),
+    ("tôi đang ở Washington D.C", "tôi đang ở <en>washington d c</en>"),
+    ("tôi đang ở Washington DC", "tôi đang ở <en>washington d c</en>")
     ]
 
 @pytest.mark.parametrize("input_text, expected", TEST_CASES)

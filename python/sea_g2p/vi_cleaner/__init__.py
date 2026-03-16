@@ -10,6 +10,7 @@ from .misc import (
     expand_symbols, expand_prime, expand_temperatures, expand_unit_powers,
     RE_ACRONYMS_EXCEPTIONS
 )
+from .numerical import RE_MULTIPLY, _expand_multiply_number
 from .units import (
     expand_measurement, expand_currency, expand_compound_units,
     expand_scientific_notation, fix_english_style_numbers, expand_power_of_ten,
@@ -72,6 +73,9 @@ def _normalize_pre_number(text):
     # Handle explicit powers of ten: 1.5×10^-3 or 1.5x10^3 or 1.5*10^3
     # Anchored regex to reduce search space and avoid ReDoS
     text = RE_POWER_OF_TEN_EXPLICIT.sub(expand_power_of_ten, text)
+
+    # Multi-term multiplication (e.g. 4x4x4 or 5m x 10m)
+    text = RE_MULTIPLY.sub(_expand_multiply_number, text)
 
     # Contextual subtraction/range logic (Tầng 1)
     text = RE_CONTEXT_TRU.sub(r" \1 \2 trừ \3 ", text)

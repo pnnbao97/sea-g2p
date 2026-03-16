@@ -76,6 +76,8 @@ _technical_terms = {
     "TX-0": "__start_en__t x zero__end_en__",
     "IPv6": "__start_en__i p v__end_en__ sáu",
     "IPv4": "__start_en__i p v__end_en__ bốn",
+    "Washington D.C": "__start_en__washington d c__end_en__",
+    "Washington DC": "__start_en__washington d c__end_en__",
 }
 
 _DOMAIN_SUFFIX_MAP = {

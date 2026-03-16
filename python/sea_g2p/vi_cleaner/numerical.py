@@ -9,7 +9,7 @@ RE_NUMBER = re.compile(
     r"(\d+(?:,\d+|(?:\.\d{3})+(?!\d)|\.\d+|(?:\s\d{3})+(?!\d))?)"
     r"(?!\d)"
 )
-RE_MULTIPLY = re.compile(r"(\d{1,15})(x|\sx\s)(\d{1,15})")
+RE_MULTIPLY = re.compile(r"(\b\d{1,15}(?:\s*(?![x×]\b)[a-zA-Zμµ²³°]+[0-9]*)*)(?:\s*[x×]\s*\d{1,15}(?:\s*(?![x×]\b)[a-zA-Zμµ²³°]+[0-9]*)*)+", re.IGNORECASE)
 RE_ORDINAL = re.compile(r"(thứ|hạng)(\s+)(\d+)\b", re.IGNORECASE)
 RE_PHONE = re.compile(r"((\+84|84|0|0084)(3|5|7|8|9)[0-9]{8})")
 RE_DOT_SEP = re.compile(r"\d+(\.\d{3})+")
@@ -63,12 +63,13 @@ def _expand_ordinal(match):
     return prefix + space + n2w(number)
 
 def _expand_multiply_number(match):
-    n1, _, n2 = match.groups()
-    return n2w(n1) + " nhân " + n2w(n2)
+    full_match = match.group(0)
+    # Safely replace x or × only when it acts as a separator between numbers/units
+    # We look for x/× preceded by a digit or unit char and followed by a digit.
+    return re.sub(r'(?<=\d|[a-zA-Zμµ²³°])\s*[x×]\s*(?=\d)', ' nhân ', full_match, flags=re.IGNORECASE)
 
 def normalize_number_vi(text):
     text = RE_ORDINAL.sub(_expand_ordinal, text)
-    text = RE_MULTIPLY.sub(_expand_multiply_number, text)
     text = RE_PHONE.sub(_expand_phone, text)
     # Process numbers with a single pass handling negative signs via context
     text = RE_NUMBER.sub(_expand_number, text)
