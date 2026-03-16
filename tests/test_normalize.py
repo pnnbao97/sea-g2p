@@ -362,7 +362,7 @@ TEST_CASES = [
     ("Lễ 2/9", "lễ ngày hai tháng chín"),
     ("Tết 1/1", "tết ngày một tháng một"),
     ("lấy 0.5/0.9 x 3 = ?", "lấy không chấm năm trên không chấm chín nhân ba bằng?"),
-    ("khoản 3 điều 45 nghị định 12/2021/NĐ-CP . 45/8000", "khoản ba điều bốn mươi lăm nghị định tháng mười hai năm hai nghìn không trăm hai mươi mốt trên nđ <en>c p</en>. bốn mươi lăm trên tám nghìn"),
+    ("khoản 3 điều 45 nghị định 12/2021/NĐ-CP . 45/8000", "khoản ba điều bốn mươi lăm nghị định tháng mười hai năm hai nghìn không trăm hai mươi mốt trên nờ đê <en>c p</en>. bốn mươi lăm trên tám nghìn"),
 
     # ─── 35. PHÂN BIỆT 123/4 (ADDRESS VS OTHER) ───────────────────────────
     ("Nhà tôi ở số 123/4 đường Nguyễn Trãi.", "nhà tôi ở số một trăm hai mươi ba trên bốn đường nguyễn trãi."),

@@ -11,7 +11,9 @@ RE_ROMAN_NUMBER = re.compile(r"\b(?=[IVXLCDM]{2,})M{0,4}(CM|CD|D?C{0,3})(XC|XL|L
 RE_LETTER = re.compile(r"(chữ|chữ cái|kí tự|ký tự)\s+(['\"]?)([a-z])(['\"]?)\b", re.IGNORECASE)
 RE_STANDALONE_LETTER = re.compile(r'(?<![\'’])\b([a-zA-Z])\b(\.?)')
 RE_SENTENCE_SPLIT = re.compile(r'([.!?]+(?:\s+|$))')
-RE_ACRONYM = re.compile(r'\b(?=[A-Z0-9]*[A-Z])[A-Z0-9]{2,}\b')
+# Vietnamese uppercase base letters (no tones) that appear in abbreviations
+_VI_UPPER = "ĐĂÂÊÔƠƯ"
+RE_ACRONYM = re.compile(rf'\b(?=[A-Z{_VI_UPPER}0-9]*[A-Z{_VI_UPPER}])[A-Z{_VI_UPPER}0-9]{{2,}}\b')
 RE_ALPHANUMERIC = re.compile(r'\b(\d+)([a-zA-Z])\b')
 RE_BRACKETS = re.compile(r'[\(\[\{]\s*(.*?)\s*[\)\]\}]')
 RE_STRIP_BRACKETS = re.compile(r'[\[\]\(\)\{\}]')
@@ -100,13 +102,34 @@ def normalize_acronyms(text: str) -> str:
         alpha_words = [w for w in words if any(c.isalpha() for c in w)]
         is_all_caps = len(alpha_words) > 0 and all(w.isupper() for w in alpha_words)
         if not is_all_caps:
+            def _has_vi_letter(word: str) -> bool:
+                """Return True if the word contains any Vietnamese-accented letter."""
+                return any(not c.isascii() and c.isalpha() for c in word)
+
+            def _spell_vi(word: str) -> str:
+                """Spell each character of word using Vietnamese letter names."""
+                parts = []
+                for c in word:
+                    ch = c.lower()
+                    if c.isdigit():
+                        parts.append(n2w_single(c))
+                    elif ch in _vi_letter_names:
+                        parts.append(_vi_letter_names[ch])
+                    elif c.isalpha():
+                        parts.append(ch)  # fallback: just use the char as-is
+                return " ".join(parts)
+
             def _repl_acronym(m):
                 word = m.group(0)
-                if word.isdigit(): return word
+                if word.isdigit():
+                    return word
                 if word in WORD_LIKE_ACRONYMS:
                     return f"__start_en__{word.lower()}__end_en__"
+                # If the acronym contains Vietnamese-accented letters, spell every char
+                if _has_vi_letter(word):
+                    return _spell_vi(word)
                 if any(c.isdigit() for c in word):
-                    res = [n2w_single(c) if c.isdigit() else _vi_letter_names.get(c, c) for c in word.lower()]
+                    res = [n2w_single(c) if c.isdigit() else _vi_letter_names.get(c.lower(), c) for c in word]
                     return " ".join(res)
                 spaced_word = " ".join(c.lower() for c in word if c.isalnum())
                 return f"__start_en__{spaced_word}__end_en__" if spaced_word else word
