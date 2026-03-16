@@ -1,3 +1,4 @@
+"""Convert Vietnamese numbers to spoken words."""
 from typing import List, Optional
 
 units = {

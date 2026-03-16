@@ -1,3 +1,4 @@
+"""Technical string normalization: URLs, emails, file paths, and slash-separated numbers."""
 import re
 from .num2vi import n2w, n2w_single
 from .vi_resources import _vi_letter_names, _common_email_domains, _DOMAIN_SUFFIX_MAP
@@ -26,7 +27,8 @@ RE_EMAIL_SPLIT = re.compile(r'([._\-+])')
 RE_SLASH_NUMBER = re.compile(r'(?<![\d,.])(\d+)/(\d+)(?![\d,.])')
 _DOMAIN_SUFFIXES_RE = re.compile(r'\.(com|vn|net|org|edu|gov|io|biz|info)\b', re.IGNORECASE)
 
-def normalize_technical(text):
+def normalize_technical(text: str) -> str:
+    """Normalize URLs, file paths, and other technical strings into spoken Vietnamese."""
     import re as std_re
     def _repl_tech(m):
         orig = m.group(0)
@@ -135,7 +137,8 @@ def normalize_technical(text):
         return " ".join(res).replace("  ", " ").strip()
     return RE_TECHNICAL.sub(_repl_tech, text)
 
-def normalize_emails(text):
+def normalize_emails(text: str) -> str:
+    """Normalize email addresses into a spoken Vietnamese format."""
     def _repl_email(m):
         email = m.group(0)
         parts = email.split('@')
@@ -216,7 +219,8 @@ def normalize_emails(text):
 
     return RE_EMAIL.sub(_repl_email, text)
 
-def normalize_slashes(text):
+def normalize_slashes(text: str) -> str:
+    """Normalize slash-separated number pairs (e.g. '3/4') to 'ba trên bốn'."""
     def _repl(m):
         n1 = m.group(1)
         n2 = m.group(2)

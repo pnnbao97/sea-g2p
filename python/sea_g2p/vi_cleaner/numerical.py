@@ -1,6 +1,6 @@
+"""Numerical expression normalization for Vietnamese text."""
 import re
 from .num2vi import n2w, n2w_single, n2w_decimal
-from .symbols import vietnamese_set
 
 # Compiled Regular Expressions
 # Mitigation of ReDoS by using lookbehind and ordered non-overlapping patterns.

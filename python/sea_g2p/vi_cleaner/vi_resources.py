@@ -1,3 +1,5 @@
+"""Vietnamese language resources: letter names, abbreviations, symbol maps, keyword sets."""
+
 _vi_letter_names = {
     "a": "a", "b": "bê", "c": "xê", "d": "đê", "đ": "đê", "e": "e", "ê": "ê",
     "f": "ép", "g": "gờ", "h": "hát", "i": "i", "j": "giây", "k": "ca", "l": "lờ",
@@ -5,6 +7,13 @@ _vi_letter_names = {
     "r": "rờ", "s": "ét", "t": "tê", "u": "u", "ư": "ư", "v": "vê", "w": "đắp liu",
     "x": "ích", "y": "y", "z": "dét"
 }
+
+# Characters that belong to Vietnamese text (digits, ASCII letters, Vietnamese diacritics)
+VIETNAMESE_SET = (
+    '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXY'
+    'ỹỷỵỳựữửừứủụợỡởờớộỗổồốỏọịỉệễểềếẽẻẹặẵẳằắậẫẩầấảạươũĩđăýúùõôóòíìêéèãâàáÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚÝĂĐĨŨƠƯ'
+    'ẠẢẤẦẨẪẬẮẰẴẶẸẺẼẾỀỂỄỆỈỊỌỎỐỒỔỖỘỚỜỞỠỢỤỦỨỪỬỮỰỲỴỶỸ'
+)
 
 _common_email_domains = {
     "gmail.com": "__start_en__gmail__end_en__ chấm com",
@@ -43,10 +52,13 @@ _measurement_key_vi = {
 
 _currency_key = {
     "usd": "__start_en__u s d__end_en__",
-    "vnd": "việt nam đồng", "vnđ": "việt nam đồng", "đ": "đồng", "v n d": "việt nam đồng", "v n đ": "việt nam đồng", "€": "__start_en__euro__end_en__", "euro": "__start_en__euro__end_en__", "eur": "__start_en__euro__end_en__",
+    "vnd": "việt nam đồng", "vnđ": "việt nam đồng", "đ": "đồng",
+    "v n d": "việt nam đồng", "v n đ": "việt nam đồng",
+    "€": "__start_en__euro__end_en__", "euro": "__start_en__euro__end_en__", "eur": "__start_en__euro__end_en__",
     "¥": "yên", "yên": "yên", "jpy": "yên", "%": "phần trăm"
 }
 
+# Alias used by misc.py and other modules
 _letter_key_vi = _vi_letter_names
 
 _acronyms_exceptions_vi = {
@@ -104,8 +116,10 @@ _CURRENCY_SYMBOLS_RE = "[$€¥£₩]"
 
 _ROMAN_NUMERALS = {"I": 1, "V": 5, "X": 10, "L": 50, "C": 100, "D": 500, "M": 1000}
 
+# Short abbreviations expanded in-place before other normalization
 _ABBRS = {"v.v": " vân vân", "v/v": " về việc", "đ/c": "địa chỉ"}
 
+# Symbol → spoken Vietnamese mapping (used by expand_symbols)
 _SYMBOLS_MAP = {
     '&': ' và ', '+': ' cộng ', '=': ' bằng ', '#': ' thăng ',
     '>': ' lớn hơn ', '<': ' nhỏ hơn ',
@@ -115,10 +129,11 @@ _SYMBOLS_MAP = {
     '*': ' sao ', '×': ' nhân ', '^': ' mũ ', '~': ' khoảng '
 }
 
-# Reusable patterns for measurement/currency
+# Reusable regex building blocks for measurement/currency patterns
 _MAGNITUDE_P = r"(?:\s*(tỷ|triệu|nghìn|ngàn))?"
 _NUMERIC_P = r"(\d+(?:[.,]\d+)*)"
 
+# Acronyms that should be read as English words rather than spelled out
 WORD_LIKE_ACRONYMS = {
     "UNESCO", "NASA", "NATO", "ASEAN", "OPEC", "SARS", "FIFA", "UNIC", "RAM", "VRAM", "COVID", "IELTS", "STEM",
     "SWAT", "SEAL", "WASP", "COBOL", "BASIC", "OLED", "COVAX", "BRICS", "APEC", "VUCA", "PERMA", "DINK",
@@ -126,14 +141,16 @@ WORD_LIKE_ACRONYMS = {
     "SELECT", "FROM", "WHERE"
 }
 
+# Combined lookup used by the acronym expander
 _combined_exceptions = {**_acronyms_exceptions_vi, **_technical_terms}
 
+# Keywords that suggest a nearby slash-separated pair is a date
 DATE_KEYWORDS = {
     "vào", "ngày", "hôm", "hôm nay", "hôm qua", "hôm kia", "mai", "ngày mai", "ngày kia",
     "sinh", "sinh nhật", "kỷ niệm", "lễ", "tết", "diễn ra", "tổ chức", "thứ", "tuần", "tháng", "năm"
 }
 
+# Keywords that suggest a nearby slash-separated pair is a mathematical fraction
 MATH_KEYWORDS = {
     "cộng", "trừ", "nhân", "chia", "bằng", "sin", "cos", "tan", "log", "sqrt", "xác suất", "tỷ lệ", "tỉ lệ"
 }
-

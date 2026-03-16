@@ -1,15 +1,16 @@
+"""Date and time normalization for Vietnamese text."""
 import re
 from .num2vi import n2w
 from .vi_resources import DATE_KEYWORDS, MATH_KEYWORDS
 
-day_in_month = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
-_date_seperator = r"(\/|-|\.)"
-_short_date_seperator = r"(\/|-)"
+_day_in_month = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+_DATE_SEP = r"(\/|-|\.)"
+_SHORT_DATE_SEP = r"(\/|-)"
 
 # Compiled Regular Expressions
-RE_FULL_DATE = re.compile(r"(?<!\d)(?<!\d[.,])(\d{1,2})" + _date_seperator + r"(\d{1,2})" + _date_seperator + r"(\d{4})(?!\d|[.,]\d)", re.IGNORECASE)
-RE_DAY_MONTH = re.compile(r"(?<!\d)(?<!\d[.,])(\d{1,2})" + _short_date_seperator + r"(\d{1,2})(?!\d|[.,]\d)", re.IGNORECASE)
-RE_MONTH_YEAR = re.compile(r"(?<!\d)(?<!\d[.,])(\d{1,2})" + _date_seperator + r"(\d{4})(?!\d|[.,]\d)", re.IGNORECASE)
+RE_FULL_DATE = re.compile(r"(?<!\d)(?<!\d[.,])(\d{1,2})" + _DATE_SEP + r"(\d{1,2})" + _DATE_SEP + r"(\d{4})(?!\d|[.,]\d)", re.IGNORECASE)
+RE_DAY_MONTH = re.compile(r"(?<!\d)(?<!\d[.,])(\d{1,2})" + _SHORT_DATE_SEP + r"(\d{1,2})(?!\d|[.,]\d)", re.IGNORECASE)
+RE_MONTH_YEAR = re.compile(r"(?<!\d)(?<!\d[.,])(\d{1,2})" + _DATE_SEP + r"(\d{4})(?!\d|[.,]\d)", re.IGNORECASE)
 RE_FULL_TIME = re.compile(r"\b(\d+)(g|:|h)(\d{1,2})(p|:|m)(\d{1,2})(?:\s*(giây|s|g))?\b", re.IGNORECASE)
 RE_TIME = re.compile(r"\b(\d+)(g|:|h)(\d{1,2})(?:\s*(phút|p|m))?\b", re.IGNORECASE)
 RE_HOUR_CONTEXT = re.compile(r'\b(\d+)g\s*(sáng|trưa|chiều|tối|khuya)\b', re.IGNORECASE)
@@ -19,10 +20,12 @@ RE_REDUNDANT_THANG = re.compile(r'\btháng\s+tháng\b', re.IGNORECASE)
 RE_REDUNDANT_NAM = re.compile(r'\bnăm\s+năm\b', re.IGNORECASE)
 
 def _is_valid_date(day, month):
+    """Return True if (day, month) is a plausible calendar date."""
     try:
         day, month = int(day), int(month)
-        return 1 <= month <= 12 and 1 <= day <= day_in_month[month - 1]
-    except (ValueError, IndexError): return False
+        return 1 <= month <= 12 and 1 <= day <= _day_in_month[month - 1]
+    except (ValueError, IndexError):
+        return False
 
 def _get_context_words(match, window_size=3):
     """Extract context words around the match within a window."""

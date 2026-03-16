@@ -1,3 +1,4 @@
+"""Miscellaneous Vietnamese text normalization: acronyms, symbols, Roman numerals, temperatures."""
 import re
 from .num2vi import n2w, n2w_single, n2w_decimal
 from .vi_resources import (
@@ -36,6 +37,7 @@ RE_ACRONYMS_EXCEPTIONS = re.compile(
 )
 
 def expand_roman(match):
+    """Convert a Roman numeral match to its Vietnamese spoken-word equivalent."""
     num = match.group(0).upper()
     if not num: return ""
     result = 0
@@ -46,7 +48,8 @@ def expand_roman(match):
             result -= _ROMAN_NUMERALS[c]
     return f" {n2w(str(result))} "
 
-def expand_unit_powers(text):
+def expand_unit_powers(text: str) -> str:
+    """Expand unit-with-exponent patterns like 'km²' or 'm^3' into spoken Vietnamese."""
     from .units import _measurement_key_vi, _currency_key
     def _repl(m):
         base = m.group(1)
@@ -57,18 +60,21 @@ def expand_unit_powers(text):
         return f" {full_base} mũ {power_norm} "
     return RE_UNIT_POWERS.sub(_repl, text)
 
-def expand_letter(match):
+def expand_letter(match) -> str:
+    """Expand a 'chữ X' match to the Vietnamese pronunciation of the letter."""
     prefix, q1, char, q2 = match.groups()
     if char.lower() in _letter_key_vi:
         return f"{prefix} {_letter_key_vi[char.lower()]} "
     return match.group(0)
 
-def expand_abbreviations(text):
+def expand_abbreviations(text: str) -> str:
+    """Replace known abbreviations (v.v, v/v, đ/c) with their spoken forms."""
     for k, v in _ABBRS.items():
         text = text.replace(k, v)
     return text
 
-def expand_standalone_letters(text):
+def expand_standalone_letters(text: str) -> str:
+    """Expand isolated Latin letters to their Vietnamese spoken pronunciations."""
     def _repl_letter(m):
         char_raw = m.group(1)
         char = char_raw.lower()
@@ -80,7 +86,8 @@ def expand_standalone_letters(text):
         return m.group(0)
     return RE_STANDALONE_LETTER.sub(_repl_letter, text)
 
-def normalize_acronyms(text):
+def normalize_acronyms(text: str) -> str:
+    """Expand uppercase acronyms to spelled-out or English-tagged forms."""
     sentences = RE_SENTENCE_SPLIT.split(text)
     processed = []
     for i in range(0, len(sentences), 2):
@@ -107,7 +114,8 @@ def normalize_acronyms(text):
         processed.append(s + sep)
     return "".join(processed)
 
-def expand_alphanumeric(text):
+def expand_alphanumeric(text: str) -> str:
+    """Expand patterns like '3D' or '4K' into full spoken forms."""
     def _repl(m):
         num = m.group(1)
         char = m.group(2).lower()
@@ -119,28 +127,29 @@ def expand_alphanumeric(text):
         return m.group(0)
     return RE_ALPHANUMERIC.sub(_repl, text)
 
-def expand_symbols(text):
+def expand_symbols(text: str) -> str:
+    """Replace mathematical and punctuation symbols with spoken Vietnamese equivalents."""
     for s, v in _SYMBOLS_MAP.items():
         text = text.replace(s, v)
     return text
 
-def expand_prime(text):
+def expand_prime(text: str) -> str:
+    """Expand prime/apostrophe notation (e.g. A') into 'A phẩy'."""
     def _repl(m):
         val = m.group(1).lower()
         return f"{n2w_single(val) if val.isdigit() else _letter_key_vi.get(val, val)} phẩy"
     return RE_PRIME.sub(_repl, text)
 
-def expand_temperatures(text):
+def expand_temperatures(text: str) -> str:
+    """Expand temperature expressions like '37°C' into 'ba mươi bảy độ xê'."""
     text = RE_TEMP_C_NEG.sub(r'âm \1 độ xê', text)
     text = RE_TEMP_F_NEG.sub(r'âm \1 độ ép', text)
     text = RE_TEMP_C.sub(r'\1 độ xê', text)
     text = RE_TEMP_F.sub(r'\1 độ ép', text)
     return RE_DEGREE.sub(' độ ', text)
 
-def normalize_others(text):
-    # 0. Preliminary expansion for decimals with dot in misc context if not already handled
-    # (actually handled by numerical, but we must be careful about RE_VERSION)
-
+def normalize_others(text: str) -> str:
+    """Apply all miscellaneous normalization steps: acronyms, symbols, brackets, temperatures, versions."""
     # 1. Expand acronym exceptions in a single pass
     text = RE_ACRONYMS_EXCEPTIONS.sub(lambda m: _combined_exceptions[m.group(0)], text)
     text = normalize_slashes(text)
