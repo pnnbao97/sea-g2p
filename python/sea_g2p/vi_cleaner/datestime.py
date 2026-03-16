@@ -7,9 +7,9 @@ _date_seperator = r"(\/|-|\.)"
 _short_date_seperator = r"(\/|-)"
 
 # Compiled Regular Expressions
-RE_FULL_DATE = re.compile(r"(?<![\d,.])(\d{1,2})" + _date_seperator + r"(\d{1,2})" + _date_seperator + r"(\d{4})(?![\d,.])", re.IGNORECASE)
-RE_DAY_MONTH = re.compile(r"(?<![\d,.])(\d{1,2})" + _short_date_seperator + r"(\d{1,2})(?![\d,.])", re.IGNORECASE)
-RE_MONTH_YEAR = re.compile(r"(?<![\d,.])(\d{1,2})" + _date_seperator + r"(\d{4})(?![\d,.])", re.IGNORECASE)
+RE_FULL_DATE = re.compile(r"(?<!\d)(?<!\d[.,])(\d{1,2})" + _date_seperator + r"(\d{1,2})" + _date_seperator + r"(\d{4})(?!\d|[.,]\d)", re.IGNORECASE)
+RE_DAY_MONTH = re.compile(r"(?<!\d)(?<!\d[.,])(\d{1,2})" + _short_date_seperator + r"(\d{1,2})(?!\d|[.,]\d)", re.IGNORECASE)
+RE_MONTH_YEAR = re.compile(r"(?<!\d)(?<!\d[.,])(\d{1,2})" + _date_seperator + r"(\d{4})(?!\d|[.,]\d)", re.IGNORECASE)
 RE_FULL_TIME = re.compile(r"\b(\d+)(g|:|h)(\d{1,2})(p|:|m)(\d{1,2})(?:\s*(giây|s|g))?\b", re.IGNORECASE)
 RE_TIME = re.compile(r"\b(\d+)(g|:|h)(\d{1,2})(?:\s*(phút|p|m))?\b", re.IGNORECASE)
 RE_HOUR_CONTEXT = re.compile(r'\b(\d+)g\s*(sáng|trưa|chiều|tối|khuya)\b', re.IGNORECASE)

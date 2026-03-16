@@ -372,6 +372,7 @@ TEST_CASES = [
     ("Giá trị là 123/4.", "giá trị là một trăm hai mươi ba trên bốn."),
     ("Tỷ lệ 123/4.", "tỷ lệ một trăm hai mươi ba trên bốn."),
     ("Kết quả 123/4.", "kết quả một trăm hai mươi ba trên bốn."),
+    ("Vào ngày 20/10/2024, gia đình tôi đã quyết định tổ chức một buổi tiệc nhỏ", "vào ngày hai mươi tháng mười năm hai nghìn không trăm hai mươi bốn, gia đình tôi đã quyết định tổ chức một buổi tiệc nhỏ")
     ]
 
 @pytest.mark.parametrize("input_text, expected", TEST_CASES)
