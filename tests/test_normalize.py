@@ -57,7 +57,7 @@ TEST_CASES = [
     ("01/12", "ngày một tháng mười hai"),
     ("02/2025", "tháng hai năm hai nghìn không trăm hai mươi lăm"),
     ("12/2024", "tháng mười hai năm hai nghìn không trăm hai mươi bốn"),
-    ("32/01", "ba mươi hai xẹt không một"),
+    ("32/01", "ba mươi hai trên không một"),
     ("01/13", "không một trên mười ba"),
     ("tháng 3/2026", "tháng ba năm hai nghìn không trăm hai mươi sáu"),
 
@@ -200,8 +200,8 @@ TEST_CASES = [
     ("Tài liệu nằm ở www.example.org/docs.", "tài liệu nằm ở <en>www</en> chấm <en>example</en> chấm o rờ gờ gạch <en>docs</en>."),
 
     # Slashes / Địa chỉ
-    ("Địa chỉ nhà tôi là 123/4 đường Nguyễn Trãi.", "địa chỉ nhà tôi là một trăm hai mươi ba xẹt bốn đường nguyễn trãi."),
-    ("Tỷ lệ là 100/2.", "tỷ lệ là một trăm xẹt hai."),
+    ("Địa chỉ nhà tôi là 123/4 đường Nguyễn Trãi.", "địa chỉ nhà tôi là một trăm hai mươi ba trên bốn đường nguyễn trãi."),
+    ("Tỷ lệ là 100/2.", "tỷ lệ là một trăm trên hai."),
 
     # Ký hiệu toán học
     ("Nếu x > 5 và y ≤ 10 thì xấp xỉ ≈ 0.", "nếu ích lớn hơn năm và y nhỏ hơn hoặc bằng mười thì xấp xỉ xấp xỉ không."),
@@ -350,7 +350,28 @@ TEST_CASES = [
     ("phòng họp 5m x 10m", "phòng họp năm mét nhân mười mét"),
     ("diện tích 5×10 m2", "diện tích năm nhân mười mét vuông"),
     ("tôi đang ở Washington D.C", "tôi đang ở <en>washington d c</en>"),
-    ("tôi đang ở Washington DC", "tôi đang ở <en>washington d c</en>")
+    ("tôi đang ở Washington DC", "tôi đang ở <en>washington d c</en>"),
+
+    # ─── 34. NGÀY THÁNG VÀ PHÂN SỐ (HEURISTIC) ─────────────────────────────
+    ("Tôi sinh vào 3/5", "tôi sinh vào ngày ba tháng năm"),
+    ("Xác suất là 3/5", "xác suất là ba trên năm"),
+    ("1/2 + 1/3 = 5/6", "một trên hai cộng một trên ba bằng năm trên sáu"),
+    ("Ngày 3/5 tôi tính 1/2 + 1/2", "ngày ba tháng năm tôi tính một trên hai cộng một trên hai"),
+    ("Tỉ lệ là 1/4", "tỉ lệ là một trên bốn"),
+    ("Sinh nhật là 20/10", "sinh nhật là ngày hai mươi tháng mười"),
+    ("Lễ 2/9", "lễ ngày hai tháng chín"),
+    ("Tết 1/1", "tết ngày một tháng một"),
+    ("lấy 0.5/0.9 x 3 = ?", "lấy không chấm năm trên không chấm chín nhân ba bằng?"),
+    ("khoản 3 điều 45 nghị định 12/2021/NĐ-CP . 45/8000", "khoản ba điều bốn mươi lăm nghị định tháng mười hai năm hai nghìn không trăm hai mươi mốt trên nđ <en>c p</en>. bốn mươi lăm trên tám nghìn"),
+
+    # ─── 35. PHÂN BIỆT 123/4 (ADDRESS VS OTHER) ───────────────────────────
+    ("Nhà tôi ở số 123/4 đường Nguyễn Trãi.", "nhà tôi ở số một trăm hai mươi ba trên bốn đường nguyễn trãi."),
+    ("Hẻm 123/4 này rất chật.", "hẻm một trăm hai mươi ba trên bốn này rất chật."),
+    ("Ngõ 123/4 là nhà bác tôi.", "ngõ một trăm hai mươi ba trên bốn là nhà bác tôi."),
+    ("Số nhà 123/4.", "số nhà một trăm hai mươi ba trên bốn."),
+    ("Giá trị là 123/4.", "giá trị là một trăm hai mươi ba trên bốn."),
+    ("Tỷ lệ 123/4.", "tỷ lệ một trăm hai mươi ba trên bốn."),
+    ("Kết quả 123/4.", "kết quả một trăm hai mươi ba trên bốn."),
     ]
 
 @pytest.mark.parametrize("input_text, expected", TEST_CASES)

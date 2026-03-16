@@ -1,6 +1,5 @@
 import time
 from sea_g2p import Normalizer, G2P
-import random
 
 def benchmark():
     normalizer = Normalizer(lang="vi")
@@ -17,7 +16,7 @@ def benchmark():
         "Mời bạn uống cốc café 20k.",
         "Tỉ giá USD/VND hiện nay là 24.500.",
         "Ông ấy sinh năm 1990.",
-    ] * 100000  # 10,000 sentences
+    ] * 1000  # 10,000 sentences
     
     print(f"Benchmarking with {len(test_sentences)} sentences...")
     

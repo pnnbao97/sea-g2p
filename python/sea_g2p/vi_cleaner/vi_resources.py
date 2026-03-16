@@ -127,3 +127,13 @@ WORD_LIKE_ACRONYMS = {
 }
 
 _combined_exceptions = {**_acronyms_exceptions_vi, **_technical_terms}
+
+DATE_KEYWORDS = {
+    "vào", "ngày", "hôm", "hôm nay", "hôm qua", "hôm kia", "mai", "ngày mai", "ngày kia",
+    "sinh", "sinh nhật", "kỷ niệm", "lễ", "tết", "diễn ra", "tổ chức", "thứ", "tuần", "tháng", "năm"
+}
+
+MATH_KEYWORDS = {
+    "cộng", "trừ", "nhân", "chia", "bằng", "sin", "cos", "tan", "log", "sqrt", "xác suất", "tỷ lệ", "tỉ lệ"
+}
+

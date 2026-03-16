@@ -23,7 +23,7 @@ RE_TECHNICAL = re.compile(r'''
 RE_EMAIL = re.compile(r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b')
 RE_TECH_SPLIT = re.compile(r'([./:?&=/_ \-\\#])')
 RE_EMAIL_SPLIT = re.compile(r'([._\-+])')
-RE_SLASH_NUMBER = re.compile(r'\b(\d+)/(\d+)\b')
+RE_SLASH_NUMBER = re.compile(r'(?<![\d,.])(\d+)/(\d+)(?![\d,.])')
 _DOMAIN_SUFFIXES_RE = re.compile(r'\.(com|vn|net|org|edu|gov|io|biz|info)\b', re.IGNORECASE)
 
 def normalize_technical(text):
@@ -220,8 +220,6 @@ def normalize_slashes(text):
     def _repl(m):
         n1 = m.group(1)
         n2 = m.group(2)
-        # If it's likely an address (first number is large)
-        if len(n1) > 2 or int(n1) > 31:
-            return f"{n2w(n1)} xẹt {n2w(n2)}"
+        # Fallback for all slashes (including technical ratios, fractions, addresses, etc.)
         return f"{n2w(n1)} trên {n2w(n2)}"
     return RE_SLASH_NUMBER.sub(_repl, text)
