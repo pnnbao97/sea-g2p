@@ -83,15 +83,15 @@ pub fn clean_vietnamese_text(text: &str) -> String {
 
     // Protect emails first (simple pattern, matches @)
     if current_text.contains('@') {
-        current_text = RE_EMAIL.replace_all(&current_text, |caps: &Captures| {
+        current_text = RE_EMAIL.replace_all(&current_text, |caps: &FCaps| {
             let orig = caps.get(0).unwrap().as_str();
             let val = normalize_emails(orig);
             protect(val, &mut mask_map)
-        }).to_string();
+        }).unwrap().to_string();
     }
 
     // Protect technical strings (URLs, paths, etc.) separately
-    current_text = RE_TECHNICAL.replace_all(&current_text, |caps: &Captures| {
+    current_text = RE_TECHNICAL.replace_all(&current_text, |caps: &FCaps| {
         let orig = caps.get(0).unwrap().as_str();
         let val = if RE_ACRONYMS_EXCEPTIONS.is_match(orig) {
             COMBINED_EXCEPTIONS.get(orig).cloned().unwrap_or(orig.to_string())
@@ -99,7 +99,7 @@ pub fn clean_vietnamese_text(text: &str) -> String {
             normalize_technical(orig)
         };
         protect(val, &mut mask_map)
-    }).to_string();
+    }).unwrap().to_string();
 
     // Core normalization passes
     if current_text.contains('^') || current_text.to_lowercase().contains('e') {

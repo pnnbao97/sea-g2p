@@ -37,7 +37,7 @@ static RE_LUC_HOUR: Lazy<Regex> = Lazy::new(|| {
 });
 
 static RE_REDUNDANT_DATE: Lazy<Regex> = Lazy::new(|| {
-    Regex::new(r"(?i)\b(ngày|tháng|năm)\s+\1\b").unwrap()
+    Regex::new(r"(?i)\b(ngày\s+ngày|tháng\s+tháng|năm\s+năm)\b").unwrap()
 });
 
 fn is_valid_date(day: &str, month: &str) -> bool {
@@ -135,7 +135,12 @@ pub fn normalize_date(text: &str) -> String {
         format!("{} trên {}", n2w(day_str), n2w(month_str))
     }).to_string();
 
-    result = RE_REDUNDANT_DATE.replace_all(&result, "$1").into_owned();
+    result = RE_REDUNDANT_DATE.replace_all(&result, |caps: &Captures| {
+        let matched = caps.get(1).unwrap().as_str().to_lowercase();
+        if matched.contains("ngày") { "ngày" }
+        else if matched.contains("tháng") { "tháng" }
+        else { "năm" }
+    }).into_owned();
 
     result
 }

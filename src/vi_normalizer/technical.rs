@@ -8,22 +8,22 @@ static RE_TECH_SPLIT: Lazy<Regex> = Lazy::new(|| Regex::new(r"([./:?&=/_ #\-])")
 static RE_EMAIL_SPLIT: Lazy<Regex> = Lazy::new(|| Regex::new(r"([._+\-])").unwrap());
 static RE_SUB_TOKENS: Lazy<Regex> = Lazy::new(|| Regex::new(r"[a-zA-Z]+|\d+").unwrap());
 
-pub static RE_TECHNICAL: Lazy<Regex> = Lazy::new(|| {
+pub static RE_TECHNICAL: Lazy<FRegex> = Lazy::new(|| {
     let patterns = [
         r"\b(?:https?|ftp)://[A-Za-z0-9._~:/?#\[\]@!$&'()*+,;=-]+\b",
         r"\b(?:www\.)[A-Za-z0-9._~:/?#\[\]@!$&'()*+,;=-]+\b",
         r"\b[A-Za-z0-9.-]+(?:\.com|\.vn|\.net|\.org|\.gov|\.io|\.biz|\.info)(?:/[A-Za-z0-9._~:/?#\[\]@!$&'()*+,;=-]*)?\b",
-        r"\B/[a-zA-Z0-9._/-]{2,}\b",
+        r"(?<!\w)/[a-zA-Z0-9._/-]{2,}\b",
         r"\b[a-zA-Z]:\\[a-zA-Z0-9._\\-]+\b",
         r"\b[a-zA-Z0-9._-]+\.(?:txt|log|tar|gz|zip|sh|py|js|cpp|h|json|xml|yaml|yml|md|csv|pdf|docx|xlsx|exe|dll|so|config)\b",
         r"\b[a-zA-Z][a-zA-Z0-9]*(?:[._-][a-zA-Z0-9]+){2,}\b",
         r"\b(?:[a-fA-F0-9]{1,4}:){3,7}[a-fA-F0-9]{1,4}\b",
     ];
-    Regex::new(&format!("(?i){}", patterns.join("|"))).unwrap()
+    FRegex::new(&format!("(?i){}", patterns.join("|"))).unwrap()
 });
 
-pub static RE_EMAIL: Lazy<Regex> = Lazy::new(|| {
-    Regex::new(r"(?i)\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b").unwrap()
+pub static RE_EMAIL: Lazy<FRegex> = Lazy::new(|| {
+    FRegex::new(r"(?i)\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b").unwrap()
 });
 
 pub static RE_SLASH_NUMBER: Lazy<FRegex> = Lazy::new(|| {
@@ -31,7 +31,7 @@ pub static RE_SLASH_NUMBER: Lazy<FRegex> = Lazy::new(|| {
 });
 
 pub fn normalize_technical(text: &str) -> String {
-    RE_TECHNICAL.replace_all(text, |caps: &Captures| {
+    RE_TECHNICAL.replace_all(text, |caps: &FCaps| {
         let orig = caps.get(0).unwrap().as_str();
         let mut rest = orig;
         let mut res = Vec::new();
@@ -142,11 +142,11 @@ pub fn normalize_technical(text: &str) -> String {
             idx += 1;
         }
         res.join(" ").replace("  ", " ").trim().to_string()
-    }).to_string()
+    }).unwrap().to_string()
 }
 
 pub fn normalize_emails(text: &str) -> String {
-    RE_EMAIL.replace_all(text, |caps: &Captures| {
+    RE_EMAIL.replace_all(text, |caps: &FCaps| {
         let email = caps.get(0).unwrap().as_str();
         let parts: Vec<&str> = email.split('@').collect();
         if parts.len() != 2 { return email.to_string(); }
@@ -246,7 +246,7 @@ pub fn normalize_emails(text: &str) -> String {
         };
 
         format!("{} a còng {}", user_norm, domain_norm).replace("  ", " ").trim().to_string()
-    }).to_string()
+    }).unwrap().to_string()
 }
 
 pub fn normalize_slashes(text: &str) -> String {
@@ -254,5 +254,5 @@ pub fn normalize_slashes(text: &str) -> String {
         let n1 = caps.get(1).unwrap().as_str();
         let n2 = caps.get(2).unwrap().as_str();
         format!("{} trên {}", n2w(n1), n2w(n2))
-    }).to_string()
+    }).unwrap().to_string()
 }
