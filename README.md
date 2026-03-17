@@ -27,9 +27,15 @@ pip install sea-g2p
 from sea_g2p import SEAPipeline
 
 pipeline = SEAPipeline(lang="vi")
+
+# Single text
 result = pipeline.run("Giá SP500 hôm nay là 4.200,5 điểm.")
 print(result)
 #zˈaːɜ ˈɛɜt̪ pˈe nˈam tʃˈam hˈom nˈaj lˌaː2 bˈoɜn ŋˈi2n hˈaːj tʃˈam fˈəɪ4 nˈam ɗˈiɛ4m.
+
+# Batch processing (Parallel)
+texts = ["Giá cổ phiếu tăng từ $0.000045 lên $1,234.5678 trong 3.5×10^6 giao dịch.", "Hãy gửi email đến support@example.com."] * 1000
+results = pipeline.run(texts)
 ```
 
 ### Individual Modules
@@ -40,33 +46,35 @@ from sea_g2p import Normalizer, G2P
 normalizer = Normalizer(lang="vi")
 g2p = G2P(lang="vi")
 
-text = "Giá SP500 hôm nay là 4.200,5 điểm"
-normalized = normalizer.normalize(text)
+# Automatic parallel processing when list is passed
+texts = ["Giá cổ phiếu tăng từ $0.000045 lên $1,234.5678 trong 3.5×10^6 giao dịch.", "Hãy gửi email đến support@example.com."]
+normalized = normalizer.normalize(texts)
 print(normalized)
+#['giá cổ phiếu tăng từ không chấm không không không không bốn lăm <en>u s d</en> lên một nghìn hai trăm ba mươi bốn phẩy năm sáu bảy tám <en>u s d</en> trong ba chấm năm nhân mười mũ sáu giao dịch.', 'hãy gửi email đến <en>support</en> a còng <en>example</en> chấm com.']
 phonemes = g2p.convert(normalized)
 print(phonemes)
-#giá ét pê năm trăm hôm nay là bốn nghìn hai trăm phẩy năm điểm.
-#zˈaːɜ ˈɛɜt̪ pˈe nˈam tʃˈam hˈom nˈaj lˌaː2 bˈoɜn ŋˈi2n hˈaːj tʃˈam fˈəɪ4 nˈam ɗˈiɛ4m.
+#['zˈaːɜ kˈo4 fˈiɛɜw t̪ˈaŋ t̪ˌy2 xˌoŋ tʃˈəɜm xˌoŋ xˌoŋ xˌoŋ xˌoŋ bˈoɜn lˈam jˈuː ˈɛs dˈiː lˈen mˈo6t̪ ŋˈi2n hˈaːj tʃˈam bˈaː mˈyəj bˈoɜn fˈəɪ4 nˈam sˈaɜw bˈa4j t̪ˈaːɜm jˈuː ˈɛs dˈiː tʃˈɔŋ bˈaː tʃˈəɜm nˈam ɲˈən mˈyə2j mˈu5 sˈaɜw zˈaːw zˈi6c.', 'hˈa5j ɣˈy4j ˈiːmeɪl ɗˌeɜn səpˈɔːɹt ˈaː kˈɔ2ŋ ɛɡzˈæmpəl tʃˈəɜm kˈɔm.']
 ```
 
 ## Features
 
 - **Blazing Fast**: Core engine rewritten in Rust with binary mmap lookup.
+- **Multithreading**: Automatic parallel processing using Rayon/Rust for batch inputs.
 - **Zero Dependency**: Pre-compiled wheels for Windows, Linux, and macOS.
 - **Smart Normalization**: Specialized for Vietnamese (numbers, dates, technical terms).
 - **Bilingual Support**: Handles mixed Vietnamese/English text seamlessly.
 
 ## 📊 Performance
 
-The following benchmarks were conducted on a dataset of **100,000 words** (26,000+ lines):
+The following benchmarks were conducted on a dataset of **1,000,000 sentences**:
 
-| Module | Language | Implementation | Throughput | Avg Time/Line |
-| :--- | :--- | :--- | :--- | :--- |
-| **Normalizer** | Vietnamese | Python | **~39,000 words/s** | 0.09 ms |
-| **G2P** | Multilingual | Rust Core | **~480,000 words/s** | 0.007 ms |
+| Module | Implementation | Throughput | 
+| :--- | :--- | :--- | 
+| **Normalizer** | Rust Core (Parallel) | **~41,000 sentences/s** |
+| **G2P** | Rust Core (Parallel) | **~415,000 sentences/s** |
 
-**Total Pipeline Throughput**: **~36,000 words/s**
-*(Tested on CPython 3.12, Windows 11)*
+**Total Pipeline Throughput**: **~37,000 sentences/s**
+*(Tested on CPython 3.12, Windows 11, Multithreaded)*
 
 ## Technical Architecture
 

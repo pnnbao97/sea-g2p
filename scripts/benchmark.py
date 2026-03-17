@@ -20,20 +20,20 @@ def benchmark():
     
     print(f"Benchmarking with {len(test_sentences)} sentences...")
     
-    # Benchmark Normalization
+    # Benchmark Normalization (Batch/Parallel)
     start_time = time.time()
-    normalized_texts = [normalizer.normalize(t) for t in test_sentences]
-    norm_time = time.time() - start_time
-    print(f"Normalization time: {norm_time:.4f}s ({len(test_sentences)/norm_time:.2f} sentences/sec)")
+    normalized_texts_batch = normalizer.normalize_batch(test_sentences)
+    norm_batch_time = time.time() - start_time
+    print(f"Normalization (Batch) time: {norm_batch_time:.4f}s ({len(test_sentences)/norm_batch_time:.2f} sentences/sec)")
     
     # Benchmark G2P Batch
     start_time = time.time()
-    phonemes = g2p.phonemize_batch(normalized_texts)
+    phonemes = g2p.phonemize_batch(normalized_texts_batch)
     g2p_time = time.time() - start_time
     print(f"G2P Batch time: {g2p_time:.4f}s ({len(test_sentences)/g2p_time:.2f} sentences/sec)")
     
     # Total
-    print(f"Total time: {norm_time + g2p_time:.4f}s")
+    print(f"Total time: {norm_batch_time + g2p_time:.4f}s")
 
 if __name__ == "__main__":
     benchmark()

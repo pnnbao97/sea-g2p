@@ -1,13 +1,9 @@
 import os
 import logging
+from .sea_g2p_rs import G2P as _RustG2P
 
 logger = logging.getLogger("sea_g2p.G2P")
 
-try:
-    from .sea_g2p_rs import G2P as _RustG2P
-    _RUST_AVAILABLE = True
-except ImportError:
-    _RUST_AVAILABLE = False
 
 class G2P:
     """
@@ -16,32 +12,18 @@ class G2P:
     """
     def __init__(self, lang: str = "vi", db_path: str = None):
         self.lang = lang
-        
-        if not _RUST_AVAILABLE:
-            raise RuntimeError(
-                "Rust extension (sea_g2p_rs) not found. "
-                "Please install the package correctly or rebuild the extension."
-            )
-            
-        # Tự động tìm file binary dict nằm trong cùng package
-        if db_path is None:
-            db_path = os.path.join(os.path.dirname(__file__), "sea_g2p.bin")
-        
-        if not db_path or not os.path.exists(db_path):
-            raise FileNotFoundError(
-                f"Phoneme dictionary not found at: {db_path}. "
-                "Please ensure the package is installed correctly."
-            )
+        db_path = os.path.join(os.path.dirname(__file__), "sea_g2p.bin")
 
-        try:
-            self._rust_engine = _RustG2P(db_path)
-            logger.debug(f"Initialized Rust G2P engine with {db_path}")
-        except Exception as e:
-            logger.error(f"Failed to initialize Rust G2P engine: {e}")
-            raise
+        self._rust_engine = _RustG2P(db_path)
+        logger.debug(f"Initialized Rust G2P engine with {db_path}")
 
-    def convert(self, text: str, **kwargs) -> str:
-        """Convert a single text string to phonemes."""
+    def convert(self, text: str | list[str], **kwargs) -> str | list[str]:
+        """
+        Convert text or a list of texts to phonemes.
+        If a list is provided, conversion is done in parallel using Rust's Rayon.
+        """
+        if isinstance(text, list):
+            return self.phonemize_batch(text, **kwargs)
         return self._rust_engine.phonemize(text)
 
     def phonemize_batch(self, texts: list[str], **kwargs) -> list[str]:

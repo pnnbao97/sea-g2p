@@ -236,4 +236,11 @@ impl Normalizer {
 
         RE_EXTRA_SPACES.replace_all(&current_text, " ").trim().to_string()
     }
+
+    pub fn normalize_batch(&self, py: Python<'_>, texts: Vec<String>) -> PyResult<Vec<String>> {
+        py.allow_threads(|| {
+            use rayon::prelude::*;
+            Ok(texts.into_par_iter().map(|t| self.normalize(&t)).collect())
+        })
+    }
 }
