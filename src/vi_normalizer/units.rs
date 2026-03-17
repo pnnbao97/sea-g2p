@@ -1,4 +1,5 @@
-use fancy_regex::{Regex, Captures};
+use fancy_regex::{Regex as FRegex, Captures as FCaps};
+use regex::{Regex, Captures};
 use once_cell::sync::Lazy;
 use crate::vi_normalizer::num2vi::{n2w, n2w_decimal};
 use crate::vi_normalizer::resources::{MEASUREMENT_KEY_VI, CURRENCY_KEY, CURRENCY_SYMBOL_MAP};
@@ -130,13 +131,13 @@ static RE_COMPOUND_UNIT: Lazy<Regex> = Lazy::new(|| {
     Regex::new(&format!(r"(?i)\b{}?\s*([a-zμµ²³°]+)/([a-zμµ²³°0-9]+)\b", NUMERIC_P)).unwrap()
 });
 
-static RE_UNITS_WITH_NUM: Lazy<Regex> = Lazy::new(|| {
-    Regex::new(&format!(r"(?i)(?<![\d.,]){}{}\s*({})\b", NUMERIC_P, MAGNITUDE_P, *UNITS_RE_PATTERN)).unwrap()
+static RE_UNITS_WITH_NUM: Lazy<FRegex> = Lazy::new(|| {
+    FRegex::new(&format!(r"(?i)(?<![\d.,]){}{}\s*({})\b", NUMERIC_P, MAGNITUDE_P, *UNITS_RE_PATTERN)).unwrap()
 });
 
-static RE_STANDALONE_UNIT: Lazy<Regex> = Lazy::new(|| {
+static RE_STANDALONE_UNIT: Lazy<FRegex> = Lazy::new(|| {
     let safe = ["km", "cm", "mm", "kg", "mg", "usd", "vnd", "ph"];
-    Regex::new(&format!(r"(?i)(?<![\d.,])\b({})\b", safe.join("|"))).unwrap()
+    FRegex::new(&format!(r"(?i)(?<![\d.,])\b({})\b", safe.join("|"))).unwrap()
 });
 
 static RE_CURRENCY_PREFIX_SYMBOL: Lazy<Regex> = Lazy::new(|| {
@@ -169,14 +170,14 @@ pub fn expand_units_and_currency(text: &str) -> String {
     result = RE_CURRENCY_PREFIX_SYMBOL.replace_all(&result, |caps: &Captures| {
         let symbol = caps.get(1).unwrap().as_str();
         let num = caps.get(2).unwrap().as_str();
-        let mag = caps.get(3).map_or("", |m: fancy_regex::Match| m.as_str());
+        let mag = caps.get(3).map(|m| m.as_str()).unwrap_or("");
         let full = CURRENCY_SYMBOL_MAP.get(symbol).copied().unwrap_or("");
         format!("{} {} {}", expand_number_with_sep(num), mag, full).replace("  ", " ").trim().to_string()
     }).to_string();
 
     result = RE_CURRENCY_SUFFIX_SYMBOL.replace_all(&result, |caps: &Captures| {
         let num = caps.get(1).unwrap().as_str();
-        let mag = caps.get(2).map_or("", |m: fancy_regex::Match| m.as_str());
+        let mag = caps.get(2).map(|m| m.as_str()).unwrap_or("");
         let symbol = caps.get(3).unwrap().as_str();
         let full = CURRENCY_SYMBOL_MAP.get(symbol).copied().unwrap_or("");
         format!("{} {} {}", expand_number_with_sep(num), mag, full).replace("  ", " ").trim().to_string()
@@ -186,9 +187,9 @@ pub fn expand_units_and_currency(text: &str) -> String {
         format!("{} phần trăm", expand_number_with_sep(caps.get(1).unwrap().as_str()))
     }).to_string();
 
-    result = RE_UNITS_WITH_NUM.replace_all(&result, |caps: &Captures| {
+    result = RE_UNITS_WITH_NUM.replace_all(&result, |caps: &FCaps| {
         let num = caps.get(1).unwrap().as_str();
-        let mag = caps.get(2).map_or("", |m: fancy_regex::Match| m.as_str());
+        let mag = caps.get(2).map(|m| m.as_str()).unwrap_or("");
         let unit = caps.get(3).unwrap().as_str();
         let full = if unit == "M" {
             "triệu"
@@ -200,9 +201,9 @@ pub fn expand_units_and_currency(text: &str) -> String {
         format!("{} {} {}", expand_number_with_sep(num), mag, full).replace("  ", " ").trim().to_string()
     }).to_string();
 
-    result = RE_STANDALONE_UNIT.replace_all(&result, |caps: &Captures| {
+    result = RE_STANDALONE_UNIT.replace_all(&result, |caps: &FCaps| {
         let unit = caps.get(1).unwrap().as_str();
-        format!(" {} ", ALL_UNITS_MAP.get(&unit.to_lowercase()).map(|s: &String| s.as_str()).unwrap_or(unit))
+        format!(" {} ", ALL_UNITS_MAP.get(&unit.to_lowercase()).map(|s: &String| s.to_string()).unwrap_or(unit.to_string()))
     }).to_string();
 
     result
@@ -210,7 +211,7 @@ pub fn expand_units_and_currency(text: &str) -> String {
 
 pub fn expand_compound_units(text: &str) -> String {
     RE_COMPOUND_UNIT.replace_all(text, |caps: &Captures| {
-        let num_str = caps.get(1).map_or("", |m: fancy_regex::Match| m.as_str());
+        let num_str = caps.get(1).map(|m| m.as_str()).unwrap_or("");
         if num_str.is_empty() { return caps.get(0).unwrap().as_str().to_string(); }
 
         let get_unit = |u: &str| {
@@ -259,6 +260,6 @@ pub fn expand_power_of_ten(text: &str) -> String {
 
 pub fn expand_scientific_notation(text: &str) -> String {
     RE_SCIENTIFIC_NOTATION.replace_all(text, |caps: &Captures| {
-        expand_number_with_sep(caps.get(1).unwrap().as_str())
+        expand_number_with_sep(caps.get(0).unwrap().as_str())
     }).to_string()
 }

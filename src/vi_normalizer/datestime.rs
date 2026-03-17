@@ -1,22 +1,23 @@
-use fancy_regex::{Regex, Captures};
+use fancy_regex::{Regex as FRegex, Captures as FCaps};
+use regex::{Regex, Captures};
 use once_cell::sync::Lazy;
-use crate::vi_normalizer::num2vi::n2w;
+use crate::vi_normalizer::num2vi::{n2w, n2w_single};
 use crate::vi_normalizer::resources::{DATE_KEYWORDS, MATH_KEYWORDS};
 
 const DAY_IN_MONTH: [i32; 12] = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
 const DATE_SEP: &str = r"(\/|-|\.)";
 const SHORT_DATE_SEP: &str = r"(\/|-)";
 
-static RE_FULL_DATE: Lazy<Regex> = Lazy::new(|| {
-    Regex::new(&format!(r"(?<!\d)(?<!\d[.,])(\d{{1,2}}){}{{{}}}(\d{{1,2}}){}{{{}}}(\d{{4}})(?!\d|[.,]\d)", DATE_SEP, 1, DATE_SEP, 1)).unwrap()
+static RE_FULL_DATE: Lazy<FRegex> = Lazy::new(|| {
+    FRegex::new(&format!(r"(?<!\d)(?<!\d[.,])(\d{{1,2}}){}{{{}}}(\d{{1,2}}){}{{{}}}(\d{{4}})(?!\d|[.,]\d)", DATE_SEP, 1, DATE_SEP, 1)).unwrap()
 });
 
-static RE_DAY_MONTH: Lazy<Regex> = Lazy::new(|| {
-    Regex::new(&format!(r"(?<!\d)(?<!\d[.,])(\d{{1,2}}){}{{{}}}(\d{{1,2}})(?!\d|[.,]\d)", SHORT_DATE_SEP, 1)).unwrap()
+static RE_DAY_MONTH: Lazy<FRegex> = Lazy::new(|| {
+    FRegex::new(&format!(r"(?<!\d)(?<!\d[.,])(\d{{1,2}}){}{{{}}}(\d{{1,2}})(?!\d|[.,]\d)", SHORT_DATE_SEP, 1)).unwrap()
 });
 
-static RE_MONTH_YEAR: Lazy<Regex> = Lazy::new(|| {
-    Regex::new(&format!(r"(?<!\d)(?<!\d[.,])(\d{{1,2}}){}{{{}}}(\d{{4}})(?!\d|[.,]\d)", DATE_SEP, 1)).unwrap()
+static RE_MONTH_YEAR: Lazy<FRegex> = Lazy::new(|| {
+    FRegex::new(&format!(r"(?<!\d)(?<!\d[.,])(\d{{1,2}}){}{{{}}}(\d{{4}})(?!\d|[.,]\d)", DATE_SEP, 1)).unwrap()
 });
 
 static RE_FULL_TIME: Lazy<Regex> = Lazy::new(|| {
@@ -35,16 +36,8 @@ static RE_LUC_HOUR: Lazy<Regex> = Lazy::new(|| {
     Regex::new(r"(?i)\blúc\s*(\d+)g\b").unwrap()
 });
 
-static RE_REDUNDANT_NGAY: Lazy<Regex> = Lazy::new(|| {
-    Regex::new(r"(?i)\bngày\s+ngày\b").unwrap()
-});
-
-static RE_REDUNDANT_THANG: Lazy<Regex> = Lazy::new(|| {
-    Regex::new(r"(?i)\btháng\s+tháng\b").unwrap()
-});
-
-static RE_REDUNDANT_NAM: Lazy<Regex> = Lazy::new(|| {
-    Regex::new(r"(?i)\bnăm\s+năm\b").unwrap()
+static RE_REDUNDANT_DATE: Lazy<Regex> = Lazy::new(|| {
+    Regex::new(r"(?i)\b(ngày|tháng|năm)\s+\1\b").unwrap()
 });
 
 fn is_valid_date(day: &str, month: &str) -> bool {
@@ -78,7 +71,7 @@ fn norm_time_part(s: &str) -> &str {
 pub fn normalize_date(text: &str) -> String {
     let mut result = text.to_string();
 
-    result = RE_FULL_DATE.replace_all(&result, |caps: &Captures| {
+    result = RE_FULL_DATE.replace_all(&result, |caps: &FCaps| {
         let day = caps.get(1).unwrap().as_str();
         let month = caps.get(3).unwrap().as_str();
         let year = caps.get(5).unwrap().as_str();
@@ -90,7 +83,7 @@ pub fn normalize_date(text: &str) -> String {
         }
     }).to_string();
 
-    result = RE_MONTH_YEAR.replace_all(&result, |caps: &Captures| {
+    result = RE_MONTH_YEAR.replace_all(&result, |caps: &FCaps| {
         let month_str = caps.get(1).unwrap().as_str();
         let year_str = caps.get(3).unwrap().as_str();
         let m = month_str.parse::<i32>().unwrap_or(0);
@@ -104,7 +97,7 @@ pub fn normalize_date(text: &str) -> String {
     }).to_string();
 
     let current_text = result.clone();
-    result = RE_DAY_MONTH.replace_all(&current_text, |caps: &Captures| {
+    result = RE_DAY_MONTH.replace_all(&current_text, |caps: &FCaps| {
         let full_match = caps.get(0).unwrap();
         let day_str = caps.get(1).unwrap().as_str();
         let month_str = caps.get(3).unwrap().as_str();
@@ -142,9 +135,7 @@ pub fn normalize_date(text: &str) -> String {
         format!("{} trên {}", n2w(day_str), n2w(month_str))
     }).to_string();
 
-    result = RE_REDUNDANT_NGAY.replace_all(&result, "ngày").into_owned();
-    result = RE_REDUNDANT_THANG.replace_all(&result, "tháng").into_owned();
-    result = RE_REDUNDANT_NAM.replace_all(&result, "năm").into_owned();
+    result = RE_REDUNDANT_DATE.replace_all(&result, "$1").into_owned();
 
     result
 }

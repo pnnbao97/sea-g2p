@@ -74,22 +74,24 @@ pub fn clean_vietnamese_text(text: &str) -> String {
     };
 
     // Protect ENTOKEN placeholders (if any)
-    current_text = RE_ENTOKEN.replace_all(&current_text, |caps: &Captures| {
-        let orig = caps.get(0).unwrap().as_str();
-        protect(orig.to_lowercase(), &mut mask_map)
-    }).into_owned();
+    if current_text.contains("ENTOKEN") {
+        current_text = RE_ENTOKEN.replace_all(&current_text, |caps: &Captures| {
+            let orig = caps.get(0).unwrap().as_str();
+            protect(orig.to_lowercase(), &mut mask_map)
+        }).into_owned();
+    }
 
     // Protect emails first (simple pattern, matches @)
-    let temp_email = current_text.clone();
-    current_text = RE_EMAIL.replace_all(&temp_email, |caps: &FCaps| {
-        let orig = caps.get(0).unwrap().as_str();
-        let val = normalize_emails(orig);
-        protect(val, &mut mask_map)
-    }).to_string();
+    if current_text.contains('@') {
+        current_text = RE_EMAIL.replace_all(&current_text, |caps: &Captures| {
+            let orig = caps.get(0).unwrap().as_str();
+            let val = normalize_emails(orig);
+            protect(val, &mut mask_map)
+        }).to_string();
+    }
 
     // Protect technical strings (URLs, paths, etc.) separately
-    let temp_tech = current_text.clone();
-    current_text = RE_TECHNICAL.replace_all(&temp_tech, |caps: &FCaps| {
+    current_text = RE_TECHNICAL.replace_all(&current_text, |caps: &Captures| {
         let orig = caps.get(0).unwrap().as_str();
         let val = if RE_ACRONYMS_EXCEPTIONS.is_match(orig) {
             COMBINED_EXCEPTIONS.get(orig).cloned().unwrap_or(orig.to_string())
@@ -100,80 +102,109 @@ pub fn clean_vietnamese_text(text: &str) -> String {
     }).to_string();
 
     // Core normalization passes
-    current_text = expand_power_of_ten(&current_text);
-    current_text = RE_MULTIPLY.replace_all(&current_text, |caps: &FCaps| {
-        expand_multiply_number(caps.get(0).unwrap().as_str())
-    }).to_string();
+    if current_text.contains('^') || current_text.to_lowercase().contains('e') {
+        current_text = expand_power_of_ten(&current_text);
+    }
+    if current_text.contains('x') || current_text.contains('×') {
+        current_text = RE_MULTIPLY.replace_all(&current_text, |caps: &FCaps| {
+            expand_multiply_number(caps.get(0).unwrap().as_str())
+        }).to_string();
+    }
 
-    current_text = RE_CONTEXT_TRU.replace_all(&current_text, " $1 $2 trừ $3 ").into_owned();
-    current_text = RE_CONTEXT_TRU_POST.replace_all(&current_text, " $1 trừ $2 $3 ").into_owned();
-    current_text = RE_CONTEXT_DEN.replace_all(&current_text, " $1 $2 đến $3 ").into_owned();
+    if current_text.contains('-') || current_text.contains('\u{2013}') || current_text.contains('\u{2014}') {
+        current_text = RE_CONTEXT_TRU.replace_all(&current_text, " $1 $2 trừ $3 ").into_owned();
+        current_text = RE_CONTEXT_TRU_POST.replace_all(&current_text, " $1 trừ $2 $3 ").into_owned();
+        current_text = RE_CONTEXT_DEN.replace_all(&current_text, " $1 $2 đến $3 ").into_owned();
 
-    current_text = RE_PHONE_WITH_DASH.replace_all(&current_text, |caps: &Captures| {
-        format!(" {} ", crate::vi_normalizer::num2vi::n2w_single(&format!("{}{}{}", caps.get(1).unwrap().as_str(), caps.get(2).unwrap().as_str(), caps.get(3).unwrap().as_str())))
-    }).into_owned();
+        current_text = RE_PHONE_WITH_DASH.replace_all(&current_text, |caps: &Captures| {
+            format!(" {} ", crate::vi_normalizer::num2vi::n2w_single(&format!("{}{}{}", caps.get(1).unwrap().as_str(), caps.get(2).unwrap().as_str(), caps.get(3).unwrap().as_str())))
+        }).into_owned();
+    }
 
-    current_text = RE_POWER_OF_TEN_IMPLICIT.replace_all(&current_text, |caps: &Captures| {
-        let exp = caps.get(1).unwrap().as_str();
-        if exp.starts_with('-') {
-            format!("mười mũ trừ {}", crate::vi_normalizer::num2vi::n2w(&exp[1..]))
-        } else {
-            format!("mười mũ {}", crate::vi_normalizer::num2vi::n2w(&exp.replace('+', "")))
-        }
-    }).into_owned();
+    if current_text.contains('^') {
+        current_text = RE_POWER_OF_TEN_IMPLICIT.replace_all(&current_text, |caps: &Captures| {
+            let exp = caps.get(1).unwrap().as_str();
+            if exp.starts_with('-') {
+                format!("mười mũ trừ {}", crate::vi_normalizer::num2vi::n2w(&exp[1..]))
+            } else {
+                format!("mười mũ {}", crate::vi_normalizer::num2vi::n2w(&exp.replace('+', "")))
+            }
+        }).into_owned();
+    }
 
     current_text = crate::vi_normalizer::misc::expand_abbreviations(&current_text);
-    current_text = normalize_date(&current_text);
-    current_text = normalize_time(&current_text);
+    if current_text.contains('/') || current_text.contains('-') || current_text.contains('.') {
+        current_text = normalize_date(&current_text);
+    }
+    if current_text.contains(':') || current_text.contains('h') || current_text.contains('g') {
+        current_text = normalize_time(&current_text);
+    }
 
-    current_text = RE_RANGE.replace_all(&current_text, |caps: &FCaps| {
-        let n1_raw = caps.get(1).unwrap().as_str();
-        let s1 = caps.get(2).unwrap().as_str();
-        let s2 = caps.get(3).unwrap().as_str();
-        let n2_raw = caps.get(4).unwrap().as_str();
-        if !s1.is_empty() && s2.is_empty() {
-            return caps.get(0).unwrap().as_str().to_string();
-        }
-        let n1 = n1_raw.replace(',', "").replace('.', "");
-        let n2 = n2_raw.replace(',', "").replace('.', "");
-        if (n1.len() as i32 - n2.len() as i32).abs() <= 1 {
-            format!(" {} đến {} ", n1_raw, n2_raw)
-        } else {
-            format!(" {} {} ", n1_raw, n2_raw)
-        }
-    }).to_string();
+    if current_text.contains('-') || current_text.contains('\u{2013}') || current_text.contains('\u{2014}') {
+        current_text = RE_RANGE.replace_all(&current_text, |caps: &FCaps| {
+            let n1_raw = caps.get(1).unwrap().as_str();
+            let s1 = caps.get(2).unwrap().as_str();
+            let s2 = caps.get(3).unwrap().as_str();
+            let n2_raw = caps.get(4).unwrap().as_str();
+            if !s1.is_empty() && s2.is_empty() {
+                return caps.get(0).unwrap().as_str().to_string();
+            }
+            let n1 = n1_raw.replace(',', "").replace('.', "");
+            let n2 = n2_raw.replace(',', "").replace('.', "");
+            if (n1.len() as i32 - n2.len() as i32).abs() <= 1 {
+                format!(" {} đến {} ", n1_raw, n2_raw)
+            } else {
+                format!(" {} {} ", n1_raw, n2_raw)
+            }
+        }).to_string();
+    }
 
-    current_text = RE_DASH_TO_COMMA.replace_all(&current_text, ",").into_owned();
-    current_text = RE_TO_SANG.replace_all(&current_text, " sang ").into_owned();
+    if current_text.contains('-') || current_text.contains('\u{2013}') || current_text.contains('\u{2014}') {
+        current_text = RE_DASH_TO_COMMA.replace_all(&current_text, ",").into_owned();
+    }
+    if current_text.contains('-') {
+        current_text = RE_TO_SANG.replace_all(&current_text, " sang ").into_owned();
+    }
 
-    current_text = expand_scientific_notation(&current_text);
-    current_text = expand_compound_units(&current_text);
+    if current_text.to_lowercase().contains('e') {
+        current_text = expand_scientific_notation(&current_text);
+    }
+    if current_text.contains('/') {
+        current_text = expand_compound_units(&current_text);
+    }
     current_text = expand_units_and_currency(&current_text);
-    current_text = fix_english_style_numbers(&current_text);
+    if current_text.contains(',') || current_text.contains('.') {
+        current_text = fix_english_style_numbers(&current_text);
+    }
 
-    current_text = RE_MULTI_COMMA.replace_all(&current_text, |caps: &Captures| {
-        caps.get(1).unwrap().as_str().split(',').map(|s: &str| crate::vi_normalizer::num2vi::n2w_decimal(s)).collect::<Vec<String>>().join(" phẩy ")
-    }).into_owned();
+    if current_text.contains(',') {
+        current_text = RE_MULTI_COMMA.replace_all(&current_text, |caps: &Captures| {
+            caps.get(1).unwrap().as_str().split(',').map(|s: &str| crate::vi_normalizer::num2vi::n2w_decimal(s)).collect::<Vec<String>>().join(" phẩy ")
+        }).into_owned();
 
-    current_text = RE_FLOAT_WITH_COMMA.replace_all(&current_text, |caps: &FCaps| {
-        let int_part = crate::vi_normalizer::num2vi::n2w(&caps.get(1).unwrap().as_str().replace('.', ""));
-        let dec_part = caps.get(2).unwrap().as_str().trim_end_matches('0');
-        let mut res = if dec_part.is_empty() { int_part } else { format!("{} phẩy {}", int_part, crate::vi_normalizer::num2vi::n2w_decimal(dec_part)) };
-        if caps.get(3).is_some() { res.push_str(" phần trăm"); }
-        format!(" {} ", res)
-    }).to_string();
+        current_text = RE_FLOAT_WITH_COMMA.replace_all(&current_text, |caps: &FCaps| {
+            let int_part = crate::vi_normalizer::num2vi::n2w(&caps.get(1).unwrap().as_str().replace('.', ""));
+            let dec_part = caps.get(2).unwrap().as_str().trim_end_matches('0');
+            let mut res = if dec_part.is_empty() { int_part } else { format!("{} phẩy {}", int_part, crate::vi_normalizer::num2vi::n2w_decimal(dec_part)) };
+            if caps.get(3).is_some() { res.push_str(" phần trăm"); }
+            format!(" {} ", res)
+        }).to_string();
+    }
 
-    current_text = RE_STRIP_DOT_SEP.replace_all(&current_text, |caps: &FCaps| {
-        caps.get(0).unwrap().as_str().replace('.', "")
-    }).to_string();
+    if current_text.contains('.') {
+        current_text = RE_STRIP_DOT_SEP.replace_all(&current_text, |caps: &FCaps| {
+            caps.get(0).unwrap().as_str().replace('.', "")
+        }).to_string();
+    }
 
     current_text = normalize_others(&current_text);
     current_text = normalize_number_vi(&current_text);
 
-    let temp_text3 = current_text.clone();
-    current_text = RE_INTERNAL_EN_TAG.replace_all(&temp_text3, |caps: &Captures| {
-        protect(caps.get(0).unwrap().as_str().to_string(), &mut mask_map)
-    }).into_owned();
+    if current_text.contains("__start_en__") || current_text.contains("<en>") {
+        current_text = RE_INTERNAL_EN_TAG.replace_all(&current_text, |caps: &Captures| {
+            protect(caps.get(0).unwrap().as_str().to_string(), &mut mask_map)
+        }).into_owned();
+    }
 
     current_text = expand_standalone_letters(&current_text);
 

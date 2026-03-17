@@ -1,38 +1,33 @@
-use fancy_regex::{Regex, Captures};
+use fancy_regex::{Regex as FRegex, Captures as FCaps};
+use regex::{Regex, Captures};
 use once_cell::sync::Lazy;
 use crate::vi_normalizer::num2vi::{n2w, n2w_single};
 use crate::vi_normalizer::resources::{VI_LETTER_NAMES, COMMON_EMAIL_DOMAINS, DOMAIN_SUFFIX_MAP};
 
-static RE_TECH_SPLIT: Lazy<regex::Regex> = Lazy::new(|| regex::Regex::new(r"([./:?&=/_ \-\\#])").unwrap());
-static RE_EMAIL_SPLIT: Lazy<regex::Regex> = Lazy::new(|| regex::Regex::new(r"([._\-+])").unwrap());
-static RE_SUB_TOKENS: Lazy<regex::Regex> = Lazy::new(|| regex::Regex::new(r"[a-zA-Z]+|\d+").unwrap());
+static RE_TECH_SPLIT: Lazy<Regex> = Lazy::new(|| Regex::new(r"([./:?&=/_ #\-])").unwrap());
+static RE_EMAIL_SPLIT: Lazy<Regex> = Lazy::new(|| Regex::new(r"([._+\-])").unwrap());
+static RE_SUB_TOKENS: Lazy<Regex> = Lazy::new(|| Regex::new(r"[a-zA-Z]+|\d+").unwrap());
 
 pub static RE_TECHNICAL: Lazy<Regex> = Lazy::new(|| {
-    Regex::new(r"(?ix)
-    \b(?:https?|ftp)://[A-Za-z0-9.\-_~:/?#\[\]@!$&\'()*+,;=]+\b
-    |
-    \b(?:www\.)[A-Za-z0-9.\-_~:/?#\[\]@!$&\'()*+,;=]+\b
-    |
-    \b[A-Za-z0-9.\-]+(?:\.com|\.vn|\.net|\.org|\.gov|\.io|\.biz|\.info)(?:/[A-Za-z0-9.\-_~:/?#\[\]@!$&\'()*+,;=]*)?\b
-    |
-    (?<!\w)/[a-zA-Z0-9._\-/]{2,}\b
-    |
-    \b[a-zA-Z]:\\[a-zA-Z0-9._\\\-]+\b
-    |
-    \b[a-zA-Z0-9._\-]+\.(?:txt|log|tar|gz|zip|sh|py|js|cpp|h|json|xml|yaml|yml|md|csv|pdf|docx|xlsx|exe|dll|so|config)\b
-    |
-    \b[a-zA-Z][a-zA-Z0-9]*(?:[._\-][a-zA-Z0-9]+){2,}\b
-    |
-    \b(?:[a-fA-F0-9]{1,4}:){3,7}[a-fA-F0-9]{1,4}\b
-    ").unwrap()
+    let patterns = [
+        r"\b(?:https?|ftp)://[A-Za-z0-9._~:/?#\[\]@!$&'()*+,;=-]+\b",
+        r"\b(?:www\.)[A-Za-z0-9._~:/?#\[\]@!$&'()*+,;=-]+\b",
+        r"\b[A-Za-z0-9.-]+(?:\.com|\.vn|\.net|\.org|\.gov|\.io|\.biz|\.info)(?:/[A-Za-z0-9._~:/?#\[\]@!$&'()*+,;=-]*)?\b",
+        r"\B/[a-zA-Z0-9._/-]{2,}\b",
+        r"\b[a-zA-Z]:\\[a-zA-Z0-9._\\-]+\b",
+        r"\b[a-zA-Z0-9._-]+\.(?:txt|log|tar|gz|zip|sh|py|js|cpp|h|json|xml|yaml|yml|md|csv|pdf|docx|xlsx|exe|dll|so|config)\b",
+        r"\b[a-zA-Z][a-zA-Z0-9]*(?:[._-][a-zA-Z0-9]+){2,}\b",
+        r"\b(?:[a-fA-F0-9]{1,4}:){3,7}[a-fA-F0-9]{1,4}\b",
+    ];
+    Regex::new(&format!("(?i){}", patterns.join("|"))).unwrap()
 });
 
 pub static RE_EMAIL: Lazy<Regex> = Lazy::new(|| {
     Regex::new(r"(?i)\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b").unwrap()
 });
 
-pub static RE_SLASH_NUMBER: Lazy<Regex> = Lazy::new(|| {
-    Regex::new(r"(?<![\d,.])(\d+)/(\d+)(?![\d,.])").unwrap()
+pub static RE_SLASH_NUMBER: Lazy<FRegex> = Lazy::new(|| {
+    FRegex::new(r"(?<![\d,.])(\d+)/(\d+)(?![\d,.])").unwrap()
 });
 
 pub fn normalize_technical(text: &str) -> String {
@@ -123,7 +118,7 @@ pub fn normalize_technical(text: &str) -> String {
                                 }
                             } else {
                                 let mut val = s.to_lowercase();
-                                if (s.chars().all(|c: char| c.is_uppercase()) && s.len() <= 4) || s.len() <= 2 {
+                                if (s.chars().all(|cc| cc.is_uppercase()) && s.len() <= 4) || s.len() <= 2 {
                                     val = val.chars().map(|c: char| c.to_string()).collect::<Vec<String>>().join(" ");
                                 }
                                 res.push(format!("__start_en__{}__end_en__", val));
@@ -255,7 +250,7 @@ pub fn normalize_emails(text: &str) -> String {
 }
 
 pub fn normalize_slashes(text: &str) -> String {
-    RE_SLASH_NUMBER.replace_all(text, |caps: &Captures| {
+    RE_SLASH_NUMBER.replace_all(text, |caps: &FCaps| {
         let n1 = caps.get(1).unwrap().as_str();
         let n2 = caps.get(2).unwrap().as_str();
         format!("{} trên {}", n2w(n1), n2w(n2))

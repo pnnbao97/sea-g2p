@@ -82,8 +82,8 @@ pub static RE_ACRONYMS_EXCEPTIONS: Lazy<Regex> = Lazy::new(|| {
 pub static DOMAIN_SUFFIXES_RE: Lazy<Regex> = Lazy::new(|| {
     Regex::new(r"(?i)\.(com|vn|net|org|edu|gov|io|biz|info)\b").unwrap()
 });
-static RE_ACRONYMS_SPLIT: Lazy<regex::Regex> = Lazy::new(|| {
-    regex::Regex::new(r"([.!?]+(?:\s+|$))").unwrap()
+static RE_ACRONYMS_SPLIT: Lazy<Regex> = Lazy::new(|| {
+    Regex::new(r"([.!?]+(?:\s+|$))").unwrap()
 });
 
 pub fn expand_roman(match_str: &str) -> String {
@@ -137,12 +137,17 @@ pub fn expand_letter(text: &str) -> String {
     }).to_string()
 }
 
+static RE_ABBRS: Lazy<Regex> = Lazy::new(|| {
+    let mut keys: Vec<String> = ABBRS.keys().map(|&k| regex::escape(k)).collect();
+    keys.sort_by_key(|b| std::cmp::Reverse(b.len()));
+    let pattern = keys.join("|");
+    Regex::new(&pattern).unwrap()
+});
+
 pub fn expand_abbreviations(text: &str) -> String {
-    let mut result = text.to_string();
-    for (k, v) in ABBRS.iter() {
-        result = result.replace(k, v);
-    }
-    result
+    RE_ABBRS.replace_all(text, |caps: &Captures| {
+        ABBRS.get(caps.get(0).unwrap().as_str()).copied().unwrap_or("").to_string()
+    }).into_owned()
 }
 
 pub fn expand_standalone_letters(text: &str) -> String {
