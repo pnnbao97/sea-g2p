@@ -1,5 +1,6 @@
 use pyo3::prelude::*;
 pub mod g2p;
+pub mod vi_normalizer;
 
 #[pyclass]
 struct G2P {
@@ -31,5 +32,6 @@ impl G2P {
 #[pymodule]
 fn sea_g2p_rs(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<G2P>()?;
+    m.add_class::<vi_normalizer::Normalizer>()?;
     Ok(())
 }
