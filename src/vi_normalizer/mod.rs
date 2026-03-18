@@ -16,13 +16,14 @@ use unicode_normalization::UnicodeNormalization;
 use crate::vi_normalizer::numerical::{normalize_number_vi, RE_MULTIPLY, expand_multiply_number};
 use crate::vi_normalizer::datestime::{normalize_date, normalize_time};
 use crate::vi_normalizer::units::{expand_units_and_currency, expand_compound_units, expand_scientific_notation, fix_english_style_numbers, expand_power_of_ten};
-use crate::vi_normalizer::misc::{normalize_others, expand_standalone_letters, RE_ACRONYMS_EXCEPTIONS};
+use crate::vi_normalizer::misc::{normalize_others, expand_standalone_letters, RE_ACRONYMS_EXCEPTIONS, RE_ACRONYM};
 use crate::vi_normalizer::technical::{normalize_technical, normalize_emails, RE_TECHNICAL, RE_EMAIL};
 use crate::vi_normalizer::resources::COMBINED_EXCEPTIONS;
 
 // ── Tier 1: regex crate (Thompson NFA, much faster for simple patterns) ────
 static RE_EXTRA_SPACES: Lazy<Regex> = Lazy::new(|| Regex::new(r"[ \t\xA0]+").unwrap());
 static RE_EXTRA_COMMAS: Lazy<Regex> = Lazy::new(|| Regex::new(r",\s*,").unwrap());
+static RE_MULTI_DOT: Lazy<Regex> = Lazy::new(|| Regex::new(r"\.[\s.]*\.").unwrap());
 static RE_COMMA_BEFORE_PUNCT: Lazy<Regex> = Lazy::new(|| Regex::new(r",\s*([.!?;])").unwrap());
 static RE_SPACE_BEFORE_PUNCT: Lazy<Regex> = Lazy::new(|| Regex::new(r"\s+([,.!?;:])").unwrap());
 // Rewritten to avoid lookahead: capture the following char so regex crate can handle it
@@ -45,15 +46,33 @@ static RE_RANGE: Lazy<FRegex> = Lazy::new(|| FRegex::new(r"(?<![\d.,])(\d{1,15}(
 static RE_DASH_TO_COMMA: Lazy<FRegex> = Lazy::new(|| FRegex::new(r"(?<=\s)[\u2013\-\u2014](?=\s)").unwrap());
 static RE_FLOAT_WITH_COMMA: Lazy<FRegex> = Lazy::new(|| FRegex::new(r"(?<![\d.])(\d+(?:\.\d{3})*),(\d+)(%)?").unwrap());
 static RE_STRIP_DOT_SEP: Lazy<FRegex> = Lazy::new(|| FRegex::new(r"(?<![\d.])\d+(?:\.\d{3})+(?![\d.])").unwrap());
+static RE_CAMEL_CASE: Lazy<FRegex> = Lazy::new(|| FRegex::new(r"(?<=[a-z])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])").unwrap());
+static RE_POTENTIAL_CONCAT: Lazy<Regex> = Lazy::new(|| Regex::new(r"\b[a-zA-Z]{3,}\b").unwrap());
 
 fn cleanup_whitespace(text: &str) -> String {
-    let mut res = RE_EXTRA_SPACES.replace_all(text, " ").into_owned();
+    let mut res = RE_MULTI_DOT.replace_all(text, ".").into_owned();
+    res = RE_EXTRA_SPACES.replace_all(&res, " ").into_owned();
     res = RE_EXTRA_COMMAS.replace_all(&res, ",").into_owned();
     res = RE_COMMA_BEFORE_PUNCT.replace_all(&res, "$1").into_owned();
     res = RE_SPACE_BEFORE_PUNCT.replace_all(&res, "$1").into_owned();
     // Pattern now captures the char after punct; replace with "$1 $2" (insert space)
     res = RE_MISSING_SPACE_AFTER_PUNCT.replace_all(&res, "$1 $2").into_owned();
     res.trim().trim_matches(',').to_string()
+}
+
+fn split_concatenated_terms(text: &str) -> String {
+    let re_potential = &*RE_POTENTIAL_CONCAT;
+    let re_camel = &*RE_CAMEL_CASE;
+    let re_acronym = &*RE_ACRONYM;
+
+    re_potential.replace_all(text, |caps: &Captures| {
+        let word = caps.get(0).unwrap().as_str();
+        if re_acronym.is_match(word).unwrap_or(false) {
+            word.to_string()
+        } else {
+            re_camel.replace_all(word, " ").into_owned()
+        }
+    }).into_owned()
 }
 
 pub fn clean_vietnamese_text(text: &str) -> String {
@@ -98,6 +117,8 @@ pub fn clean_vietnamese_text(text: &str) -> String {
         };
         protect(val, &mut mask_map)
     }).to_string();
+
+    current_text = split_concatenated_terms(&current_text);
 
     // Core normalization passes
     current_text = expand_power_of_ten(&current_text);

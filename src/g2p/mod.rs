@@ -116,7 +116,7 @@ static RE_TAG_STRIP: Lazy<Regex> = Lazy::new(|| {
 static VI_ACCENTS: &str = "àáảãạăằắẳẵặâầấẩẫậèéẻẽẹêềếểễệìíỉĩịòóỏõọôồốổỗộơờớởỡợùúủũụưừứửữựỳýỷỹỵđ";
 
 // Nguyên âm tiếng Anh + tiếng Việt (lowercase, đã include dấu)
-static VOWELS: &str = "aeiouàáảãạăằắẳẵặâầấẩẫậèéẻẽẹêềếểễệìíỉĩịòóỏõọôồốổỗộơờớởỡợùúủũụưừứửữựỳýỷỹỵ";
+static VOWELS: &str = "aeiouyàáảãạăằắẳẵặâầấẩẫậèéẻẽẹêềếểễệìíỉĩịòóỏõọôồốổỗộơờớởỡợùúủũụưừứửữựỳýỷỹỵ";
 
 /// Kiểm tra segment có cả nguyên âm lẫn phụ âm không.
 /// Loại "n", "st" (chỉ phụ âm) và "e", "a" (chỉ nguyên âm).

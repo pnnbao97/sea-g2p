@@ -19,7 +19,7 @@ static RE_ROMAN_NUMBER: Lazy<FRegex> = Lazy::new(|| {
 static RE_STANDALONE_LETTER: Lazy<FRegex> = Lazy::new(|| {
     FRegex::new(r"(?<![\''])\b([a-zA-Z])\b(\.?)").unwrap()
 });
-static RE_ACRONYM: Lazy<FRegex> = Lazy::new(|| {
+pub static RE_ACRONYM: Lazy<FRegex> = Lazy::new(|| {
     FRegex::new(&format!(r"\b(?=[A-Z{}a-z{}0-9]*[A-Z{}])(?:[A-Z{}][a-z{}]?\d*){{2,}}\b", VI_UPPER, VI_UPPER, VI_UPPER, VI_UPPER, "đăâêôơư")).unwrap()
 });
 static RE_VERSION: Lazy<FRegex> = Lazy::new(|| {

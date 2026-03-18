@@ -241,7 +241,7 @@ TEST_CASES = [
     ("Nếu đã từng đọc cuốn sách trên của Simon, hoặc đã xem anh thuyết trình về khái niệm tại sao trên diễn đàn TED.com, thì có lẽ bạn không còn xa lạ với vòng tròn vàng.", "nếu đã từng đọc cuốn sách trên của simon, hoặc đã xem anh thuyết trình về khái niệm tại sao trên diễn đàn <en>t e d</en> chấm com, thì có lẽ bạn không còn xa lạ với vòng tròn vàng."),
 
     # ─── 26. TRƯỜNG HỢP CẠNH (EDGE CASES) ─────────────────────────────────────
-    ("MixedCase Acronyms như ChatGPT hay Claude.", "mixedcase acronyms như chatgpt hay claude."),
+    ("MixedCase Acronyms như ChatGPT hay Claude.", "mixed case acronyms như chat <en>g p t</en> hay claude."),
     ("Unit mix: 10km/h và 5m/s.", "unit mix, mười ki lô mét trên giờ và năm mét trên giây."),
     ("Số cực lớn: 1.000.000.000.000.000.000", "số cực lớn, một tỷ tỷ"),
     ("Email với tên miền lạ: user@domain.tech", "email với tên miền lạ, <en>user</en> a còng <en>domain</en> chấm <en>tech</en>"),
@@ -376,7 +376,16 @@ TEST_CASES = [
     ("Lợi nhuận đạt 1.25B USD trong Q4/2025 (+12.75%).", "lợi nhuận đạt một chấm hai lăm tỷ <en>u s d</en> trong quý bốn hai không hai lăm, cộng mười hai chấm bảy lăm phần trăm."),
     ("Hóa chất: NaCl, NaOH, HCl, HClO, NaClO, ZnO, CuO, FeO, HCN, HF, NaCN, NaBr, KI, KOH, KCl, KBr, MgO", "hóa chất, nờ a xê lờ, nờ a ô hát, hát xê lờ, hát xê lờ ô, nờ a xê lờ ô, dét nờ ô, xê u ô, ép e ô, hát xê nờ, hát ép, nờ a xê nờ, nờ a bê rờ, ca i, ca ô hát, ca xê lờ, ca bê rờ, mờ gờ ô"),
     ("CH3COOH + NaOH → CH3COONa", "xê hát ba xê ô ô hát cộng nờ a ô hát đến xê hát ba xê ô ô nờ a"),
-    ("Phản ứng: 2H2 + O2 → 2H2O", "phản ứng, hai hát hai cộng ô hai đến hai hát hai ô")
+    ("Phản ứng: 2H2 + O2 → 2H2O", "phản ứng, hai hát hai cộng ô hai đến hai hát hai ô"),
+    
+    # ─── 36. TECHNICAL CAMELCASE SPLITTING ──────────────────────────────────
+    ("getUserIDFromDB", "get user <en>i d</en> from <en>d b</en>"),
+    ("getUserById", "get user by id"),
+    ("setVolumeLevel", "set volume level"),
+    ("iPhone", "i Phone"),
+    ("HClO", "hát xê lờ ô"),
+    ("ChatGPT", "chat <en>g p t</en>"),
+    ("tôi đang đi du lịch Đà Lạt với người yêu cũ...", "tôi đang đi du lịch Đà Lạt với người yêu cũ.")
     ]
 
 @pytest.mark.parametrize("input_text, expected", TEST_CASES)
