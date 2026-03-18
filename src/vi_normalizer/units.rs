@@ -190,6 +190,12 @@ pub fn expand_units_and_currency(text: &str) -> String {
         let num = caps.get(1).unwrap().as_str();
         let mag = caps.get(2).map_or("", |m: fancy_regex::Match| m.as_str());
         let unit = caps.get(3).unwrap().as_str();
+        
+        // Skip uppercase 'G' so it is handled by letter expansion (e.g. 5G -> năm gờ)
+        if unit == "G" {
+            return caps.get(0).unwrap().as_str().to_string();
+        }
+
         let full = if unit == "M" {
             "triệu"
         } else if unit == "m" {
