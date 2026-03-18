@@ -131,7 +131,7 @@ static RE_COMPOUND_UNIT: Lazy<Regex> = Lazy::new(|| {
 });
 
 static RE_UNITS_WITH_NUM: Lazy<Regex> = Lazy::new(|| {
-    Regex::new(&format!(r"(?i)(?<![\d.,]){}{}\s*({})\b", NUMERIC_P, MAGNITUDE_P, *UNITS_RE_PATTERN)).unwrap()
+    Regex::new(&format!(r"(?i)(?<![a-zA-Z\d.,]){}{}\s*({})\b", NUMERIC_P, MAGNITUDE_P, *UNITS_RE_PATTERN)).unwrap()
 });
 
 static RE_STANDALONE_UNIT: Lazy<Regex> = Lazy::new(|| {

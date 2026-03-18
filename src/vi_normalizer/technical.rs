@@ -32,7 +32,7 @@ pub static RE_EMAIL: Lazy<Regex> = Lazy::new(|| {
 });
 
 pub static RE_SLASH_NUMBER: Lazy<Regex> = Lazy::new(|| {
-    Regex::new(r"(?<![\d,.])(\d+)/(\d+)(?![\d,.])").unwrap()
+    Regex::new(r"(?<![a-zA-Z\d,.])(\d+)/(\d+)(?![\d,.])").unwrap()
 });
 
 pub fn normalize_technical(text: &str) -> String {

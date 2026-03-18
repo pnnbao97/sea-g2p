@@ -304,7 +304,7 @@ TEST_CASES = [
 
     # ─── 30. EXTREME CASES ─────────────────────────────────────
     ("Dân số thế giới khoảng 7,888,000,000 người (~7.9B).",
-     "dân số thế giới khoảng bảy tỷ tám trăm tám mươi tám triệu người, khoảng bảy chấm chín bê."),
+     "dân số thế giới khoảng bảy tỷ tám trăm tám mươi tám triệu người, khoảng bảy chấm chín tỷ."),
     ("Latency trung bình chỉ ~42ms / request qua REST API.",
      "latency trung bình chỉ khoảng bốn mươi hai mi li giây trên request qua <en>rest</en> <en>a p i</en>."),
     ("Liên hệ qua email research.ai+test@example-domain.org.",
@@ -372,7 +372,11 @@ TEST_CASES = [
     ("Giá trị là 123/4.", "giá trị là một trăm hai mươi ba trên bốn."),
     ("Tỷ lệ 123/4.", "tỷ lệ một trăm hai mươi ba trên bốn."),
     ("Kết quả 123/4.", "kết quả một trăm hai mươi ba trên bốn."),
-    ("Vào ngày 20/10/2024, gia đình tôi đã quyết định tổ chức một buổi tiệc nhỏ", "vào ngày hai mươi tháng mười năm hai nghìn không trăm hai mươi bốn, gia đình tôi đã quyết định tổ chức một buổi tiệc nhỏ")
+    ("Vào ngày 20/10/2024, gia đình tôi đã quyết định tổ chức một buổi tiệc nhỏ", "vào ngày hai mươi tháng mười năm hai nghìn không trăm hai mươi bốn, gia đình tôi đã quyết định tổ chức một buổi tiệc nhỏ"),
+    ("Lợi nhuận đạt 1.25B USD trong Q4/2025 (+12.75%).", "lợi nhuận đạt một chấm hai lăm tỷ <en>u s d</en> trong quý bốn hai không hai lăm, cộng mười hai chấm bảy lăm phần trăm."),
+    ("Hóa chất: NaCl, NaOH, HCl, HClO, NaClO, ZnO, CuO, FeO, HCN, HF, NaCN, NaBr, KI, KOH, KCl, KBr, MgO", "hóa chất, nờ a xê lờ, nờ a ô hát, hát xê lờ, hát xê lờ ô, nờ a xê lờ ô, dét nờ ô, xê u ô, ép e ô, hát xê nờ, hát ép, nờ a xê nờ, nờ a bê rờ, ca i, ca ô hát, ca xê lờ, ca bê rờ, mờ gờ ô"),
+    ("CH3COOH + NaOH → CH3COONa", "xê hát ba xê ô ô hát cộng nờ a ô hát đến xê hát ba xê ô ô nờ a"),
+    ("Phản ứng: 2H2 + O2 → 2H2O", "phản ứng, hai hát hai cộng ô hai đến hai hát hai ô")
     ]
 
 @pytest.mark.parametrize("input_text, expected", TEST_CASES)

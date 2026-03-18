@@ -8,7 +8,7 @@ pub static VI_LETTER_NAMES: Lazy<HashMap<&'static str, &'static str>> = Lazy::ne
     m.insert("ê", "ê"); m.insert("f", "ép"); m.insert("g", "gờ");
     m.insert("h", "hát"); m.insert("i", "i"); m.insert("j", "giây");
     m.insert("k", "ca"); m.insert("l", "lờ"); m.insert("m", "mờ");
-    m.insert("n", "nờ"); m.insert("o", "o"); m.insert("ô", "ô");
+    m.insert("n", "nờ"); m.insert("o", "ô"); m.insert("ô", "ô");
     m.insert("ơ", "ơ"); m.insert("p", "pê"); m.insert("q", "qui");
     m.insert("r", "rờ"); m.insert("s", "ét"); m.insert("t", "tê");
     m.insert("u", "u"); m.insert("ư", "ư"); m.insert("v", "vê");
@@ -54,6 +54,7 @@ pub static MEASUREMENT_KEY_VI: Lazy<HashMap<&'static str, &'static str>> = Lazy:
     m.insert("kbps", "__start_en__kilobits per second__end_en__");
     m.insert("gallon", "__start_en__gallon__end_en__"); m.insert("mol", "mol");
     m.insert("ms", "mi li giây"); m.insert("M", "triệu");
+    m.insert("B", "tỷ");
     m
 });
 
@@ -108,6 +109,10 @@ pub static TECHNICAL_TERMS: Lazy<HashMap<&'static str, &'static str>> = Lazy::ne
     m.insert("IPv4", "__start_en__i p v__end_en__ bốn");
     m.insert("Washington D.C", "__start_en__washington d c__end_en__");
     m.insert("Washington DC", "__start_en__washington d c__end_en__");
+    m.insert("HCN", "hát xê nờ");
+    m.insert("HF", "hát ép");
+    m.insert("KI", "ca i");
+    m.insert("KOH", "ca ô hát");
     m
 });
 

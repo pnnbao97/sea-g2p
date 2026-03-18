@@ -20,7 +20,7 @@ static RE_STANDALONE_LETTER: Lazy<FRegex> = Lazy::new(|| {
     FRegex::new(r"(?<![\''])\b([a-zA-Z])\b(\.?)").unwrap()
 });
 static RE_ACRONYM: Lazy<FRegex> = Lazy::new(|| {
-    FRegex::new(&format!(r"\b(?=[A-Z{}0-9]*[A-Z])[A-Z{}0-9]{{2,}}\b", VI_UPPER, VI_UPPER)).unwrap()
+    FRegex::new(&format!(r"\b(?=[A-Z{}a-z{}0-9]*[A-Z{}])(?:[A-Z{}][a-z{}]?\d*){{2,}}\b", VI_UPPER, VI_UPPER, VI_UPPER, VI_UPPER, "đăâêôơư")).unwrap()
 });
 static RE_VERSION: Lazy<FRegex> = Lazy::new(|| {
     FRegex::new(r"(?<![-\u2013\u2014])\b(\d+(?:\.\d+){2,})\b").unwrap()
@@ -35,6 +35,9 @@ static RE_LETTER: Lazy<Regex> = Lazy::new(|| {
 });
 static RE_ALPHANUMERIC: Lazy<Regex> = Lazy::new(|| {
     Regex::new(r"\b(\d+)([a-zA-Z])\b").unwrap()
+});
+static RE_LETTER_DIGIT: Lazy<Regex> = Lazy::new(|| {
+    Regex::new(r"\b([a-zA-Z])(\d+)\b").unwrap()
 });
 static RE_BRACKETS: Lazy<Regex> = Lazy::new(|| {
     Regex::new(r"[\(\[\{]\s*(.*?)\s*[\)\]\}]").unwrap()
@@ -196,7 +199,8 @@ pub fn normalize_acronyms(text: &str) -> String {
                 }
 
                 let has_vi_letter = word.chars().any(|c: char| !c.is_ascii() && c.is_alphabetic());
-                if has_vi_letter {
+                let is_mixed_case = word.chars().any(|c: char| c.is_lowercase()) && word.chars().any(|c: char| c.is_uppercase());
+                if has_vi_letter || is_mixed_case {
                     let mut parts = Vec::new();
                     for c in word.chars() {
                         let cl = c.to_lowercase().to_string();
@@ -289,6 +293,15 @@ pub fn normalize_others(text: &str) -> String {
 
     res = expand_letter(&res);
     res = expand_alphanumeric(&res);
+    res = RE_LETTER_DIGIT.replace_all(&res, |caps: &Captures| {
+        let l = caps.get(1).unwrap().as_str().to_lowercase();
+        let d = caps.get(2).unwrap().as_str();
+        if let Some(name) = VI_LETTER_NAMES.get(l.as_str()) {
+            format!("{} {}", name, n2w(d))
+        } else {
+            caps.get(0).unwrap().as_str().to_string()
+        }
+    }).into_owned();
     res = expand_prime(&res);
     res = expand_unit_powers(&res);
     res = RE_CLEAN_QUOTES.replace_all(&res, "").into_owned();

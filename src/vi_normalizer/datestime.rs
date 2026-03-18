@@ -1,6 +1,6 @@
 use fancy_regex::{Regex, Captures};
 use once_cell::sync::Lazy;
-use crate::vi_normalizer::num2vi::n2w;
+use crate::vi_normalizer::num2vi::{n2w, n2w_decimal};
 use crate::vi_normalizer::resources::{DATE_KEYWORDS, MATH_KEYWORDS};
 
 const DAY_IN_MONTH: [i32; 12] = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
@@ -8,15 +8,19 @@ const DATE_SEP: &str = r"(\/|-|\.)";
 const SHORT_DATE_SEP: &str = r"(\/|-)";
 
 static RE_FULL_DATE: Lazy<Regex> = Lazy::new(|| {
-    Regex::new(&format!(r"(?<!\d)(?<!\d[.,])(\d{{1,2}}){}{{{}}}(\d{{1,2}}){}{{{}}}(\d{{4}})(?!\d|[.,]\d)", DATE_SEP, 1, DATE_SEP, 1)).unwrap()
+    Regex::new(&format!(r"(?<![a-zA-Z\d])(?<![a-zA-Z\d][.,])(\d{{1,2}}){}{{{}}}(\d{{1,2}}){}{{{}}}(\d{{4}})(?!\d|[.,]\d)", DATE_SEP, 1, DATE_SEP, 1)).unwrap()
 });
 
 static RE_DAY_MONTH: Lazy<Regex> = Lazy::new(|| {
-    Regex::new(&format!(r"(?<!\d)(?<!\d[.,])(\d{{1,2}}){}{{{}}}(\d{{1,2}})(?!\d|[.,]\d)", SHORT_DATE_SEP, 1)).unwrap()
+    Regex::new(&format!(r"(?<![a-zA-Z\d])(?<![a-zA-Z\d][.,])(\d{{1,2}}){}{{{}}}(\d{{1,2}})(?!\d|[.,]\d)", SHORT_DATE_SEP, 1)).unwrap()
 });
 
 static RE_MONTH_YEAR: Lazy<Regex> = Lazy::new(|| {
-    Regex::new(&format!(r"(?<!\d)(?<!\d[.,])(\d{{1,2}}){}{{{}}}(\d{{4}})(?!\d|[.,]\d)", DATE_SEP, 1)).unwrap()
+    Regex::new(&format!(r"(?<![a-zA-Z\d])(?<![a-zA-Z\d][.,])(\d{{1,2}}){}{{{}}}(\d{{4}})(?!\d|[.,]\d)", DATE_SEP, 1)).unwrap()
+});
+
+static RE_PERIOD_YEAR: Lazy<Regex> = Lazy::new(|| {
+    Regex::new(r"(?i)\b([a-zA-Z]\d*)/(\d{4})\b").unwrap()
 });
 
 static RE_FULL_TIME: Lazy<Regex> = Lazy::new(|| {
@@ -77,6 +81,32 @@ fn norm_time_part(s: &str) -> &str {
 
 pub fn normalize_date(text: &str) -> String {
     let mut result = text.to_string();
+
+    result = RE_PERIOD_YEAR.replace_all(&result, |caps: &Captures| {
+        let code = caps.get(1).unwrap().as_str();
+        let year = caps.get(2).unwrap().as_str();
+        let code_lower = code.to_lowercase();
+        
+        let prefix = if code_lower.starts_with('q') && code.len() <= 2 {
+            let q_num = &code[1..];
+            format!("quý {}", if q_num.is_empty() { "".to_string() } else { n2w(q_num) })
+        } else {
+            let mut parts = Vec::new();
+            for c in code.chars() {
+                let cl = c.to_lowercase().to_string();
+                if c.is_ascii_digit() {
+                    parts.push(n2w(&c.to_string()));
+                } else if let Some(name) = crate::vi_normalizer::resources::VI_LETTER_NAMES.get(cl.as_str()) {
+                    parts.push(name.to_string());
+                } else {
+                    parts.push(cl);
+                }
+            }
+            parts.join(" ")
+        };
+
+        format!("{} {}", prefix.trim(), n2w_decimal(year))
+    }).to_string();
 
     result = RE_FULL_DATE.replace_all(&result, |caps: &Captures| {
         let day = caps.get(1).unwrap().as_str();
@@ -159,12 +189,19 @@ pub fn normalize_time(text: &str) -> String {
     }).to_string();
 
     result = RE_TIME.replace_all(&result, |caps: &Captures| {
+        let full_match = caps.get(0).unwrap().as_str();
         let h_str = caps.get(1).unwrap().as_str();
         let sep = caps.get(2).unwrap().as_str();
         let m_str = caps.get(3).unwrap().as_str();
 
         let h_int = h_str.parse::<i32>().unwrap_or(-1);
         let m_int = m_str.parse::<i32>().unwrap_or(-1);
+
+        // Heuristic: If separator is uppercase H or G, it's likely chemistry (e.g., 2H2)
+        // unless it's followed by a time unit (phút, p, m).
+        if (sep == "H" || sep == "G") && !full_match.to_lowercase().contains("phút") && !full_match.to_lowercase().contains(" p") && !full_match.to_lowercase().contains(" m") {
+            return full_match.to_string();
+        }
 
         if m_int >= 0 && m_int < 60 {
             if sep == ":" {
@@ -177,7 +214,7 @@ pub fn normalize_time(text: &str) -> String {
                 format!("{} giờ {} phút", n2w(norm_time_part(h_str)), n2w(norm_time_part(m_str)))
             }
         } else {
-            caps.get(0).unwrap().as_str().to_string()
+            full_match.to_string()
         }
     }).to_string();
 
