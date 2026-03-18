@@ -5,7 +5,7 @@ use crate::vi_normalizer::num2vi::{n2w, n2w_single};
 use crate::vi_normalizer::resources::{
     VI_LETTER_NAMES, DOMAIN_SUFFIX_MAP,
     ROMAN_NUMERALS, ABBRS, SYMBOLS_MAP, WORD_LIKE_ACRONYMS, MEASUREMENT_KEY_VI,
-    CURRENCY_KEY, COMBINED_EXCEPTIONS
+    CURRENCY_KEY, COMBINED_EXCEPTIONS, SUPERSCRIPTS_MAP, SUBSCRIPTS_MAP
 };
 use crate::vi_normalizer::technical::normalize_slashes;
 use crate::vi_normalizer::numerical::num_to_words;
@@ -200,20 +200,23 @@ pub fn normalize_acronyms(text: &str) -> String {
 
                 let has_vi_letter = word.chars().any(|c: char| !c.is_ascii() && c.is_alphabetic());
                 let is_mixed_case = word.chars().any(|c: char| c.is_lowercase()) && word.chars().any(|c: char| c.is_uppercase());
-                if has_vi_letter || is_mixed_case {
+                let has_subscript = word.chars().any(|c: char| c >= '₀' && c <= '₉');
+                if has_vi_letter || is_mixed_case || has_subscript {
                     let mut parts = Vec::new();
                     for c in word.chars() {
                         let cl = c.to_lowercase().to_string();
                         if c.is_ascii_digit() { parts.push(n2w_single(&c.to_string())); }
                         else if let Some(name) = VI_LETTER_NAMES.get(cl.as_str()) { parts.push(name.to_string()); }
+                        else if let Some(sub_name) = SUBSCRIPTS_MAP.get(&c) { parts.push(sub_name.trim().to_string()); }
                         else if c.is_alphabetic() { parts.push(cl); }
                     }
                     return parts.join(" ");
                 }
 
-                if word.chars().any(|c: char| c.is_ascii_digit()) {
+                if word.chars().any(|c: char| c.is_ascii_digit() || (c >= '₀' && c <= '₉')) {
                     let res: Vec<String> = word.chars().map(|c: char| {
                         if c.is_ascii_digit() { n2w_single(&c.to_string()) }
+                        else if let Some(sub_name) = SUBSCRIPTS_MAP.get(&c) { sub_name.trim().to_string() }
                         else { VI_LETTER_NAMES.get(c.to_lowercase().to_string().as_str()).cloned().unwrap_or(c.to_string().as_str()).to_string() }
                     }).collect();
                     return res.join(" ");
@@ -245,9 +248,14 @@ pub fn expand_alphanumeric(text: &str) -> String {
 }
 
 pub fn expand_symbols(text: &str) -> String {
-    let mut result = String::with_capacity(text.len());
-    for c in text.chars() {
+    let res = text.replace("<>", " khác ");
+    let mut result = String::with_capacity(res.len());
+    for c in res.chars() {
         if let Some(v) = SYMBOLS_MAP.get(&c) {
+            result.push_str(v);
+        } else if let Some(v) = SUPERSCRIPTS_MAP.get(&c) {
+            result.push_str(v);
+        } else if let Some(v) = SUBSCRIPTS_MAP.get(&c) {
             result.push_str(v);
         } else {
             result.push(c);

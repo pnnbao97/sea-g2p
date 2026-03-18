@@ -385,7 +385,9 @@ TEST_CASES = [
     ("iPhone", "i Phone"),
     ("HClO", "hát xê lờ ô"),
     ("ChatGPT", "chat <en>g p t</en>"),
-    ("tôi đang đi du lịch Đà Lạt với người yêu cũ...", "tôi đang đi du lịch Đà Lạt với người yêu cũ.")
+    ("tôi đang đi du lịch Đà Lạt với người yêu cũ...", "tôi đang đi du lịch Đà Lạt với người yêu cũ."),
+    ("CO2", "xê ô hai"),
+    ("CO₂", "xê ô hai")
     ]
 
 @pytest.mark.parametrize("input_text, expected", TEST_CASES)

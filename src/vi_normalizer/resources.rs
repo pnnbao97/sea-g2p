@@ -159,6 +159,40 @@ pub static SYMBOLS_MAP: Lazy<HashMap<char, &'static str>> = Lazy::new(|| {
     m.insert('±', " cộng trừ "); m.insert('≈', " xấp xỉ "); m.insert('/', " trên ");
     m.insert('→', " đến "); m.insert('÷', " chia "); m.insert('*', " sao ");
     m.insert('×', " nhân "); m.insert('^', " mũ "); m.insert('~', " khoảng ");
+    m.insert('%', " phần trăm "); m.insert('$', " đô la "); m.insert('€', " ê rô ");
+    m.insert('£', " bảng "); m.insert('¥', " yên "); m.insert('₩', " won ");
+    m.insert('₭', " kíp "); m.insert('₱', " bê xô "); m.insert('฿', " bạc ");
+    m.insert('Ω', " ôm "); m.insert('@', " a còng "); m.insert('≠', " khác ");
+    m.insert('∀', " với mọi "); m.insert('∏', " tích "); m.insert('∈', " thuộc ");
+    m.insert('∑', " tổng "); m.insert('∩', " giao "); m.insert('∪', " hội ");
+    m.insert('¬', " phủ định "); m.insert('∞', " vô cùng "); m.insert('α', " an pha ");
+    m.insert('β', " bê ta "); m.insert('γ', " ga ma "); m.insert('δ', " đen ta ");
+    m.insert('ε', " ép si lon "); m.insert('ϵ', " thuộc "); m.insert('ζ', " de ta ");
+    m.insert('η', " ê ta "); m.insert('θ', " thê ta "); m.insert('ι', " i ô ta ");
+    m.insert('κ', " cáp ba "); m.insert('λ', " lam đa "); m.insert('ᴧ', " và ");
+    m.insert('μ', " muy "); m.insert('Δ', " đen ta "); m.insert('ν', " nu ");
+    m.insert('ξ', " xi xi "); m.insert('ο', " o mi ron "); m.insert('π', " pi ");
+    m.insert('ρ', " ro "); m.insert('σ', " xích ma "); m.insert('τ', " tao ");
+    m.insert('υ', " úp si lon "); m.insert('φ', " phi "); m.insert('χ', " chi ");
+    m.insert('ψ', " si "); m.insert('ω', " ô me ga "); m.insert('©', " bản quyền ");
+    m
+});
+
+pub static SUPERSCRIPTS_MAP: Lazy<HashMap<char, &'static str>> = Lazy::new(|| {
+    let mut m = HashMap::new();
+    m.insert('⁰', " không "); m.insert('¹', " một "); m.insert('²', " bình phương ");
+    m.insert('³', " lập phương "); m.insert('⁴', " bốn "); m.insert('⁵', " năm ");
+    m.insert('⁶', " sáu "); m.insert('⁷', " bảy "); m.insert('⁸', " tám ");
+    m.insert('⁹', " chín ");
+    m
+});
+
+pub static SUBSCRIPTS_MAP: Lazy<HashMap<char, &'static str>> = Lazy::new(|| {
+    let mut m = HashMap::new();
+    m.insert('₀', " không "); m.insert('₁', " một "); m.insert('₂', " hai ");
+    m.insert('₃', " ba "); m.insert('₄', " bốn "); m.insert('₅', " năm ");
+    m.insert('₆', " sáu "); m.insert('₇', " bảy "); m.insert('₈', " tám ");
+    m.insert('₉', " chín ");
     m
 });
 
