@@ -32,7 +32,7 @@ pub static MEASUREMENT_KEY_VI: Lazy<HashMap<&'static str, &'static str>> = Lazy:
     m.insert("l", "lít"); m.insert("dl", "đê xi lít");
     m.insert("ml", "mi li lít"); m.insert("hl", "héc tô lít");
     m.insert("kw", "ki lô oát"); m.insert("mw", "mê ga oát");
-    m.insert("gw", "gi ga oát"); m.insert("kwh", "ki lô oát giờ");
+    m.insert("gw", "gi ga oát"); m.insert("kwh", "ki lô oát giờ"); m.insert("kWh", "ki lô oát giờ");
     m.insert("mwh", "mê ga oát giờ"); m.insert("wh", "oát giờ");
     m.insert("hz", "héc"); m.insert("khz", "ki lô héc");
     m.insert("mhz", "mê ga héc"); m.insert("ghz", "gi ga héc");
@@ -175,6 +175,10 @@ pub static SYMBOLS_MAP: Lazy<HashMap<char, &'static str>> = Lazy::new(|| {
     m.insert('ρ', " ro "); m.insert('σ', " xích ma "); m.insert('τ', " tao ");
     m.insert('υ', " úp si lon "); m.insert('φ', " phi "); m.insert('χ', " chi ");
     m.insert('ψ', " si "); m.insert('ω', " ô me ga "); m.insert('©', " bản quyền ");
+    m.insert('½', " một phần hai "); m.insert('¼', " một phần tư "); m.insert('¾', " ba phần tư ");
+    m.insert('⅓', " một phần ba "); m.insert('⅔', " hai phần ba ");
+    m.insert('⅕', " một phần năm "); m.insert('⅖', " hai phần năm "); m.insert('⅗', " ba phần năm "); m.insert('⅘', " bốn phần năm ");
+    m.insert('⅚', " năm phần sáu "); m.insert('⅚', " năm phần sáu ");
     m
 });
 

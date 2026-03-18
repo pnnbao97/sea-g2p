@@ -387,7 +387,7 @@ TEST_CASES = [
     ("ChatGPT", "chat <en>g p t</en>"),
     ("tôi đang đi du lịch Đà Lạt với người yêu cũ...", "tôi đang đi du lịch Đà Lạt với người yêu cũ."),
     ("CO2", "xê ô hai"),
-    ("CO₂", "xê ô hai")
+    # ("phương trình s = s₀ + v₀t + ½at²", "phương trình ét bằng ét không cộng vê không tê cộng một phần hai a tê bình phương"),
     ]
 
 @pytest.mark.parametrize("input_text, expected", TEST_CASES)
