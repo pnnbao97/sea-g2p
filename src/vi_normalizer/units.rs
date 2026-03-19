@@ -1,7 +1,7 @@
 use fancy_regex::{Regex, Captures};
 use once_cell::sync::Lazy;
 use crate::vi_normalizer::num2vi::{n2w, n2w_decimal};
-use crate::vi_normalizer::resources::{MEASUREMENT_KEY_VI, CURRENCY_KEY, CURRENCY_SYMBOL_MAP};
+use crate::vi_normalizer::resources::{MEASUREMENT_KEY_VI, CURRENCY_KEY, CURRENCY_SYMBOL_MAP, VI_LETTER_NAMES};
 
 // ── Number helpers ──────────────────────────────────────────────────────────
 
@@ -160,7 +160,7 @@ static RE_POWER_OF_TEN: Lazy<Regex> = Lazy::new(|| {
 });
 
 static RE_SCIENTIFIC_NOTATION: Lazy<Regex> = Lazy::new(|| {
-    Regex::new(r"(?i)\b(\d+(?:[.,]\d+)?e[+-]?\d+)\b").unwrap()
+    Regex::new(r"(?i)([-\u2013\u2014])?(\d+(?:[.,]\d+)?e[+-]?\d+)").unwrap()
 });
 
 pub fn expand_units_and_currency(text: &str) -> String {
@@ -217,7 +217,8 @@ pub fn expand_units_and_currency(text: &str) -> String {
 pub fn expand_compound_units(text: &str) -> String {
     RE_COMPOUND_UNIT.replace_all(text, |caps: &Captures| {
         let num_str = caps.get(1).map_or("", |m: fancy_regex::Match| m.as_str());
-        if num_str.is_empty() { return caps.get(0).unwrap().as_str().to_string(); }
+        let u1_raw = caps.get(2).unwrap().as_str();
+        let u2_raw = caps.get(3).unwrap().as_str();
 
         let get_unit = |u: &str| {
             if u == "M" { return "triệu".to_string(); }
@@ -225,10 +226,24 @@ pub fn expand_compound_units(text: &str) -> String {
             ALL_UNITS_MAP.get(&u.to_lowercase()).map(|s: &String| s.to_string()).unwrap_or(u.to_string())
         };
 
-        let num = expand_number_with_sep(num_str);
-        let full1 = get_unit(caps.get(2).unwrap().as_str());
-        let full2 = get_unit(caps.get(3).unwrap().as_str());
-        format!("{} {} trên {} ", num, full1, full2)
+        if num_str.is_empty() {
+            let u1_lower = u1_raw.to_lowercase();
+            let u2_lower = u2_raw.to_lowercase();
+            let u1_is_unit = ALL_UNITS_MAP.contains_key(&u1_lower);
+            let u2_is_unit = ALL_UNITS_MAP.contains_key(&u2_lower);
+
+            // Special heuristic for literal ratios like P/E
+            if u1_raw.len() == 1 && u2_raw.len() == 1 && (!u1_is_unit || !u2_is_unit) {
+                let l1 = VI_LETTER_NAMES.get(u1_lower.as_str()).cloned().unwrap_or(u1_raw).to_string();
+                let l2 = VI_LETTER_NAMES.get(u2_lower.as_str()).cloned().unwrap_or(u2_raw).to_string();
+                format!(" {} trên {} ", l1, l2)
+            } else {
+                format!(" {} trên {} ", get_unit(u1_raw), get_unit(u2_raw))
+            }
+        } else {
+            let num = expand_number_with_sep(num_str);
+            format!("{} {} trên {} ", num, get_unit(u1_raw), get_unit(u2_raw))
+        }
     }).to_string()
 }
 
@@ -265,6 +280,13 @@ pub fn expand_power_of_ten(text: &str) -> String {
 
 pub fn expand_scientific_notation(text: &str) -> String {
     RE_SCIENTIFIC_NOTATION.replace_all(text, |caps: &Captures| {
-        expand_number_with_sep(caps.get(1).unwrap().as_str())
+        let neg = caps.get(1).map(|m: fancy_regex::Match| m.as_str()).unwrap_or("");
+        let num_str = caps.get(2).unwrap().as_str();
+        let expanded = expand_number_with_sep(num_str);
+        if !neg.is_empty() {
+            format!(" âm {} ", expanded)
+        } else {
+            format!(" {} ", expanded)
+        }
     }).to_string()
 }

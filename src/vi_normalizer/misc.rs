@@ -28,6 +28,9 @@ static RE_VERSION: Lazy<FRegex> = Lazy::new(|| {
 static RE_PRIME: Lazy<FRegex> = Lazy::new(|| {
     FRegex::new(r"(\b[a-zA-Z0-9])['\u2019](?!\w)").unwrap()
 });
+static RE_PRIME_DIGIT: Lazy<FRegex> = Lazy::new(|| {
+    FRegex::new(r"(?<=\d)(['\u2019]+|[\x22\u201D])").unwrap()
+});
 
 // ─ Simple patterns (regex crate — Thompson NFA, fast) ──────────────────
 static RE_LETTER: Lazy<Regex> = Lazy::new(|| {
@@ -265,7 +268,7 @@ pub fn expand_symbols(text: &str) -> String {
 }
 
 pub fn expand_prime(text: &str) -> String {
-    RE_PRIME.replace_all(text, |caps: &FCaps| {
+    let res = RE_PRIME.replace_all(text, |caps: &FCaps| {
         let val = caps.get(1).unwrap().as_str().to_lowercase();
         let name = if val.chars().next().unwrap().is_ascii_digit() {
             n2w_single(&val)
@@ -273,6 +276,15 @@ pub fn expand_prime(text: &str) -> String {
             VI_LETTER_NAMES.get(val.as_str()).cloned().unwrap_or(&val).to_string()
         };
         format!("{} phẩy", name)
+    }).to_string();
+
+    RE_PRIME_DIGIT.replace_all(&res, |caps: &FCaps| {
+        let q = caps.get(1).unwrap().as_str();
+        if q == "\"" || q == "\u{201D}" || q.len() > 1 {
+            " phẩy phẩy ".to_string()
+        } else {
+            " phẩy ".to_string()
+        }
     }).to_string()
 }
 

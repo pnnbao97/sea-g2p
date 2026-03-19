@@ -35,6 +35,10 @@ pub static RE_SLASH_NUMBER: Lazy<Regex> = Lazy::new(|| {
     Regex::new(r"(?<![a-zA-Z\d,.])(\d+)/(\d+)(?![\d,.])").unwrap()
 });
 
+static RE_NEG_FRAC: Lazy<regex::Regex> = Lazy::new(|| {
+    regex::Regex::new(r"(?:=|\s)-((\d+)/(\d+))").unwrap()
+});
+
 pub fn normalize_technical(text: &str) -> String {
     RE_TECHNICAL.replace_all(text, |caps: &Captures| {
         let orig = caps.get(0).unwrap().as_str();
@@ -255,7 +259,14 @@ pub fn normalize_emails(text: &str) -> String {
 }
 
 pub fn normalize_slashes(text: &str) -> String {
-    RE_SLASH_NUMBER.replace_all(text, |caps: &Captures| {
+    let res = RE_NEG_FRAC.replace_all(text, |caps: &regex::Captures| {
+        let matched = caps.get(0).unwrap().as_str();
+        let frac = caps.get(1).unwrap().as_str();
+        let prefix = if matched.starts_with('=') { "= âm " } else { " âm " };
+        format!("{}{}", prefix, frac)
+    }).into_owned();
+
+    RE_SLASH_NUMBER.replace_all(&res, |caps: &Captures| {
         let n1 = caps.get(1).unwrap().as_str();
         let n2 = caps.get(2).unwrap().as_str();
         format!("{} trên {}", n2w(n1), n2w(n2))

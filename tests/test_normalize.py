@@ -286,7 +286,7 @@ TEST_CASES = [
     ("File tải tại ftp://example.org/data.zip.", "file tải tại <en>f t p</en> <en>example</en> chấm o rờ gờ gạch <en>data</en> chấm <en>zip</en>."),
     ("Nhiệt độ ngoài trời là -3.5°C.", "nhiệt độ ngoài trời là âm ba chấm năm độ xê."),
     ("Anh ấy chạy 10.000m trong 27:45.", "anh ấy chạy mười nghìn mét trong hai mươi bảy phút bốn mươi lăm giây."),
-    ("Tỉ số USD/EUR đang tăng.", "tỉ số <en>u s d</en> trên <en>e u r</en> đang tăng."),
+    ("Tỉ số USD/EUR đang tăng.", "tỉ số <en>u s d</en> trên <en>euro</en> đang tăng."),
     ("Anh ta kiếm được ¥120000 mỗi tháng.", "anh ta kiếm được một trăm hai mươi nghìn yên mỗi tháng."),
     ("Giá là $50 cho mỗi sản phẩm.", "giá là năm mươi <en>u s d</en> cho mỗi sản phẩm."),
     ("Phí dịch vụ là €10 mỗi người.", "phí dịch vụ là mười <en>euro</en> mỗi người."),
@@ -359,7 +359,8 @@ TEST_CASES = [
     # ─── 34. NGÀY THÁNG VÀ PHÂN SỐ (HEURISTIC) ─────────────────────────────
     ("Tôi sinh vào 3/5", "tôi sinh vào ngày ba tháng năm"),
     ("Xác suất là 3/5", "xác suất là ba trên năm"),
-    ("1/2 + 1/3 = 5/6", "một trên hai cộng một trên ba bằng năm trên sáu"),
+    ("1/2 - 1/3 = -1/6", "một trên hai trừ một trên ba bằng âm một trên sáu"),
+    ("23 - 45 = -22", "hai mươi ba trừ bốn mươi lăm bằng âm hai mươi hai"),
     ("Ngày 3/5 tôi tính 1/2 + 1/2", "ngày ba tháng năm tôi tính một trên hai cộng một trên hai"),
     ("Tỉ lệ là 1/4", "tỉ lệ là một trên bốn"),
     ("Sinh nhật là 20/10", "sinh nhật là ngày hai mươi tháng mười"),
@@ -400,7 +401,14 @@ TEST_CASES = [
     ("Cú pháp: [x**2 for x in range(10) if x%2 == 0] trong Python.", "cú pháp, ích sao sao hai for ích in range mười, if ích phần trăm hai bằng bằng không trong python."),
     ("WebAssembly (Wasm) cho phép chạy code C++ trên trình duyệt.", "web assembly, wasm, cho phép chạy code xê cộng cộng trên trình duyệt."),
     ("Phong cách thời trang Y2K đang quay trở lại mạnh mẽ.", "phong cách thời trang y hai ca đang quay trở lại mạnh mẽ."),
-
+    ("Tọa độ GPS: 10°46'37\"N 106°41'43\"E (TP. Hồ Chí Minh).", "tọa độ <en>g p s</en>, mười độ bốn mươi sáu phẩy ba mươi bảy phẩy phẩy nờ một trăm lẻ sáu độ bốn mươi mốt phẩy bốn mươi ba phẩy phẩy e, thành phố. hồ chí minh."),
+    ("Mã số thuế cá nhân: 8123456789-001 (Vui lòng đọc từng số).", "mã số thuế cá nhân, tám một hai ba bốn năm sáu bảy tám chín không không một, vui lòng đọc từng số."),
+    ("Mã số thuế của doanh nghiệp là 0123456789-001.", "mã số thuế của doanh nghiệp là không một hai ba bốn năm sáu bảy tám chín không không một."),
+    ("Mã mẫu có dạng 000123 và cần đọc đúng.", "mã mẫu có dạng không không không một hai ba và cần đọc đúng."),
+    ("Sai số đo được là -1.5e-3 đơn vị.", "sai số đo được là âm một chấm năm nhân mười mũ trừ ba đơn vị."),
+    ("Tổng hợp gồm 1,000.00 USD và 1.000,00 EUR.", "tổng hợp gồm một nghìn <en>u s d</en> và một nghìn <en>euro</en>."),
+    ("Phản ứng có nồng độ 10^-3 mol/L.", "phản ứng có nồng độ mười mũ trừ ba mol trên lít."),
+    ("Tỷ lệ P/E là 28.7x.", "tỷ lệ pê trên e là hai mươi tám chấm bảy ích."),
     ]
 
 @pytest.mark.parametrize("input_text, expected", TEST_CASES)

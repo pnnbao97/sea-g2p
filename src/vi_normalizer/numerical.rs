@@ -39,6 +39,11 @@ fn normalize_dot_sep(number: &str) -> String {
 }
 
 pub fn num_to_words(number: &str, negative: bool) -> String {
+    if !number.contains('.') && !number.contains(',') && !number.contains(' ') && number.starts_with('0') && number.len() > 1 {
+        let neg_prefix = if negative { "âm " } else { "" };
+        return format!("{}{}", neg_prefix, n2w_single(number)).trim().to_string();
+    }
+
     if number.contains('.') {
         let is_thousands = if let Some(m) = RE_DOT_SEP.find(number) {
             m.as_str() == number
