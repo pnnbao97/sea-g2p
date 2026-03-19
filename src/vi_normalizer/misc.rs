@@ -68,7 +68,7 @@ static RE_CLEAN_QUOTES: Lazy<Regex> = Lazy::new(|| {
     Regex::new(r#"[“”„]"#).unwrap()
 });
 static RE_CLEAN_QUOTES_EDGES: Lazy<Regex> = Lazy::new(|| {
-    Regex::new(r"(^|\s)[\u2018\u2019']+|[\u2018\u2019']+($|\s)").unwrap()
+    Regex::new(r"(^|[\s.,!?;:])[\u2018\u2019']+|[\u2018\u2019']+($|[\s.,!?;:])").unwrap()
 });
 static RE_COLON_SEMICOLON: Lazy<Regex> = Lazy::new(|| {
     Regex::new(r"[:;]").unwrap()

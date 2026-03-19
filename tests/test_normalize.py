@@ -20,8 +20,8 @@ TEST_CASES = [
     ("115",      "một trăm mười lăm"),
     ("45.565",   "bốn mươi lăm nghìn năm trăm sáu mươi lăm"),
     ("45.005",   "bốn mươi lăm nghìn không trăm lẻ năm"),
-    ("1000000",  "một triệu"),
-    ("1234567",  "một triệu hai trăm ba mươi bốn nghìn năm trăm sáu mươi bảy"),
+    ("1,000,000",  "một triệu"),
+    ("1234567",  "một hai ba bốn năm sáu bảy"),
 
     # ─── 2. SỐ THẬP PHÂN / SỐ CÓ DẤU PHÂN CÁCH ──────────────────────────────
     ("1.000",    "một nghìn"),
@@ -31,6 +31,10 @@ TEST_CASES = [
     ("1.25",     "một chấm hai lăm"),
     ("1.5",      "một chấm năm"),
     ("1.55",     "một chấm năm lăm"),
+    ("9.1",      "chín chấm một"),
+    ("9,1",      "chín phẩy một"),
+    ("798237423", "bảy chín tám hai ba bảy bốn hai ba"),
+    ("-1234567",  "âm một hai ba bốn năm sáu bảy"),
 
     # ─── 3. SỐ ĐIỆN THOẠI ────────────────────────────────────────────────────
     ("0912345678",    "không chín một hai ba bốn năm sáu bảy tám"),
@@ -387,7 +391,16 @@ TEST_CASES = [
     ("ChatGPT", "chat <en>g p t</en>"),
     ("tôi đang đi du lịch Đà Lạt với người yêu cũ...", "tôi đang đi du lịch Đà Lạt với người yêu cũ."),
     ("CO2", "xê ô hai"),
+    ("Cậu ấy đúng là một 'workaholic', làm việc 12 tiếng mỗi ngày.", "cậu ấy đúng là một workaholic, làm việc mười hai tiếng mỗi ngày."),
     # ("phương trình s = s₀ + v₀t + ½at²", "phương trình ét bằng ét không cộng vê không tê cộng một phần hai a tê bình phương"),
+    ("Vi khuẩn kháng thuốc Methicillin-resistant Staphylococcus aureus (MRSA).", "vi khuẩn kháng thuốc methicillin resistant staphylococcus aureus, <en>m r s a</en>."),
+    ("Cấu trúc Benzen C6H6 có vòng thơm đặc trưng.", "cấu trúc benzen xê sáu hát sáu có vòng thơm đặc trưng."),
+    ("Định luật bảo toàn năng lượng: E_in = E_out + ΔE_system.", "định luật bảo toàn năng lượng, e in bằng e out cộng đen ta e system."),
+    ("Triển khai Kubernetes (K8s) trên cụm server bare-metal.", "triển khai kubernetes, ca tám ét, trên cụm server bare metal."),
+    ("Cú pháp: [x**2 for x in range(10) if x%2 == 0] trong Python.", "cú pháp, ích sao sao hai for ích in range mười, if ích phần trăm hai bằng bằng không trong python."),
+    ("WebAssembly (Wasm) cho phép chạy code C++ trên trình duyệt.", "web assembly, wasm, cho phép chạy code xê cộng cộng trên trình duyệt."),
+    ("Phong cách thời trang Y2K đang quay trở lại mạnh mẽ.", "phong cách thời trang y hai ca đang quay trở lại mạnh mẽ."),
+
     ]
 
 @pytest.mark.parametrize("input_text, expected", TEST_CASES)

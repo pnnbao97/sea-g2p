@@ -46,6 +46,7 @@ static RE_RANGE: Lazy<FRegex> = Lazy::new(|| FRegex::new(r"(?<![\d.,])(\d{1,15}(
 static RE_DASH_TO_COMMA: Lazy<FRegex> = Lazy::new(|| FRegex::new(r"(?<=\s)[\u2013\-\u2014](?=\s)").unwrap());
 static RE_FLOAT_WITH_COMMA: Lazy<FRegex> = Lazy::new(|| FRegex::new(r"(?<![\d.])(\d+(?:\.\d{3})*),(\d+)(%)?").unwrap());
 static RE_STRIP_DOT_SEP: Lazy<FRegex> = Lazy::new(|| FRegex::new(r"(?<![\d.])\d+(?:\.\d{3})+(?![\d.])").unwrap());
+static RE_LONG_NUM: Lazy<FRegex> = Lazy::new(|| FRegex::new(r"(?<![\d.,])([-–—]?)(\d{7,})(?![\d.,])").unwrap());
 static RE_CAMEL_CASE: Lazy<FRegex> = Lazy::new(|| FRegex::new(r"(?<=[a-z])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])").unwrap());
 static RE_POTENTIAL_CONCAT: Lazy<Regex> = Lazy::new(|| Regex::new(r"\b[a-zA-Z]{3,}\b").unwrap());
 
@@ -170,6 +171,13 @@ pub fn clean_vietnamese_text(text: &str) -> String {
     current_text = expand_scientific_notation(&current_text);
     current_text = expand_compound_units(&current_text);
     current_text = expand_units_and_currency(&current_text);
+    current_text = RE_LONG_NUM.replace_all(&current_text, |caps: &FCaps| {
+        let neg = caps.get(1).unwrap().as_str();
+        let num_str = caps.get(2).unwrap().as_str();
+        let neg_prefix = if !neg.is_empty() { "âm " } else { "" };
+        format!(" {}{} ", neg_prefix, crate::vi_normalizer::num2vi::n2w_single(num_str))
+    }).to_string();
+
     current_text = fix_english_style_numbers(&current_text);
 
     current_text = RE_MULTI_COMMA.replace_all(&current_text, |caps: &Captures| {
