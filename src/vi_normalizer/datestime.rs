@@ -11,6 +11,15 @@ static RE_FULL_DATE: Lazy<Regex> = Lazy::new(|| {
     Regex::new(&format!(r"(?<![a-zA-Z\d])(?<![a-zA-Z\d][.,])(\d{{1,2}}){}{{{}}}(\d{{1,2}}){}{{{}}}(\d{{4}})(?!\d|[.,]\d)", DATE_SEP, 1, DATE_SEP, 1)).unwrap()
 });
 
+static RE_YYYY_MM_DD: Lazy<Regex> = Lazy::new(|| {
+    Regex::new(r"(?<![a-zA-Z\d])(?<![a-zA-Z\d][.,])(\d{4})-(\d{2})-(\d{2})(?!\d|[.,]\d)").unwrap()
+});
+
+static RE_ISO_FIX: Lazy<Regex> = Lazy::new(|| {
+    Regex::new(r"(\d{2})T(\d{2})|(\d{2})Z\b").unwrap()
+});
+
+
 static RE_DAY_MONTH: Lazy<Regex> = Lazy::new(|| {
     Regex::new(&format!(r"(?<![a-zA-Z\d])(?<![a-zA-Z\d][.,])(\d{{1,2}}){}{{{}}}(\d{{1,2}})(?!\d|[.,]\d)", SHORT_DATE_SEP, 1)).unwrap()
 });
@@ -81,6 +90,26 @@ fn norm_time_part(s: &str) -> &str {
 
 pub fn normalize_date(text: &str) -> String {
     let mut result = text.to_string();
+
+    result = RE_ISO_FIX.replace_all(&result, |caps: &Captures| {
+        if let Some(m) = caps.get(1) {
+            format!("{} T {}", m.as_str(), caps.get(2).unwrap().as_str())
+        } else {
+            format!("{} Z ", caps.get(3).unwrap().as_str())
+        }
+    }).to_string();
+
+    result = RE_YYYY_MM_DD.replace_all(&result, |caps: &Captures| {
+        let year = caps.get(1).unwrap().as_str();
+        let month = caps.get(2).unwrap().as_str();
+        let day = caps.get(3).unwrap().as_str();
+        if is_valid_date(day, month) {
+            let m_val = if month.parse::<i32>().unwrap_or(0) == 4 { "tư".to_string() } else { n2w(&month.parse::<i32>().unwrap_or(0).to_string()) };
+            format!("ngày {} tháng {} năm {}", n2w(&day.parse::<i32>().unwrap_or(0).to_string()), m_val, n2w(year))
+        } else {
+            caps.get(0).unwrap().as_str().to_string()
+        }
+    }).to_string();
 
     result = RE_PERIOD_YEAR.replace_all(&result, |caps: &Captures| {
         let code = caps.get(1).unwrap().as_str();

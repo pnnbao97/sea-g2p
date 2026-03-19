@@ -409,6 +409,9 @@ TEST_CASES = [
     ("Tổng hợp gồm 1,000.00 USD và 1.000,00 EUR.", "tổng hợp gồm một nghìn <en>u s d</en> và một nghìn <en>euro</en>."),
     ("Phản ứng có nồng độ 10^-3 mol/L.", "phản ứng có nồng độ mười mũ trừ ba mol trên lít."),
     ("Tỷ lệ P/E là 28.7x.", "tỷ lệ pê trên e là hai mươi tám chấm bảy ích."),
+    ("Log lỗi: ERROR[2025-03-11T14:22:03Z].", "log lỗi, <en>error</en>, ngày mười một tháng ba năm hai nghìn không trăm hai mươi lăm tê mười bốn giờ hai mươi hai phút không ba giây dét."),
+    ("RAM 8GB", "<en>ram</en> tám <en>gigabyte</en>"),
+    ("CPU Core i9-14900K", "<en>c p u</en> core i chín mười bốn nghìn chín trăm ca"),
     ]
 
 @pytest.mark.parametrize("input_text, expected", TEST_CASES)

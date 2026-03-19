@@ -155,6 +155,8 @@ pub fn clean_vietnamese_text(text: &str) -> String {
     }).into_owned();
 
     current_text = crate::vi_normalizer::misc::expand_abbreviations(&current_text);
+    current_text = expand_scientific_notation(&current_text);
+
     current_text = normalize_date(&current_text);
     current_text = normalize_time(&current_text);
 
