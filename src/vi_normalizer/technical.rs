@@ -39,6 +39,11 @@ static RE_NEG_FRAC: Lazy<regex::Regex> = Lazy::new(|| {
     regex::Regex::new(r"(?:=|\s)-((\d+)/(\d+))").unwrap()
 });
 
+// Denominator immediately followed by a letter: 225/45R17, 195/65R15
+static RE_SLASH_ALNUM: Lazy<Regex> = Lazy::new(|| {
+    Regex::new(r"(?<![a-zA-Z\d,.])(\d+)/(\d+[a-zA-Z][a-zA-Z0-9]*)").unwrap()
+});
+
 pub fn normalize_technical(text: &str) -> String {
     RE_TECHNICAL.replace_all(text, |caps: &Captures| {
         let orig = caps.get(0).unwrap().as_str();
@@ -266,7 +271,29 @@ pub fn normalize_slashes(text: &str) -> String {
         format!("{}{}", prefix, frac)
     }).into_owned();
 
-    RE_SLASH_NUMBER.replace_all(&res, |caps: &Captures| {
+    // Handle patterns like 225/45R17: split denominator at letter/digit boundaries,
+    // read digit groups as full numbers, letter groups as letter names.
+    let res2 = RE_SLASH_ALNUM.replace_all(&res, |caps: &Captures| {
+        let n1 = caps.get(1).unwrap().as_str();
+        let alnum = caps.get(2).unwrap().as_str(); // e.g. "45R17"
+        let sub_tokens = RE_SUB_TOKENS.find_iter(alnum);
+        let alnum_spoken: Vec<String> = sub_tokens.map(|m: regex::Match| {
+            let t = m.as_str();
+            if t.chars().all(|c| c.is_ascii_digit()) {
+                n2w(t)
+            } else {
+                t.chars().map(|c: char| {
+                    crate::vi_normalizer::resources::VI_LETTER_NAMES
+                        .get(c.to_lowercase().to_string().as_str())
+                        .map(|s| s.to_string())
+                        .unwrap_or_else(|| c.to_lowercase().to_string())
+                }).collect::<Vec<String>>().join(" ")
+            }
+        }).collect();
+        format!("{} trên {}", n2w(n1), alnum_spoken.join(" "))
+    }).to_string();
+
+    RE_SLASH_NUMBER.replace_all(&res2, |caps: &Captures| {
         let n1 = caps.get(1).unwrap().as_str();
         let n2 = caps.get(2).unwrap().as_str();
         format!("{} trên {}", n2w(n1), n2w(n2))

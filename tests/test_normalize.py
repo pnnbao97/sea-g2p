@@ -67,7 +67,7 @@ TEST_CASES = [
 
     # ─── 7. THỜI GIAN ─────────────────────────────────────────────────────────
     ("14h30",   "mười bốn giờ ba mươi phút"),
-    ("8h05",    "tám giờ không năm phút"),
+    ("08h05",    "tám giờ năm phút"),
     ("0h00",    "không giờ không phút"),
     ("23:59",   "hai mươi ba giờ năm mươi chín phút"),
     ("12:00:00","mười hai giờ không phút không giây"),
@@ -152,9 +152,8 @@ TEST_CASES = [
     ("(text in brackets)", "text in brackets"),
     ("[text in brackets]", "text in brackets"),
     ("(giờ Mỹ)", "giờ mỹ"),
-    ("hiệu lực từ 0h01 (giờ Mỹ), trong vòng", "hiệu lực từ không giờ không một phút, giờ mỹ, trong vòng"),
-    ("hiệu lực từ 0h01 (giờ Mỹ) trong vòng", "hiệu lực từ không giờ không một phút, giờ mỹ, trong vòng"),
-    ("kết thúc (0h01).", "kết thúc, không giờ không một phút."),
+    ("hiệu lực từ 0h01 (giờ Mỹ), trong vòng", "hiệu lực từ không giờ một phút, giờ mỹ, trong vòng"),
+    ("kết thúc (0h01).", "kết thúc, không giờ một phút."),
     ("chỉ số là 7,05 - đường huyết là 1.8", "chỉ số là bảy phẩy không năm, đường huyết là một chấm tám"),
     ("ta có !hôm nay thật kì lạ; ta sẽ đi,chơi", "ta có! hôm nay thật kì lạ, ta sẽ đi, chơi"),
 
@@ -343,8 +342,8 @@ TEST_CASES = [
     ("Nhiệt độ là -5°C", "nhiệt độ là âm năm độ xê"),
     ("Tọa độ (-2.5;0)", "tọa độ, âm hai chấm năm, không"),
     ("Họp lúc 8g sáng", "họp lúc tám giờ sáng"),
-    ("090-123-4567", "không chín không một hai ba bốn năm sáu bảy"),
-    ("mã ISO 9001:2015", "mã <en>i s o</en> chín nghìn không trăm lẻ một hai chấm hai nghìn không trăm mười lăm"),
+    ("090-123-4567", "không chín không, một hai ba, bốn năm sáu bảy"),
+    ("mã ISO 9001:2015", "mã <en>i s o</en> chín nghìn không trăm lẻ một, hai nghìn không trăm mười lăm"),
     ("giải khối rubik 4x4x4 ngắn nhất.", "giải khối rubik bốn nhân bốn nhân bốn ngắn nhất."),
     ("hình chữ nhật 3x4", "hình chữ nhật ba nhân bốn"),
     ("màn hình 1920x1080", "màn hình một nghìn chín trăm hai mươi nhân một nghìn không trăm tám mươi"),
@@ -368,6 +367,9 @@ TEST_CASES = [
     ("Tết 1/1", "tết ngày một tháng một"),
     ("lấy 0.5/0.9 x 3 = ?", "lấy không chấm năm trên không chấm chín nhân ba bằng?"),
     ("khoản 3 điều 45 nghị định 12/2021/NĐ-CP . 45/8000", "khoản ba điều bốn mươi lăm nghị định tháng mười hai năm hai nghìn không trăm hai mươi mốt trên nờ đê <en>c p</en>. bốn mươi lăm trên tám nghìn"),
+    ("Thông tin này được Tập đoàn Hóa chất Đức Giang (DGC) công bố hôm 19/3 - hai ngày sau khi Bộ Công an thông báo tạm giam ông Đào Hữu Huyền", "thông tin này được tập đoàn hóa chất đức giang, <en>d g c</en>, công bố hôm mười chín tháng ba, hai ngày sau khi bộ công an thông báo tạm giam ông đào hữu huyền"),
+    ("Tại thời điểm 02:01, tỉ số trận đấu là 2:1 nhưng tỉ lệ cược là 1:2.5.", "tại thời điểm hai giờ một phút, tỉ số trận đấu là hai trên một nhưng tỉ lệ cược là một, hai chấm năm."),
+    ("Vào lúc 10:30, chỉ số nợ/vốn là 1.5:1.", "vào lúc mười giờ ba mươi phút, chỉ số nợ trên vốn là một chấm năm, một."),
 
     # ─── 35. PHÂN BIỆT 123/4 (ADDRESS VS OTHER) ───────────────────────────
     ("Nhà tôi ở số 123/4 đường Nguyễn Trãi.", "nhà tôi ở số một trăm hai mươi ba trên bốn đường nguyễn trãi."),
@@ -392,6 +394,9 @@ TEST_CASES = [
     ("ChatGPT", "chat <en>g p t</en>"),
     ("tôi đang đi du lịch Đà Lạt với người yêu cũ...", "tôi đang đi du lịch Đà Lạt với người yêu cũ."),
     ("CO2", "xê ô hai"),
+    ("Số điện thoại: (+84) 901-234-567.", "số điện thoại, cộng tám mươi bốn, chín không một, hai ba bốn, năm sáu bảy."),
+    ("Số điện thoại: 0921 978 951 là số của Phạm Nguyễn Ngọc Bảo", "số điện thoại, không chín hai một, chín bảy tám, chín năm một là số của phạm nguyễn ngọc bảo"),
+    ("Số thẻ tín dụng: 4111-2222-3333-4444 (Visa).", "số thẻ tín dụng, bốn một một một, hai hai hai hai, ba ba ba ba, bốn bốn bốn bốn, visa."),
     ("Cậu ấy đúng là một 'workaholic', làm việc 12 tiếng mỗi ngày.", "cậu ấy đúng là một workaholic, làm việc mười hai tiếng mỗi ngày."),
     # ("phương trình s = s₀ + v₀t + ½at²", "phương trình ét bằng ét không cộng vê không tê cộng một phần hai a tê bình phương"),
     ("Vi khuẩn kháng thuốc Methicillin-resistant Staphylococcus aureus (MRSA).", "vi khuẩn kháng thuốc methicillin resistant staphylococcus aureus, <en>m r s a</en>."),
@@ -409,9 +414,12 @@ TEST_CASES = [
     ("Tổng hợp gồm 1,000.00 USD và 1.000,00 EUR.", "tổng hợp gồm một nghìn <en>u s d</en> và một nghìn <en>euro</en>."),
     ("Phản ứng có nồng độ 10^-3 mol/L.", "phản ứng có nồng độ mười mũ trừ ba mol trên lít."),
     ("Tỷ lệ P/E là 28.7x.", "tỷ lệ pê trên e là hai mươi tám chấm bảy ích."),
-    ("Log lỗi: ERROR[2025-03-11T14:22:03Z].", "log lỗi, <en>error</en>, ngày mười một tháng ba năm hai nghìn không trăm hai mươi lăm tê mười bốn giờ hai mươi hai phút không ba giây dét."),
+    ("Log lỗi: ERROR[2025-03-11T14:22:03Z].", "log lỗi, <en>error</en>, ngày mười một tháng ba năm hai nghìn không trăm hai mươi lăm tê mười bốn giờ hai mươi hai phút ba giây dét."),
     ("RAM 8GB", "<en>ram</en> tám <en>gigabyte</en>"),
+    ("Tỉ lệ bản đồ 1:50.000.", "tỉ lệ bản đồ một, năm mươi nghìn."),
     ("CPU Core i9-14900K", "<en>c p u</en> core i chín mười bốn nghìn chín trăm ca"),
+    ("Kích thước lốp xe 225/45R17 91W.", "kích thước lốp xe hai trăm hai mươi lăm trên bốn mươi lăm rờ mười bảy chín mươi mốt đắp liu."),
+    ("Kích thước lốp xe 45R17/22R5 91W.", "kích thước lốp xe bốn mươi lăm rờ mười bảy trên hai mươi hai rờ năm chín mươi mốt đắp liu."),
     ]
 
 @pytest.mark.parametrize("input_text, expected", TEST_CASES)

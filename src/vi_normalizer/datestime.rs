@@ -32,12 +32,17 @@ static RE_PERIOD_YEAR: Lazy<Regex> = Lazy::new(|| {
     Regex::new(r"(?i)\b([a-zA-Z]\d*)/(\d{4})\b").unwrap()
 });
 
+// Full time like 10:30:15 or 10g30p15s
 static RE_FULL_TIME: Lazy<Regex> = Lazy::new(|| {
     Regex::new(r"(?i)\b(\d+)(g|:|h)(\d{1,2})(p|:|m)(\d{1,2})(?:\s*(giây|s|g))?\b").unwrap()
 });
 
+// Regular time like 10:30, 14h30, 10:20 phút.
+// Captured groups: 1:hour, 2:separator, 3:minute, 4:suffix (optional)
 static RE_TIME: Lazy<Regex> = Lazy::new(|| {
-    Regex::new(r"(?i)\b(\d+)(g|:|h)(\d{1,2})(?:\s*(phút|p|m))?\b").unwrap()
+    Regex::new(r"(?ix)
+        \b(\d+)(g|h|:)(\d{1,2})(?:\s*(phút|p|m|giây|s|g))?\b(?![.,]\d)
+    ").unwrap()
 });
 
 static RE_HOUR_CONTEXT: Lazy<Regex> = Lazy::new(|| {
@@ -58,6 +63,10 @@ static RE_REDUNDANT_THANG: Lazy<Regex> = Lazy::new(|| {
 
 static RE_REDUNDANT_NAM: Lazy<Regex> = Lazy::new(|| {
     Regex::new(r"(?i)\bnăm\s+năm\b").unwrap()
+});
+
+static RE_REDUNDANT_HOM_NGAY: Lazy<Regex> = Lazy::new(|| {
+    Regex::new(r"(?i)\bhôm\s+ngày\b").unwrap()
 });
 
 fn is_valid_date(day: &str, month: &str) -> bool {
@@ -85,7 +94,8 @@ fn get_context_words(text: &str, start: usize, end: usize, window_size: usize) -
 }
 
 fn norm_time_part(s: &str) -> &str {
-    if s == "00" { "0" } else { s }
+    let trimmed = s.trim_start_matches('0');
+    if trimmed.is_empty() { "0" } else { trimmed }
 }
 
 pub fn normalize_date(text: &str) -> String {
@@ -174,11 +184,6 @@ pub fn normalize_date(text: &str) -> String {
         let math_symbols = ["+", "-", "*", "x", "×", "/", "=", ">", "<", "≥", "≤", "≈", "±"];
         let is_valid = is_valid_date(day_str, month_str);
 
-        if context_words.iter().any(|w: &String| MATH_KEYWORDS.contains(w.as_str())) ||
-           context_words.iter().any(|w: &String| math_symbols.contains(&w.as_str())) {
-            return format!("{} trên {}", n2w(day_str), n2w(month_str));
-        }
-
         let month_has_leading_zero = month_str.starts_with('0') && month_str.len() > 1;
         let day_has_leading_zero = day_str.starts_with('0') && day_str.len() > 1;
         if is_valid && (month_has_leading_zero || day_has_leading_zero) {
@@ -189,6 +194,11 @@ pub fn normalize_date(text: &str) -> String {
         if is_valid && context_words.iter().any(|w: &String| DATE_KEYWORDS.contains(w.as_str())) {
             let m_val = if b == 4 { "tư".to_string() } else { n2w(&b.to_string()) };
             return format!("ngày {} tháng {}", n2w(&a.to_string()), m_val);
+        }
+
+        if context_words.iter().any(|w: &String| MATH_KEYWORDS.contains(w.as_str())) ||
+           context_words.iter().any(|w: &String| math_symbols.contains(&w.as_str())) {
+            return format!("{} trên {}", n2w(day_str), n2w(month_str));
         }
 
         if !is_valid {
@@ -204,6 +214,7 @@ pub fn normalize_date(text: &str) -> String {
     result = RE_REDUNDANT_NGAY.replace_all(&result, "ngày").into_owned();
     result = RE_REDUNDANT_THANG.replace_all(&result, "tháng").into_owned();
     result = RE_REDUNDANT_NAM.replace_all(&result, "năm").into_owned();
+    result = RE_REDUNDANT_HOM_NGAY.replace_all(&result, "hôm").into_owned();
 
     result
 }
@@ -222,26 +233,30 @@ pub fn normalize_time(text: &str) -> String {
         let h_str = caps.get(1).unwrap().as_str();
         let sep = caps.get(2).unwrap().as_str();
         let m_str = caps.get(3).unwrap().as_str();
+        let suffix = caps.get(4).map(|m| m.as_str().to_lowercase()).unwrap_or_default();
 
         let h_int = h_str.parse::<i32>().unwrap_or(-1);
         let m_int = m_str.parse::<i32>().unwrap_or(-1);
 
-        // Heuristic: If separator is uppercase H or G, it's likely chemistry (e.g., 2H2)
-        // unless it's followed by a time unit (phút, p, m).
-        if (sep == "H" || sep == "G") && !full_match.to_lowercase().contains("phút") && !full_match.to_lowercase().contains(" p") && !full_match.to_lowercase().contains(" m") {
+        // Strictness for ":" (xx:xx): Require exactly 2-digit minutes unless a suffix exists.
+        if sep == ":" && m_str.len() != 2 && suffix.is_empty() {
             return full_match.to_string();
         }
 
+        // Chemistry/Measurement hint: Skip alphabetic separators (H/G) if no time suffix and single-digit minute.
+        if (sep == "H" || sep == "G" || sep == "g" || sep == "h") && suffix.is_empty() && m_str.len() == 1 {
+             return full_match.to_string();
+        }
+
         if m_int >= 0 && m_int < 60 {
-            if sep == ":" {
-                if h_int < 24 {
-                    format!("{} giờ {} phút", n2w(norm_time_part(h_str)), n2w(norm_time_part(m_str)))
-                } else {
-                    format!("{} phút {} giây", n2w(h_str), n2w(norm_time_part(m_str)))
-                }
-            } else {
-                format!("{} giờ {} phút", n2w(norm_time_part(h_str)), n2w(norm_time_part(m_str)))
-            }
+            let is_min_sec = sep == ":" && h_int >= 24;
+            let h_words = if is_min_sec { n2w(h_str) } else { n2w(norm_time_part(h_str)) };
+            let m_words = n2w(norm_time_part(m_str));
+            
+            let h_unit = if is_min_sec { "phút" } else { "giờ" };
+            let m_unit = if is_min_sec { "giây" } else { "phút" };
+            
+            format!("{} {} {} {}", h_words, h_unit, m_words, m_unit)
         } else {
             full_match.to_string()
         }

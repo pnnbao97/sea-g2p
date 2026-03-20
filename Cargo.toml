@@ -1,6 +1,6 @@
 [package]
 name = "sea-g2p-rs"
-version = "0.6.12"
+version = "0.7.0"
 edition = "2021"
 
 [lib]

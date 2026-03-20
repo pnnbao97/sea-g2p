@@ -23,7 +23,7 @@ pub static MEASUREMENT_KEY_VI: Lazy<HashMap<&'static str, &'static str>> = Lazy:
     m.insert("cm", "xen ti mét"); m.insert("mm", "mi li mét");
     m.insert("nm", "na nô mét"); m.insert("µm", "mic rô mét");
     m.insert("μm", "mic rô mét"); m.insert("m", "mét");
-    m.insert("kg", "ki lô gam"); m.insert("g", "gam");
+    m.insert("kg", "ki lô gam"); m.insert("g", "gam"); m.insert("µg", "mic rô gam");
     m.insert("mg", "mi li gam"); m.insert("km2", "ki lô mét vuông");
     m.insert("m2", "mét vuông"); m.insert("cm2", "xen ti mét vuông");
     m.insert("mm2", "mi li mét vuông"); m.insert("ha", "héc ta");

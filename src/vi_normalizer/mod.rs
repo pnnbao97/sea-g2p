@@ -41,6 +41,8 @@ static RE_PHONE_WITH_DASH: Lazy<Regex> = Lazy::new(|| Regex::new(r"\b(0\d{2,3})[
 static RE_POWER_OF_TEN_IMPLICIT: Lazy<Regex> = Lazy::new(|| Regex::new(r"\b10\^([-+]?\d+)\b").unwrap());
 static RE_TO_SANG: Lazy<Regex> = Lazy::new(|| Regex::new(r"\s*(?:->|=>)\s*").unwrap());
 static RE_MULTI_COMMA: Lazy<Regex> = Lazy::new(|| Regex::new(r"\b(\d+(?:,\d+){2,})\b").unwrap());
+static RE_NUMERIC_DASH_GROUPS: Lazy<Regex> = Lazy::new(|| Regex::new(r"\b\d+(?:[\u2013\-\u2014]\d+){2,}\b").unwrap());
+static RE_PHONE_SPACE: Lazy<Regex> = Lazy::new(|| Regex::new(r"\b0\d{2,3}(?:\s\d{3}){2}\b").unwrap());
 
 // ── Tier 2: fancy_regex (REQUIRED for look-around assertions) ────────────────
 // RE_COMBINED_TECH_EMAIL removed — two separate passes are faster (mirrors Python)
@@ -133,19 +135,6 @@ pub fn clean_vietnamese_text(text: &str) -> String {
     current_text = RE_CONTEXT_TRU_POST.replace_all(&current_text, " $1 trừ $2 $3 ").into_owned();
     current_text = RE_CONTEXT_DEN.replace_all(&current_text, " $1 $2 đến $3 ").into_owned();
 
-    current_text = RE_PHONE_WITH_DASH.replace_all(&current_text, |caps: &Captures| {
-        format!(" {} ", crate::vi_normalizer::num2vi::n2w_single(&format!("{}{}{}", caps.get(1).unwrap().as_str(), caps.get(2).unwrap().as_str(), caps.get(3).unwrap().as_str())))
-    }).into_owned();
-
-    current_text = RE_POWER_OF_TEN_IMPLICIT.replace_all(&current_text, |caps: &Captures| {
-        let exp = caps.get(1).unwrap().as_str();
-        if exp.starts_with('-') {
-            format!("mười mũ trừ {}", crate::vi_normalizer::num2vi::n2w(&exp[1..]))
-        } else {
-            format!("mười mũ {}", crate::vi_normalizer::num2vi::n2w(&exp.replace('+', "")))
-        }
-    }).into_owned();
-
     current_text = RE_EQ_MINUS.replace_all(&current_text, |caps: &Captures| {
         format!("{} trừ {} =", caps.get(1).unwrap().as_str(), caps.get(2).unwrap().as_str())
     }).into_owned();
@@ -159,6 +148,44 @@ pub fn clean_vietnamese_text(text: &str) -> String {
 
     current_text = normalize_date(&current_text);
     current_text = normalize_time(&current_text);
+
+    current_text = RE_NUMERIC_DASH_GROUPS.replace_all(&current_text, |caps: &Captures| {
+        let matched = caps.get(0).unwrap().as_str();
+        let parts: Vec<&str> = matched.split(&['-', '\u{2013}', '\u{2014}'][..]).collect();
+        parts.iter()
+            .map(|&p| crate::vi_normalizer::num2vi::n2w_single(p))
+            .collect::<Vec<String>>()
+            .join(", ")
+    }).into_owned();
+
+    current_text = RE_PHONE_SPACE.replace_all(&current_text, |caps: &Captures| {
+        let matched = caps.get(0).unwrap().as_str();
+        let parts: Vec<&str> = matched.split_whitespace().collect();
+        parts.iter()
+            .map(|&p| crate::vi_normalizer::num2vi::n2w_single(p))
+            .collect::<Vec<String>>()
+            .join(", ")
+    }).into_owned();
+
+    current_text = RE_PHONE_WITH_DASH.replace_all(&current_text, |caps: &Captures| {
+        let p1 = caps.get(1).unwrap().as_str();
+        let p2 = caps.get(2).unwrap().as_str();
+        let p3 = caps.get(3).unwrap().as_str();
+        format!(" {}, {}, {} ", 
+            crate::vi_normalizer::num2vi::n2w_single(p1),
+            crate::vi_normalizer::num2vi::n2w_single(p2),
+            crate::vi_normalizer::num2vi::n2w_single(p3)
+        )
+    }).into_owned();
+
+    current_text = RE_POWER_OF_TEN_IMPLICIT.replace_all(&current_text, |caps: &Captures| {
+        let exp = caps.get(1).unwrap().as_str();
+        if exp.starts_with('-') {
+            format!("mười mũ trừ {}", crate::vi_normalizer::num2vi::n2w(&exp[1..]))
+        } else {
+            format!("mười mũ {}", crate::vi_normalizer::num2vi::n2w(&exp.replace('+', "")))
+        }
+    }).into_owned();
 
     current_text = RE_RANGE.replace_all(&current_text, |caps: &FCaps| {
         let n1_raw = caps.get(1).unwrap().as_str();

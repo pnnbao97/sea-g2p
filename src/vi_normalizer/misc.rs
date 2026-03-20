@@ -8,7 +8,6 @@ use crate::vi_normalizer::resources::{
     CURRENCY_KEY, COMBINED_EXCEPTIONS, SUPERSCRIPTS_MAP, SUBSCRIPTS_MAP
 };
 use crate::vi_normalizer::technical::normalize_slashes;
-use crate::vi_normalizer::numerical::num_to_words;
 
 const VI_UPPER: &str = "ĐĂÂÊÔƠƯ";
 
@@ -61,8 +60,9 @@ static RE_TEMP_F: Lazy<Regex> = Lazy::new(|| {
     Regex::new(r"(?i)(\d+(?:[.,]\d+)?)\s*°\s*f\b").unwrap()
 });
 static RE_DEGREE: Lazy<Regex> = Lazy::new(|| Regex::new(r"°").unwrap());
-static RE_STANDARD_COLON: Lazy<Regex> = Lazy::new(|| {
-    Regex::new(r"\b(\d+):(\d+)\b").unwrap()
+static RE_STANDARD_COLON: Lazy<FRegex> = Lazy::new(|| {
+    // Lookbehind and lookahead to avoid partial float matches like 1.5:1 or 1:2.5
+    FRegex::new(r"(?<![.,\d])\b(\d+):(\d+(?:\.\d+)?)\b(?![.,\d])").unwrap()
 });
 static RE_CLEAN_OTHERS: Lazy<Regex> = Lazy::new(|| {
     Regex::new(r"[^a-zA-Z0-9\sàáảãạăắằẳẵặâấầẩẫậèéẻẽẹêếềểễệìíỉĩịòóỏõọôốồổỗộơớờởỡợùúủũụưứừửữựỳýỷỹỵđÀÁẢÃẠĂẮẰẲẴẶÂẤẦẨẪẬÈÉẺẼẸÊẾỀỂỄỆÌÍỈĨỊÒÓỎÕỌÔỐỒỔỖỘƠỚỜỞỠỢÙÚỦŨỤƯỨỪỬỮỰỲÝỶỸỴĐ.,!?_\'\'-]").unwrap()
@@ -339,10 +339,21 @@ pub fn normalize_others(text: &str) -> String {
         parts.join(" chấm ")
     }).to_string();
 
-    res = RE_STANDARD_COLON.replace_all(&res, |caps: &Captures| {
-        format!(" {} hai chấm {} ", num_to_words(caps.get(1).unwrap().as_str(), false), num_to_words(caps.get(2).unwrap().as_str(), false))
-    }).into_owned();
+    // Handle numeric ratios/versions like 2:1 or 9001:2015
+    res = RE_STANDARD_COLON.replace_all(&res, |caps: &FCaps| {
+        let n1 = caps.get(1).unwrap().as_str();
+        let n2 = caps.get(2).unwrap().as_str();
+        let n1_val = n1.parse::<u64>().unwrap_or(0);
 
-    res = RE_COLON_SEMICOLON.replace_all(&res, ",").into_owned();
+        // Heuristic: Use "trên" ONLY for pure integer-integer ratios where n1 is small.
+        // Use a comma for EVERYTHING else (years, map scales 1:50.000, odds 1:2.5, etc.)
+        if n1_val < 1000 && !n2.contains('.') {
+            format!(" {} trên {} ", n1, n2)
+        } else {
+            format!("{}, {}", n1, n2)
+        }
+    }).to_string();
+
+    res = RE_COLON_SEMICOLON.replace_all(&res, ", ").into_owned();
     RE_CLEAN_OTHERS.replace_all(&res, " ").into_owned()
 }
