@@ -23,7 +23,7 @@ pub static RE_TECHNICAL: Lazy<Regex> = Lazy::new(|| {
     |
     \b[a-zA-Z][a-zA-Z0-9]*(?:[._\-][a-zA-Z0-9]+){2,}\b
     |
-    \b(?:[a-fA-F0-9]{1,4}:){3,7}[a-fA-F0-9]{1,4}\b
+    \b[a-fA-F0-9]{1,4}(?::[a-fA-F0-9]{1,4}){3,7}\b
     ").unwrap()
 });
 

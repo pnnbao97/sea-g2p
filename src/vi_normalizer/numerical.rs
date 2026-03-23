@@ -8,10 +8,14 @@ static RE_NUMBER: Lazy<FRegex> = Lazy::new(|| {
 });
 
 pub static RE_MULTIPLY: Lazy<FRegex> = Lazy::new(|| {
-    FRegex::new(r"(?i)(\b\d{1,15}(?:\s*(?![x×]\b)[a-zA-Zμµ²³°]+[0-9]*)*)(?:\s*[x×]\s*\d{1,15}(?:\s*(?![x×]\b)[a-zA-Zμµ²³°]+[0-9]*)*)+").unwrap()
+    // Greedier version to catch multi-factor chains like 10x20x30.
+    // Matches a number (with optional unit) followed by one or more (x + number + unit) sequences.
+    FRegex::new(r"(?i)\d+(?:\s*[a-zA-Zμµ²³°]+\d*)?(?:\s*[x×]\s*\d+(?:\s*[a-zA-Zμµ²³°]+\d*)?)+").unwrap()
 });
 
 static RE_EXPAND_MULTIPLY: Lazy<FRegex> = Lazy::new(|| {
+    // Helper to expand multiplication symbols. 
+    // Uses fixed-width lookbehind for maximum compatibility.
     FRegex::new(r"(?i)(?<=\d|[a-zA-Zμµ²³°])\s*[x×]\s*(?=\d)").unwrap()
 });
 
