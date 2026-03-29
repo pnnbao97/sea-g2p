@@ -175,7 +175,7 @@ PHONEMIZE_CASES = [
     ('a phẩy là một ký tự đặc biệt', 'ˈaː fˈəɪ4 lˌaː2 mˈo6t̪ kˈiɜ t̪ˈy6 ɗˈa6c bˈiɛ6t̪'),
     ('đây là phút một phẩy', 'ɗˈəɪ lˌaː2 fˈuɜt̪ mˈo6t̪ fˈəɪ4'),
     ("i don't know why", 'ˈaɪ dˈoʊnt nˈoʊ wˈaɪ'),
-    ("it's a beautiful day", 'ɪts ˈeɪ bjˈuːɾifəl dˈeɪ'),
+    ("it's a beautiful day", 'ɪts ɐ bjˈuːɾifəl dˈeɪ'),
     ('giá của sản phẩm này là mười <en>u s d</en>', 'zˈaːɜ kˌuə4 sˈaː4n fˈə4m nˈa2j lˌaː2 mˈyə2j jˈuː ˈɛs dˈiː'),
     ('giá ét pê năm trăm hôm nay là bốn nghìn hai trăm phẩy năm điểm', 'zˈaːɜ ˈɛɜt̪ pˈe nˈam tʃˈam hˈom nˈaj lˌaː2 bˈoɜn ŋˈi2n hˈaːj tʃˈam fˈəɪ4 nˈam ɗˈiɛ4m'),
     ('trường hợp một phẩy hai ba phẩy bốn', 'tʃˈyə2ŋ hˈəː6p mˈo6t̪ fˈəɪ4 hˈaːj bˈaː fˈəɪ4 bˈoɜn'),

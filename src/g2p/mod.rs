@@ -142,6 +142,7 @@ pub struct Token {
     pub lang: String,
     pub content: String,
     pub phone: Option<String>,
+    pub is_explicit_en: bool,
 }
 
 use std::collections::HashMap;
@@ -349,12 +350,14 @@ impl G2PEngine {
                             lang: "en".to_string(),
                             content: word,
                             phone: phone_val,
+                            is_explicit_en: true,
                         });
                     } else if let Some(sp) = scall.get(2) {
                         tokens.push(Token {
                             lang: "punct".to_string(),
                             content: sp.as_str().to_string(),
                             phone: Some(sp.as_str().to_string()),
+                            is_explicit_en: true,
                         });
                     }
                 }
@@ -366,6 +369,7 @@ impl G2PEngine {
                         lang: lang.to_string(),
                         content: word.as_str().to_string(),
                         phone: Some(p.replace("<en>", "").trim().to_string()),
+                        is_explicit_en: false,
                     });
                 } else if let Some((vi, en)) = self.cached_lookup_common(&lw) {
                     tokens.push(Token {
@@ -375,6 +379,7 @@ impl G2PEngine {
                             vi.trim(),
                             en.replace("<en>", "").trim()
                         )),
+                        is_explicit_en: false,
                     });
                 } else {
                     let has_vi_accent = lw.chars().any(|c| VI_ACCENTS.contains(c));
@@ -382,6 +387,7 @@ impl G2PEngine {
                         lang: if has_vi_accent { "vi".to_string() } else { "en".to_string() },
                         content: word.as_str().to_string(),
                         phone: None,
+                        is_explicit_en: false,
                     });
                 }
             } else if let Some(punct) = cap.get(3) {
@@ -389,6 +395,7 @@ impl G2PEngine {
                     lang: "punct".to_string(),
                     content: punct.as_str().to_string(),
                     phone: Some(punct.as_str().to_string()),
+                    is_explicit_en: false,
                 });
             }
         }
@@ -405,12 +412,22 @@ impl G2PEngine {
                         let inner = &p[1..p.len()-1];
                         let sep = inner.find('\x1F').unwrap_or(inner.len());
                         if t.lang == "en" {
-                            if sep + 1 <= inner.len() { inner[sep+1..].to_string() } else { String::new() }
+                            let mut p_val = if sep + 1 <= inner.len() { inner[sep+1..].to_string() } else { String::new() };
+                            // Rule for 'a': if English style but not in <en> tag, use 'ɐ'
+                            if t.content.to_lowercase() == "a" && !t.is_explicit_en {
+                                p_val = "ɐ".to_string();
+                            }
+                            p_val
                         } else {
                             inner[..sep].to_string()
                         }
                     } else {
-                        p
+                        let mut p_val = p;
+                        // Also check for 'a' that was pre-resolved as 'en' (from merged dict with <en> tag in content)
+                        if t.lang == "en" && t.content.to_lowercase() == "a" && !t.is_explicit_en {
+                            p_val = "ɐ".to_string();
+                        }
+                        p_val
                     }
                 } else {
                     // Fallback chain:
