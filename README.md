@@ -63,6 +63,7 @@ print(phonemes)
 - **Zero Dependency**: Pre-compiled wheels for Windows, Linux, and macOS.
 - **Smart Normalization**: Specialized for Vietnamese (numbers, dates, technical terms).
 - **Bilingual Support**: Handles mixed Vietnamese/English text seamlessly.
+- **C++ API**: Native C++ implementation for embedded systems and high-performance applications.
 
 ## 📊 Performance
 
