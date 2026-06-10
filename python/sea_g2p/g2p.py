@@ -17,17 +17,21 @@ class G2P:
         self._rust_engine = _RustG2P(db_path)
         logger.debug(f"Initialized Rust G2P engine with {db_path}")
 
-    def convert(self, text: str | list[str], **kwargs) -> str | list[str]:
+    def convert(self, text: str | list[str], punc_norm: bool = False, **kwargs) -> str | list[str]:
         """
         Convert text or a list of texts to phonemes.
         If a list is provided, conversion is done in parallel using Rust's Rayon.
+
+        If ``punc_norm`` is True, the input text's trailing punctuation is
+        normalized before phonemization (a sentence ends with a single "."; a
+        short sentence — fewer than 5 words — is forced to ".").
         """
         if isinstance(text, list):
-            return self.phonemize_batch(text, **kwargs)
-        return self._rust_engine.phonemize(text)
+            return self.phonemize_batch(text, punc_norm=punc_norm, **kwargs)
+        return self._rust_engine.phonemize(text, punc_norm)
 
-    def phonemize_batch(self, texts: list[str], **kwargs) -> list[str]:
+    def phonemize_batch(self, texts: list[str], punc_norm: bool = False, **kwargs) -> list[str]:
         """Convert a batch of text strings to phonemes."""
         if not texts:
             return []
-        return self._rust_engine.phonemize_batch(texts)
+        return self._rust_engine.phonemize_batch(texts, punc_norm)
