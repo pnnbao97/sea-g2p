@@ -1,5 +1,6 @@
 use pyo3::prelude::*;
 pub mod g2p;
+pub mod punc;
 pub mod vi_normalizer;
 
 #[pyclass]
@@ -16,14 +17,20 @@ impl G2P {
         Ok(G2P { engine })
     }
 
-    fn phonemize(&self, text: &str) -> PyResult<String> {
-        Ok(self.engine.phonemize(text))
+    #[pyo3(signature = (text, punc_norm=false))]
+    fn phonemize(&self, text: &str, punc_norm: bool) -> PyResult<String> {
+        let input = if punc_norm { crate::punc::apply_punc_norm(text) } else { text.to_string() };
+        Ok(self.engine.phonemize(&input))
     }
 
-    fn phonemize_batch(&self, py: Python<'_>, texts: Vec<String>) -> PyResult<Vec<String>> {
+    #[pyo3(signature = (texts, punc_norm=false))]
+    fn phonemize_batch(&self, py: Python<'_>, texts: Vec<String>, punc_norm: bool) -> PyResult<Vec<String>> {
         py.allow_threads(|| {
             use rayon::prelude::*;
-            Ok(texts.into_par_iter().map(|t| self.engine.phonemize(&t)).collect())
+            Ok(texts.into_par_iter().map(|t| {
+                let input = if punc_norm { crate::punc::apply_punc_norm(&t) } else { t };
+                self.engine.phonemize(&input)
+            }).collect())
         })
     }
 }

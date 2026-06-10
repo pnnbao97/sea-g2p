@@ -23,6 +23,9 @@ use crate::vi_normalizer::resources::COMBINED_EXCEPTIONS;
 // ── Tier 1: regex crate (Thompson NFA, much faster for simple patterns) ────
 static RE_EXTRA_SPACES: Lazy<Regex> = Lazy::new(|| Regex::new(r"[ \t\xA0]+").unwrap());
 static RE_EXTRA_COMMAS: Lazy<Regex> = Lazy::new(|| Regex::new(r",\s*,").unwrap());
+// Ellipsis một-ký-tự: ․(U+2024) ‥(U+2025) …(U+2026) -> "." để đi chung đường
+// với "..." (RE_MULTI_DOT gộp tiếp về một dấu chấm).
+static RE_ELLIPSIS: Lazy<Regex> = Lazy::new(|| Regex::new(r"[\u{2024}\u{2025}\u{2026}]").unwrap());
 static RE_MULTI_DOT: Lazy<Regex> = Lazy::new(|| Regex::new(r"\.[\s.]*\.").unwrap());
 static RE_COMMA_BEFORE_PUNCT: Lazy<Regex> = Lazy::new(|| Regex::new(r",\s*([.!?;])").unwrap());
 static RE_SPACE_BEFORE_PUNCT: Lazy<Regex> = Lazy::new(|| Regex::new(r"\s+([,.!?;:])").unwrap());
@@ -276,11 +279,14 @@ impl Normalizer {
         Normalizer { lang: lang.to_string() }
     }
 
-    pub fn normalize(&self, text: &str) -> String {
+    #[pyo3(signature = (text, punc_norm=false))]
+    pub fn normalize(&self, text: &str, punc_norm: bool) -> String {
         if text.is_empty() { return String::new(); }
 
         let nfc_text: String = text.nfc().collect();
-        let mut current_text = nfc_text;
+        // Quy ellipsis (… ‥ ․) về "." NGAY ĐẦU để nó theo cùng đường xử lý với
+        // "...". Nếu để muộn, "…" bị các pass trước đó nuốt thành dấu phân tách.
+        let mut current_text = RE_ELLIPSIS.replace_all(&nfc_text, ".").into_owned();
 
         let mut en_contents = Vec::new();
         let placeholder_pattern = "ENTOKEN{}";
@@ -302,13 +308,20 @@ impl Normalizer {
             }
         }
 
-        RE_EXTRA_SPACES.replace_all(&current_text, " ").trim().to_string()
+        let result = RE_EXTRA_SPACES.replace_all(&current_text, " ").trim().to_string();
+
+        if punc_norm {
+            crate::punc::apply_punc_norm(&result)
+        } else {
+            result
+        }
     }
 
-    pub fn normalize_batch(&self, py: Python<'_>, texts: Vec<String>) -> PyResult<Vec<String>> {
+    #[pyo3(signature = (texts, punc_norm=false))]
+    pub fn normalize_batch(&self, py: Python<'_>, texts: Vec<String>, punc_norm: bool) -> PyResult<Vec<String>> {
         py.allow_threads(|| {
             use rayon::prelude::*;
-            Ok(texts.into_par_iter().map(|t| self.normalize(&t)).collect())
+            Ok(texts.into_par_iter().map(|t| self.normalize(&t, punc_norm)).collect())
         })
     }
 }
