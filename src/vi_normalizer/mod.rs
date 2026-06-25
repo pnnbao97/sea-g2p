@@ -15,7 +15,7 @@ use once_cell::sync::Lazy;
 use unicode_normalization::UnicodeNormalization;
 use crate::vi_normalizer::numerical::{normalize_number_vi, RE_MULTIPLY, expand_multiply_number};
 use crate::vi_normalizer::datestime::{normalize_date, normalize_time};
-use crate::vi_normalizer::units::{expand_units_and_currency, expand_compound_units, expand_scientific_notation, fix_english_style_numbers, expand_power_of_ten};
+use crate::vi_normalizer::units::{expand_units_and_currency, expand_compound_units, expand_scientific_notation, fix_english_style_numbers, expand_power_of_ten, expand_height_weight};
 use crate::vi_normalizer::misc::{normalize_others, expand_standalone_letters, RE_ACRONYMS_EXCEPTIONS, RE_ACRONYM};
 use crate::vi_normalizer::technical::{normalize_technical, normalize_emails, RE_TECHNICAL, RE_EMAIL};
 use crate::vi_normalizer::resources::COMBINED_EXCEPTIONS;
@@ -35,9 +35,12 @@ static RE_INTERNAL_EN_TAG: Lazy<Regex> = Lazy::new(|| Regex::new(r"(?i)(?s)(__st
 static RE_DOT_BETWEEN_DIGITS: Lazy<Regex> = Lazy::new(|| Regex::new(r"(\d+)\.(\d+)").unwrap());
 static RE_ENTOKEN: Lazy<Regex> = Lazy::new(|| Regex::new(r"(?i)ENTOKEN\d+").unwrap());
 static RE_EN_TAG: Lazy<Regex> = Lazy::new(|| Regex::new(r"(?si)<en>.*?</en>").unwrap());
-static RE_CONTEXT_TRU: Lazy<Regex> = Lazy::new(|| Regex::new(r"(?i)\b(b\xe1\xba\xb1ng|t\xc3\xadnh|k\xe1\xba\xbft qu\xe1\xba\xa3)\s+(\d+(?:[.,]\d+)?)\s*[-\u2013\u2014]\s*(\d+(?:[.,]\d+)?)\b").unwrap());
-static RE_CONTEXT_TRU_POST: Lazy<Regex> = Lazy::new(|| Regex::new(r"(?i)\b(\d+(?:[.,]\d+)?)\s*[-\u2013\u2014]\s*(\d+(?:[.,]\d+)?)\s+(b\xe1\xba\xb1ng|t\xc3\xadnh|k\xe1\xba\xbft qu\xe1\xba\xa3)\b").unwrap());
-static RE_CONTEXT_DEN: Lazy<Regex> = Lazy::new(|| Regex::new(r"(?i)\b(t\xe1\xbb\xab|kho\xe1\xba\xa3ng|trong)\s+(\d+(?:[.,]\d+)?)\s*[-\u2013\u2014]\s*(\d+(?:[.,]\d+)?)\b").unwrap());
+// L\u01b0u \u00fd: c\u00e1c t\u1eeb ng\u1eef c\u1ea3nh ph\u1ea3i l\u00e0 k\u00fd t\u1ef1 Vi\u1ec7t th\u1eadt. KH\u00d4NG d\u00f9ng byte-escape
+// `\xHH` trong raw string `r"..."` \u2014 raw string kh\u00f4ng x\u1eed l\u00fd escape n\u00ean engine
+// hi\u1ec3u `\xe1` l\u00e0 codepoint U+00E1, bi\u1ebfn "b\u1eb1ng" th\u00e0nh mojibake kh\u00f4ng bao gi\u1edd kh\u1edbp.
+static RE_CONTEXT_TRU: Lazy<Regex> = Lazy::new(|| Regex::new(r"(?i)\b(b\u1eb1ng|t\u00ednh|k\u1ebft qu\u1ea3)\s+(\d+(?:[.,]\d+)?)\s*[-\u2013\u2014]\s*(\d+(?:[.,]\d+)?)\b").unwrap());
+static RE_CONTEXT_TRU_POST: Lazy<Regex> = Lazy::new(|| Regex::new(r"(?i)\b(\d+(?:[.,]\d+)?)\s*[-\u2013\u2014]\s*(\d+(?:[.,]\d+)?)\s+(b\u1eb1ng|t\u00ednh|k\u1ebft qu\u1ea3)\b").unwrap());
+static RE_CONTEXT_DEN: Lazy<Regex> = Lazy::new(|| Regex::new(r"(?i)\b(t\u1eeb|kho\u1ea3ng|trong)\s+(\d+(?:[.,]\d+)?)\s*[-\u2013\u2014]\s*(\d+(?:[.,]\d+)?)\b").unwrap());
 static RE_EQ_MINUS: Lazy<Regex> = Lazy::new(|| Regex::new(r"([\d./]+)\s*[-\u2013\u2014]\s*([\d./]+)\s*=").unwrap());
 static RE_EQ_NEG: Lazy<Regex> = Lazy::new(|| Regex::new(r"=\s*[-\u2013\u2014](\d+(?:[./]\d+)?)").unwrap());
 static RE_PHONE_WITH_DASH: Lazy<Regex> = Lazy::new(|| Regex::new(r"\b(0\d{2,3})[\u2013\-\u2014](\d{3,4})[\u2013\-\u2014](\d{4})\b").unwrap());
@@ -46,6 +49,8 @@ static RE_TO_SANG: Lazy<Regex> = Lazy::new(|| Regex::new(r"\s*(?:->|=>)\s*").unw
 static RE_MULTI_COMMA: Lazy<Regex> = Lazy::new(|| Regex::new(r"\b(\d+(?:,\d+){2,})\b").unwrap());
 static RE_NUMERIC_DASH_GROUPS: Lazy<Regex> = Lazy::new(|| Regex::new(r"\b\d+(?:[\u2013\-\u2014]\d+){2,}\b").unwrap());
 static RE_PHONE_SPACE: Lazy<Regex> = Lazy::new(|| Regex::new(r"\b0\d{2,3}(?:\s\d{3}){2}\b").unwrap());
+// Tổng đài 1800/1900: đọc rời từng chữ số thay vì gộp thành số lớn.
+static RE_HOTLINE: Lazy<Regex> = Lazy::new(|| Regex::new(r"\b(1800|1900)[\s.]?(\d{3,6})\b").unwrap());
 
 // ── Tier 2: fancy_regex (REQUIRED for look-around assertions) ────────────────
 // RE_COMBINED_TECH_EMAIL removed — two separate passes are faster (mirrors Python)
@@ -174,10 +179,17 @@ pub fn clean_vietnamese_text(text: &str) -> String {
         let p1 = caps.get(1).unwrap().as_str();
         let p2 = caps.get(2).unwrap().as_str();
         let p3 = caps.get(3).unwrap().as_str();
-        format!(" {}, {}, {} ", 
+        format!(" {}, {}, {} ",
             crate::vi_normalizer::num2vi::n2w_single(p1),
             crate::vi_normalizer::num2vi::n2w_single(p2),
             crate::vi_normalizer::num2vi::n2w_single(p3)
+        )
+    }).into_owned();
+
+    current_text = RE_HOTLINE.replace_all(&current_text, |caps: &Captures| {
+        format!(" {} {} ",
+            crate::vi_normalizer::num2vi::n2w_single(caps.get(1).unwrap().as_str()),
+            crate::vi_normalizer::num2vi::n2w_single(caps.get(2).unwrap().as_str())
         )
     }).into_owned();
 
@@ -211,6 +223,7 @@ pub fn clean_vietnamese_text(text: &str) -> String {
     current_text = RE_TO_SANG.replace_all(&current_text, " sang ").into_owned();
 
     current_text = expand_scientific_notation(&current_text);
+    current_text = expand_height_weight(&current_text);
     current_text = expand_compound_units(&current_text);
     current_text = expand_units_and_currency(&current_text);
     current_text = RE_LONG_NUM.replace_all(&current_text, |caps: &FCaps| {
