@@ -87,13 +87,16 @@ static RE_TEMP_F: Lazy<Regex> = Lazy::new(|| {
 });
 static RE_DEGREE: Lazy<Regex> = Lazy::new(|| Regex::new(r"°").unwrap());
 static RE_STANDARD_COLON: Lazy<FRegex> = Lazy::new(|| {
-    // Lookbehind and lookahead to avoid partial float matches like 1.5:1 or 1:2.5
-    FRegex::new(r"(?<![.,\d])\b(\d+):(\d+(?:\.\d+)?)\b(?![.,\d])").unwrap()
+    // Lookbehind tránh khớp một phần "1.5:1"; lookahead chặn số nối tiếp/thập phân
+    // nhưng CHO PHÉP dấu câu cuối câu ("2:1." vẫn là tỷ lệ "hai trên một").
+    FRegex::new(r"(?<![.,\d])\b(\d+):(\d+(?:\.\d+)?)\b(?!\d)(?![.,]\d)").unwrap()
 });
 // Tỷ lệ >= 3 thành phần ngăn bởi ":" (1:2:3) — KHÔNG phải giờ (đã loại ở
 // normalize_time). Đọc các số nối bằng "trên".
 static RE_RATIO_MULTI: Lazy<FRegex> = Lazy::new(|| {
-    FRegex::new(r"(?<![.,\d:])\d+(?::\d+){2,}(?![.,\d:])").unwrap()
+    // Chặn nối tiếp số (:\d, \d) và số thập phân (.\d/,\d) nhưng CHO PHÉP dấu câu
+    // cuối câu (vd "1:2:3." vẫn là tỷ lệ, không bị cắt thành "một trên hai, ba").
+    FRegex::new(r"(?<![.,\d:])\d+(?::\d+){2,}(?![\d:])(?![.,]\d)").unwrap()
 });
 static RE_CLEAN_OTHERS: Lazy<Regex> = Lazy::new(|| {
     Regex::new(r"[^a-zA-Z0-9\sàáảãạăắằẳẵặâấầẩẫậèéẻẽẹêếềểễệìíỉĩịòóỏõọôốồổỗộơớờởỡợùúủũụưứừửữựỳýỷỹỵđÀÁẢÃẠĂẮẰẲẴẶÂẤẦẨẪẬÈÉẺẼẸÊẾỀỂỄỆÌÍỈĨỊÒÓỎÕỌÔỐỒỔỖỘƠỚỜỞỠỢÙÚỦŨỤƯỨỪỬỮỰỲÝỶỸỴĐ.,!?_\'\'-]").unwrap()

@@ -546,6 +546,12 @@ TEST_CASES = [
     ("cỡ M", "cỡ <en>m</en>"),
     ("size S/M/L", "size <en>s</en> <en>m</en> <en>l</en>"),
     ("cỡ lớn", "cỡ lớn"),   # không phải nhãn size -> giữ nguyên
+
+    # ─── 54. TỶ LỆ Ở CUỐI CÂU (có dấu chấm) ──────────────────────────────────
+    # Lookahead không được cắt nhầm khi tỷ lệ đứng cuối câu.
+    ("tỉ lệ nợ/vốn là 1:2:3.", "tỉ lệ nợ trên vốn là một trên hai trên ba."),
+    ("tỷ lệ 2:1.", "tỷ lệ hai trên một."),
+    ("tỉ số 3:2.", "tỉ số ba trên hai."),
     ]
 
 @pytest.mark.parametrize("input_text, expected", TEST_CASES)
