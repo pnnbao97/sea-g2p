@@ -228,10 +228,20 @@ pub fn normalize_date(text: &str) -> String {
 
 pub fn normalize_time(text: &str) -> String {
     let mut result = RE_FULL_TIME.replace_all(text, |caps: &Captures| {
+        let h = caps.get(1).unwrap().as_str();
+        let sep1 = caps.get(2).unwrap().as_str();
+        let m = caps.get(3).unwrap().as_str();
+        let sep2 = caps.get(4).unwrap().as_str();
+        let s = caps.get(5).unwrap().as_str();
+        // Dạng toàn dấu ":" chỉ là GIỜ khi phút & giây đủ 2 chữ số (vd 01:02:03).
+        // "1:2:3" (phút/giây 1 chữ số) chắc chắn là TỶ LỆ -> để pass sau xử lý.
+        if sep1 == ":" && sep2 == ":" && (m.len() != 2 || s.len() != 2) {
+            return caps.get(0).unwrap().as_str().to_string();
+        }
         format!("{} giờ {} phút {} giây",
-            n2w(norm_time_part(caps.get(1).unwrap().as_str())),
-            n2w(norm_time_part(caps.get(3).unwrap().as_str())),
-            n2w(norm_time_part(caps.get(5).unwrap().as_str()))
+            n2w(norm_time_part(h)),
+            n2w(norm_time_part(m)),
+            n2w(norm_time_part(s))
         )
     }).to_string();
 

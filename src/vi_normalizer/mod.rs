@@ -239,6 +239,7 @@ pub fn clean_vietnamese_text(text: &str) -> String {
 
     current_text = expand_scientific_notation(&current_text);
     current_text = expand_height_weight(&current_text);
+    current_text = crate::vi_normalizer::misc::expand_size_labels(&current_text);
     current_text = expand_compound_units(&current_text);
     current_text = expand_units_and_currency(&current_text);
     current_text = RE_LONG_NUM.replace_all(&current_text, |caps: &FCaps| {
