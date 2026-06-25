@@ -421,6 +421,60 @@ TEST_CASES = [
     ("CPU Core i9-14900K", "<en>c p u</en> core i chín mười bốn nghìn chín trăm ca"),
     ("Kích thước lốp xe 225/45R17 91W.", "kích thước lốp xe hai trăm hai mươi lăm trên bốn mươi lăm rờ mười bảy chín mươi mốt đắp liu."),
     ("Kích thước lốp xe 45R17/22R5 91W.", "kích thước lốp xe bốn mươi lăm rờ mười bảy trên hai mươi hai rờ năm chín mươi mốt đắp liu."),
+
+    # ─── 37. NGỮ CẢNH KHOẢNG / PHÉP TRỪ (CONTEXT RANGE & SUBTRACTION) ──────────
+    # Trước đây các regex ngữ cảnh dùng byte-escape trong raw string nên chết hẳn:
+    # "từ/khoảng/bằng/tính/kết quả" + dãy số bị đọc nhầm thành ngày tháng / phân số.
+    ("từ 5-10 ngày", "từ năm đến mười ngày"),
+    ("khoảng 3-5 triệu đồng", "khoảng ba đến năm triệu đồng"),
+    ("trong 5-10 ngày", "trong năm đến mười ngày"),
+    ("nhiệt độ từ 20-25 độ", "nhiệt độ từ hai mươi đến hai mươi lăm độ"),
+    ("bằng 10-3", "bằng mười trừ ba"),
+    ("kết quả 10-3 nghĩa là", "kết quả mười trừ ba nghĩa là"),
+    ("tính 12-4 ra", "tính mười hai trừ bốn ra"),
+
+    # ─── 38. SỐ LA MÃ CÓ CỔNG NGỮ CẢNH (ROMAN NUMERAL GATING) ─────────────────
+    # Chỉ mở rộng khi có từ dẫn (thế kỷ/chương/đại hội/vua...); ngược lại để cụm
+    # chữ I V X L C D M rơi vào nhánh acronym (CD, MC, XL, MIX... -> <en>).
+    ("Đại hội XIII", "đại hội mười ba"),
+    ("vua Louis XIV", "vua louis mười bốn"),
+    ("thế chiến II", "thế chiến hai"),
+    ("đĩa CD và đầu DVD", "đĩa <en>c d</en> và đầu <en>d v d</en>"),
+    ("mã MC", "mã <en>m c</en>"),
+    ("size XL và XXL", "size <en>x l</en> và <en>x x l</en>"),
+    ("CIV và MIX", "<en>c i v</en> và <en>m i x</en>"),
+
+    # ─── 39. CÂU/HEADING TOÀN CHỮ HOA CÓ LẪN SỐ ──────────────────────────────
+    # Trước đây is_all_caps bị token số làm sai -> từ Việt viết hoa bị spell ký tự.
+    ("CHƯƠNG 4", "chương bốn"),
+    ("CHƯƠNG 4: MỞ ĐẦU", "chương bốn, mở đầu"),
+    ("BÁO CÁO QUÝ 4", "báo cáo quý bốn"),
+    ("MUA 2 SẢN PHẨM", "mua hai sản phẩm"),
+    ("PHẦN 2 KẾT THÚC", "phần hai kết thúc"),
+    # Công thức có chữ số nhúng KHÔNG bị coi là prose -> vẫn spell đúng.
+    ("CO2 và H2O", "xê ô hai và hát hai ô"),
+
+    # ─── 40. CHIỀU CAO / CÂN NẶNG KIỂU VIỆT ──────────────────────────────────
+    ("anh ấy cao 1m75", "anh ấy cao một mét bảy mươi lăm"),
+    ("người mẫu 1m80", "người mẫu một mét tám mươi"),
+    ("nặng 1kg2", "nặng một ki lô gam hai"),
+    ("phòng 50m2", "phòng năm mươi mét vuông"),   # không đụng mét vuông
+    ("khối 20m3", "khối hai mươi mét khối"),
+
+    # ─── 41. NGÀY KHÔNG HỢP LỆ (đọc dãy số, không vỡ cú pháp) ─────────────────
+    ("ngày 30/2/2024", "ngày ba mươi trên hai trên hai nghìn không trăm hai mươi bốn"),
+    ("ngày 31/4/2023", "ngày ba mươi mốt trên bốn trên hai nghìn không trăm hai mươi ba"),
+
+    # ─── 42. TỔNG ĐÀI 1800/1900 (đọc rời từng số) ────────────────────────────
+    ("gọi 1900 1234", "gọi một chín không không một hai ba bốn"),
+    ("tổng đài 1800.6601", "tổng đài một tám không không sáu sáu không một"),
+    ("năm 1900 có", "năm một nghìn chín trăm có"),  # 1900 đứng một mình vẫn là năm
+
+    # ─── 43. VIẾT TẮT TỔ CHỨC MỞ RỘNG + PHÂN SỐ UNICODE ──────────────────────
+    ("theo QĐND đưa tin", "theo quân đội nhân dân đưa tin"),
+    ("họp BCH", "họp ban chấp hành"),
+    ("vào BV khám", "vào bệnh viện khám"),
+    ("⅙ ⅛ ⅜ ⅝ ⅞", "một phần sáu một phần tám ba phần tám năm phần tám bảy phần tám"),
     ]
 
 @pytest.mark.parametrize("input_text, expected", TEST_CASES)

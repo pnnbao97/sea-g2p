@@ -4,7 +4,7 @@ use once_cell::sync::Lazy;
 use crate::vi_normalizer::num2vi::{n2w, n2w_single};
 use crate::vi_normalizer::resources::{
     VI_LETTER_NAMES, DOMAIN_SUFFIX_MAP,
-    ROMAN_NUMERALS, ABBRS, SYMBOLS_MAP, WORD_LIKE_ACRONYMS, MEASUREMENT_KEY_VI,
+    ROMAN_NUMERALS, ROMAN_KEYWORDS, ABBRS, SYMBOLS_MAP, WORD_LIKE_ACRONYMS, MEASUREMENT_KEY_VI,
     CURRENCY_KEY, COMBINED_EXCEPTIONS, SUPERSCRIPTS_MAP, SUBSCRIPTS_MAP
 };
 use crate::vi_normalizer::technical::normalize_slashes;
@@ -91,6 +91,19 @@ pub static DOMAIN_SUFFIXES_RE: Lazy<Regex> = Lazy::new(|| {
 static RE_ACRONYMS_SPLIT: Lazy<regex::Regex> = Lazy::new(|| {
     regex::Regex::new(r"([.!?]+(?:\s+|$))").unwrap()
 });
+
+/// Trả về true nếu TỪ cuối cùng của `preceding` (đoạn văn ngay trước cụm La Mã)
+/// nằm trong `ROMAN_KEYWORDS`. Bỏ qua dấu câu bám quanh từ.
+fn has_roman_context(preceding: &str) -> bool {
+    let last = preceding
+        .split(|c: char| c.is_whitespace())
+        .rev()
+        .find(|w: &&str| !w.is_empty())
+        .unwrap_or("")
+        .trim_matches(|c: char| !c.is_alphanumeric())
+        .to_lowercase();
+    !last.is_empty() && ROMAN_KEYWORDS.contains(last.as_str())
+}
 
 pub fn expand_roman(match_str: &str) -> String {
     if match_str.is_empty() {
@@ -190,7 +203,19 @@ pub fn normalize_acronyms(text: &str) -> String {
         }
 
         let words: Vec<&str> = s.split_whitespace().collect();
-        let is_all_caps = !words.is_empty() && words.iter().all(|w: &&str| w.chars().any(|c: char| c.is_alphabetic()) && w.chars().all(|c: char| c.is_uppercase()));
+        // Quyết định "toàn chữ hoa" (heading/câu hét -> đọc như prose tiếng Việt):
+        //   - Token thuần số/dấu câu ("4", "06") KHÔNG tính, nếu không "CHƯƠNG 4"
+        //     sẽ bị coi là không-toàn-hoa và từ Việt viết hoa bị spell thành ký tự.
+        //   - Token có chữ cái LẪN chữ số (CO2, H2O, B2B) là công thức/mã, KHÔNG
+        //     phải prose -> để nhánh acronym xử lý (CO2 -> "xê ô hai").
+        let letter_tokens: Vec<&&str> = words.iter()
+            .filter(|w: &&&str| w.chars().any(|c: char| c.is_alphabetic()))
+            .collect();
+        let is_all_caps = !letter_tokens.is_empty()
+            && letter_tokens.iter().all(|w: &&&str| {
+                !w.chars().any(|c: char| c.is_numeric())
+                    && w.chars().filter(|c: &char| c.is_alphabetic()).all(|c: char| c.is_uppercase())
+            });
 
         let mut processed_s = s.to_string();
         if !is_all_caps {
@@ -307,8 +332,16 @@ pub fn normalize_others(text: &str) -> String {
         format!(" chấm {} ", if suffix.is_empty() { caps.get(1).unwrap().as_str() } else { suffix })
     }).into_owned();
 
-    res = RE_ROMAN_NUMBER.replace_all(&res, |caps: &FCaps| {
-        expand_roman(caps.get(0).unwrap().as_str())
+    // Chỉ mở rộng số La Mã khi có từ dẫn ngay trước (thế kỷ/chương/phần/đời/vua...).
+    // Nếu không, để nguyên cụm để nhánh acronym xử lý (vd "CD","MC","XL" -> <en>).
+    let roman_src = res.clone();
+    res = RE_ROMAN_NUMBER.replace_all(&roman_src, |caps: &FCaps| {
+        let m = caps.get(0).unwrap();
+        if has_roman_context(&roman_src[..m.start()]) {
+            expand_roman(m.as_str())
+        } else {
+            m.as_str().to_string()
+        }
     }).to_string();
 
     res = expand_letter(&res);

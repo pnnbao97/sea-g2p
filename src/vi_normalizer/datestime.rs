@@ -155,7 +155,9 @@ pub fn normalize_date(text: &str) -> String {
             let m_val = if month.parse::<i32>().unwrap_or(0) == 4 { "tư".to_string() } else { n2w(&month.parse::<i32>().unwrap_or(0).to_string()) };
             format!("ngày {} tháng {} năm {}", n2w(&day.parse::<i32>().unwrap_or(0).to_string()), m_val, n2w(year))
         } else {
-            caps.get(0).unwrap().as_str().to_string()
+            // Ngày không hợp lệ (vd 30/2/2024): đọc như dãy số nối bằng "trên" để
+            // tiêu thụ trọn cụm, tránh để pass tháng-năm ghép nhầm thành output lỗi.
+            format!(" {} trên {} trên {} ", n2w(day), n2w(month), n2w(year))
         }
     }).to_string();
 

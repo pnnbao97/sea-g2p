@@ -89,6 +89,13 @@ pub static ACRONYMS_EXCEPTIONS_VI: Lazy<HashMap<&'static str, &'static str>> = L
     m.insert("PGS.TS", "phó giáo sư tiến sĩ"); m.insert("GS.TS", "giáo sư tiến sĩ");
     m.insert("ThS", "thạc sĩ"); m.insert("BS", "bác sĩ");
     m.insert("UAE", "u a e"); m.insert("CUDA", "cu đa");
+    // Viết tắt cơ quan/tổ chức/lĩnh vực phổ biến (khớp theo ranh giới từ nên an toàn).
+    m.insert("QĐND", "quân đội nhân dân"); m.insert("CAND", "công an nhân dân");
+    m.insert("BCH", "ban chấp hành"); m.insert("TBT", "tổng bí thư");
+    m.insert("ĐHQG", "đại học quốc gia"); m.insert("KCN", "khu công nghiệp");
+    m.insert("GTVT", "giao thông vận tải"); m.insert("TDTT", "thể dục thể thao");
+    m.insert("BĐBP", "bộ đội biên phòng"); m.insert("KHCN", "khoa học công nghệ");
+    m.insert("BV", "bệnh viện"); m.insert("BQP", "bộ quốc phòng");
     m
 });
 
@@ -178,7 +185,9 @@ pub static SYMBOLS_MAP: Lazy<HashMap<char, &'static str>> = Lazy::new(|| {
     m.insert('½', " một phần hai "); m.insert('¼', " một phần tư "); m.insert('¾', " ba phần tư ");
     m.insert('⅓', " một phần ba "); m.insert('⅔', " hai phần ba ");
     m.insert('⅕', " một phần năm "); m.insert('⅖', " hai phần năm "); m.insert('⅗', " ba phần năm "); m.insert('⅘', " bốn phần năm ");
-    m.insert('⅚', " năm phần sáu "); m.insert('⅚', " năm phần sáu ");
+    m.insert('⅙', " một phần sáu "); m.insert('⅚', " năm phần sáu ");
+    m.insert('⅛', " một phần tám "); m.insert('⅜', " ba phần tám ");
+    m.insert('⅝', " năm phần tám "); m.insert('⅞', " bảy phần tám ");
     m
 });
 
@@ -243,6 +252,23 @@ pub static DATE_KEYWORDS: Lazy<HashSet<&'static str>> = Lazy::new(|| {
     let words = [
         "vào", "ngày", "hôm", "hôm nay", "hôm qua", "hôm kia", "mai", "ngày mai", "ngày kia",
         "sinh", "sinh nhật", "kỷ niệm", "lễ", "tết", "diễn ra", "tổ chức", "thứ", "tuần", "tháng", "năm"
+    ];
+    for w in words { s.insert(w); }
+    s
+});
+
+/// Từ dẫn đứng NGAY TRƯỚC một cụm số La Mã để xác nhận đó thực sự là số La Mã
+/// (vd "thế kỷ XXI", "chương IV") chứ không phải viết tắt/từ tiếng Anh tình cờ
+/// gồm các chữ I V X L C D M (vd "CD", "MC", "XL", "MIX"). Chỉ kiểm tra TỪ cuối
+/// ngay trước cụm, nên với cụm nhiều từ chỉ cần chứa từ cuối (vd "thế kỷ" -> "kỷ",
+/// "đại hội" -> "hội", "thế chiến" -> "chiến").
+pub static ROMAN_KEYWORDS: Lazy<HashSet<&'static str>> = Lazy::new(|| {
+    let mut s = HashSet::new();
+    let words = [
+        "kỷ", "kỉ", "chương", "phần", "hồi", "quyển", "tập", "kỳ", "kì",
+        "khoản", "điều", "mục", "đời", "vua", "chiến", "hội", "khóa", "khoá",
+        "đệ", "triều", "louis", "napoléon", "napoleon", "henry", "george",
+        "charles", "elizabeth",
     ];
     for w in words { s.insert(w); }
     s

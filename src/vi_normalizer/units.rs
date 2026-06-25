@@ -163,6 +163,26 @@ static RE_SCIENTIFIC_NOTATION: Lazy<Regex> = Lazy::new(|| {
     Regex::new(r"(?i)([-\u2013\u2014])?(\d+(?:[.,]\d+)?e[+-]?\d+)").unwrap()
 });
 
+// Chi\u1ec1u cao ki\u1ec3u Vi\u1ec7t: "1m75" -> "m\u1ed9t m\u00e9t b\u1ea3y m\u01b0\u01a1i l\u0103m" (75 = cm).
+// Y\u00eau c\u1ea7u \u0110\u00daNG 2 ch\u1eef s\u1ed1 \u0111u\u00f4i \u0111\u1ec3 kh\u00f4ng \u0111\u1ee5ng "m2"/"m3" (m\u00e9t vu\u00f4ng/kh\u1ed1i).
+static RE_HEIGHT: Lazy<Regex> = Lazy::new(|| {
+    Regex::new(r"(?i)(?<![\d.,a-z])(\d{1,2})m(\d{2})(?![\d.,])").unwrap()
+});
+
+// C\u00e2n n\u1eb7ng ki\u1ec3u Vi\u1ec7t: "1kg2" -> "m\u1ed9t ki l\u00f4 gam hai" (2 = l\u1ea1ng/hectogram).
+static RE_WEIGHT: Lazy<Regex> = Lazy::new(|| {
+    Regex::new(r"(?i)(?<![\d.,a-z])(\d{1,2})kg(\d{1,2})(?![\d.,])").unwrap()
+});
+
+pub fn expand_height_weight(text: &str) -> String {
+    let res = RE_WEIGHT.replace_all(text, |caps: &Captures| {
+        format!(" {} ki l\u{f4} gam {} ", n2w(caps.get(1).unwrap().as_str()), n2w(caps.get(2).unwrap().as_str()))
+    }).into_owned();
+    RE_HEIGHT.replace_all(&res, |caps: &Captures| {
+        format!(" {} m\u{e9}t {} ", n2w(caps.get(1).unwrap().as_str()), n2w(caps.get(2).unwrap().as_str()))
+    }).into_owned()
+}
+
 pub fn expand_units_and_currency(text: &str) -> String {
     let mut result = text.to_string();
 
