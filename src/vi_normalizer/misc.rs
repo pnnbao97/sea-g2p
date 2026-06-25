@@ -5,7 +5,7 @@ use crate::vi_normalizer::num2vi::{n2w, n2w_single};
 use crate::vi_normalizer::resources::{
     VI_LETTER_NAMES, DOMAIN_SUFFIX_MAP,
     ROMAN_NUMERALS, ROMAN_KEYWORDS, ABBRS, SYMBOLS_MAP, WORD_LIKE_ACRONYMS, MEASUREMENT_KEY_VI,
-    CURRENCY_KEY, COMBINED_EXCEPTIONS, SUPERSCRIPTS_MAP, SUBSCRIPTS_MAP
+    CURRENCY_KEY, COMBINED_EXCEPTIONS, SUPERSCRIPTS_MAP, SUBSCRIPTS_MAP, ENGLISH_AMPERSAND
 };
 use crate::vi_normalizer::technical::normalize_slashes;
 
@@ -37,6 +37,10 @@ static RE_LETTER: Lazy<Regex> = Lazy::new(|| {
 });
 static RE_ALPHANUMERIC: Lazy<Regex> = Lazy::new(|| {
     Regex::new(r"\b(\d+)([a-zA-Z])\b").unwrap()
+});
+// Cụm acronym/thương hiệu Anh nối "&" (R&D, R & D, AT&T, S&P...).
+static RE_AMPERSAND_ACRONYM: Lazy<Regex> = Lazy::new(|| {
+    Regex::new(r"(?i)\b([a-z]{1,4})\s*&\s*([a-z]{1,4})\b").unwrap()
 });
 static RE_LETTER_DIGIT: Lazy<Regex> = Lazy::new(|| {
     Regex::new(r"\b([a-zA-Z])(\d+)\b").unwrap()
@@ -91,6 +95,58 @@ pub static DOMAIN_SUFFIXES_RE: Lazy<Regex> = Lazy::new(|| {
 static RE_ACRONYMS_SPLIT: Lazy<regex::Regex> = Lazy::new(|| {
     regex::Regex::new(r"([.!?]+(?:\s+|$))").unwrap()
 });
+
+/// Tập nguyên âm tiếng Việt (kèm mọi dấu thanh), chữ thường.
+const VI_VOWELS: &str = "aáàảãạăắằẳẵặâấầẩẫậeéèẻẽẹêếềểễệiíìỉĩịoóòỏõọôốồổỗộơớờởỡợuúùủũụưứừửữựyýỳỷỹỵ";
+
+fn is_vi_vowel(c: char) -> bool {
+    VI_VOWELS.contains(c)
+}
+
+/// Kiểm tra `s` có phải MỘT âm tiết tiếng Việt hợp lệ không
+/// (phụ âm đầu? + nguyên âm + phụ âm cuối?). Dùng để phân biệt TỪ tiếng Việt
+/// viết hoa ("CHƯƠNG","ĐƯỜNG","PHƯỜNG") với acronym/công thức gồm các chữ cái
+/// (vd "ĐKVĐ" không có nguyên âm hợp lệ -> không phải âm tiết -> vẫn tách).
+/// Thiên về CHẶT: khi không chắc thì trả false (hệ quả là tách ký tự như cũ,
+/// an toàn hơn việc giữ nhầm một acronym).
+fn is_vietnamese_syllable(s: &str) -> bool {
+    let lower = s.to_lowercase();
+    let chars: Vec<char> = lower.chars().collect();
+    let n = chars.len();
+    if n == 0 || chars.iter().any(|c: &char| !c.is_alphabetic()) {
+        return false;
+    }
+    // Phụ âm đầu (onset): thử dài nhất trước, chỉ tách khi ngay sau là nguyên âm.
+    const ONSETS: [&str; 28] = [
+        "ngh", "ng", "nh", "ch", "gh", "gi", "kh", "ph", "th", "tr", "qu",
+        "b", "c", "d", "đ", "g", "h", "k", "l", "m", "n", "p", "q", "r", "s", "t", "v", "x",
+    ];
+    let mut i = 0usize;
+    for cand in ONSETS.iter() {
+        let cl = cand.chars().count();
+        if i + cl < n {
+            let prefix: String = chars[i..i + cl].iter().collect();
+            if prefix == *cand && is_vi_vowel(chars[i + cl]) {
+                i += cl;
+                break;
+            }
+        }
+    }
+    // Nguyên âm (nucleus): chuỗi nguyên âm liên tiếp, bắt buộc >= 1.
+    let v_start = i;
+    while i < n && is_vi_vowel(chars[i]) {
+        i += 1;
+    }
+    if i == v_start {
+        return false;
+    }
+    // Phụ âm cuối (coda): phần còn lại phải rỗng hoặc là một coda hợp lệ.
+    let coda: String = chars[i..].iter().collect();
+    matches!(
+        coda.as_str(),
+        "" | "c" | "ch" | "m" | "n" | "ng" | "nh" | "p" | "t"
+    )
+}
 
 /// Trả về true nếu TỪ cuối cùng của `preceding` (đoạn văn ngay trước cụm La Mã)
 /// nằm trong `ROMAN_KEYWORDS`. Bỏ qua dấu câu bám quanh từ.
@@ -229,6 +285,14 @@ pub fn normalize_acronyms(text: &str) -> String {
                 let has_vi_letter = word.chars().any(|c: char| !c.is_ascii() && c.is_alphabetic());
                 let is_mixed_case = word.chars().any(|c: char| c.is_lowercase()) && word.chars().any(|c: char| c.is_uppercase());
                 let has_subscript = word.chars().any(|c: char| c >= '₀' && c <= '₉');
+
+                // Từ tiếng Việt viết hoa toàn bộ tạo thành MỘT âm tiết hợp lệ là TỪ
+                // (không phải acronym/công thức) -> giữ nguyên, không tách ký tự.
+                // vd "CHƯƠNG"->"chương" giữa câu chữ thường; còn "ĐKVĐ" vẫn tách.
+                if has_vi_letter && is_vietnamese_syllable(word) {
+                    return word.to_lowercase();
+                }
+
                 if has_vi_letter || is_mixed_case || has_subscript {
                     let mut parts = Vec::new();
                     for c in word.chars() {
@@ -269,6 +333,25 @@ pub fn expand_alphanumeric(text: &str) -> String {
                 pronunciation = "đê".to_string();
             }
             format!("{} {}", num, pronunciation)
+        } else {
+            caps.get(0).unwrap().as_str().to_string()
+        }
+    }).into_owned()
+}
+
+/// "R&D"/"R & D" -> "<en>r and d</en>" cho các acronym tiếng Anh đã biết.
+/// Cụm không nằm trong danh sách (vd "A & B") giữ nguyên để "&" -> "và" như cũ.
+pub fn expand_english_ampersand(text: &str) -> String {
+    RE_AMPERSAND_ACRONYM.replace_all(text, |caps: &Captures| {
+        let l = caps.get(1).unwrap().as_str();
+        let r = caps.get(2).unwrap().as_str();
+        let key = format!("{}{}", l.to_uppercase(), r.to_uppercase());
+        if ENGLISH_AMPERSAND.contains(key.as_str()) {
+            let spell = |s: &str| s.chars()
+                .map(|c: char| c.to_lowercase().to_string())
+                .collect::<Vec<String>>()
+                .join(" ");
+            format!(" __start_en__{} and {}__end_en__ ", spell(l), spell(r))
         } else {
             caps.get(0).unwrap().as_str().to_string()
         }
@@ -359,6 +442,7 @@ pub fn normalize_others(text: &str) -> String {
     res = expand_unit_powers(&res);
     res = RE_CLEAN_QUOTES.replace_all(&res, "").into_owned();
     res = RE_CLEAN_QUOTES_EDGES.replace_all(&res, "$1 $2").into_owned();
+    res = expand_english_ampersand(&res);
     res = expand_symbols(&res);
     res = RE_BRACKETS.replace_all(&res, ", $1, ").into_owned();
     res = RE_STRIP_BRACKETS.replace_all(&res, " ").into_owned();

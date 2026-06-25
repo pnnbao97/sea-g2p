@@ -213,11 +213,25 @@ pub static WORD_LIKE_ACRONYMS: Lazy<HashSet<&'static str>> = Lazy::new(|| {
     let mut s = HashSet::new();
     let words = [
         "UNESCO", "NASA", "NATO", "ASEAN", "OPEC", "SARS", "FIFA", "UNIC", "RAM", "VRAM", "COVID", "IELTS", "STEM",
+        "ISO",
         "SWAT", "SEAL", "WASP", "COBOL", "BASIC", "OLED", "COVAX", "BRICS", "APEC", "VUCA", "PERMA", "DINK",
         "MENA", "EPIC", "OASIS", "BASE", "DART", "IDEA", "CHAOS", "SMART", "FANG", "BLEU", "REST", "ERROR",
         "SELECT", "FROM", "WHERE", "ORDER", "BY", "LIMIT", "OFFSET", "GROUP", "HAVING", "JOIN", "LEFT", "RIGHT", 
         "INNER", "OUTER", "ON", "AS", "AND", "OR", "NOT", "IN", "BETWEEN", "LIKE", "IS", "NULL", "TRUE", "FALSE", 
         "CASE", "WHEN", "THEN", "ELSE", "END", "UNION", "INTERSECT", "EXCEPT", "DESC"
+    ];
+    for w in words { s.insert(w); }
+    s
+});
+
+/// Các acronym/thương hiệu tiếng Anh nối bằng "&": đọc "&" thành "and" và bọc
+/// <en> (vd "R&D" -> "<en>r and d</en>"). Key là dạng GỘP-VIẾT-HOA, bỏ "&".
+/// Dùng danh sách có kiểm soát để KHÔNG đụng "A & B" (phương án A và B) -> "và".
+pub static ENGLISH_AMPERSAND: Lazy<HashSet<&'static str>> = Lazy::new(|| {
+    let mut s = HashSet::new();
+    let words = [
+        "RD", "MA", "SP", "PG", "ATT", "HM", "FB", "QA", "RB", "TC",
+        "JJ", "PL", "MM", "BW", "GT", "AE", "BQ", "DG", "SM", "BB", "PC",
     ];
     for w in words { s.insert(w); }
     s
@@ -251,7 +265,8 @@ pub static DATE_KEYWORDS: Lazy<HashSet<&'static str>> = Lazy::new(|| {
     let mut s = HashSet::new();
     let words = [
         "vào", "ngày", "hôm", "hôm nay", "hôm qua", "hôm kia", "mai", "ngày mai", "ngày kia",
-        "sinh", "sinh nhật", "kỷ niệm", "lễ", "tết", "diễn ra", "tổ chức", "thứ", "tuần", "tháng", "năm"
+        "sinh", "sinh nhật", "kỷ niệm", "lễ", "tết", "diễn ra", "tổ chức", "thứ", "tuần", "tháng", "năm",
+        "phiên", "mùng", "mồng"
     ];
     for w in words { s.insert(w); }
     s
@@ -268,7 +283,7 @@ pub static ROMAN_KEYWORDS: Lazy<HashSet<&'static str>> = Lazy::new(|| {
         "kỷ", "kỉ", "chương", "phần", "hồi", "quyển", "tập", "kỳ", "kì",
         "khoản", "điều", "mục", "đời", "vua", "chiến", "hội", "khóa", "khoá",
         "đệ", "triều", "louis", "napoléon", "napoleon", "henry", "george",
-        "charles", "elizabeth",
+        "charles", "elizabeth", "quý",
     ];
     for w in words { s.insert(w); }
     s

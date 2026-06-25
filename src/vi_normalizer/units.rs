@@ -163,15 +163,16 @@ static RE_SCIENTIFIC_NOTATION: Lazy<Regex> = Lazy::new(|| {
     Regex::new(r"(?i)([-\u2013\u2014])?(\d+(?:[.,]\d+)?e[+-]?\d+)").unwrap()
 });
 
-// Chi\u1ec1u cao ki\u1ec3u Vi\u1ec7t: "1m75" -> "m\u1ed9t m\u00e9t b\u1ea3y m\u01b0\u01a1i l\u0103m" (75 = cm).
-// Y\u00eau c\u1ea7u \u0110\u00daNG 2 ch\u1eef s\u1ed1 \u0111u\u00f4i \u0111\u1ec3 kh\u00f4ng \u0111\u1ee5ng "m2"/"m3" (m\u00e9t vu\u00f4ng/kh\u1ed1i).
+// Chi\u1ec1u cao ki\u1ec3u Vi\u1ec7t: "1m75" -> "m\u1ed9t m\u00e9t b\u1ea3y m\u01b0\u01a1i l\u0103m", "1m8" -> "m\u1ed9t m\u00e9t t\u00e1m".
+// Ch\u1eef 'm' TH\u01af\u1edcNG (kh\u00f4ng (?i)) \u0111\u1ec3 kh\u00f4ng nu\u1ed1t "1M" (1 tri\u1ec7u). \u0110u\u00f4i: 2 ch\u1eef s\u1ed1 b\u1ea5t k\u1ef3,
+// ho\u1eb7c 1 ch\u1eef s\u1ed1 KH\u00c1C 2/3 (ch\u1eeba "m2"/"m3" = m\u00e9t vu\u00f4ng/kh\u1ed1i).
 static RE_HEIGHT: Lazy<Regex> = Lazy::new(|| {
-    Regex::new(r"(?i)(?<![\d.,a-z])(\d{1,2})m(\d{2})(?![\d.,])").unwrap()
+    Regex::new(r"(?<![\d.,a-zA-Z])(\d{1,2})m(\d{2}|[01456789])(?![\d.,])").unwrap()
 });
 
 // C\u00e2n n\u1eb7ng ki\u1ec3u Vi\u1ec7t: "1kg2" -> "m\u1ed9t ki l\u00f4 gam hai" (2 = l\u1ea1ng/hectogram).
 static RE_WEIGHT: Lazy<Regex> = Lazy::new(|| {
-    Regex::new(r"(?i)(?<![\d.,a-z])(\d{1,2})kg(\d{1,2})(?![\d.,])").unwrap()
+    Regex::new(r"(?<![\d.,a-zA-Z])(\d{1,2})kg(\d{1,2})(?![\d.,])").unwrap()
 });
 
 pub fn expand_height_weight(text: &str) -> String {

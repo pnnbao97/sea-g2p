@@ -49,6 +49,9 @@ static RE_TO_SANG: Lazy<Regex> = Lazy::new(|| Regex::new(r"\s*(?:->|=>)\s*").unw
 static RE_MULTI_COMMA: Lazy<Regex> = Lazy::new(|| Regex::new(r"\b(\d+(?:,\d+){2,})\b").unwrap());
 static RE_NUMERIC_DASH_GROUPS: Lazy<Regex> = Lazy::new(|| Regex::new(r"\b\d+(?:[\u2013\-\u2014]\d+){2,}\b").unwrap());
 static RE_PHONE_SPACE: Lazy<Regex> = Lazy::new(|| Regex::new(r"\b0\d{2,3}(?:\s\d{3}){2}\b").unwrap());
+// Khoảng phần trăm "5-7%" -> "5 đến 7%" (dấu % xác nhận đây là KHOẢNG, không phải
+// phân số/ngày-tháng). Chạy trước normalize_date để không bị đọc thành "trên".
+static RE_RANGE_PCT: Lazy<Regex> = Lazy::new(|| Regex::new(r"(\d+(?:[.,]\d+)?)\s*[-–—]\s*(\d+(?:[.,]\d+)?)\s*%").unwrap());
 // Tổng đài 1800/1900: đọc rời từng chữ số thay vì gộp thành số lớn.
 static RE_HOTLINE: Lazy<Regex> = Lazy::new(|| Regex::new(r"\b(1800|1900)[\s.]?(\d{3,6})\b").unwrap());
 
@@ -123,6 +126,16 @@ pub fn clean_vietnamese_text(text: &str) -> String {
     let temp_tech = current_text.clone();
     current_text = RE_TECHNICAL.replace_all(&temp_tech, |caps: &FCaps| {
         let orig = caps.get(0).unwrap().as_str();
+        // Cụm từ tiếng Anh nối bằng gạch ngang (text-to-speech, state-of-the-art,
+        // plug-and-play): chỉ gồm chữ cái ASCII + '-' và có ít nhất một chữ thường
+        // -> KHÔNG phải định danh kỹ thuật. Tách thành các từ (gạch -> space) để
+        // G2P đọc như tiếng Anh, không đọc "gạch ngang" hay spell "to" -> "t o".
+        if orig.contains('-')
+            && orig.chars().all(|c: char| c.is_ascii_alphabetic() || c == '-')
+            && orig.chars().any(|c: char| c.is_ascii_lowercase())
+        {
+            return orig.replace('-', " ");
+        }
         let val = if RE_ACRONYMS_EXCEPTIONS.is_match(orig) {
             COMBINED_EXCEPTIONS.get(orig).cloned().unwrap_or(orig.to_string())
         } else {
@@ -153,6 +166,8 @@ pub fn clean_vietnamese_text(text: &str) -> String {
 
     current_text = crate::vi_normalizer::misc::expand_abbreviations(&current_text);
     current_text = expand_scientific_notation(&current_text);
+
+    current_text = RE_RANGE_PCT.replace_all(&current_text, "$1 đến $2%").into_owned();
 
     current_text = normalize_date(&current_text);
     current_text = normalize_time(&current_text);
