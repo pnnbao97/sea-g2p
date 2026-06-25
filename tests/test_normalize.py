@@ -343,7 +343,7 @@ TEST_CASES = [
     ("Tọa độ (-2.5;0)", "tọa độ, âm hai chấm năm, không"),
     ("Họp lúc 8g sáng", "họp lúc tám giờ sáng"),
     ("090-123-4567", "không chín không, một hai ba, bốn năm sáu bảy"),
-    ("mã ISO 9001:2015", "mã <en>i s o</en> chín nghìn không trăm lẻ một, hai nghìn không trăm mười lăm"),
+    ("mã ISO 9001:2015", "mã <en>iso</en> chín nghìn không trăm lẻ một, hai nghìn không trăm mười lăm"),
     ("giải khối rubik 4x4x4 ngắn nhất.", "giải khối rubik bốn nhân bốn nhân bốn ngắn nhất."),
     ("hình chữ nhật 3x4", "hình chữ nhật ba nhân bốn"),
     ("màn hình 1920x1080", "màn hình một nghìn chín trăm hai mươi nhân một nghìn không trăm tám mươi"),
@@ -475,6 +475,65 @@ TEST_CASES = [
     ("họp BCH", "họp ban chấp hành"),
     ("vào BV khám", "vào bệnh viện khám"),
     ("⅙ ⅛ ⅜ ⅝ ⅞", "một phần sáu một phần tám ba phần tám năm phần tám bảy phần tám"),
+
+    # ─── 44. TỪ TIẾNG VIỆT VIẾT HOA GIỮA CÂU THƯỜNG ──────────────────────────
+    # Trước đây từ Việt viết hoa có dấu (CHƯƠNG/ĐƯỜNG) nằm trong câu chữ thường
+    # bị nhánh acronym tách thành ký tự ("xê hát ư ơ nờ gờ"). Nay: nếu token là
+    # MỘT âm tiết tiếng Việt hợp lệ thì giữ nguyên; acronym/công thức vẫn tách.
+    ("đọc CHƯƠNG này", "đọc chương này"),
+    ("đi trên ĐƯỜNG lớn", "đi trên đường lớn"),
+    ("về PHƯỜNG nộp", "về phường nộp"),
+    ("ăn BƯỞI ngọt", "ăn bưởi ngọt"),
+    # Acronym có dấu nhưng KHÔNG phải âm tiết -> vẫn tách:
+    ("giải ĐKVĐ này", "giải đê ca vê đê này"),
+    ("ông ĐBQH phát biểu", "ông đê bê qui hát phát biểu"),
+    # Công thức có chữ Việt-letter qua mixed-case vẫn tách:
+    ("dung dịch HClO mạnh", "dung dịch hát xê lờ ô mạnh"),
+
+    # ─── 45. CỤM TIẾNG ANH NỐI GẠCH NGANG (KHÔNG ĐỌC "GẠCH NGANG") ───────────
+    # Trước đây text-to-speech bị coi là định danh kỹ thuật -> "gạch ngang" + spell.
+    ("text-to-speech", "text to speech"),
+    ("end-to-end", "end to end"),
+    ("state-of-the-art", "state of the art"),
+    ("plug-and-play", "plug and play"),
+    # Định danh kỹ thuật thật (có _/./số) vẫn đọc kỹ thuật:
+    ("user_2024_dev", "<en>user</en> gạch dưới hai không hai bốn gạch dưới <en>dev</en>"),
+
+    # ─── 46. CHIỀU CAO 1 CHỮ SỐ + M HOA = TRIỆU ─────────────────────────────
+    ("cao 1m8", "cao một mét tám"),
+    ("người 1m6", "người một mét sáu"),
+    ("bé 1m1", "bé một mét một"),
+    ("sào 1m2", "sào một mét vuông"),      # m2 vẫn là mét vuông
+    ("vốn 5M", "vốn năm triệu"),           # M hoa vẫn là triệu
+
+    # ─── 47. KHOẢNG PHẦN TRĂM (5-7% -> đến) ──────────────────────────────────
+    ("tăng 5-7%", "tăng năm đến bảy phần trăm"),
+    ("giảm 3-5%", "giảm ba đến năm phần trăm"),
+
+    # ─── 48. QUÝ LA MÃ ───────────────────────────────────────────────────────
+    ("quý IV", "quý bốn"),
+    ("quý III tăng", "quý ba tăng"),
+    ("quý II", "quý hai"),
+
+    # ─── 49. NGỮ CẢNH NGÀY MỞ RỘNG (phiên/mùng/mồng) ─────────────────────────
+    ("phiên 15/3", "phiên ngày mười lăm tháng ba"),
+    ("mùng 5/5 âm lịch", "mùng năm tháng năm âm lịch"),   # không còn "mùng ngày"
+    ("mồng 3/3", "mồng ba tháng ba"),
+
+    # ─── 50. ACRONYM TIẾNG ANH NỐI "&" (R&D -> r and d) ──────────────────────
+    ("R&D", "<en>r and d</en>"),
+    ("R & D", "<en>r and d</en>"),
+    ("phòng R&D", "phòng <en>r and d</en>"),
+    ("AT&T", "<en>a t and t</en>"),
+    ("S&P 500", "<en>s and p</en> năm trăm"),
+    ("M&A", "<en>m and a</en>"),
+    # KHÔNG đụng cụm chữ cái thường (phương án A và B):
+    ("A & B", "a và bê"),
+    ("3 & 4", "ba và bốn"),
+
+    # ─── 51. ACRONYM ĐỌC NHƯ TỪ (ISO -> iso, không tách ký tự) ───────────────
+    ("chuẩn ISO", "chuẩn <en>iso</en>"),
+    ("máy ảnh ISO 400", "máy ảnh <en>iso</en> bốn trăm"),
     ]
 
 @pytest.mark.parametrize("input_text, expected", TEST_CASES)

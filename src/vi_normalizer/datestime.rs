@@ -69,6 +69,10 @@ static RE_REDUNDANT_HOM_NGAY: Lazy<Regex> = Lazy::new(|| {
     Regex::new(r"(?i)\bhôm\s+ngày\b").unwrap()
 });
 
+static RE_REDUNDANT_MUNG_NGAY: Lazy<Regex> = Lazy::new(|| {
+    Regex::new(r"(?i)\b(mùng|mồng)\s+ngày\b").unwrap()
+});
+
 fn is_valid_date(day: &str, month: &str) -> bool {
     let day: i32 = day.parse().unwrap_or(0);
     let month: i32 = month.parse().unwrap_or(0);
@@ -217,6 +221,7 @@ pub fn normalize_date(text: &str) -> String {
     result = RE_REDUNDANT_THANG.replace_all(&result, "tháng").into_owned();
     result = RE_REDUNDANT_NAM.replace_all(&result, "năm").into_owned();
     result = RE_REDUNDANT_HOM_NGAY.replace_all(&result, "hôm").into_owned();
+    result = RE_REDUNDANT_MUNG_NGAY.replace_all(&result, "$1").into_owned();
 
     result
 }
