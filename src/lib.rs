@@ -1,7 +1,17 @@
 use pyo3::prelude::*;
+use pyo3::wrap_pyfunction;
 pub mod g2p;
 pub mod punc;
 pub mod vi_normalizer;
+
+/// Chuẩn hóa dấu câu cuối (punc_norm) như một hàm chuỗi THUẦN, không chạy lại
+/// normalize/G2P. Câu < 5 từ bị ép kết thúc bằng đúng một ".", câu dài chỉ thêm
+/// "." nếu chưa kết thúc bằng , . ! ?. Dùng chung cho các pipeline cần chốt dấu
+/// câu ở ranh giới chunk (text hoặc phoneme) mà không phải chuẩn hóa lại.
+#[pyfunction]
+fn punc_norm(text: &str) -> String {
+    crate::punc::apply_punc_norm(text)
+}
 
 #[pyclass]
 struct G2P {
@@ -40,5 +50,6 @@ impl G2P {
 fn sea_g2p_rs(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<G2P>()?;
     m.add_class::<vi_normalizer::Normalizer>()?;
+    m.add_function(wrap_pyfunction!(punc_norm, m)?)?;
     Ok(())
 }
