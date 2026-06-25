@@ -42,6 +42,28 @@ static RE_ALPHANUMERIC: Lazy<Regex> = Lazy::new(|| {
 static RE_AMPERSAND_ACRONYM: Lazy<Regex> = Lazy::new(|| {
     Regex::new(r"(?i)\b([a-z]{1,4})\s*&\s*([a-z]{1,4})\b").unwrap()
 });
+// Nhãn size quần áo: PHẢI có "size"/"cỡ" đứng trước (size M/L/XL, cỡ M).
+// Khi đó S/M/L/XL... là nhãn (đọc chữ cái), không phải đơn vị (triệu/lít).
+static RE_SIZE_LABEL: Lazy<Regex> = Lazy::new(|| {
+    Regex::new(r"(?i)\b(size|cỡ)\s+((?:xxxl|xxl|xl|xs|[sml])(?:\s*/\s*(?:xxxl|xxl|xl|xs|[sml]))*)\b").unwrap()
+});
+
+pub fn expand_size_labels(text: &str) -> String {
+    RE_SIZE_LABEL.replace_all(text, |caps: &Captures| {
+        let prefix = caps.get(1).unwrap().as_str();
+        let spelled: Vec<String> = caps.get(2).unwrap().as_str()
+            .split('/')
+            .map(|s: &str| {
+                let letters = s.trim().to_lowercase().chars()
+                    .map(|c: char| c.to_string())
+                    .collect::<Vec<String>>()
+                    .join(" ");
+                format!("__start_en__{}__end_en__", letters)
+            })
+            .collect();
+        format!("{} {}", prefix, spelled.join(" "))
+    }).into_owned()
+}
 static RE_LETTER_DIGIT: Lazy<Regex> = Lazy::new(|| {
     Regex::new(r"\b([a-zA-Z])(\d+)\b").unwrap()
 });
@@ -67,6 +89,11 @@ static RE_DEGREE: Lazy<Regex> = Lazy::new(|| Regex::new(r"°").unwrap());
 static RE_STANDARD_COLON: Lazy<FRegex> = Lazy::new(|| {
     // Lookbehind and lookahead to avoid partial float matches like 1.5:1 or 1:2.5
     FRegex::new(r"(?<![.,\d])\b(\d+):(\d+(?:\.\d+)?)\b(?![.,\d])").unwrap()
+});
+// Tỷ lệ >= 3 thành phần ngăn bởi ":" (1:2:3) — KHÔNG phải giờ (đã loại ở
+// normalize_time). Đọc các số nối bằng "trên".
+static RE_RATIO_MULTI: Lazy<FRegex> = Lazy::new(|| {
+    FRegex::new(r"(?<![.,\d:])\d+(?::\d+){2,}(?![.,\d:])").unwrap()
 });
 static RE_CLEAN_OTHERS: Lazy<Regex> = Lazy::new(|| {
     Regex::new(r"[^a-zA-Z0-9\sàáảãạăắằẳẵặâấầẩẫậèéẻẽẹêếềểễệìíỉĩịòóỏõọôốồổỗộơớờởỡợùúủũụưứừửữựỳýỷỹỵđÀÁẢÃẠĂẮẰẲẴẶÂẤẦẨẪẬÈÉẺẼẸÊẾỀỂỄỆÌÍỈĨỊÒÓỎÕỌÔỐỒỔỖỘƠỚỜỞỠỢÙÚỦŨỤƯỨỪỬỮỰỲÝỶỸỴĐ.,!?_\'\'-]").unwrap()
@@ -454,6 +481,15 @@ pub fn normalize_others(text: &str) -> String {
             s.chars().map(|c: char| n2w_single(&c.to_string())).collect::<Vec<String>>().join(" ")
         }).collect();
         parts.join(" chấm ")
+    }).to_string();
+
+    // Tỷ lệ nhiều thành phần "1:2:3" -> "một trên hai trên ba" (trước ratio 2 số).
+    res = RE_RATIO_MULTI.replace_all(&res, |caps: &FCaps| {
+        let parts: Vec<String> = caps.get(0).unwrap().as_str()
+            .split(':')
+            .map(|p: &str| n2w(p))
+            .collect();
+        format!(" {} ", parts.join(" trên "))
     }).to_string();
 
     // Handle numeric ratios/versions like 2:1 or 9001:2015

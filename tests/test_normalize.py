@@ -534,6 +534,18 @@ TEST_CASES = [
     # ─── 51. ACRONYM ĐỌC NHƯ TỪ (ISO -> iso, không tách ký tự) ───────────────
     ("chuẩn ISO", "chuẩn <en>iso</en>"),
     ("máy ảnh ISO 400", "máy ảnh <en>iso</en> bốn trăm"),
+
+    # ─── 52. TỶ LỆ NHIỀU DẤU ":" vs GIỜ (1:2:3 vs 01:02:03) ──────────────────
+    # Giờ phải có phút & giây đủ 2 chữ số; 1:2:3 -> tỷ lệ.
+    ("tỉ lệ 1:2:3", "tỉ lệ một trên hai trên ba"),
+    ("01:02:03", "một giờ hai phút ba giây"),
+    ("tỉ lệ 3:4:5 nhé", "tỉ lệ ba trên bốn trên năm nhé"),
+
+    # ─── 53. NHÃN SIZE (cần "size"/"cỡ" đứng trước) ──────────────────────────
+    ("size M/L/XL", "size <en>m</en> <en>l</en> <en>x l</en>"),
+    ("cỡ M", "cỡ <en>m</en>"),
+    ("size S/M/L", "size <en>s</en> <en>m</en> <en>l</en>"),
+    ("cỡ lớn", "cỡ lớn"),   # không phải nhãn size -> giữ nguyên
     ]
 
 @pytest.mark.parametrize("input_text, expected", TEST_CASES)
