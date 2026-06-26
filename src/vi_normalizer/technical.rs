@@ -9,11 +9,11 @@ static RE_SUB_TOKENS: Lazy<regex::Regex> = Lazy::new(|| regex::Regex::new(r"[a-z
 
 pub static RE_TECHNICAL: Lazy<Regex> = Lazy::new(|| {
     Regex::new(r"(?ix)
-    \b(?:https?|ftp)://[A-Za-z0-9.\-_~:/?#\[\]@!$&\'()*+,;=]+\b
+    \b(?:https?|ftp)://[\p{L}0-9.\-_~:/?#\[\]@!$&\'()*+,;=]+\b
     |
-    \b(?:www\.)[A-Za-z0-9.\-_~:/?#\[\]@!$&\'()*+,;=]+\b
+    \b(?:www\.)[\p{L}0-9.\-_~:/?#\[\]@!$&\'()*+,;=]+\b
     |
-    \b[A-Za-z0-9.\-]+(?:\.com|\.vn|\.net|\.org|\.gov|\.io|\.biz|\.info)(?:/[A-Za-z0-9.\-_~:/?#\[\]@!$&\'()*+,;=]*)?\b
+    \b[A-Za-z0-9.\-]+(?:\.com|\.vn|\.net|\.org|\.gov|\.io|\.biz|\.info)(?:/[\p{L}0-9.\-_~:/?#\[\]@!$&\'()*+,;=]*)?\b
     |
     (?<!\w)/[a-zA-Z0-9._\-/]{2,}\b
     |
@@ -110,7 +110,11 @@ pub fn normalize_technical(text: &str) -> String {
                 "=" => res.push("bằng".to_string()),
                 "#" => res.push("thăng".to_string()),
                 _ => {
-                    if let Some(suffix) = DOMAIN_SUFFIX_MAP.get(s.to_lowercase().as_str()) {
+                    // Đoạn path chứa chữ tiếng Việt (có dấu) -> đọc như TỪ tiếng Việt,
+                    // không spell từng ký tự (vd ".../báo-cáo" -> "báo" "cáo").
+                    if s.chars().any(|c: char| c.is_alphabetic() && !c.is_ascii()) {
+                        res.push(s.to_lowercase());
+                    } else if let Some(suffix) = DOMAIN_SUFFIX_MAP.get(s.to_lowercase().as_str()) {
                         res.push(suffix.to_string());
                     } else if s.chars().all(|c: char| c.is_alphanumeric() && c.is_ascii()) {
                         if s.chars().all(|c: char| c.is_ascii_digit()) {
