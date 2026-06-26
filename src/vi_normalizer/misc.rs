@@ -32,7 +32,13 @@ static RE_VERSION: Lazy<FRegex> = Lazy::new(|| {
     FRegex::new(r"(?<![-\u2013\u2014])\b(\d+(?:\.\d+){2,})\b").unwrap()
 });
 static RE_PRIME: Lazy<FRegex> = Lazy::new(|| {
-    FRegex::new(r"(\b[a-zA-Z0-9])['\u2019](?!\w)").unwrap()
+    // \u0110\u1ebfm s\u1ed1 d\u1ea5u ph\u1ea9y: f' -> "ph\u1ea9y", y'' -> "ph\u1ea9y ph\u1ea9y" (\u0111\u1ea1o h\u00e0m c\u1ea5p 2).
+    FRegex::new(r"(\b[a-zA-Z0-9])(['\u2019]+)(?!\w)").unwrap()
+});
+// Gi\u00e1 tr\u1ecb tuy\u1ec7t \u0111\u1ed1i |x|, |x+1| -> "gi\u00e1 tr\u1ecb tuy\u1ec7t \u0111\u1ed1i c\u1ee7a ...". Y\u00eau c\u1ea7u n\u1ed9i dung
+// kh\u00f4ng c\u00f3 kho\u1ea3ng tr\u1eafng \u1edf m\u00e9p -> kh\u00f4ng \u0111\u1ee5ng d\u1ea5u "|" c\u1ee7a b\u1ea3ng "| c\u1ed9t |".
+static RE_ABS: Lazy<FRegex> = Lazy::new(|| {
+    FRegex::new(r"\|(\S(?:[^|]*\S)?)\|").unwrap()
 });
 static RE_PRIME_DIGIT: Lazy<FRegex> = Lazy::new(|| {
     FRegex::new(r"(?<=\d)(['\u2019]+|[\x22\u201D])").unwrap()
@@ -420,7 +426,9 @@ pub fn expand_prime(text: &str) -> String {
         } else {
             VI_LETTER_NAMES.get(val.as_str()).cloned().unwrap_or(&val).to_string()
         };
-        format!("{} phẩy", name)
+        let count = caps.get(2).unwrap().as_str().chars().count();
+        let phay = vec!["phẩy"; count].join(" ");
+        format!("{} {}", name, phay)
     }).to_string();
 
     RE_PRIME_DIGIT.replace_all(&res, |caps: &FCaps| {
@@ -443,6 +451,7 @@ pub fn expand_temperatures(text: &str) -> String {
 
 pub fn normalize_others(text: &str) -> String {
     let text = RE_TITLE_DOT.replace_all(text, "$1 ").into_owned();
+    let text = RE_ABS.replace_all(&text, " giá trị tuyệt đối của $1 ").into_owned();
     let mut res = RE_ACRONYMS_EXCEPTIONS.replace_all(&text, |caps: &Captures| {
         COMBINED_EXCEPTIONS.get(caps.get(0).unwrap().as_str()).cloned().unwrap_or(caps.get(0).unwrap().as_str().to_string())
     }).into_owned();

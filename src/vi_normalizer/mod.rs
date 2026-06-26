@@ -37,6 +37,30 @@ static RE_INTERNAL_EN_TAG: Lazy<Regex> = Lazy::new(|| Regex::new(r"(?i)(?s)(__st
 static RE_DOT_BETWEEN_DIGITS: Lazy<Regex> = Lazy::new(|| Regex::new(r"(\d+)\.(\d+)").unwrap());
 static RE_ENTOKEN: Lazy<Regex> = Lazy::new(|| Regex::new(r"(?i)ENTOKEN\d+").unwrap());
 static RE_EN_TAG: Lazy<Regex> = Lazy::new(|| Regex::new(r"(?si)<en>.*?</en>").unwrap());
+// Vùng công thức toán do người dùng khai báo: <math>...</math>. Bên trong, mọi cụm
+// chữ cái (trừ tên hàm) được tách thành chữ rời để đọc tên chữ (4ac -> bốn a xê,
+// dx -> đê ích). Phần còn lại để pipeline thường xử lý (ký hiệu, số mũ, căn...).
+static RE_MATH_TAG: Lazy<Regex> = Lazy::new(|| Regex::new(r"(?si)<math>(.*?)</math>").unwrap());
+static RE_MATH_WORD: Lazy<Regex> = Lazy::new(|| Regex::new(r"[a-zA-Z]+").unwrap());
+static MATH_FUNCS: Lazy<std::collections::HashSet<&'static str>> = Lazy::new(|| {
+    [
+        "sin", "cos", "tan", "cot", "sec", "csc", "sinh", "cosh", "tanh", "coth",
+        "arcsin", "arccos", "arctan", "asin", "acos", "atan", "log", "ln", "lg",
+        "exp", "lim", "max", "min", "sup", "inf", "det", "dim", "deg", "gcd",
+        "lcm", "mod", "arg", "sgn", "rank", "tr",
+    ].into_iter().collect()
+});
+
+fn split_math_letters(content: &str) -> String {
+    RE_MATH_WORD.replace_all(content, |caps: &Captures| {
+        let w = caps.get(0).unwrap().as_str();
+        if w.chars().count() == 1 || MATH_FUNCS.contains(w.to_lowercase().as_str()) {
+            w.to_string()
+        } else {
+            w.chars().map(|c: char| c.to_string()).collect::<Vec<String>>().join(" ")
+        }
+    }).into_owned()
+}
 // L\u01b0u \u00fd: c\u00e1c t\u1eeb ng\u1eef c\u1ea3nh ph\u1ea3i l\u00e0 k\u00fd t\u1ef1 Vi\u1ec7t th\u1eadt. KH\u00d4NG d\u00f9ng byte-escape
 // `\xHH` trong raw string `r"..."` \u2014 raw string kh\u00f4ng x\u1eed l\u00fd escape n\u00ean engine
 // hi\u1ec3u `\xe1` l\u00e0 codepoint U+00E1, bi\u1ebfn "b\u1eb1ng" th\u00e0nh mojibake kh\u00f4ng bao gi\u1edd kh\u1edbp.
@@ -83,6 +107,12 @@ static RE_MONEY_TR: Lazy<FRegex> = Lazy::new(|| FRegex::new(r"\b(\d{1,4})tr(\d)?
 // RE_COMBINED_TECH_EMAIL removed — two separate passes are faster (mirrors Python)
 static RE_RANGE: Lazy<FRegex> = Lazy::new(|| FRegex::new(r"(?<!\d)(?<!\d[,.])(?<![a-zA-Z])(\d{1,15}(?:[,.]\d{1,15})?)(\s*)[\u2013\-\u2014](\s*)(\d{1,15}(?:[,.]\d{1,15})?)(?!\d)(?![.,]\d)").unwrap());
 static RE_DASH_TO_COMMA: Lazy<FRegex> = Lazy::new(|| FRegex::new(r"(?<=\s)[\u2013\-\u2014](?=\s)").unwrap());
+// D\u1ea5u tr\u1eeb trong C\u00d4NG TH\u1ee8C: " - " -> " tr\u1eeb " khi v\u1ebf tr\u00e1i k\u1ebft th\u00fac b\u1eb1ng s\u1ed1 m\u0169
+// (b\u00b2 - 4ac) ho\u1eb7c v\u1ebf ph\u1ea3i l\u00e0 h\u1ec7 s\u1ed1 d\u00ednh s\u1ed1+ch\u1eef (2x - 3y). B\u1ea3o th\u1ee7 \u0111\u1ec3 kh\u00f4ng \u0111\u1ee5ng
+// g\u1ea1ch ngang trong v\u0103n xu\u00f4i ("H\u00e0 N\u1ed9i - th\u1ee7 \u0111\u00f4" gi\u1eef nguy\u00ean th\u00e0nh d\u1ea5u ph\u1ea9y).
+static RE_MATH_MINUS_SUP: Lazy<FRegex> = Lazy::new(|| FRegex::new(r"(?<=[\u00b2\u00b3\u2074\u2075\u2076\u2077\u2078\u2079\u207f\u2071])\s*[-\u2013\u2014]\s*").unwrap());
+static RE_MATH_MINUS_COEF: Lazy<FRegex> = Lazy::new(|| FRegex::new(r"\s[-\u2013\u2014]\s(?=\d+[a-zA-Z])").unwrap());
+static RE_MATH_MINUS_COEFL: Lazy<FRegex> = Lazy::new(|| FRegex::new(r"(?<=\d[a-zA-Z])\s[-\u2013\u2014]\s(?=\d)").unwrap());
 static RE_FLOAT_WITH_COMMA: Lazy<FRegex> = Lazy::new(|| FRegex::new(r"(?<![\d.])(\d+(?:\.\d{3})*),(\d+)(%)?").unwrap());
 static RE_STRIP_DOT_SEP: Lazy<FRegex> = Lazy::new(|| FRegex::new(r"(?<![\d.])\d+(?:\.\d{3})+(?![\d.])").unwrap());
 static RE_LONG_NUM: Lazy<FRegex> = Lazy::new(|| FRegex::new(r"(?<!\d)(?<!\d[,.])([-–—]?)(\d{7,})(?!\d)(?![.,]\d)").unwrap());
@@ -311,6 +341,9 @@ pub fn clean_vietnamese_text(text: &str) -> String {
         }
     }).to_string();
 
+    current_text = RE_MATH_MINUS_SUP.replace_all(&current_text, " trừ ").into_owned();
+    current_text = RE_MATH_MINUS_COEF.replace_all(&current_text, " trừ ").into_owned();
+    current_text = RE_MATH_MINUS_COEFL.replace_all(&current_text, " trừ ").into_owned();
     current_text = RE_DASH_TO_COMMA.replace_all(&current_text, ",").into_owned();
     current_text = RE_TO_SANG.replace_all(&current_text, " sang ").into_owned();
 
@@ -393,6 +426,14 @@ impl Normalizer {
         // Quy ellipsis (… ‥ ․) về "." NGAY ĐẦU để nó theo cùng đường xử lý với
         // "...". Nếu để muộn, "…" bị các pass trước đó nuốt thành dấu phân tách.
         let mut current_text = RE_ELLIPSIS.replace_all(&nfc_text, ".").into_owned();
+
+        // Vùng <math>...</math>: tách cụm biến thành chữ rời, bỏ tag, để pipeline
+        // thường đọc tên chữ + ký hiệu. Làm trước khi tách <en>.
+        if current_text.to_lowercase().contains("<math>") {
+            current_text = RE_MATH_TAG.replace_all(&current_text, |caps: &Captures| {
+                format!(" {} ", split_math_letters(caps.get(1).unwrap().as_str()))
+            }).into_owned();
+        }
 
         let mut en_contents = Vec::new();
         let placeholder_pattern = "ENTOKEN{}";
