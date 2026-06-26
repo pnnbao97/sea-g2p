@@ -32,6 +32,12 @@ static RE_PERIOD_YEAR: Lazy<Regex> = Lazy::new(|| {
     Regex::new(r"(?i)\b([a-zA-Z]\d*)/(\d{4})\b").unwrap()
 });
 
+// "quý 1/2025" -> "quý một năm hai nghìn...". Chạy trước RE_MONTH_YEAR để không bị
+// đọc nhầm "1/2025" thành "tháng một năm...".
+static RE_QUY_YEAR: Lazy<Regex> = Lazy::new(|| {
+    Regex::new(r"(?i)\b(quý)\s+(\d{1,2})\s*/\s*(\d{4})\b").unwrap()
+});
+
 // Full time like 10:30:15 or 10g30p15s
 static RE_FULL_TIME: Lazy<Regex> = Lazy::new(|| {
     Regex::new(r"(?i)\b(\d+)(g|:|h)(\d{1,2})(p|:|m)(\d{1,2})(?:\s*(giây|s|g))?\b").unwrap()
@@ -104,6 +110,12 @@ fn norm_time_part(s: &str) -> &str {
 
 pub fn normalize_date(text: &str) -> String {
     let mut result = text.to_string();
+
+    result = RE_QUY_YEAR.replace_all(&result, |caps: &Captures| {
+        format!("quý {} năm {}",
+            n2w(caps.get(2).unwrap().as_str()),
+            n2w(caps.get(3).unwrap().as_str()))
+    }).to_string();
 
     result = RE_ISO_FIX.replace_all(&result, |caps: &Captures| {
         if let Some(m) = caps.get(1) {
