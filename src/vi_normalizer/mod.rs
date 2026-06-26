@@ -80,6 +80,13 @@ static RE_PHONE_SPACE: Lazy<Regex> = Lazy::new(|| Regex::new(r"\b0\d{2,3}(?:\s\d
 // Khoảng phần trăm "5-7%" -> "5 đến 7%" (dấu % xác nhận đây là KHOẢNG, không phải
 // phân số/ngày-tháng). Chạy trước normalize_date để không bị đọc thành "trên".
 static RE_RANGE_PCT: Lazy<Regex> = Lazy::new(|| Regex::new(r"(\d+(?:[.,]\d+)?)\s*[-–—]\s*(\d+(?:[.,]\d+)?)\s*%").unwrap());
+// Phần trăm ÂM: "-5%" -> "âm 5%" (giữ % để pass đơn vị đọc "phần trăm"). Lookbehind
+// (?<![\d.,]) đảm bảo dấu trừ là đơn nguyên, không phải hiệu (khoảng "10-5%" đã được
+// RE_RANGE_PCT xử lý trước đó).
+static RE_PCT_NEG: Lazy<FRegex> = Lazy::new(|| FRegex::new(r"(?<![\d.,])[-–—]\s?(\d+(?:[.,]\d+)?)\s*%").unwrap());
+// Viết tắt địa chỉ: "P.5"->"phường 5", "Q.1"->"quận 1", "Đ.3/2"->"đường 3/2".
+// Yêu cầu ngay sau là CHỮ SỐ -> tránh nhầm "P.S." hay tên viết tắt.
+static RE_ADDR_ABBR: Lazy<FRegex> = Lazy::new(|| FRegex::new(r"\b([PQĐ])\.\s*(?=\d)").unwrap());
 // Tỉ số thể thao: đọc thành hai số RỜI ("2-1" -> "hai một"), không phải khoảng
 // ("đến") hay phân số ("trên"). Nhận diện qua: (a) từ khóa tỉ số đứng NGAY trước,
 // (b) cụm số nằm giữa hai TÊN RIÊNG viết hoa (đội bóng).
@@ -264,10 +271,18 @@ pub fn clean_vietnamese_text(text: &str) -> String {
     }).into_owned();
 
     current_text = crate::vi_normalizer::misc::expand_abbreviations(&current_text);
+    current_text = RE_ADDR_ABBR.replace_all(&current_text, |caps: &FCaps| {
+        match caps.get(1).unwrap().as_str() {
+            "P" => " phường ",
+            "Q" => " quận ",
+            _ => " đường ",
+        }.to_string()
+    }).into_owned();
     current_text = expand_money_slang(&current_text);
     current_text = expand_scientific_notation(&current_text);
 
     current_text = RE_RANGE_PCT.replace_all(&current_text, "$1 đến $2%").into_owned();
+    current_text = RE_PCT_NEG.replace_all(&current_text, " âm $1% ").into_owned();
 
     current_text = expand_scores(&current_text);
 

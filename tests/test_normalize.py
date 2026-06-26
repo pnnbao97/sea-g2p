@@ -83,6 +83,8 @@ TEST_CASES = [
     ("02/2025", "tháng hai năm hai nghìn không trăm hai mươi lăm"),
     ("12/2024", "tháng mười hai năm hai nghìn không trăm hai mươi bốn"),
     ("tháng 3/2026", "tháng ba năm hai nghìn không trăm hai mươi sáu"),
+    ("quý 1/2025 tăng", "quý một năm hai nghìn không trăm hai mươi lăm tăng"),
+    ("quý 4/2024", "quý bốn năm hai nghìn không trăm hai mươi bốn"),
     # Ngày không hợp lệ -> đọc dãy số "trên", không vỡ cú pháp.
     ("32/01", "ba mươi hai trên không một"),
     ("01/13", "không một trên mười ba"),
@@ -143,6 +145,10 @@ TEST_CASES = [
     ("Số tiền là 17.200 VNĐ", "số tiền là mười bảy nghìn hai trăm việt nam đồng"),
     ("75%", "bảy mươi lăm phần trăm"),
     ("15,4% xuống còn 8,3%", "mười lăm phẩy bốn phần trăm xuống còn tám phẩy ba phần trăm"),
+    # Phần trăm âm.
+    ("giảm -5% so với", "giảm âm năm phần trăm so với"),
+    ("lãi suất -0,5%", "lãi suất âm không phẩy năm phần trăm"),
+    ("-5% đến -2%", "âm năm phần trăm đến âm hai phần trăm"),
     ("370 tỷ USD", "ba trăm bảy mươi tỷ <en>u s d</en>"),
     ("5 triệu VND", "năm triệu việt nam đồng"),
     ("10 nghìn USD", "mười nghìn <en>u s d</en>"),
@@ -258,6 +264,9 @@ TEST_CASES = [
     ("Nhà tôi ở số 123/4 đường Nguyễn Trãi.", "nhà tôi ở số một trăm hai mươi ba trên bốn đường nguyễn trãi."),
     ("Giá trị là 123/4.", "giá trị là một trăm hai mươi ba trên bốn."),
     ("Tỷ lệ là 100/2.", "tỷ lệ là một trăm trên hai."),
+    # Viết tắt địa chỉ P./Q./Đ. (theo sau là số).
+    ("nhà ở Q.1 P.5", "nhà ở quận một phường năm"),
+    ("Đ.3/2", "đường ba trên hai"),
 
     # ══ 12. TỈ LỆ DẤU HAI CHẤM (":") ═════════════════════════════════════════
     ("tỉ lệ 1:2:3", "tỉ lệ một trên hai trên ba"),
