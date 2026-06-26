@@ -186,6 +186,21 @@ pub static SYMBOLS_MAP: Lazy<HashMap<char, &'static str>> = Lazy::new(|| {
     m.insert('ρ', " ro "); m.insert('σ', " xích ma "); m.insert('τ', " tao ");
     m.insert('υ', " úp si lon "); m.insert('φ', " phi "); m.insert('χ', " chi ");
     m.insert('ψ', " si "); m.insert('ω', " ô me ga "); m.insert('©', " bản quyền ");
+    // ── Ký hiệu toán bị nuốt trước đây (xóa bởi RE_CLEAN_OTHERS) ──────────────
+    m.insert('∫', " tích phân "); m.insert('∮', " tích phân đường ");
+    m.insert('∂', " đạo hàm riêng "); m.insert('∇', " nabla ");
+    m.insert('∝', " tỉ lệ với "); m.insert('∠', " góc ");
+    m.insert('⊥', " vuông góc với "); m.insert('∥', " song song với ");
+    m.insert('⊂', " là tập con của "); m.insert('⊆', " là tập con của ");
+    m.insert('⊃', " chứa "); m.insert('⊇', " chứa ");
+    m.insert('∅', " tập rỗng "); m.insert('∉', " không thuộc ");
+    m.insert('≡', " tương đương "); m.insert('≅', " đồng dạng "); m.insert('∼', " tương đương ");
+    m.insert('∴', " suy ra "); m.insert('∵', " bởi vì ");
+    m.insert('⋅', " nhân "); m.insert('·', " nhân "); m.insert('∓', " trừ cộng ");
+    // Tập số kiểu blackboard-bold
+    m.insert('ℝ', " tập số thực "); m.insert('ℕ', " tập số tự nhiên ");
+    m.insert('ℤ', " tập số nguyên "); m.insert('ℚ', " tập số hữu tỉ ");
+    m.insert('ℂ', " tập số phức ");
     m.insert('½', " một phần hai "); m.insert('¼', " một phần tư "); m.insert('¾', " ba phần tư ");
     m.insert('⅓', " một phần ba "); m.insert('⅔', " hai phần ba ");
     m.insert('⅕', " một phần năm "); m.insert('⅖', " hai phần năm "); m.insert('⅗', " ba phần năm "); m.insert('⅘', " bốn phần năm ");
@@ -198,9 +213,12 @@ pub static SYMBOLS_MAP: Lazy<HashMap<char, &'static str>> = Lazy::new(|| {
 pub static SUPERSCRIPTS_MAP: Lazy<HashMap<char, &'static str>> = Lazy::new(|| {
     let mut m = HashMap::new();
     m.insert('⁰', " không "); m.insert('¹', " một "); m.insert('²', " bình phương ");
-    m.insert('³', " lập phương "); m.insert('⁴', " bốn "); m.insert('⁵', " năm ");
-    m.insert('⁶', " sáu "); m.insert('⁷', " bảy "); m.insert('⁸', " tám ");
-    m.insert('⁹', " chín ");
+    m.insert('³', " lập phương ");
+    // ⁴-⁹ là số mũ -> đọc "mũ X" (²/³ giữ "bình phương"/"lập phương" theo thói quen VN).
+    m.insert('⁴', " mũ bốn "); m.insert('⁵', " mũ năm ");
+    m.insert('⁶', " mũ sáu "); m.insert('⁷', " mũ bảy "); m.insert('⁸', " mũ tám ");
+    m.insert('⁹', " mũ chín ");
+    m.insert('ⁿ', " mũ n "); m.insert('ⁱ', " mũ i ");
     m
 });
 
@@ -210,6 +228,12 @@ pub static SUBSCRIPTS_MAP: Lazy<HashMap<char, &'static str>> = Lazy::new(|| {
     m.insert('₃', " ba "); m.insert('₄', " bốn "); m.insert('₅', " năm ");
     m.insert('₆', " sáu "); m.insert('₇', " bảy "); m.insert('₈', " tám ");
     m.insert('₉', " chín ");
+    // Chỉ số dưới dạng CHỮ (aᵢ, xₙ) -> đọc tên chữ; trước đây bị xóa mất.
+    m.insert('ᵢ', " i "); m.insert('ⱼ', " j "); m.insert('ₐ', " a "); m.insert('ₑ', " e ");
+    m.insert('ₒ', " o "); m.insert('ₓ', " x "); m.insert('ₕ', " h "); m.insert('ₖ', " k ");
+    m.insert('ₗ', " l "); m.insert('ₘ', " m "); m.insert('ₙ', " n "); m.insert('ₚ', " p ");
+    m.insert('ₛ', " s "); m.insert('ₜ', " t "); m.insert('ᵣ', " r "); m.insert('ᵤ', " u ");
+    m.insert('ᵥ', " v "); m.insert('₊', " cộng "); m.insert('₋', " trừ ");
     m
 });
 

@@ -63,6 +63,13 @@ print(phonemes)
 - **Zero Dependency**: Pre-compiled wheels for Windows, Linux, and macOS.
 - **Smart Normalization**: Specialized for Vietnamese (numbers, dates, technical terms).
 - **Bilingual Support**: Handles mixed Vietnamese/English text seamlessly.
+- **Markup tags**: Wrap a span to control reading:
+  - `<en>...</en>` — keep the content for the English phonemizer (e.g. `<en>hello</en>`).
+  - `<math>...</math>` — read as a math formula: variable clusters are spelled
+    letter-by-letter and operators/symbols are voiced, while function names
+    (`sin`, `cos`, `log`, `lim`, ...) are preserved.
+    `<math>b² - 4ac</math>` → *"bê bình phương trừ bốn a xê"*,
+    `<math>∫f dx</math>` → *"tích phân ép đê ích"*.
 
 ## 📊 Performance
 

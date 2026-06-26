@@ -622,6 +622,28 @@ TEST_CASES = [
     ("Điều 5-10 Luật Hình sự", "điều năm đến mười luật hình sự"),
     ("trang 5-10 Sách", "trang năm đến mười sách"),
     ("Tôi mua 5-10 quả", "tôi mua năm đến mười quả"),
+
+    # ─── 65. CÔNG THỨC TOÁN: KÝ HIỆU (Mức 1) ─────────────────────────────────
+    ("x ∈ ℝ", "ích thuộc tập số thực"),
+    ("∫f(x)dx", "tích phân ép, ích, dx"),
+    ("∂f/∂x", "đạo hàm riêng ép trên đạo hàm riêng ích"),
+    ("y''", "y phẩy phẩy"),
+    ("|x| < 5", "giá trị tuyệt đối của ích nhỏ hơn năm"),
+    ("x⁴", "ích mũ bốn"),
+    # Dấu trừ trong công thức (số mũ / hệ số dính) -> "trừ":
+    ("b² - 4ac", "bê bình phương trừ bốn ac"),
+    ("2x - 3", "hai ích trừ ba"),
+    # Văn xuôi: gạch ngang KHÔNG thành "trừ":
+    ("8x - mà với lại", "tám ích, mà với lại"),
+
+    # ─── 66. CÔNG THỨC TOÁN: TAG <math> (tách biến thành chữ rời) ─────────────
+    ("<math>b² - 4ac</math>", "bê bình phương trừ bốn a xê"),
+    ("<math>∫f dx</math>", "tích phân ép đê ích"),
+    ("<math>E = mc²</math>", "e bằng mờ xê bình phương"),
+    ("<math>ax² + bx + c = 0</math>", "a ích bình phương cộng bê ích cộng xê bằng không"),
+    ("<math>sin(x) + cos(x)</math>", "sin, ích, cộng cos, ích"),
+    # Ngoài tag KHÔNG bị tách:
+    ("ac quy", "ac quy"),
     ]
 
 @pytest.mark.parametrize("input_text, expected", TEST_CASES)
