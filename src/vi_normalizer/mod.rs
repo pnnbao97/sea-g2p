@@ -44,6 +44,12 @@ static RE_MATH_TAG: Lazy<Regex> = Lazy::new(|| Regex::new(r"(?si)<math>(.*?)</ma
 static RE_MATH_WORD: Lazy<Regex> = Lazy::new(|| Regex::new(r"[a-zA-Z]+").unwrap());
 // Dấu trừ đứng ĐẦU công thức (-a + b) -> "âm a ...".
 static RE_LEAD_NEG: Lazy<Regex> = Lazy::new(|| Regex::new(r"^[-–—]\s*([a-zA-Z0-9])").unwrap());
+// Trong <math>: giai thừa "n!"/"5!"/"(n+1)!" -> "... giai thừa".
+static RE_MATH_FACTORIAL: Lazy<FRegex> = Lazy::new(|| FRegex::new(r"(?<=[0-9A-Za-z)])!").unwrap());
+// Trong <math>: dấu trừ NHỊ PHÂN giữa hai toán hạng (c-d, a-b, 5-3) -> "trừ".
+// Lookbehind/lookahead nên không nuốt toán hạng -> xử lý được chuỗi "a-b-c".
+// Đứng sau "(" / "=" thì KHÔNG khớp -> để nhánh đơn nguyên đọc "âm".
+static RE_MATH_BIN_MINUS: Lazy<FRegex> = Lazy::new(|| FRegex::new(r"(?<=[0-9A-Za-z)])\s*[-–—]\s*(?=[0-9A-Za-z(])").unwrap());
 static MATH_FUNCS: Lazy<std::collections::HashSet<&'static str>> = Lazy::new(|| {
     [
         "sin", "cos", "tan", "cot", "sec", "csc", "sinh", "cosh", "tanh", "coth",
@@ -455,6 +461,8 @@ impl Normalizer {
         if current_text.to_lowercase().contains("<math>") {
             current_text = RE_MATH_TAG.replace_all(&current_text, |caps: &Captures| {
                 let inner = split_math_letters(caps.get(1).unwrap().as_str());
+                let inner = RE_MATH_FACTORIAL.replace_all(&inner, " giai thừa ").into_owned();
+                let inner = RE_MATH_BIN_MINUS.replace_all(&inner, " trừ ").into_owned();
                 let inner = RE_LEAD_NEG.replace(inner.trim_start(), "âm $1");
                 format!(" {} ", inner)
             }).into_owned();
