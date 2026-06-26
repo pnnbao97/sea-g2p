@@ -42,6 +42,8 @@ static RE_EN_TAG: Lazy<Regex> = Lazy::new(|| Regex::new(r"(?si)<en>.*?</en>").un
 // dx -> đê ích). Phần còn lại để pipeline thường xử lý (ký hiệu, số mũ, căn...).
 static RE_MATH_TAG: Lazy<Regex> = Lazy::new(|| Regex::new(r"(?si)<math>(.*?)</math>").unwrap());
 static RE_MATH_WORD: Lazy<Regex> = Lazy::new(|| Regex::new(r"[a-zA-Z]+").unwrap());
+// Dấu trừ đứng ĐẦU công thức (-a + b) -> "âm a ...".
+static RE_LEAD_NEG: Lazy<Regex> = Lazy::new(|| Regex::new(r"^[-–—]\s*([a-zA-Z0-9])").unwrap());
 static MATH_FUNCS: Lazy<std::collections::HashSet<&'static str>> = Lazy::new(|| {
     [
         "sin", "cos", "tan", "cot", "sec", "csc", "sinh", "cosh", "tanh", "coth",
@@ -113,6 +115,10 @@ static RE_DASH_TO_COMMA: Lazy<FRegex> = Lazy::new(|| FRegex::new(r"(?<=\s)[\u201
 static RE_MATH_MINUS_SUP: Lazy<FRegex> = Lazy::new(|| FRegex::new(r"(?<=[\u00b2\u00b3\u2074\u2075\u2076\u2077\u2078\u2079\u207f\u2071])\s*[-\u2013\u2014]\s*").unwrap());
 static RE_MATH_MINUS_COEF: Lazy<FRegex> = Lazy::new(|| FRegex::new(r"\s[-\u2013\u2014]\s(?=\d+[a-zA-Z])").unwrap());
 static RE_MATH_MINUS_COEFL: Lazy<FRegex> = Lazy::new(|| FRegex::new(r"(?<=\d[a-zA-Z])\s[-\u2013\u2014]\s(?=\d)").unwrap());
+// D\u1ea5u tr\u1eeb \u0110\u01a0N NGUY\u00caN tr\u01b0\u1edbc bi\u1ebfn ch\u1eef (-b, =-x, (-y) -> "\u00e2m b"). Ch\u1ec9 kh\u1edbp khi \u0111\u1ee9ng
+// sau to\u00e1n t\u1eed/ngo\u1eb7c/b\u1eb1ng (kh\u00f4ng ph\u1ea3i sau to\u00e1n h\u1ea1ng) -> kh\u00f4ng \u0111\u1ee5ng "a - b" (tr\u1eeb).
+static RE_NEG_VAR1: Lazy<FRegex> = Lazy::new(|| FRegex::new(r"(?<=[(\[{=\u00b1+*/\u00d7\u00f7])[-\u2013\u2014]([a-zA-Z])").unwrap());
+static RE_NEG_VAR2: Lazy<FRegex> = Lazy::new(|| FRegex::new(r"(?<=[(\[{=\u00b1+*/\u00d7\u00f7]\s)[-\u2013\u2014]([a-zA-Z])").unwrap());
 static RE_FLOAT_WITH_COMMA: Lazy<FRegex> = Lazy::new(|| FRegex::new(r"(?<![\d.])(\d+(?:\.\d{3})*),(\d+)(%)?").unwrap());
 static RE_STRIP_DOT_SEP: Lazy<FRegex> = Lazy::new(|| FRegex::new(r"(?<![\d.])\d+(?:\.\d{3})+(?![\d.])").unwrap());
 static RE_LONG_NUM: Lazy<FRegex> = Lazy::new(|| FRegex::new(r"(?<!\d)(?<!\d[,.])([-–—]?)(\d{7,})(?!\d)(?![.,]\d)").unwrap());
@@ -341,6 +347,8 @@ pub fn clean_vietnamese_text(text: &str) -> String {
         }
     }).to_string();
 
+    current_text = RE_NEG_VAR1.replace_all(&current_text, " âm $1 ").into_owned();
+    current_text = RE_NEG_VAR2.replace_all(&current_text, " âm $1 ").into_owned();
     current_text = RE_MATH_MINUS_SUP.replace_all(&current_text, " trừ ").into_owned();
     current_text = RE_MATH_MINUS_COEF.replace_all(&current_text, " trừ ").into_owned();
     current_text = RE_MATH_MINUS_COEFL.replace_all(&current_text, " trừ ").into_owned();
@@ -431,7 +439,9 @@ impl Normalizer {
         // thường đọc tên chữ + ký hiệu. Làm trước khi tách <en>.
         if current_text.to_lowercase().contains("<math>") {
             current_text = RE_MATH_TAG.replace_all(&current_text, |caps: &Captures| {
-                format!(" {} ", split_math_letters(caps.get(1).unwrap().as_str()))
+                let inner = split_math_letters(caps.get(1).unwrap().as_str());
+                let inner = RE_LEAD_NEG.replace(inner.trim_start(), "âm $1");
+                format!(" {} ", inner)
             }).into_owned();
         }
 
