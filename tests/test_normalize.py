@@ -552,6 +552,76 @@ TEST_CASES = [
     ("tỉ lệ nợ/vốn là 1:2:3.", "tỉ lệ nợ trên vốn là một trên hai trên ba."),
     ("tỷ lệ 2:1.", "tỷ lệ hai trên một."),
     ("tỉ số 3:2.", "tỉ số ba trên hai."),
+
+    # ─── 55. URL CÓ PATH TIẾNG VIỆT (không lòi dấu "/") ──────────────────────
+    ("truy cập https://abc.com/báo-cáo.", "truy cập <en>https</en> <en>abc</en> chấm com gạch báo gạch ngang cáo."),
+    ("abc.com/báo-cáo", "<en>abc</en> chấm com gạch báo gạch ngang cáo"),
+    ("https://abc.com/tài-liệu/mới", "<en>https</en> <en>abc</en> chấm com gạch tài gạch ngang liệu gạch mới"),
+
+    # ─── 56. GỘP DẤU CÂU LẶP ─────────────────────────────────────────────────
+    ("Trời ơi!!!", "trời ơi!"),
+    ("Thật sao???", "thật sao?"),
+    ("Cái gì?!", "cái gì?"),
+    ("Hả!?!?", "hả!"),
+
+    # ─── 57. HOTLINE CÓ GẠCH / SỐ ĐIỆN THOẠI BÀN ─────────────────────────────
+    ("1900-1080", "một chín không không một không tám không"),
+    ("1800-1900", "một tám không không một chín không không"),
+    ("(028) 3822 1234", "không hai tám, ba tám hai hai, một hai ba bốn"),
+    ("024 3822 1234", "không hai bốn, ba tám hai hai, một hai ba bốn"),
+    ("+84 28 3822 1234", "cộng tám bốn, hai tám, ba tám hai hai, một hai ba bốn"),
+    ("năm 1900 có", "năm một nghìn chín trăm có"),
+
+    # ─── 58. KÝ HIỆU CĂN ─────────────────────────────────────────────────────
+    ("√4", "căn bậc hai bốn"),
+    ("∛8", "căn bậc ba tám"),
+    ("√4 = 2", "căn bậc hai bốn bằng hai"),
+
+    # ─── 59. ĐƠN VỊ ĐIỆN GHÉP (camelCase) ────────────────────────────────────
+    ("5 kWh", "năm ki lô oát giờ"),
+    ("3 mAh", "ba mi li am pe giờ"),
+    ("10 Ah", "mười am pe giờ"),
+    ("100kWh", "một trăm ki lô oát giờ"),
+
+    # ─── 60. TIỀN LÓNG k / tr ─────────────────────────────────────────────────
+    ("500k", "năm trăm nghìn"),
+    ("1tr", "một triệu"),
+    ("1tr5", "một triệu năm trăm nghìn"),
+    ("15tr", "mười lăm triệu"),
+    ("2tr3", "hai triệu ba trăm nghìn"),
+    ("giá 250k", "giá hai trăm năm mươi nghìn"),
+    # KHÔNG nhầm hậu tố model viết HOA / chữ-số khác:
+    ("camera K8", "camera ca tám"),
+    ("i9-14900K", "i chín mười bốn nghìn chín trăm ca"),
+
+    # ─── 61. KHOẢNG/ĐIỂM SỐ DẤU GẠCH (đến, không phải trên) ──────────────────
+    ("5-10 kg", "năm đến mười ki lô gam"),
+    ("3-4 lần", "ba đến bốn lần"),
+
+    # ─── 62. HỌC VỊ / CHỨC DANH (bỏ chấm trước tên) ──────────────────────────
+    ("Th.S Nguyễn", "thạc sĩ nguyễn"),
+    ("TS. Nguyễn", "tiến sĩ nguyễn"),
+    ("GS. Trần", "giáo sư trần"),
+    ("KS Trần", "kỹ sư trần"),
+    ("BS. Lê", "bác sĩ lê"),
+
+    # ─── 63. SỐ LA MÃ CHỮ THƯỜNG SAU TỪ KHÓA ─────────────────────────────────
+    ("chương iv", "chương bốn"),
+    ("thế kỷ xxi", "thế kỷ hai mươi mốt"),
+    ("quý iii", "quý ba"),
+
+    # ─── 64. TỈ SỐ THỂ THAO (đọc hai số rời, không "đến"/"trên") ──────────────
+    ("Việt Nam 2-1 Thái Lan", "việt nam hai một thái lan"),
+    ("Arsenal 3-0 Chelsea", "arsenal ba không chelsea"),
+    ("thắng 2-0", "thắng hai không"),
+    ("thua 0-2", "thua không hai"),
+    ("hòa 1-1", "hòa một một"),
+    ("tỉ số 3-1", "tỉ số ba một"),
+    ("chung cuộc 4-2", "chung cuộc bốn hai"),
+    # KHÔNG nhầm thành tỉ số -> vẫn là khoảng "đến":
+    ("Điều 5-10 Luật Hình sự", "điều năm đến mười luật hình sự"),
+    ("trang 5-10 Sách", "trang năm đến mười sách"),
+    ("Tôi mua 5-10 quả", "tôi mua năm đến mười quả"),
     ]
 
 @pytest.mark.parametrize("input_text, expected", TEST_CASES)

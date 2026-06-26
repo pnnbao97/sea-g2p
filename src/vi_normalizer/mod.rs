@@ -18,7 +18,7 @@ use crate::vi_normalizer::datestime::{normalize_date, normalize_time};
 use crate::vi_normalizer::units::{expand_units_and_currency, expand_compound_units, expand_scientific_notation, fix_english_style_numbers, expand_power_of_ten, expand_height_weight};
 use crate::vi_normalizer::misc::{normalize_others, expand_standalone_letters, RE_ACRONYMS_EXCEPTIONS, RE_ACRONYM};
 use crate::vi_normalizer::technical::{normalize_technical, normalize_emails, RE_TECHNICAL, RE_EMAIL};
-use crate::vi_normalizer::resources::COMBINED_EXCEPTIONS;
+use crate::vi_normalizer::resources::{COMBINED_EXCEPTIONS, MEASUREMENT_KEY_VI};
 
 // ── Tier 1: regex crate (Thompson NFA, much faster for simple patterns) ────
 static RE_EXTRA_SPACES: Lazy<Regex> = Lazy::new(|| Regex::new(r"[ \t\xA0]+").unwrap());
@@ -27,6 +27,8 @@ static RE_EXTRA_COMMAS: Lazy<Regex> = Lazy::new(|| Regex::new(r",\s*,").unwrap()
 // với "..." (RE_MULTI_DOT gộp tiếp về một dấu chấm).
 static RE_ELLIPSIS: Lazy<Regex> = Lazy::new(|| Regex::new(r"[\u{2024}\u{2025}\u{2026}]").unwrap());
 static RE_MULTI_DOT: Lazy<Regex> = Lazy::new(|| Regex::new(r"\.[\s.]*\.").unwrap());
+// Gộp chuỗi dấu kết câu lặp/hỗn hợp ("!!!", "???", "?!", "!?!?") về một dấu đầu tiên.
+static RE_MULTI_BANG: Lazy<Regex> = Lazy::new(|| Regex::new(r"([!?])[!?\s]*[!?]").unwrap());
 static RE_COMMA_BEFORE_PUNCT: Lazy<Regex> = Lazy::new(|| Regex::new(r",\s*([.!?;])").unwrap());
 static RE_SPACE_BEFORE_PUNCT: Lazy<Regex> = Lazy::new(|| Regex::new(r"\s+([,.!?;:])").unwrap());
 // Rewritten to avoid lookahead: capture the following char so regex crate can handle it
@@ -52,8 +54,30 @@ static RE_PHONE_SPACE: Lazy<Regex> = Lazy::new(|| Regex::new(r"\b0\d{2,3}(?:\s\d
 // Khoảng phần trăm "5-7%" -> "5 đến 7%" (dấu % xác nhận đây là KHOẢNG, không phải
 // phân số/ngày-tháng). Chạy trước normalize_date để không bị đọc thành "trên".
 static RE_RANGE_PCT: Lazy<Regex> = Lazy::new(|| Regex::new(r"(\d+(?:[.,]\d+)?)\s*[-–—]\s*(\d+(?:[.,]\d+)?)\s*%").unwrap());
+// Tỉ số thể thao: đọc thành hai số RỜI ("2-1" -> "hai một"), không phải khoảng
+// ("đến") hay phân số ("trên"). Nhận diện qua: (a) từ khóa tỉ số đứng NGAY trước,
+// (b) cụm số nằm giữa hai TÊN RIÊNG viết hoa (đội bóng).
+static RE_SCORE_KW: Lazy<Regex> = Lazy::new(|| Regex::new(r"(?i)\b(thắng|thua|hòa|hoà|tỉ số|tỷ số|chung cuộc|đánh bại|cầm hòa|cầm hoà)\s+(\d{1,2})\s*[-–—]\s*(\d{1,2})\b").unwrap());
+static RE_SCORE_TEAMS: Lazy<Regex> = Lazy::new(|| Regex::new(r"(\p{Lu}\p{L}+(?:\s\p{Lu}\p{L}+)?)\s(\d{1,2})\s*[-–—]\s*(\d{1,2})\s(\p{Lu}\p{L}+)").unwrap());
+// Tiền tố cấu trúc/khoảng đứng trước "số-số" -> KHÔNG phải tỉ số (giữ logic khoảng).
+const SCORE_EXCLUDE: [&str; 26] = [
+    "điều", "khoản", "chương", "mục", "phần", "điểm", "tiết", "tập", "quyển",
+    "hồi", "kỳ", "kì", "quý", "tháng", "ngày", "năm", "tuần", "từ", "khoảng",
+    "trong", "bài", "câu", "trang", "dòng", "khóa", "khoá",
+];
+
 // Tổng đài 1800/1900: đọc rời từng chữ số thay vì gộp thành số lớn.
-static RE_HOTLINE: Lazy<Regex> = Lazy::new(|| Regex::new(r"\b(1800|1900)[\s.]?(\d{3,6})\b").unwrap());
+static RE_HOTLINE: Lazy<Regex> = Lazy::new(|| Regex::new(r"\b(1800|1900)[\s.\-–—]?(\d{3,6})\b").unwrap());
+// Số điện thoại bàn: mã vùng (có/không ngoặc) + 2 nhóm 3-4 chữ số ngăn bởi KHOẢNG
+// TRẮNG -> đọc rời từng số. vd "(028) 3822 1234", "024 3822 1234", "+84 28 3822 1234".
+// Lookbehind (?<![\d.,]) chặn khớp giữa số phân tách bằng dấu chấm (1.000.000.000).
+static RE_LANDLINE: Lazy<FRegex> = Lazy::new(|| FRegex::new(r"(?<![\d.,])\(?(?:\+84\s?|0)\d{1,3}\)?\s\d{3,4}\s\d{3,4}(?!\d)").unwrap());
+
+// Tiền lóng: "500k" -> năm trăm nghìn, "1tr"/"15tr" -> triệu, "1tr5" -> một triệu
+// năm trăm nghìn. CHỈ chữ thường k/tr và ≤4 chữ số -> tránh nhầm hậu tố model
+// viết HOA ("i9-14900K", "RTX") và tránh nuốt "5kg"/"5km"/"4trung" (lookahead (?!\w)).
+static RE_MONEY_K: Lazy<FRegex> = Lazy::new(|| FRegex::new(r"\b(\d{1,4})k(?![\w])").unwrap());
+static RE_MONEY_TR: Lazy<FRegex> = Lazy::new(|| FRegex::new(r"\b(\d{1,4})tr(\d)?(?![\w])").unwrap());
 
 // ── Tier 2: fancy_regex (REQUIRED for look-around assertions) ────────────────
 // RE_COMBINED_TECH_EMAIL removed — two separate passes are faster (mirrors Python)
@@ -67,6 +91,7 @@ static RE_POTENTIAL_CONCAT: Lazy<Regex> = Lazy::new(|| Regex::new(r"\b[a-zA-Z]{3
 
 fn cleanup_whitespace(text: &str) -> String {
     let mut res = RE_MULTI_DOT.replace_all(text, ".").into_owned();
+    res = RE_MULTI_BANG.replace_all(&res, "$1").into_owned();
     res = RE_EXTRA_SPACES.replace_all(&res, " ").into_owned();
     res = RE_EXTRA_COMMAS.replace_all(&res, ",").into_owned();
     res = RE_COMMA_BEFORE_PUNCT.replace_all(&res, "$1").into_owned();
@@ -76,6 +101,40 @@ fn cleanup_whitespace(text: &str) -> String {
     res.trim().trim_matches(',').to_string()
 }
 
+fn expand_scores(text: &str) -> String {
+    use crate::vi_normalizer::num2vi::n2w;
+    let res = RE_SCORE_KW.replace_all(text, |caps: &Captures| {
+        format!("{} {} {}",
+            caps.get(1).unwrap().as_str(),
+            n2w(caps.get(2).unwrap().as_str()),
+            n2w(caps.get(3).unwrap().as_str()))
+    }).into_owned();
+    RE_SCORE_TEAMS.replace_all(&res, |caps: &Captures| {
+        let team1 = caps.get(1).unwrap().as_str();
+        let last = team1.rsplit(' ').next().unwrap_or(team1).to_lowercase();
+        if SCORE_EXCLUDE.contains(&last.as_str()) {
+            return caps.get(0).unwrap().as_str().to_string();
+        }
+        format!("{} {} {} {}", team1,
+            n2w(caps.get(2).unwrap().as_str()),
+            n2w(caps.get(3).unwrap().as_str()),
+            caps.get(4).unwrap().as_str())
+    }).into_owned()
+}
+
+fn expand_money_slang(text: &str) -> String {
+    let res = RE_MONEY_TR.replace_all(text, |caps: &FCaps| {
+        let x = crate::vi_normalizer::num2vi::n2w(caps.get(1).unwrap().as_str());
+        match caps.get(2) {
+            Some(y) => format!(" {} triệu {} trăm nghìn ", x, crate::vi_normalizer::num2vi::n2w(y.as_str())),
+            None => format!(" {} triệu ", x),
+        }
+    }).into_owned();
+    RE_MONEY_K.replace_all(&res, |caps: &FCaps| {
+        format!(" {} nghìn ", crate::vi_normalizer::num2vi::n2w(caps.get(1).unwrap().as_str()))
+    }).into_owned()
+}
+
 fn split_concatenated_terms(text: &str) -> String {
     let re_potential = &*RE_POTENTIAL_CONCAT;
     let re_camel = &*RE_CAMEL_CASE;
@@ -83,7 +142,11 @@ fn split_concatenated_terms(text: &str) -> String {
 
     re_potential.replace_all(text, |caps: &Captures| {
         let word = caps.get(0).unwrap().as_str();
-        if re_acronym.is_match(word).unwrap_or(false) {
+        // Giữ nguyên đơn vị viết camelCase đã biết (kWh, mAh, mWh...) để pass đơn vị
+        // bắt được; nếu để splitter cắt "kWh" -> "k Wh" sẽ đọc sai ("ca wh").
+        if re_acronym.is_match(word).unwrap_or(false)
+            || MEASUREMENT_KEY_VI.contains_key(word.to_lowercase().as_str())
+        {
             word.to_string()
         } else {
             re_camel.replace_all(word, " ").into_owned()
@@ -165,9 +228,12 @@ pub fn clean_vietnamese_text(text: &str) -> String {
     }).into_owned();
 
     current_text = crate::vi_normalizer::misc::expand_abbreviations(&current_text);
+    current_text = expand_money_slang(&current_text);
     current_text = expand_scientific_notation(&current_text);
 
     current_text = RE_RANGE_PCT.replace_all(&current_text, "$1 đến $2%").into_owned();
+
+    current_text = expand_scores(&current_text);
 
     current_text = normalize_date(&current_text);
     current_text = normalize_time(&current_text);
@@ -179,6 +245,17 @@ pub fn clean_vietnamese_text(text: &str) -> String {
             .map(|&p| crate::vi_normalizer::num2vi::n2w_single(p))
             .collect::<Vec<String>>()
             .join(", ")
+    }).into_owned();
+
+    current_text = RE_LANDLINE.replace_all(&current_text, |caps: &FCaps| {
+        let matched = caps.get(0).unwrap().as_str();
+        let groups: Vec<String> = matched
+            .split(|c: char| !c.is_ascii_digit())
+            .filter(|s: &&str| !s.is_empty())
+            .map(|s: &str| crate::vi_normalizer::num2vi::n2w_single(s))
+            .collect();
+        let prefix = if matched.contains('+') { "cộng " } else { "" };
+        format!(" {}{} ", prefix, groups.join(", "))
     }).into_owned();
 
     current_text = RE_PHONE_SPACE.replace_all(&current_text, |caps: &Captures| {

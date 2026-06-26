@@ -183,6 +183,10 @@ pub fn normalize_date(text: &str) -> String {
         let full_match = caps.get(0).unwrap();
         let day_str = caps.get(1).unwrap().as_str();
         let month_str = caps.get(3).unwrap().as_str();
+        let sep = caps.get(2).unwrap().as_str();
+        // Dấu "-" giữa hai số (không phải ngày hợp lệ có ngữ cảnh) thiên về KHOẢNG
+        // ("5-10" -> "năm đến mười"); dấu "/" thiên về PHÂN SỐ ("3/5" -> "ba trên năm").
+        let joiner = if sep == "-" { "đến" } else { "trên" };
         let a = day_str.parse::<i32>().unwrap_or(0);
         let b = month_str.parse::<i32>().unwrap_or(0);
 
@@ -209,12 +213,12 @@ pub fn normalize_date(text: &str) -> String {
 
         if !is_valid {
             if day_str.starts_with('0') || month_str.starts_with('0') {
-                return format!("{} trên {}", n2w(day_str), n2w(month_str));
+                return format!("{} {} {}", n2w(day_str), joiner, n2w(month_str));
             }
             return full_match.as_str().to_string();
         }
 
-        format!("{} trên {}", n2w(day_str), n2w(month_str))
+        format!("{} {} {}", n2w(day_str), joiner, n2w(month_str))
     }).to_string();
 
     result = RE_REDUNDANT_NGAY.replace_all(&result, "ngày").into_owned();

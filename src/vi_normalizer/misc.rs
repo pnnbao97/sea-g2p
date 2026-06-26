@@ -13,7 +13,14 @@ const VI_UPPER: &str = "ĐĂÂÊÔƠƯ";
 
 // ─ Patterns requiring look-arounds ───────────────────────────────────────
 static RE_ROMAN_NUMBER: Lazy<FRegex> = Lazy::new(|| {
-    FRegex::new(r"\b(?=[IVXLCDM]{2,})(?:M{0,4}(?:CM|CD|D?C{0,3})(?:XC|XL|L?X{0,3})(?:IX|IV|V?I{0,3}))(?<=[IVXLCDM])\b").unwrap()
+    // (?i): nhận cả chữ thường ("chương iv"). An toàn vì chỉ mở rộng khi có từ dẫn
+    // La Mã đứng trước (has_roman_context); chữ Việt có dấu không lọt vào lớp [ivxlcdm].
+    FRegex::new(r"(?i)\b(?=[IVXLCDM]{2,})(?:M{0,4}(?:CM|CD|D?C{0,3})(?:XC|XL|L?X{0,3})(?:IX|IV|V?I{0,3}))(?<=[IVXLCDM])\b").unwrap()
+});
+// Bỏ dấu chấm viết tắt chức danh khi theo sau là tên riêng (TS. Nguyễn -> TS Nguyễn),
+// tránh dấu "." biến thành ranh giới câu gây ngắt nhịp sai.
+static RE_TITLE_DOT: Lazy<FRegex> = Lazy::new(|| {
+    FRegex::new(r"\b(TS|GS|BS|ThS|PGS|KS|ĐH)\.\s+(?=\p{Lu})").unwrap()
 });
 static RE_STANDALONE_LETTER: Lazy<FRegex> = Lazy::new(|| {
     FRegex::new(r"(?<![\''])\b([a-zA-Z])\b(\.?)").unwrap()
@@ -435,7 +442,8 @@ pub fn expand_temperatures(text: &str) -> String {
 }
 
 pub fn normalize_others(text: &str) -> String {
-    let mut res = RE_ACRONYMS_EXCEPTIONS.replace_all(text, |caps: &Captures| {
+    let text = RE_TITLE_DOT.replace_all(text, "$1 ").into_owned();
+    let mut res = RE_ACRONYMS_EXCEPTIONS.replace_all(&text, |caps: &Captures| {
         COMBINED_EXCEPTIONS.get(caps.get(0).unwrap().as_str()).cloned().unwrap_or(caps.get(0).unwrap().as_str().to_string())
     }).into_owned();
 

@@ -55,6 +55,8 @@ pub static MEASUREMENT_KEY_VI: Lazy<HashMap<&'static str, &'static str>> = Lazy:
     m.insert("gallon", "__start_en__gallon__end_en__"); m.insert("mol", "mol");
     m.insert("ms", "mi li giây"); m.insert("M", "triệu");
     m.insert("B", "tỷ");
+    // Đơn vị điện ghép viết camelCase (mAh/Ah). kWh/Wh/mWh đã có ở trên.
+    m.insert("mah", "mi li am pe giờ"); m.insert("ah", "am pe giờ");
     m
 });
 
@@ -87,7 +89,8 @@ pub static ACRONYMS_EXCEPTIONS_VI: Lazy<HashMap<&'static str, &'static str>> = L
     m.insert("VĐV", "vận động viên"); m.insert("TPHCM", "thành phố hồ chí minh");
     m.insert("PGS", "phó giáo sư"); m.insert("SP500", "ét pê năm trăm");
     m.insert("PGS.TS", "phó giáo sư tiến sĩ"); m.insert("GS.TS", "giáo sư tiến sĩ");
-    m.insert("ThS", "thạc sĩ"); m.insert("BS", "bác sĩ");
+    m.insert("ThS", "thạc sĩ"); m.insert("Th.S", "thạc sĩ"); m.insert("BS", "bác sĩ");
+    m.insert("KS", "kỹ sư");
     m.insert("UAE", "u a e"); m.insert("CUDA", "cu đa");
     // Viết tắt cơ quan/tổ chức/lĩnh vực phổ biến (khớp theo ranh giới từ nên an toàn).
     m.insert("QĐND", "quân đội nhân dân"); m.insert("CAND", "công an nhân dân");
@@ -164,6 +167,7 @@ pub static SYMBOLS_MAP: Lazy<HashMap<char, &'static str>> = Lazy::new(|| {
     m.insert('#', " thăng "); m.insert('>', " lớn hơn "); m.insert('<', " nhỏ hơn ");
     m.insert('≥', " lớn hơn hoặc bằng "); m.insert('≤', " nhỏ hơn hoặc bằng ");
     m.insert('±', " cộng trừ "); m.insert('≈', " xấp xỉ "); m.insert('/', " trên ");
+    m.insert('√', " căn bậc hai "); m.insert('∛', " căn bậc ba "); m.insert('∜', " căn bậc bốn ");
     m.insert('→', " đến "); m.insert('÷', " chia "); m.insert('*', " sao ");
     m.insert('×', " nhân "); m.insert('^', " mũ "); m.insert('~', " khoảng ");
     m.insert('%', " phần trăm "); m.insert('$', " đô la "); m.insert('€', " ê rô ");
