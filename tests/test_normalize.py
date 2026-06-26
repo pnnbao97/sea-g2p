@@ -453,6 +453,14 @@ TEST_CASES = [
     ("<math>-a + b</math>", "âm a cộng bê"),
     ("<math>x = (-b ± √(b² - 4ac)) / 2a</math>",
      "ích bằng, âm bê cộng trừ căn bậc hai bê bình phương trừ bốn a xê, trên hai a"),
+    # Trong <math>: giai thừa + dấu trừ nhị phân.
+    ("<math>n!</math>", "nờ giai thừa"),
+    ("<math>5!</math>", "năm giai thừa"),
+    ("<math>c-d</math>", "xê trừ đê"),
+    ("<math>a-b-c</math>", "a trừ bê trừ xê"),
+    ("<math>(a+b)/(c-d)</math>", "a cộng bê, trên, xê trừ đê"),
+    ("<math>n! / (k!(n-k)!)</math>", "nờ giai thừa trên, ca giai thừa nờ trừ ca, giai thừa"),
+    ("<math>5 - 3 = 2</math>", "năm trừ ba bằng hai"),
     ("ac quy", "ac quy"),   # ngoài tag KHÔNG bị tách
     ("√4", "căn bậc hai bốn"),
     ("∛8", "căn bậc ba tám"),
