@@ -137,6 +137,36 @@ fn has_vowel_and_consonant(s: &str) -> bool {
     false
 }
 
+/// Ánh xạ một token dấu câu về dạng GIỮ trong chuỗi phoneme, ĐỒNG BỘ với quy
+/// tắc của `Normalizer`. Trả `None` nghĩa là bỏ hẳn ký hiệu đó.
+///
+/// Cần thiết vì nội dung trong tag `<en>` KHÔNG đi qua `Normalizer` (normalizer
+/// giữ nguyên nội dung <en>), nên các dấu như `"` `(` `-` sẽ lọt vào phoneme nếu
+/// không xử lý ở đây. Quy tắc khớp `Normalizer`:
+///   - `, . ! ?`            -> giữ nguyên
+///   - `; :`                -> `,`
+///   - `… ‥ ․` (ellipsis)   -> `.`
+///   - còn lại (nháy `"` `'` `«` `»`, ngoặc `(` `)` `{` `}` `[` `]`,
+///     gạch nối rời `-` `–` `—`, ...) -> bỏ
+///
+/// Token punct luôn là MỘT ký tự (regex `[^\w\s]`).
+fn map_punct(s: &str) -> Option<&'static str> {
+    let mut it = s.chars();
+    let c = match (it.next(), it.next()) {
+        (Some(c), None) => c,
+        _ => return None,
+    };
+    match c {
+        ',' => Some(","),
+        '.' => Some("."),
+        '!' => Some("!"),
+        '?' => Some("?"),
+        ';' | ':' => Some(","),
+        '\u{2026}' | '\u{2025}' | '\u{2024}' => Some("."),
+        _ => None,
+    }
+}
+
 #[derive(Clone)]
 pub struct Token {
     pub lang: String,
@@ -405,7 +435,10 @@ impl G2PEngine {
         let mut result = Vec::new();
         for t in tokens {
             if t.lang == "punct" {
-                result.push(t.content);
+                // Map dấu câu theo quy tắc Normalizer; bỏ nháy/ngoặc/gạch nối rời...
+                if let Some(p) = map_punct(&t.content) {
+                    result.push(p.to_string());
+                }
             } else {
                 let phone = if let Some(p) = t.phone {
                     if p.starts_with('\x1F') && p.ends_with('\x1F') {
@@ -441,14 +474,18 @@ impl G2PEngine {
             }
         }
 
-        let joined = result.join(" ");
-        joined
+        let mut joined = result.join(" ")
             .replace(" .", ".")
             .replace(" ,", ",")
             .replace(" !", "!")
             .replace(" ?", "?")
             .replace(" ;", ";")
-            .replace(" :", ":")
+            .replace(" :", ":");
+        // Gộp dấu câu lặp liên tiếp về một (đồng bộ Normalizer: "..."/"…" -> ".",
+        // ",," -> ","). An toàn vì chuỗi phoneme không chứa '.'/','.
+        while joined.contains("..") { joined = joined.replace("..", "."); }
+        while joined.contains(",,") { joined = joined.replace(",,", ","); }
+        joined
     }
 
     fn propagate_language(&self, tokens: &mut Vec<Token>) {
