@@ -297,10 +297,17 @@ TEST_CASES = [
     ("quý IV", "quý bốn"),
     ("quý III tăng", "quý ba tăng"),
     ("quý II", "quý hai"),
-    # Chữ thường sau từ khóa cũng mở rộng.
-    ("chương iv", "chương bốn"),
-    ("thế kỷ xxi", "thế kỷ hai mươi mốt"),
-    ("quý iii", "quý ba"),
+    ("lần II", "lần hai"),
+    ("vòng III", "vòng ba"),
+    ("Edward II", "edward hai"),
+    ("vua William III", "vua william ba"),
+    ("giáo hoàng Benedict XVI", "giáo hoàng benedict mười sáu"),
+    # CHỈ nhận số La Mã viết HOA; chữ thường dễ trùng âm tiết tiếng Việt nên để nguyên.
+    ("chương iv", "chương iv"),
+    ("thế kỷ xxi", "thế kỷ xxi"),
+    ("quý iii", "quý iii"),
+    ("lần di chuyển", "lần di chuyển"),
+    ("lần vi phạm", "lần vi phạm"),
     # Không có từ dẫn -> rơi vào nhánh acronym tiếng Anh.
     ("đĩa CD và đầu DVD", "đĩa <en>c d</en> và đầu <en>d v d</en>"),
     ("mã MC", "mã <en>m c</en>"),

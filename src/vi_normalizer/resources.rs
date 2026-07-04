@@ -310,8 +310,12 @@ pub static ROMAN_KEYWORDS: Lazy<HashSet<&'static str>> = Lazy::new(|| {
     let words = [
         "kỷ", "kỉ", "chương", "phần", "hồi", "quyển", "tập", "kỳ", "kì",
         "khoản", "điều", "mục", "đời", "vua", "chiến", "hội", "khóa", "khoá",
-        "đệ", "triều", "louis", "napoléon", "napoleon", "henry", "george",
-        "charles", "elizabeth", "quý",
+        "đệ", "triều", "quý", "lần", "vòng",
+        // Tên vua/giáo hoàng thường đi kèm số La Mã (an toàn vì chỉ khớp số HOA đứng sau).
+        "louis", "napoléon", "napoleon", "henry", "george", "charles",
+        "elizabeth", "edward", "william", "james", "richard", "john",
+        "philip", "philippe", "frederick", "ferdinand", "peter", "pierre",
+        "catherine", "pius", "benedict", "leo", "gregory", "otto",
     ];
     for w in words { s.insert(w); }
     s

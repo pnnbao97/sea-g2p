@@ -13,9 +13,10 @@ const VI_UPPER: &str = "ĐĂÂÊÔƠƯ";
 
 // ─ Patterns requiring look-arounds ───────────────────────────────────────
 static RE_ROMAN_NUMBER: Lazy<FRegex> = Lazy::new(|| {
-    // (?i): nhận cả chữ thường ("chương iv"). An toàn vì chỉ mở rộng khi có từ dẫn
-    // La Mã đứng trước (has_roman_context); chữ Việt có dấu không lọt vào lớp [ivxlcdm].
-    FRegex::new(r"(?i)\b(?=[IVXLCDM]{2,})(?:M{0,4}(?:CM|CD|D?C{0,3})(?:XC|XL|L?X{0,3})(?:IX|IV|V?I{0,3}))(?<=[IVXLCDM])\b").unwrap()
+    // CHỈ chữ HOA: số La Mã thật luôn viết hoa ("Chương IV", "Edward II"). Không nhận
+    // chữ thường vì các âm tiết tiếng Việt viết thường ("di", "vi", "li", "cd"...) trùng
+    // dạng số La Mã và gây mở rộng sai (vd "lần di chuyển" -> "lần 501 chuyển").
+    FRegex::new(r"\b(?=[IVXLCDM]{2,})(?:M{0,4}(?:CM|CD|D?C{0,3})(?:XC|XL|L?X{0,3})(?:IX|IV|V?I{0,3}))(?<=[IVXLCDM])\b").unwrap()
 });
 // Bỏ dấu chấm viết tắt chức danh khi theo sau là tên riêng (TS. Nguyễn -> TS Nguyễn),
 // tránh dấu "." biến thành ranh giới câu gây ngắt nhịp sai.
