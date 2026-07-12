@@ -203,6 +203,30 @@ fn split_concatenated_terms(text: &str) -> String {
     }).into_owned()
 }
 
+/// Dọn ký tự Unicode "ẩn" thường lẫn trong văn bản dán từ Word/web/PDF trước khi
+/// chuẩn hóa. Nếu không dọn, chúng lọt tới tokenizer của TTS -> token OOV -> mô hình
+/// sinh ra "tiếng lạ" trước khi đọc phần còn lại (issue #177).
+///  - Zero-width mang tính RANH GIỚI TỪ -> đổi thành dấu cách để không dính 2 âm tiết
+///    thành token OOV (và tránh văn bản kiểu "thànhphố"): ZWSP (vốn là "space"),
+///    ZWNJ ("non-joiner" = tách rời), soft hyphen (điểm ngắt của trình soạn thảo,
+///    thường rơi đúng ranh giới âm tiết tiếng Việt). Dấu cách thừa sẽ được gộp lại sau.
+///  - Zero-width mang tính NỐI/đánh dấu -> bỏ hẳn (gộp lại là đúng): ZWJ ("joiner"),
+///    word joiner, BOM/ZWNBSP, combining grapheme joiner, Mongolian vowel separator.
+///  - Đổi MỌI khoảng trắng Unicode lạ (NBSP, ogham, en/em space, narrow/medium NBSP,
+///    ideographic space, line/paragraph separator, NEL, vertical tab, form feed) về
+///    dấu cách ASCII thường. Giữ nguyên '\n' '\r' '\t' vì các pass sau còn dựa vào.
+///  - Bỏ ký tự điều khiển C0/C1 còn lại (NUL, BELL, ESC...).
+fn sanitize_unicode(text: &str) -> String {
+    text.chars().filter_map(|c: char| match c {
+        '\u{200B}' | '\u{200C}' | '\u{00AD}' => Some(' '),
+        '\u{200D}' | '\u{2060}' | '\u{FEFF}' | '\u{034F}' | '\u{180E}' => None,
+        '\n' | '\r' | '\t' => Some(c),
+        _ if c.is_whitespace() => Some(' '),
+        _ if c.is_control() => None,
+        _ => Some(c),
+    }).collect()
+}
+
 pub fn clean_vietnamese_text(text: &str) -> String {
     let mut mask_map: Vec<(String, String)> = Vec::new();
     let mut current_text = text.to_string();
@@ -451,7 +475,7 @@ impl Normalizer {
     pub fn normalize(&self, text: &str, punc_norm: bool) -> String {
         if text.is_empty() { return String::new(); }
 
-        let nfc_text: String = text.nfc().collect();
+        let nfc_text: String = sanitize_unicode(text).nfc().collect();
         // Quy ellipsis (… ‥ ․) về "." NGAY ĐẦU để nó theo cùng đường xử lý với
         // "...". Nếu để muộn, "…" bị các pass trước đó nuốt thành dấu phân tách.
         let mut current_text = RE_ELLIPSIS.replace_all(&nfc_text, ".").into_owned();
