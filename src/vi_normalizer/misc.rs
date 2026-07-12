@@ -18,6 +18,18 @@ static RE_ROMAN_NUMBER: Lazy<FRegex> = Lazy::new(|| {
     // dạng số La Mã và gây mở rộng sai (vd "lần di chuyển" -> "lần 501 chuyển").
     FRegex::new(r"\b(?=[IVXLCDM]{2,})(?:M{0,4}(?:CM|CD|D?C{0,3})(?:XC|XL|L?X{0,3})(?:IX|IV|V?I{0,3}))(?<=[IVXLCDM])\b").unwrap()
 });
+// Số La Mã mở đầu dòng ở dạng SỐ THỨ TỰ ĐỀ MỤC: "I. VỀ ĐỀ NGHỊ...", "II. Về ...".
+// Đọc là số ("một", "hai"...) chứ không phải chữ cái. Bắt cả trường hợp 1 ký tự (như "I")
+// mà RE_ROMAN_NUMBER (yêu cầu ≥2 ký tự + từ dẫn) bỏ sót. Điều kiện: đứng đầu dòng, kèm dấu ".".
+// Group: (1)=thụt đầu dòng, (2)=số La Mã, (3)=dấu chấm + khoảng trắng, (4)=chuỗi chữ HOA của
+// tiêu đề theo sau (lookahead, không nuốt) — dùng để phân biệt số thứ tự với chữ viết tắt tên
+// riêng ("C. Mác", "V. Nguyễn"): ký tự đơn chỉ coi là số khi tiêu đề viết HOA (≥2 chữ HOA).
+static RE_ROMAN_LIST_MARKER: Lazy<FRegex> = Lazy::new(|| {
+    FRegex::new(r"(?m)^([ \t]*)([IVXLCDM]+)(\.[ \t]+)(?=(\p{Lu}+))").unwrap()
+});
+// Đề mục La Mã thực tế không vượt quá ~XX; giá trị lớn hơn gần như chắc chắn là chữ viết tắt
+// tên riêng (C=100, L=50, D=500, M=1000) nên loại ra để tránh đọc nhầm "C. Mác" -> "một trăm".
+const ROMAN_MARKER_MAX: i32 = 30;
 // Bỏ dấu chấm viết tắt chức danh khi theo sau là tên riêng (TS. Nguyễn -> TS Nguyễn),
 // tránh dấu "." biến thành ranh giới câu gây ngắt nhịp sai.
 static RE_TITLE_DOT: Lazy<FRegex> = Lazy::new(|| {
@@ -136,8 +148,13 @@ pub static RE_ACRONYMS_EXCEPTIONS: Lazy<Regex> = Lazy::new(|| {
 pub static DOMAIN_SUFFIXES_RE: Lazy<Regex> = Lazy::new(|| {
     Regex::new(r"(?i)\.(com|vn|net|org|edu|gov|io|biz|info)\b").unwrap()
 });
+// Ranh giới "câu" để xét heuristic TOÀN HOA: dấu kết câu .!? HOẶC xuống dòng \n.
+// Xuống dòng là ranh giới đề mục: tiêu đề viết HOA thường KHÔNG có dấu chấm cuối mà chỉ
+// ngắt dòng ("...CÔNG TRẠNG\n\nHuân chương..."). Nếu không tách theo \n, đề mục HOA bị gộp
+// với đoạn thường phía sau -> mất tính "toàn hoa" -> từ Việt không dấu (LAO, KHEN) bị đọc
+// như tiếng Anh (<en>l a o</en>). Xem issue #177.
 static RE_ACRONYMS_SPLIT: Lazy<regex::Regex> = Lazy::new(|| {
-    regex::Regex::new(r"([.!?]+(?:\s+|$))").unwrap()
+    regex::Regex::new(r"([.!?]+(?:\s+|$)|\n+)").unwrap()
 });
 
 /// Tập nguyên âm tiếng Việt (kèm mọi dấu thanh), chữ thường.
@@ -205,13 +222,11 @@ fn has_roman_context(preceding: &str) -> bool {
     !last.is_empty() && ROMAN_KEYWORDS.contains(last.as_str())
 }
 
-pub fn expand_roman(match_str: &str) -> String {
-    if match_str.is_empty() {
-        return String::new();
-    }
+/// Chuyển cụm số La Mã sang giá trị nguyên (0 nếu chứa ký tự không hợp lệ / rỗng).
+pub fn roman_to_int(match_str: &str) -> i32 {
     let num = match_str.to_uppercase();
-    let mut result = 0;
     let chars: Vec<char> = num.chars().collect();
+    let mut result = 0;
     for i in 0..chars.len() {
         let val = *ROMAN_NUMERALS.get(&chars[i]).unwrap_or(&0);
         if i + 1 < chars.len() && val < *ROMAN_NUMERALS.get(&chars[i+1]).unwrap_or(&0) {
@@ -220,6 +235,14 @@ pub fn expand_roman(match_str: &str) -> String {
             result += val;
         }
     }
+    result
+}
+
+pub fn expand_roman(match_str: &str) -> String {
+    if match_str.is_empty() {
+        return String::new();
+    }
+    let result = roman_to_int(match_str);
     if result == 0 {
         return match_str.to_string();
     }
@@ -462,6 +485,25 @@ pub fn normalize_others(text: &str) -> String {
         let suffix = DOMAIN_SUFFIX_MAP.get(caps.get(1).unwrap().as_str().to_lowercase().as_str()).copied().unwrap_or("");
         format!(" chấm {} ", if suffix.is_empty() { caps.get(1).unwrap().as_str() } else { suffix })
     }).into_owned();
+
+    // Số thứ tự đề mục La Mã đầu dòng ("I. VỀ ...", "II. Về ...") -> đọc là số.
+    // Giữ nguyên dấu "." (đóng vai trò ngắt nhịp cho đề mục), chỉ thay phần số La Mã.
+    res = RE_ROMAN_LIST_MARKER.replace_all(&res, |caps: &FCaps| {
+        let lead = caps.get(1).unwrap().as_str();
+        let roman = caps.get(2).unwrap().as_str();
+        let tail = caps.get(3).unwrap().as_str();
+        let head_upper = caps.get(4).map(|m| m.as_str()).unwrap_or("");
+        let value = roman_to_int(roman);
+        let single = roman.chars().count() == 1;
+        // Loại số quá lớn (chữ viết tắt tên: C/L/D/M) và ký tự đơn mà tiêu đề không viết HOA
+        // toàn bộ (dễ nhầm chữ viết tắt tên riêng: "V. Nguyễn", "I. Trần").
+        if value <= 0 || value > ROMAN_MARKER_MAX
+            || (single && head_upper.chars().count() < 2)
+        {
+            return caps.get(0).unwrap().as_str().to_string();
+        }
+        format!("{}{}{}", lead, n2w(&value.to_string()), tail)
+    }).to_string();
 
     // Chỉ mở rộng số La Mã khi có từ dẫn ngay trước (thế kỷ/chương/phần/đời/vua...).
     // Nếu không, để nguyên cụm để nhánh acronym xử lý (vd "CD","MC","XL" -> <en>).

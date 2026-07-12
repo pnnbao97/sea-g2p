@@ -313,6 +313,17 @@ TEST_CASES = [
     ("mã MC", "mã <en>m c</en>"),
     ("size XL và XXL", "size <en>x l</en> và <en>x x l</en>"),
     ("CIV và MIX", "<en>c i v</en> và <en>m i x</en>"),
+    # Số thứ tự đề mục La Mã đầu dòng, kèm dấu "." -> đọc là số (không phải chữ cái).
+    ("I. VỀ ĐỀ NGHỊ HUÂN CHƯƠNG LAO ĐỘNG",
+     "một. về đề nghị huân chương lao động"),
+    ("II. CƠ CẤU TỔ CHỨC", "hai. cơ cấu tổ chức"),
+    ("III. Về đề nghị khen thưởng", "ba. về đề nghị khen thưởng"),
+    ("IV. KẾT LUẬN", "bốn. kết luận"),
+    ("X. PHỤ LỤC", "mười. phụ lục"),
+    # Ký tự đơn trùng chữ viết tắt tên riêng -> KHÔNG đọc thành số (giữ tên đọc chữ cái).
+    ("C. Mác là nhà triết học", "xê mác là nhà triết học"),
+    ("V. Nguyễn Văn A", "vê nguyễn văn a"),
+    ("M. Gorki", "mờ gorki"),
 
     # ══ 14. CHỮ CÁI ĐƠN & SPELL AN TOÀN ══════════════════════════════════════
     ("ký tự A", "ký tự a"),
@@ -550,6 +561,27 @@ TEST_CASES = [
     ("Chào <en>world</en> xinh đẹp", "chào <en>world</en> xinh đẹp"),
     ("Đoạn 1.\nĐoạn 2.", "đoạn một.\nđoạn hai."),
     ("\n12 tiêm kích", "\nmười hai tiêm kích"),
+    # Xuống dòng là ranh giới câu: đề mục HOA (không dấu chấm cuối) được xét riêng nên
+    # từ Việt không dấu (LAO, KHEN) KHÔNG bị đọc thành <en>. Xem issue #177.
+    ("VỀ HUÂN CHƯƠNG LAO ĐỘNG\nCông đoàn Dệt May.",
+     "về huân chương lao động\ncông đoàn dệt may."),
+    ("II. BẰNG KHEN\nĐồng chí Bế Thị Hòa.",
+     "hai. bằng khen\nđồng chí bế thị hòa."),
+
+    # ══ 24b. KÝ TỰ UNICODE ẨN (dán từ Word/web/PDF) — issue #177 ═══════════════
+    # Khoảng trắng Unicode lạ -> dấu cách thường (nếu lọt qua sẽ thành token OOV
+    # khiến TTS đọc ra 'tiếng lạ' giữa câu). Dùng escape backslash-u cho rõ ràng.
+    ("Huân chương Lao động", "huân chương lao động"),   # NBSP
+    ("Huân　chương", "huân chương"),                          # ideographic space
+    ("Lao động bền", "lao động bền"),                   # thin + narrow NBSP
+    ("1 000 000", "một triệu"),                         # narrow NBSP phân nhóm
+    ("Trời mưa Gió to", "trời mưa gió to"),                   # line separator
+    # Ký tự zero-width bị loại bỏ hẳn (không tạo khoảng trắng).
+    ("thành​phố", "thành phố"),                              # ZWSP -> dấu cách
+    ("﻿Việt‌Nam", "việt nam"),                         # BOM bỏ, ZWNJ -> dấu cách
+    ("mềm­mại", "mềm mại"),                                  # soft hyphen -> dấu cách
+    # Ký tự điều khiển bị loại bỏ.
+    ("HàNội", "hà nội"),                                    # form feed (-> dấu cách)
 
     # ══ 25. CÂU THỰC TẾ (smoke test) ══════════════════════════════════════════
     ("Ngày 21/02/2025 lúc 14h30, giá vàng đạt 100$ tại TPHCM",
