@@ -485,26 +485,26 @@ TEST_CASES = [
     ("⅙ ⅛ ⅜ ⅝ ⅞", "một phần sáu một phần tám ba phần tám năm phần tám bảy phần tám"),
 
     # ══ 22. URL / EMAIL / KỸ THUẬT ═══════════════════════════════════════════
-    ("Truy cập https://vieneu.io để biết thêm chi tiết.", "truy cập hát tê tê phê ét vieneu chấm <en>i o</en> để biết thêm chi tiết."),
+    ("Truy cập https://vieneu.io để biết thêm chi tiết.", "truy cập hát tê tê phê ét hai chấm gạch chéo gạch chéo vieneu chấm i ô để biết thêm chi tiết."),
     ("Website www.google.com rất hữu ích.", "website vê kép vê kép vê kép chấm google chấm com rất hữu ích."),
-    ("Trang chủ là https://openai.com.", "trang chủ là hát tê tê phê ét openai chấm com."),
+    ("Trang chủ là https://openai.com.", "trang chủ là hát tê tê phê ét hai chấm gạch chéo gạch chéo openai chấm com."),
     ("Tài liệu nằm ở www.example.org/docs.", "tài liệu nằm ở vê kép vê kép vê kép chấm example chấm o rờ gờ gạch chéo docs."),
     ("Repo nằm ở github.com/user/project.", "repo nằm ở github chấm com gạch chéo user gạch chéo project."),
-    ("Repo nằm ở https://github.com/user/project-v2.", "repo nằm ở hát tê tê phê ét github chấm com gạch chéo user gạch chéo project gạch nối vê hai."),
+    ("Repo nằm ở https://github.com/user/project-v2.", "repo nằm ở hát tê tê phê ét hai chấm gạch chéo gạch chéo github chấm com gạch chéo user gạch chéo project gạch nối vê hai."),
     ("Tài liệu đọc tại docs.python.org.", "tài liệu đọc tại docs chấm python chấm o rờ gờ."),
-    ("File tải tại ftp://example.org/data.zip.", "file tải tại ép tê phê example chấm o rờ gờ gạch chéo data chấm zip."),
-    ("Máy chủ dự phòng là http://127.0.0.1:5000/health.", "máy chủ dự phòng là hát tê tê phê một hai bảy chấm không chấm không chấm một hai chấm năm không không không gạch chéo health."),
-    ("API local chạy ở http://localhost:8080/api/v2?lang=vi#top.", "<en>a p i</en> local chạy ở hát tê tê phê localhost hai chấm tám không tám không gạch chéo api gạch chéo vê hai hỏi lang bằng vi thăng top."),
+    ("File tải tại ftp://example.org/data.zip.", "file tải tại ép tê phê hai chấm gạch chéo gạch chéo example chấm o rờ gờ gạch chéo data chấm zip."),
+    ("Máy chủ dự phòng là http://127.0.0.1:5000/health.", "máy chủ dự phòng là hát tê tê phê hai chấm gạch chéo gạch chéo một hai bảy chấm không chấm không chấm một hai chấm năm không không không gạch chéo health."),
+    ("API local chạy ở http://localhost:8080/api/v2?lang=vi#top.", "<en>a p i</en> local chạy ở hát tê tê phê hai chấm gạch chéo gạch chéo localhost hai chấm tám không tám không gạch chéo api gạch chéo vê hai hỏi lang bằng vi thăng top."),
     # URL có path tiếng Việt (không lòi dấu "/").
-    ("truy cập https://abc.com/báo-cáo.", "truy cập hát tê tê phê ét abc chấm com gạch chéo báo gạch nối cáo."),
+    ("truy cập https://abc.com/báo-cáo.", "truy cập hát tê tê phê ét hai chấm gạch chéo gạch chéo abc chấm com gạch chéo báo gạch nối cáo."),
     ("abc.com/báo-cáo", "abc chấm com gạch chéo báo gạch nối cáo"),
-    ("https://abc.com/tài-liệu/mới", "hát tê tê phê ét abc chấm com gạch chéo tài gạch nối liệu gạch chéo mới"),
+    ("https://abc.com/tài-liệu/mới", "hát tê tê phê ét hai chấm gạch chéo gạch chéo abc chấm com gạch chéo tài gạch nối liệu gạch chéo mới"),
     # Email.
-    ("Liên hệ qua email pnnbao@gmail.com nhé.", "liên hệ qua email pnnbao a còng <en>gmail</en> chấm com nhé."),
+    ("Liên hệ qua email pnnbao@gmail.com nhé.", "liên hệ qua email phê nờ nờ bao a còng gmail chấm com nhé."),
     # Câu thuần Anh (không từ Việt) -> email đọc kiểu Anh ("at", "dot").
     ("Email: contact@example.com", "email, <en>contact</en> at <en>example</en> dot <en>com</en>"),
-    ("Email công việc: admin@fpt.vn", "email công việc, admin a còng <en>f p t</en> chấm <en>v n</en>"),
-    ("Liên hệ hotmail: test@hotmail.com", "liên hệ hotmail, test a còng <en>hotmail</en> chấm com"),
+    ("Email công việc: admin@fpt.vn", "email công việc, admin a còng ép phê tê chấm vê nờ"),
+    ("Liên hệ hotmail: test@hotmail.com", "liên hệ hotmail, test a còng hotmail chấm com"),
     ("Hãy gửi email đến support@example.com.", "hãy gửi email đến support a còng example chấm com."),
     ("Email với tên miền lạ: user@domain.tech", "email với tên miền lạ, user a còng domain chấm tech"),
     ("Liên hệ qua email research.ai+test@example-domain.org.", "liên hệ qua email research chấm ai cộng test a còng example gạch nối domain chấm o rờ gờ."),
@@ -525,6 +525,14 @@ TEST_CASES = [
     ("Phòng vé lưu vé của đoàn vào \\\\phongve\\doan_cong_tac\\ve_may_bay_ha_noi.pdf nhé.", "phòng vé lưu vé của đoàn vào gạch chéo gạch chéo phong ve gạch chéo doan gạch dưới cong gạch dưới tac gạch chéo ve gạch dưới may gạch dưới bay gạch dưới ha gạch dưới noi chấm phê đê ép nhé."),
     # Path chỉ 1 backslash đầu (hay gặp khi copy văn bản làm mất 1 dấu \).
     ("Tài liệu lưu trong \\phongve\\tai_lieu\\huong_dan.pdf nhé.", "tài liệu lưu trong gạch chéo phong ve gạch chéo tai gạch dưới lieu gạch chéo huong gạch dưới dan chấm phê đê ép nhé."),
+    # Query string sau TLD (?key=value) phải nằm trong URL, không đứt rời.
+    ("Học viên tra cứu chứng chỉ tại tracuu.trungtamtinhoc.edu.vn?so=CC1204 nhé.", "học viên tra cứu chứng chỉ tại tra cuu chấm trung tam tin hoc chấm ê đu chấm vê nờ hỏi so bằng xê xê một hai không bốn nhé."),
+    # TLD mới (.dev) + đuôi io/edu đọc kiểu Việt, vn đọc "vi en".
+    ("Anh tải bản desktop ở download.toolbox.dev/desktop/v1-8-3?os=windows giúp em.", "anh tải bản desktop ở download chấm toolbox chấm dev gạch chéo desktop gạch chéo vê một gạch nối tám gạch nối ba hỏi os bằng windows giúp em."),
+    ("Truy cập dataset.nlplab.io để tải dữ liệu nhé.", "truy cập dataset chấm nlplab chấm i ô để tải dữ liệu nhé."),
+    # Vần "uu" ("lưu trữ" không dấu) và camelCase thắng entry rác trong dict.
+    ("Ảnh bìa lưu ở \\\\toasoan\\luutru\\bia_tap_chi.pdf nhé.", "ảnh bìa lưu ở gạch chéo gạch chéo toa soan gạch chéo luu tru gạch chéo bia gạch dưới tap gạch dưới chi chấm phê đê ép nhé."),
+    ("Bản khai thuế lưu ở C:\\Thue\\CaNhan\\to_khai_tncn.pdf nhé.", "bản khai thuế lưu ở xê hai chấm gạch chéo thue gạch chéo ca nhan gạch chéo to gạch dưới khai gạch dưới tê nờ xê nờ chấm phê đê ép nhé."),
     ("Nhớ sao lưu sổ tay của mẹ trong C:\\CongThucNauAn\\so_tay_mon_bac.docx đấy con.", "nhớ sao lưu sổ tay của mẹ trong xê hai chấm gạch chéo cong thuc nau an gạch chéo so gạch dưới tay gạch dưới mon gạch dưới bac chấm docx đấy con."),
     ("Kết xuất căn hộ mẫu nằm ở D:\\KienTruc\\CanHoMau\\phoi_canh_phong_khach.png nhé.", "kết xuất căn hộ mẫu nằm ở đê hai chấm gạch chéo kien truc gạch chéo can ho mau gạch chéo phoi gạch dưới canh gạch dưới phong gạch dưới khach chấm phê nờ gờ nhé."),
     ("Cháu viết script đổi tên ảnh ở /home/scripts/doi_ten_anh.py, chạy một lệnh là xong.", "cháu viết script đổi tên ảnh ở gạch chéo home gạch chéo scripts gạch chéo doi gạch dưới ten gạch dưới anh chấm phê y, chạy một lệnh là xong."),
@@ -538,7 +546,7 @@ TEST_CASES = [
     ("The meeting starts at 10:30 tomorrow.", "the meeting starts at ten thirty tomorrow."),
     ("We got a 50% discount on Windows 11.", "we got a fifty percent discount on windows eleven."),
     ("The file is 2.5 MB.", "the file is two point five megabytes."),
-    ("Download it from github.com/user/project now.", "download it from <en>github</en> dot com slash <en>user</en> slash <en>project</en> now."),
+    ("Download it from github.com/user/project now.", "download it from <en>github</en> dot <en>com</en> slash <en>user</en> slash <en>project</en> now."),
     # Mẩu trơ không đủ từ tiếng Anh -> vẫn đọc kiểu Việt.
     ("Arsenal 3-0 Chelsea", "arsenal ba không chelsea"),
     ("3.46 USD/gallon", "ba chấm bốn sáu <en>u s d</en> trên <en>gallon</en>"),

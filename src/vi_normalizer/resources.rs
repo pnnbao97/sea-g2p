@@ -126,12 +126,14 @@ pub static TECHNICAL_TERMS: Lazy<HashMap<&'static str, &'static str>> = Lazy::ne
     m
 });
 
+// Đuôi tên miền đọc theo cách người Việt quen nói: "vê nờ", "i ô", "ê đu",
+// "o rờ gờ". Câu thuần Anh bỏ qua map này, đọc chữ cái Anh.
 pub static DOMAIN_SUFFIX_MAP: Lazy<HashMap<&'static str, &'static str>> = Lazy::new(|| {
     let mut m = HashMap::new();
-    m.insert("com", "com"); m.insert("vn", "__start_en__v n__end_en__");
+    m.insert("com", "com"); m.insert("vn", "vê nờ");
     m.insert("net", "nét"); m.insert("org", "o rờ gờ");
-    m.insert("edu", "__start_en__edu__end_en__"); m.insert("gov", "gờ o vê");
-    m.insert("io", "__start_en__i o__end_en__"); m.insert("biz", "biz");
+    m.insert("edu", "ê đu"); m.insert("gov", "gờ o vê");
+    m.insert("io", "i ô"); m.insert("biz", "biz");
     m.insert("info", "info");
     m
 });
@@ -267,14 +269,15 @@ pub static ENGLISH_AMPERSAND: Lazy<HashSet<&'static str>> = Lazy::new(|| {
 
 pub static COMMON_EMAIL_DOMAINS: Lazy<HashMap<&'static str, &'static str>> = Lazy::new(|| {
     let mut m = HashMap::new();
-    m.insert("gmail.com", "__start_en__gmail__end_en__ chấm com");
-    m.insert("yahoo.com", "__start_en__yahoo__end_en__ chấm com");
-    m.insert("yahoo.com.vn", "__start_en__yahoo__end_en__ chấm com chấm __start_en__v n__end_en__");
-    m.insert("outlook.com", "__start_en__outlook__end_en__ chấm com");
-    m.insert("hotmail.com", "__start_en__hotmail__end_en__ chấm com");
-    m.insert("icloud.com", "__start_en__icloud__end_en__ chấm com");
-    m.insert("fpt.vn", "__start_en__f p t__end_en__ chấm __start_en__v n__end_en__");
-    m.insert("fpt.com.vn", "__start_en__f p t__end_en__ chấm com chấm __start_en__v n__end_en__");
+    // Tên miền để TRẦN cho G2P tra dict tiếng Anh; đuôi đọc kiểu Việt.
+    m.insert("gmail.com", "gmail chấm com");
+    m.insert("yahoo.com", "yahoo chấm com");
+    m.insert("yahoo.com.vn", "yahoo chấm com chấm vê nờ");
+    m.insert("outlook.com", "outlook chấm com");
+    m.insert("hotmail.com", "hotmail chấm com");
+    m.insert("icloud.com", "icloud chấm com");
+    m.insert("fpt.vn", "ép phê tê chấm vê nờ");
+    m.insert("fpt.com.vn", "ép phê tê chấm com chấm vê nờ");
     m
 });
 

@@ -4,6 +4,9 @@ use std::io;
 use regex::Regex;
 use once_cell::sync::Lazy;
 
+pub mod en_top_words;
+use en_top_words::EN_TOP_WORDS;
+
 pub struct PhonemeDict {
     mmap: Mmap,
     string_count: u32,
@@ -298,17 +301,19 @@ impl G2PEngine {
         #[derive(Clone)]
         struct Path {
             cost: u32,
+            top: u32,
             lens: Vec<u8>,
             phones: Vec<String>,
         }
-        // true nếu a tốt hơn b: giá thấp hơn; hòa giá -> so từ đoạn CUỐI, ưu
-        // tiên đoạn cuối dài hơn ("vin|homes" thắng "vinho|mes", "deep|seek"
-        // thắng "deeps|eek" — morpheme cuối của từ ghép thường là từ thật);
-        // vẫn hòa -> ít đoạn hơn. (Đã thử thêm tiêu chí "cắt cân đối" nhưng
-        // morpheme tiếng Anh không cân đối: nó phá "vin|homes" -> "vinh|omes",
-        // "live|streamer" -> "livest|reamer".)
+        // true nếu a tốt hơn b: giá thấp hơn; hòa -> NHIỀU từ tiếng Anh phổ
+        // biến hơn ("fine|tune" thắng "fin|etune", "family|app" thắng
+        // "famil|yapp" — entry rác trong dict không nằm trong top wordlist);
+        // hòa tiếp -> đoạn CUỐI dài hơn ("vin|homes" thắng "vinho|mes");
+        // vẫn hòa -> ít đoạn hơn. (Đã thử tiêu chí "cắt cân đối" nhưng
+        // morpheme tiếng Anh không cân đối: nó phá "vin|homes" -> "vinh|omes".)
         fn better(a: &Path, b: &Path) -> bool {
             if a.cost != b.cost { return a.cost < b.cost; }
+            if a.top != b.top { return a.top > b.top; }
             for (x, y) in a.lens.iter().rev().zip(b.lens.iter().rev()) {
                 if x != y { return x > y; }
             }
@@ -318,7 +323,7 @@ impl G2PEngine {
         let chars: Vec<char> = word.chars().collect();
         let n = chars.len();
         let mut dp: Vec<Option<Path>> = vec![None; n + 1];
-        dp[0] = Some(Path { cost: 0, lens: Vec::new(), phones: Vec::new() });
+        dp[0] = Some(Path { cost: 0, top: 0, lens: Vec::new(), phones: Vec::new() });
 
         for i in 0..n {
             let Some(base) = dp[i].clone() else { continue };
@@ -355,6 +360,9 @@ impl G2PEngine {
 
                 let mut cand = base.clone();
                 cand.cost += cost;
+                if EN_TOP_WORDS.contains(segment.as_str()) {
+                    cand.top += 1;
+                }
                 cand.lens.push(seg_len as u8);
                 cand.phones.push(p);
                 if dp[j].as_ref().map_or(true, |old: &Path| better(&cand, old)) {
@@ -534,6 +542,13 @@ impl G2PEngine {
 
     fn propagate_language(&self, tokens: &mut Vec<Token>) {
         let n = tokens.len();
+        // Câu không có token tiếng Việt nào -> mặc định cho từ common là EN
+        // ("I can do it" toàn từ common không được rơi về đọc kiểu Việt).
+        let default_lang = if tokens.iter().any(|t: &Token| t.lang == "vi") {
+            "vi"
+        } else {
+            "en"
+        };
         let mut i = 0;
         while i < n {
             if tokens[i].lang == "common" {
@@ -602,7 +617,7 @@ impl G2PEngine {
                 } else if let Some(r) = right_anchor {
                     r
                 } else {
-                    "vi".to_string()
+                    default_lang.to_string()
                 };
 
                 for idx in start..=end {
