@@ -494,7 +494,7 @@ TEST_CASES = [
     ("Tài liệu đọc tại docs.python.org.", "tài liệu đọc tại docs chấm python chấm o rờ gờ."),
     ("File tải tại ftp://example.org/data.zip.", "file tải tại ép tê phê hai chấm gạch chéo gạch chéo example chấm o rờ gờ gạch chéo data chấm zip."),
     ("Máy chủ dự phòng là http://127.0.0.1:5000/health.", "máy chủ dự phòng là hát tê tê phê hai chấm gạch chéo gạch chéo một hai bảy chấm không chấm không chấm một hai chấm năm không không không gạch chéo health."),
-    ("API local chạy ở http://localhost:8080/api/v2?lang=vi#top.", "<en>a p i</en> local chạy ở hát tê tê phê hai chấm gạch chéo gạch chéo localhost hai chấm tám không tám không gạch chéo api gạch chéo vê hai hỏi lang bằng vi thăng top."),
+    ("API local chạy ở http://localhost:8080/api/v2?lang=vi#top.", "<en>a p i</en> local chạy ở hát tê tê phê hai chấm gạch chéo gạch chéo localhost hai chấm tám không tám không gạch chéo api gạch chéo vê hai hỏi chấm lang bằng vi thăng top."),
     # URL có path tiếng Việt (không lòi dấu "/").
     ("truy cập https://abc.com/báo-cáo.", "truy cập hát tê tê phê ét hai chấm gạch chéo gạch chéo abc chấm com gạch chéo báo gạch nối cáo."),
     ("abc.com/báo-cáo", "abc chấm com gạch chéo báo gạch nối cáo"),
@@ -526,10 +526,18 @@ TEST_CASES = [
     # Path chỉ 1 backslash đầu (hay gặp khi copy văn bản làm mất 1 dấu \).
     ("Tài liệu lưu trong \\phongve\\tai_lieu\\huong_dan.pdf nhé.", "tài liệu lưu trong gạch chéo phong ve gạch chéo tai gạch dưới lieu gạch chéo huong gạch dưới dan chấm phê đê ép nhé."),
     # Query string sau TLD (?key=value) phải nằm trong URL, không đứt rời.
-    ("Học viên tra cứu chứng chỉ tại tracuu.trungtamtinhoc.edu.vn?so=CC1204 nhé.", "học viên tra cứu chứng chỉ tại tra cuu chấm trung tam tin hoc chấm ê đu chấm vê nờ hỏi so bằng xê xê một hai không bốn nhé."),
+    ("Học viên tra cứu chứng chỉ tại tracuu.trungtamtinhoc.edu.vn?so=CC1204 nhé.", "học viên tra cứu chứng chỉ tại tra cuu chấm trung tam tin hoc chấm ê đu chấm vê nờ hỏi chấm so bằng xê xê một hai không bốn nhé."),
     # TLD mới (.dev) + đuôi io/edu đọc kiểu Việt, vn đọc "vi en".
-    ("Anh tải bản desktop ở download.toolbox.dev/desktop/v1-8-3?os=windows giúp em.", "anh tải bản desktop ở download chấm toolbox chấm dev gạch chéo desktop gạch chéo vê một gạch nối tám gạch nối ba hỏi os bằng windows giúp em."),
+    ("Anh tải bản desktop ở download.toolbox.dev/desktop/v1-8-3?os=windows giúp em.", "anh tải bản desktop ở download chấm toolbox chấm dev gạch chéo desktop gạch chéo vê một gạch nối tám gạch nối ba hỏi chấm os bằng windows giúp em."),
     ("Truy cập dataset.nlplab.io để tải dữ liệu nhé.", "truy cập dataset chấm nlplab chấm i ô để tải dữ liệu nhé."),
+    # Tách hỗn hợp 3 hạng mảnh: âm tiết Việt / từ Anh top / cụm phụ âm đánh vần.
+    # Từ Anh trong dict giữ khối ("smarthome"); mảnh lạ có nguyên âm ngoài top
+    # wordlist không được cắt ("buildserver" nguyên khối, không "bui ldserver").
+    ("Hướng dẫn ở https://hotro.smarthome24.vn/huong-dan nhé anh.", "hướng dẫn ở hát tê tê phê ét hai chấm gạch chéo gạch chéo ho tro chấm smarthome hai bốn chấm vê nờ gạch chéo huong gạch nối dan nhé anh."),
+    ("Quy trình ở hr.tapdoanxyz.com nhé.", "quy trình ở hát rờ chấm tap doan ích y dét chấm com nhé."),
+    ("Dịch vụ ở blogcongnghe.io nhé.", "dịch vụ ở blog cong nghe chấm i ô nhé."),
+    ("Bản build ở buildserver.dev nhé.", "bản build ở buildserver chấm dev nhé."),
+    ("Gửi tới pnnbao@gmail.com nhé.", "gửi tới phê nờ nờ bao a còng gmail chấm com nhé."),
     # Vần "uu" ("lưu trữ" không dấu) và camelCase thắng entry rác trong dict.
     ("Ảnh bìa lưu ở \\\\toasoan\\luutru\\bia_tap_chi.pdf nhé.", "ảnh bìa lưu ở gạch chéo gạch chéo toa soan gạch chéo luu tru gạch chéo bia gạch dưới tap gạch dưới chi chấm phê đê ép nhé."),
     ("Bản khai thuế lưu ở C:\\Thue\\CaNhan\\to_khai_tncn.pdf nhé.", "bản khai thuế lưu ở xê hai chấm gạch chéo thue gạch chéo ca nhan gạch chéo to gạch dưới khai gạch dưới tê nờ xê nờ chấm phê đê ép nhé."),
