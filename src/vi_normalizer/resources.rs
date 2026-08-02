@@ -9,10 +9,10 @@ pub static VI_LETTER_NAMES: Lazy<HashMap<&'static str, &'static str>> = Lazy::ne
     m.insert("h", "hát"); m.insert("i", "i"); m.insert("j", "giây");
     m.insert("k", "ca"); m.insert("l", "lờ"); m.insert("m", "mờ");
     m.insert("n", "nờ"); m.insert("o", "ô"); m.insert("ô", "ô");
-    m.insert("ơ", "ơ"); m.insert("p", "pê"); m.insert("q", "qui");
+    m.insert("ơ", "ơ"); m.insert("p", "phê"); m.insert("q", "qui");
     m.insert("r", "rờ"); m.insert("s", "ét"); m.insert("t", "tê");
     m.insert("u", "u"); m.insert("ư", "ư"); m.insert("v", "vê");
-    m.insert("w", "đắp liu"); m.insert("x", "ích"); m.insert("y", "y");
+    m.insert("w", "vê kép"); m.insert("x", "ích"); m.insert("y", "y");
     m.insert("z", "dét");
     m
 });

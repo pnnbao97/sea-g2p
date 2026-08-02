@@ -1,4 +1,5 @@
 pub mod num2vi;
+pub mod num2en;
 pub mod resources;
 pub mod numerical;
 pub mod datestime;
@@ -231,8 +232,28 @@ fn sanitize_unicode(text: &str) -> String {
 }
 
 pub fn clean_vietnamese_text(text: &str) -> String {
+    clean_vietnamese_text_ctx(text, false)
+}
+
+// Token "trông như từ" (thuần chữ cái, >=2 ký tự) — dùng nhận diện câu tiếng Anh.
+static RE_WORDISH: Lazy<Regex> = Lazy::new(|| Regex::new(r"\b[a-zA-Z]{2,}\b").unwrap());
+
+pub fn clean_vietnamese_text_ctx(text: &str, force_vi: bool) -> String {
     let mut mask_map: Vec<(String, String)> = Vec::new();
     let mut current_text = text.to_string();
+
+    // Câu chứa chữ tiếng Việt có dấu -> path/URL/email đọc kiểu Việt
+    // ("gạch chéo", "gạch nối", tách âm tiết không dấu "thongbao" -> "thong bao").
+    let vi_ctx = text.chars().any(|c: char| c.is_alphabetic() && !c.is_ascii());
+    // Câu KHÔNG có chữ Việt có dấu VÀ có ít nhất 3 từ tiếng Anh thực (có chữ
+    // thường, loại acronym USD/VND) -> coi là câu tiếng Anh: số/ký hiệu đọc
+    // kiểu Anh ("3" -> "three", "." -> "dot"). Ngưỡng này giữ các mẩu trơ
+    // ("50km", "3 x 4", "Arsenal 3-0 Chelsea", công thức toán) ở lại đường
+    // tiếng Việt. force_vi (nội dung <math>) tắt hẳn chế độ Anh.
+    let en_ctx = !force_vi && !vi_ctx
+        && RE_WORDISH.find_iter(text)
+            .filter(|m: &regex::Match| m.as_str().chars().any(|c: char| c.is_ascii_lowercase()))
+            .take(3).count() >= 3;
 
     let protect = |original: String, map: &mut Vec<(String, String)>| -> String {
         let idx = map.len();
@@ -257,7 +278,7 @@ pub fn clean_vietnamese_text(text: &str) -> String {
     let temp_email = current_text.clone();
     current_text = RE_EMAIL.replace_all(&temp_email, |caps: &FCaps| {
         let orig = caps.get(0).unwrap().as_str();
-        let val = normalize_emails(orig);
+        let val = normalize_emails(orig, vi_ctx, en_ctx);
         protect(val, &mut mask_map)
     }).to_string();
 
@@ -278,10 +299,19 @@ pub fn clean_vietnamese_text(text: &str) -> String {
         let val = if RE_ACRONYMS_EXCEPTIONS.is_match(orig) {
             COMBINED_EXCEPTIONS.get(orig).cloned().unwrap_or(orig.to_string())
         } else {
-            normalize_technical(orig)
+            normalize_technical(orig, vi_ctx, en_ctx)
         };
         protect(val, &mut mask_map)
     }).to_string();
+
+    // "text2text"/"sale4u": số 2/4 kẹp giữa chữ thường đọc "two"/"four" (mọi ngữ cảnh).
+    current_text = crate::vi_normalizer::num2en::expand_sandwich_digits(&current_text);
+
+    // Câu thuần Anh: đổi số/giờ/%/đơn vị/ký hiệu thành chữ Anh TRƯỚC các pass
+    // tiếng Việt — hết chữ số nên các pass sau tự thành no-op.
+    if en_ctx {
+        current_text = crate::vi_normalizer::num2en::english_prenormalize(&current_text);
+    }
 
     current_text = split_concatenated_terms(&current_text);
 
@@ -441,7 +471,11 @@ pub fn clean_vietnamese_text(text: &str) -> String {
         protect(caps.get(0).unwrap().as_str().to_string(), &mut mask_map)
     }).into_owned();
 
-    current_text = expand_standalone_letters(&current_text);
+    // Câu thuần Anh: KHÔNG đọc chữ cái đơn theo tên chữ Việt ("plan B" giữ "b"
+    // để G2P đọc "bi" theo ngữ cảnh Anh).
+    if !en_ctx {
+        current_text = expand_standalone_letters(&current_text);
+    }
 
     if current_text.contains('.') {
         current_text = RE_DOT_BETWEEN_DIGITS.replace_all(&current_text, |caps: &Captures| {
@@ -469,8 +503,13 @@ pub struct Normalizer {
 #[pymethods]
 impl Normalizer {
     #[new]
-    #[pyo3(signature = (lang="vi"))]
-    pub fn new(lang: &str) -> Self {
+    #[pyo3(signature = (lang="vi", dict_path=None))]
+    pub fn new(lang: &str, dict_path: Option<&str>) -> Self {
+        // Nạp dict phoneme (nếu có) để tra từ khi đọc path/URL/email kiểu Việt;
+        // nạp hỏng thì bỏ qua, normalizer vẫn chạy với whitelist fallback.
+        if let Some(p) = dict_path {
+            crate::vi_normalizer::technical::init_norm_dict(p);
+        }
         Normalizer { lang: lang.to_string() }
     }
 
@@ -484,8 +523,10 @@ impl Normalizer {
         let mut current_text = RE_ELLIPSIS.replace_all(&nfc_text, ".").into_owned();
 
         // Vùng <math>...</math>: tách cụm biến thành chữ rời, bỏ tag, để pipeline
-        // thường đọc tên chữ + ký hiệu. Làm trước khi tách <en>.
-        if current_text.to_lowercase().contains("<math>") {
+        // thường đọc tên chữ + ký hiệu. Làm trước khi tách <en>. Công thức luôn
+        // đọc kiểu Việt (force_vi) dù không có chữ có dấu.
+        let had_math = current_text.to_lowercase().contains("<math>");
+        if had_math {
             current_text = RE_MATH_TAG.replace_all(&current_text, |caps: &Captures| {
                 let inner = split_math_letters(caps.get(1).unwrap().as_str());
                 let inner = RE_MATH_FACTORIAL.replace_all(&inner, " giai thừa ").into_owned();
@@ -504,7 +545,7 @@ impl Normalizer {
             placeholder_pattern.replace("{}", &en_contents.len().saturating_sub(1).to_string())
         }).into_owned();
 
-        current_text = clean_vietnamese_text(&current_text);
+        current_text = clean_vietnamese_text_ctx(&current_text, had_math);
 
         current_text = RE_EXTRA_SPACES.replace_all(&current_text, " ").trim().to_string();
 
