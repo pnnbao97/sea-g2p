@@ -523,6 +523,8 @@ TEST_CASES = [
     # cụm toàn phụ âm đánh vần tên chữ Việt, đuôi file đánh vần ("phê y").
     ("Ảnh chụp bảng tin lớp cô đăng ở \\\\truong-mn\\thongbao\\thuc_don_tuan_32.jpg, mẹ nào cần thì tải.", "ảnh chụp bảng tin lớp cô đăng ở gạch chéo gạch chéo truong gạch nối mờ nờ gạch chéo thong bao gạch chéo thuc gạch dưới don gạch dưới tuan gạch dưới ba hai chấm giây phê gờ, mẹ nào cần thì tải."),
     ("Phòng vé lưu vé của đoàn vào \\\\phongve\\doan_cong_tac\\ve_may_bay_ha_noi.pdf nhé.", "phòng vé lưu vé của đoàn vào gạch chéo gạch chéo phong ve gạch chéo doan gạch dưới cong gạch dưới tac gạch chéo ve gạch dưới may gạch dưới bay gạch dưới ha gạch dưới noi chấm phê đê ép nhé."),
+    # Path chỉ 1 backslash đầu (hay gặp khi copy văn bản làm mất 1 dấu \).
+    ("Tài liệu lưu trong \\phongve\\tai_lieu\\huong_dan.pdf nhé.", "tài liệu lưu trong gạch chéo phong ve gạch chéo tai gạch dưới lieu gạch chéo huong gạch dưới dan chấm phê đê ép nhé."),
     ("Nhớ sao lưu sổ tay của mẹ trong C:\\CongThucNauAn\\so_tay_mon_bac.docx đấy con.", "nhớ sao lưu sổ tay của mẹ trong xê hai chấm gạch chéo cong thuc nau an gạch chéo so gạch dưới tay gạch dưới mon gạch dưới bac chấm docx đấy con."),
     ("Kết xuất căn hộ mẫu nằm ở D:\\KienTruc\\CanHoMau\\phoi_canh_phong_khach.png nhé.", "kết xuất căn hộ mẫu nằm ở đê hai chấm gạch chéo kien truc gạch chéo can ho mau gạch chéo phoi gạch dưới canh gạch dưới phong gạch dưới khach chấm phê nờ gờ nhé."),
     ("Cháu viết script đổi tên ảnh ở /home/scripts/doi_ten_anh.py, chạy một lệnh là xong.", "cháu viết script đổi tên ảnh ở gạch chéo home gạch chéo scripts gạch chéo doi gạch dưới ten gạch dưới anh chấm phê y, chạy một lệnh là xong."),
