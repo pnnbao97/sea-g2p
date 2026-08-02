@@ -188,6 +188,7 @@ PHONEMIZE_CASES = [
     # segment_oov ưu tiên biên cắt tạo từ Anh phổ biến (EN_TOP_WORDS):
     # "fine|tune" thắng "fin|etune", "family|app" thắng "famil|yapp".
     ("tôi đang finetune con model này", 't̪ˈoj ɗˌaːŋ fˈaɪn tˈuːn kˌɔn mˈɑːdəl nˈa2j'),
+    ("ieltszone", 'ˈiːlts zˈoʊn'),
     ("mở app familyapp giúp mẹ nhé", 'mˈəː4 ˈæp fˈæmɪli ˈæp zˈuɜp mˈɛ6 ɲˈɛɜ'),
     ('giá của sản phẩm này là mười <en>u s d</en>', 'zˈaːɜ kˌuə4 sˈaː4n fˈə4m nˈa2j lˌaː2 mˈyə2j jˈuː ˈɛs dˈiː'),
     ('giá ét pê năm trăm hôm nay là bốn nghìn hai trăm phẩy năm điểm', 'zˈaːɜ ˈɛɜt̪ pˈe nˈam tʃˈam hˈom nˈaj lˌaː2 bˈoɜn ŋˈi2n hˈaːj tʃˈam fˈəɪ4 nˈam ɗˈiɛ4m'),
