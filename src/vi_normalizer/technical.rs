@@ -149,14 +149,26 @@ fn split_vi_syllables(s: &str) -> Option<Vec<(String, bool)>> {
                 dp[j] = Some(cand);
             }
         }
-        // Mảnh ngoại lai: >=3 ký tự để không "ăn trộm" phụ âm đầu của âm tiết
-        // kế bên ("blog" không bị cắt thành "b"+"long"), và phải HOẶC toàn
-        // phụ âm ("xyz", "pnn") HOẶC là từ có trong dict ("blog", "abc") —
-        // chặn kiểu "buildserver" -> "bui" + "ldserver".
+        // Mảnh TỪ ANH PHỔ BIẾN (top wordlist): không bị phạt như mảnh lạ —
+        // "smart|home" (2 từ Anh) thắng "smart|ho|me", "blog|cong|nghe" giữ.
         for j in (i + 3)..=n {
             let seg = &s[i..j];
-            let all_consonant = !seg.chars().any(|c: char| "aeiouy".contains(c));
-            if !all_consonant && !dict_has(seg) { continue; }
+            if !crate::g2p::en_top_words::EN_TOP_WORDS.contains(seg) { continue; }
+            let mut cand = base.clone();
+            cand.lens.push((j - i).min(255) as u8);
+            cand.parts.push((seg.to_string(), false));
+            if dp[j].as_ref().map_or(true, |old: &P| better(&cand, old)) {
+                dp[j] = Some(cand);
+            }
+        }
+        // Mảnh ngoại lai TOÀN PHỤ ÂM ("xyz", "pnn", "tsn" — "y" tính là phụ
+        // âm để đánh vần được): >=3 ký tự, bị phạt jsegs/jletters — chỉ dùng
+        // khi không còn đường nào khác. Mảnh lạ có nguyên âm ngoài top
+        // wordlist KHÔNG được phép ("smar", "ldserver") -> từ như
+        // "buildserver" giữ nguyên khối cho G2P.
+        for j in (i + 3)..=n {
+            let seg = &s[i..j];
+            if seg.chars().any(|c: char| "aeiou".contains(c)) { continue; }
             let mut cand = base.clone();
             cand.jsegs += 1;
             cand.jletters += (j - i) as u32;
@@ -399,7 +411,7 @@ pub fn normalize_technical(text: &str, vi_ctx: bool, en_ctx: bool) -> String {
                 "-" => res.push(hyphen_name.to_string()),
                 "_" => res.push(underscore_name.to_string()),
                 ":" => res.push(colon_name.to_string()),
-                "?" => res.push(if en_ctx { "question mark" } else { "hỏi" }.to_string()),
+                "?" => res.push(if en_ctx { "question mark" } else { "hỏi chấm" }.to_string()),
                 "&" => res.push(if en_ctx { "and" } else { "và" }.to_string()),
                 "=" => res.push(if en_ctx { "equals" } else { "bằng" }.to_string()),
                 "#" => res.push(if en_ctx { "hash" } else { "thăng" }.to_string()),

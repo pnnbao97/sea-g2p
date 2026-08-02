@@ -185,6 +185,10 @@ PHONEMIZE_CASES = [
     # "im" ngữ cảnh EN là shorthand của "I'm" -> đọc aɪm; ngữ cảnh Việt giữ ˈim.
     ("im fine thôi, đừng lo", 'aɪm fˈaɪn tˈoj, ɗˈy2ŋ lˈɔ'),
     ("im lặng đi", 'ˈim lˈa6ŋ ɗˈi'),
+    # segment_oov ưu tiên biên cắt tạo từ Anh phổ biến (EN_TOP_WORDS):
+    # "fine|tune" thắng "fin|etune", "family|app" thắng "famil|yapp".
+    ("tôi đang finetune con model này", 't̪ˈoj ɗˌaːŋ fˈaɪn tˈuːn kˌɔn mˈɑːdəl nˈa2j'),
+    ("mở app familyapp giúp mẹ nhé", 'mˈəː4 ˈæp fˈæmɪli ˈæp zˈuɜp mˈɛ6 ɲˈɛɜ'),
     ('giá của sản phẩm này là mười <en>u s d</en>', 'zˈaːɜ kˌuə4 sˈaː4n fˈə4m nˈa2j lˌaː2 mˈyə2j jˈuː ˈɛs dˈiː'),
     ('giá ét pê năm trăm hôm nay là bốn nghìn hai trăm phẩy năm điểm', 'zˈaːɜ ˈɛɜt̪ pˈe nˈam tʃˈam hˈom nˈaj lˌaː2 bˈoɜn ŋˈi2n hˈaːj tʃˈam fˈəɪ4 nˈam ɗˈiɛ4m'),
     ('trường hợp một phẩy hai ba phẩy bốn', 'tʃˈyə2ŋ hˈəː6p mˈo6t̪ fˈəɪ4 hˈaːj bˈaː fˈəɪ4 bˈoɜn'),
