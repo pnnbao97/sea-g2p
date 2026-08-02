@@ -39,6 +39,22 @@ class TestBilingualPhonemize(unittest.TestCase):
         # 'go to' kẹp giữa 'muốn' (VI) và 'market' (EN), khoảng cách bằng nhau -> ưu tiên bên phải (EN)
         self.assert_propagation("muốn go to market", "muốn <en>go to market</en>")
 
+    def test_tie_break_english_anchor(self):
+        """Hòa khoảng cách: từ common là TỪ thật đi theo neo EN, dù neo EN ở bên trái."""
+        # 'go' kẹp giữa "let's" (EN) và 'ăn' (VI), khoảng cách bằng nhau -> EN
+        self.assert_propagation("let's go ăn phở", "<en>let's go</en> ăn phở")
+
+    def test_comma_not_counted_in_anchor_distance(self):
+        """Dấu phẩy không tính vào khoảng cách neo: 'ok, go thôi' -> 'go' vẫn theo neo EN."""
+        p = g2p.convert("ok, go thôi")
+        self.assertIn("ɡˈoʊ", p, f"\n'go' phải đọc kiểu Anh, got: {p}")
+
+    def test_tie_break_bare_letter_stays_right(self):
+        """Hòa khoảng cách nhưng token là CHỮ CÁI ĐƠN -> giữ ưu tiên neo phải (không kéo sang EN)."""
+        # 'a' trong "a còng" (đọc @) kẹp giữa EN và 'còng' (VI) -> phải đọc kiểu Việt "ˈaː"
+        p = g2p.convert("gửi tới <en>admin</en> a còng <en>gmail</en> chấm com")
+        self.assertIn("ˈaː kˈɔ2ŋ", p, f"\n'a còng' phải đọc kiểu Việt, got: {p}")
+
     def test_common_word_disambiguation(self):
         """Kiểm tra các cặp từ đa nghĩa phổ biến."""
         # me (EN) vs me (VI)

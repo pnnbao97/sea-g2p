@@ -49,7 +49,7 @@ pub static MEASUREMENT_KEY_VI: Lazy<HashMap<&'static str, &'static str>> = Lazy:
     m.insert("oz", "__start_en__ounce__end_en__"); m.insert("lb", "__start_en__pound__end_en__");
     m.insert("lbs", "__start_en__pounds__end_en__"); m.insert("ft", "__start_en__feet__end_en__");
     m.insert("in", "__start_en__inch__end_en__"); m.insert("dpi", "__start_en__d p i__end_en__");
-    m.insert("ph", "pê hát"); m.insert("gbps", "__start_en__gigabits per second__end_en__");
+    m.insert("ph", "phê hát"); m.insert("gbps", "__start_en__gigabits per second__end_en__");
     m.insert("mbps", "__start_en__megabits per second__end_en__");
     m.insert("kbps", "__start_en__kilobits per second__end_en__");
     m.insert("gallon", "__start_en__gallon__end_en__"); m.insert("mol", "mol");

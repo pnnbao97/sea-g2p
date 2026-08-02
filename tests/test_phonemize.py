@@ -156,7 +156,7 @@ PHONEMIZE_CASES = [
     ('trọng lượng mười <en>pound</en>.', 'tʃˈɔ6ŋ lˈyə6ŋ mˈyə2j pˈaʊnd.'),
     ('màn hình hai mươi bốn <en>inch</en>.', 'mˈaː2n hˈi2ɲ hˈaːj mˈyəj bˈoɜn ˈɪntʃ.'),
     ('độ phân giải ba trăm <en>d p i</en>.', 'ɗˈo6 fˈən zˈaː4j bˈaː tʃˈam dˈiː pˈiː ˈaɪ.'),
-    ('độ pê hát của nước là bảy.', 'ɗˈo6 pˈe hˈaːɜt̪ kˌuə4 nˈyəɜc lˌaː2 bˈa4j.'),
+    ('độ phê hát của nước là bảy.', 'ɗˈo6 fˈe hˈaːɜt̪ kˌuə4 nˈyəɜc lˌaː2 bˈa4j.'),
     ('ba chấm bốn sáu <en>u s d</en> trên <en>gallon</en>', 'bˈaː tʃˈəɜm bˈoɜn sˈaɜw jˈuː ˈɛs dˈiː tʃˈen ɡˈælən'),
     ('email công việc, <en>admin</en> a còng <en>f p t</en> chấm <en>v n</en>', 'ˈiːmeɪl kˈoŋ vˈiɛ6c, ˈædmɪn ˈaː kˈɔ2ŋ ˈɛf pˈiː tˈiː tʃˈəɜm vˈiː ˈɛn'),
     ('liên hệ hotmail, <en>test</en> a còng <en>hotmail</en> chấm com', 'lˈiɛn hˈe6 hˈɑːtmeɪl, tˈɛst ˈaː kˈɔ2ŋ hˈɑːtmeɪl tʃˈəɜm kˈɔm'),
@@ -176,6 +176,12 @@ PHONEMIZE_CASES = [
     ('đây là phút một phẩy', 'ɗˈəɪ lˌaː2 fˈuɜt̪ mˈo6t̪ fˈəɪ4'),
     ("i don't know why", 'ˈaɪ dˈoʊnt nˈoʊ wˈaɪ'),
     ("it's a beautiful day", 'ɪts ɐ bjˈuːɾifəl dˈeɪ'),
+    # Code-switching Anh-Việt: contraction giữ nguyên vẹn, đọc theo dict tiếng Anh.
+    ("i'm đi chợ", 'aɪm ɗˈi tʃˈəː6'),
+    ("i'll gọi lại cho bạn sau", 'aɪl ɣˈɔ6j lˈaː6j tʃˌɔ bˈaː6n sˈaw'),
+    ("we're going to school and tôi không biết liệu she's beautiful", 'wɪɹ ɡˈoʊɪŋ tuː skˈuːl ænd t̪ˈoj xˌoŋ bˈiɛɜt̪ lˈiɛ6w ʃiːz bjˈuːɾifəl'),
+    # Hòa khoảng cách hai neo: từ common là từ thật ("go") đi theo neo EN.
+    ("let's go ăn phở thôi", 'lˈɛts ɡˈoʊ ˈan fˈəː4 tˈoj'),
     ('giá của sản phẩm này là mười <en>u s d</en>', 'zˈaːɜ kˌuə4 sˈaː4n fˈə4m nˈa2j lˌaː2 mˈyə2j jˈuː ˈɛs dˈiː'),
     ('giá ét pê năm trăm hôm nay là bốn nghìn hai trăm phẩy năm điểm', 'zˈaːɜ ˈɛɜt̪ pˈe nˈam tʃˈam hˈom nˈaj lˌaː2 bˈoɜn ŋˈi2n hˈaːj tʃˈam fˈəɪ4 nˈam ɗˈiɛ4m'),
     ('trường hợp một phẩy hai ba phẩy bốn', 'tʃˈyə2ŋ hˈəː6p mˈo6t̪ fˈəɪ4 hˈaːj bˈaː fˈəɪ4 bˈoɜn'),

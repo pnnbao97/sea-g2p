@@ -194,7 +194,7 @@ TEST_CASES = [
     ("Trọng lượng 10lb.", "trọng lượng mười <en>pound</en>."),
     ("Màn hình 24in.", "màn hình hai mươi bốn <en>inch</en>."),
     ("Độ phân giải 300dpi.", "độ phân giải ba trăm <en>d p i</en>."),
-    ("Độ pH của nước là 7.", "độ pê hát của nước là bảy."),
+    ("Độ pH của nước là 7.", "độ phê hát của nước là bảy."),
     ("Unit mix: 10km/h và 5m/s.", "unit mix, mười ki lô mét trên giờ và năm mét trên giây."),
     ("3.46 USD/gallon", "ba chấm bốn sáu <en>u s d</en> trên <en>gallon</en>"),
     # Dữ liệu / điện tử.
@@ -539,6 +539,14 @@ TEST_CASES = [
     ("Đây là phút 1'", "đây là phút một phẩy"),
     ("I don't know why", "i don't know why"),
     ("It's a beautiful day", "it's a beautiful day"),
+    # Contraction chữ cái đơn (I'm, I'll...) phải giữ nguyên vẹn, không tách "i 'm".
+    ("I'm đi chợ", "i'm đi chợ"),
+    # Nháy cong U+2019 (bàn phím/Word) quy về nháy thẳng để contraction khớp dict.
+    ("I’m đi chợ", "i'm đi chợ"),
+    ("she’s xinh thật", "she's xinh thật"),
+    ("don’t lo lắng", "don't lo lắng"),
+    ("I'll gọi lại cho bạn sau", "i'll gọi lại cho bạn sau"),
+    ("we're going to school and tôi không biết liệu she's beautiful", "we're going to school and tôi không biết liệu she's beautiful"),
     ("Giá SP500 hôm nay là 4.200,5 điểm", "giá ét pê năm trăm hôm nay là bốn nghìn hai trăm phẩy năm điểm"),
     ("chỉ số là 7,05 - đường huyết là 1.8", "chỉ số là bảy phẩy không năm, đường huyết là một chấm tám"),
     ("ta có !hôm nay thật kì lạ; ta sẽ đi,chơi", "ta có! hôm nay thật kì lạ, ta sẽ đi, chơi"),
