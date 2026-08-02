@@ -357,6 +357,14 @@ impl G2PEngine {
     }
 
     pub fn phonemize(&self, text: &str) -> String {
+        // Nháy cong -> nháy thẳng để "i’m" tra được dict ("i'm") khi caller
+        // gọi G2P trực tiếp không qua Normalizer.
+        let text: std::borrow::Cow<str> = if text.contains('\u{2019}') || text.contains('\u{2018}') {
+            std::borrow::Cow::Owned(text.replace(['\u{2019}', '\u{2018}'], "'"))
+        } else {
+            std::borrow::Cow::Borrowed(text)
+        };
+        let text = text.as_ref();
         let mut tokens = Vec::new();
 
         for cap in RE_TOKEN.captures_iter(text) {
@@ -503,30 +511,56 @@ impl G2PEngine {
                         .unwrap_or(false)
                 };
 
+                // Khoảng cách tới neo đếm theo TOKEN TỪ, bỏ qua dấu câu không chặn
+                // (phẩy, nháy...): "OK, go thôi" -> "go" cách "ok" 1 từ, hòa với
+                // "thôi" -> đi theo neo EN thay vì bị dấu phẩy đẩy xa neo trái.
                 let mut left_anchor = None;
                 let mut left_dist = 999;
+                let mut d = 0;
                 for l in (0..start).rev() {
                     if is_stop_punct(&tokens[l]) { break; }
+                    if tokens[l].lang == "punct" { continue; }
+                    d += 1;
                     if tokens[l].lang == "vi" || tokens[l].lang == "en" {
                         left_anchor = Some(tokens[l].lang.clone());
-                        left_dist = start - l;
+                        left_dist = d;
                         break;
                     }
                 }
 
                 let mut right_anchor = None;
                 let mut right_dist = 999;
+                let mut d = 0;
                 for r in (end + 1)..n {
                     if is_stop_punct(&tokens[r]) { break; }
+                    if tokens[r].lang == "punct" { continue; }
+                    d += 1;
                     if tokens[r].lang == "vi" || tokens[r].lang == "en" {
                         right_anchor = Some(tokens[r].lang.clone());
-                        right_dist = r - end;
+                        right_dist = d;
                         break;
                     }
                 }
 
                 let final_lang = if let (Some(l), Some(r)) = (left_anchor.as_ref(), right_anchor.as_ref()) {
-                    if right_dist <= left_dist { r.clone() } else { l.clone() }
+                    if right_dist < left_dist {
+                        r.clone()
+                    } else if left_dist < right_dist {
+                        l.clone()
+                    } else {
+                        // Hòa khoảng cách: từ common là TỪ thật đứng sát từ tiếng Anh
+                        // thường thuộc cụm tiếng Anh đó ("let's go ăn" -> "go" là EN,
+                        // "muốn go to market" -> "go to" là EN). Riêng chữ cái đơn lẻ
+                        // ("a" trong "a còng", "i" trong "core i chín") giữ ưu tiên
+                        // neo phải như cũ để không bị kéo sang EN.
+                        let run_is_bare_letters = (start..=end)
+                            .all(|k| tokens[k].content.chars().count() == 1);
+                        if !run_is_bare_letters && (l == "en" || r == "en") {
+                            "en".to_string()
+                        } else {
+                            r.clone()
+                        }
+                    }
                 } else if let Some(l) = left_anchor {
                     l
                 } else if let Some(r) = right_anchor {

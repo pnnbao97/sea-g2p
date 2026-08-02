@@ -35,8 +35,10 @@ const ROMAN_MARKER_MAX: i32 = 30;
 static RE_TITLE_DOT: Lazy<FRegex> = Lazy::new(|| {
     FRegex::new(r"\b(TS|GS|BS|ThS|PGS|KS|ĐH)\.\s+(?=\p{Lu})").unwrap()
 });
+// Lookahead loại contraction tiếng Anh ("I'm", "I'll", "I'd"...): chữ cái + nháy + chữ
+// phải giữ nguyên vẹn để G2P tra dict tiếng Anh, không đọc rời "i" + "'m".
 static RE_STANDALONE_LETTER: Lazy<FRegex> = Lazy::new(|| {
-    FRegex::new(r"(?<![\''])\b([a-zA-Z])\b(\.?)").unwrap()
+    FRegex::new(r"(?<![\''])\b([a-zA-Z])(?!['’]\w)\b(\.?)").unwrap()
 });
 pub static RE_ACRONYM: Lazy<FRegex> = Lazy::new(|| {
     FRegex::new(&format!(r"\b(?=[A-Z{}a-z{}0-9]*[A-Z{}])(?:[A-Z{}][a-z{}]?\d*){{2,}}\b", VI_UPPER, VI_UPPER, VI_UPPER, VI_UPPER, "đăâêôơư")).unwrap()

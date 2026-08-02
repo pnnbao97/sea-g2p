@@ -218,6 +218,9 @@ fn split_concatenated_terms(text: &str) -> String {
 ///  - Bỏ ký tự điều khiển C0/C1 còn lại (NUL, BELL, ESC...).
 fn sanitize_unicode(text: &str) -> String {
     text.chars().filter_map(|c: char| match c {
+        // Nháy cong (smart quotes bàn phím/Word) -> nháy thẳng ASCII để contraction
+        // tiếng Anh ("I’m" -> "I'm") khớp dict và các rule apostrophe phía sau.
+        '\u{2018}' | '\u{2019}' => Some('\''),
         '\u{200B}' | '\u{200C}' | '\u{00AD}' => Some(' '),
         '\u{200D}' | '\u{2060}' | '\u{FEFF}' | '\u{034F}' | '\u{180E}' => None,
         '\n' | '\r' | '\t' => Some(c),
