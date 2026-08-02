@@ -1,3 +1,4 @@
+import os
 from .sea_g2p_rs import Normalizer as NormalizerRS
 
 class Normalizer:
@@ -8,7 +9,9 @@ class Normalizer:
     
     def __init__(self, lang: str = "vi") -> None:
         self.lang = lang
-        self._rs_normalizer = NormalizerRS(lang=lang)
+        # Dict phoneme dùng để tra từ khi đọc path/URL/email trong câu tiếng Việt.
+        db_path = os.path.join(os.path.dirname(__file__), "sea_g2p.bin")
+        self._rs_normalizer = NormalizerRS(lang=lang, dict_path=db_path)
     
     def normalize(self, text: str | list[str], punc_norm: bool = False) -> str | list[str]:
         """
