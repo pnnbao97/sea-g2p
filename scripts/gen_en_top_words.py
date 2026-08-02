@@ -4,11 +4,24 @@
 import sys
 sys.stdout.reconfigure(encoding="utf-8")
 
+# Từ/brand phổ biến ở VN mà google-10000 thiếu.
+EXTRA_WORDS = [
+    "ielts", "toeic", "toefl", "grab", "zalo", "momo", "vnpay", "shopee",
+    "lazada", "tiktok", "youtube", "facebook", "instagram", "telegram",
+    "gmail", "outlook", "fintech", "startup", "livestream", "podcast",
+    "blockchain", "chatbot", "fanpage", "voucher", "combo", "workshop",
+    "homestay", "resort", "spa", "gym", "yoga", "vlog", "blog",
+]
+
 words = []
 seen = set()
 for line in open(r"C:\Users\Admin\AppData\Local\Temp\google-10000-english.txt", encoding="utf-8", errors="ignore"):
     w = line.strip().lower()
     if w and w.isalpha() and len(w) >= 2 and w not in seen:
+        seen.add(w)
+        words.append(w)
+for w in EXTRA_WORDS:
+    if w not in seen:
         seen.add(w)
         words.append(w)
 

@@ -1252,6 +1252,9 @@ pub static EN_TOP_WORDS: Lazy<HashSet<&'static str>> = Lazy::new(|| {
         "strengthening", "cologne", "gzip", "wishing", "ranger", "smallest", "insulation", "newman",
         "marsh", "ricky", "ctrl", "scared", "theta", "infringement", "bent", "laos",
         "subjective", "monsters", "asylum", "lightbox", "robbie", "stake", "cocktail", "outlets",
-        "swaziland", "varieties", "arbor", "mediawiki", "configurations", "poison",
+        "swaziland", "varieties", "arbor", "mediawiki", "configurations", "poison", "ielts", "toeic",
+        "toefl", "zalo", "momo", "vnpay", "shopee", "lazada", "tiktok", "youtube",
+        "facebook", "instagram", "telegram", "gmail", "fintech", "livestream", "blockchain", "chatbot",
+        "fanpage", "voucher", "homestay", "vlog",
     ].into_iter().collect()
 });
