@@ -43,35 +43,8 @@ static VI_RHYMES: Lazy<HashSet<&'static str>> = Lazy::new(|| {
         "oc", "oe", "oen", "oeo", "oi", "om", "on", "ong", "ooc", "oong", "op", "ot",
         "u", "ua", "uan", "uat", "uay", "uc", "ue", "uech", "uenh", "ui", "um", "un",
         "ung", "uo", "uoc", "uoi", "uom", "uon", "uong", "uot", "uou", "up", "ut",
-        "uy", "uya", "uych", "uyen", "uyet", "uynh", "uyt", "uyu",
+        "uu", "uy", "uya", "uych", "uyen", "uyet", "uynh", "uyt", "uyu",
         "y", "yem", "yen", "yet", "yeu",
-    ].into_iter().collect()
-});
-
-// Từ tiếng Anh hay gặp trong path/domain/email — đọc như từ Anh, KHÔNG tách âm
-// tiết Việt (nhiều từ trong số này vô tình tách được: "home"->"ho me",
-// "compose"->"com po se", "data"->"da ta"...).
-static PATH_EN_WORDS: Lazy<HashSet<&'static str>> = Lazy::new(|| {
-    [
-        "home", "user", "users", "admin", "administrator", "root", "desktop",
-        "documents", "document", "download", "downloads", "upload", "uploads",
-        "pictures", "picture", "videos", "video", "music", "public", "appdata",
-        "roaming", "local", "temp", "tmp", "windows", "system", "program",
-        "programs", "files", "file", "data", "database", "backup", "backups",
-        "config", "configs", "settings", "cache", "log", "logs", "mail",
-        "archive", "archives", "script", "scripts", "docker", "compose", "api",
-        "app", "apps", "demo", "patch", "update", "updates", "setup", "install",
-        "src", "lib", "bin", "dist", "build", "test", "tests", "debug",
-        "release", "releases", "deploy", "assets", "images", "image", "img",
-        "docs", "doc", "media", "static", "template", "templates", "project",
-        "projects", "report", "reports", "export", "import", "output", "input",
-        "readme", "index", "main", "server", "client", "share", "shared",
-        "drive", "google", "domain", "example", "gmail", "hotmail", "yahoo",
-        "outlook", "proton", "contact", "support", "info", "office", "sale",
-        "sales", "base", "game", "games", "name", "page", "pages", "site",
-        "mode", "note", "notes", "core", "save", "phone", "camera", "code",
-        "node", "web", "etc", "var", "opt", "usr", "openai", "python",
-        "github", "gitlab", "youtube", "facebook", "localhost",
     ].into_iter().collect()
 });
 
@@ -97,34 +70,128 @@ fn is_vi_syllable(s: &str) -> bool {
     false
 }
 
-/// Tách chuỗi ASCII thường thành dãy âm tiết Việt không dấu ("thongbao" ->
-/// ["thong","bao"]). Backtracking từ trái, ưu tiên âm tiết DÀI trước
-/// ("nauan" -> "nau an" chứ không phải "na uan"); trả None nếu không phủ hết.
-fn split_vi_syllables(s: &str) -> Option<Vec<String>> {
-    fn go(s: &str, i: usize, out: &mut Vec<String>, dead: &mut Vec<bool>) -> bool {
-        if i == s.len() { return true; }
-        if dead[i] { return false; }
-        for j in ((i + 1)..=s.len().min(i + 7)).rev() {
-            let seg = &s[i..j];
-            if is_vi_syllable(seg) {
-                out.push(seg.to_string());
-                if go(s, j, out, dead) { return true; }
-                out.pop();
-            }
+/// Điểm "Việt tính" của một âm tiết:
+///   2 = skeleton của âm tiết Việt PHỔ BIẾN (bảng tần suất) — "tin", "hoc";
+///   1 = có trong dict với cách đọc Việt (merged VI hoặc common) — "nhoc";
+///   0 = còn lại (entry EN hoặc ngoài dict).
+/// Nhờ đó "tin|hoc" (2+2) thắng "ti|nhoc" (2+1), "khi|tuong" thắng "khit|uong".
+fn syllable_vi_score(w: &str) -> u32 {
+    if crate::vi_normalizer::vi_top_syllables::VI_TOP_SYLLABLES.contains(w) {
+        return 2;
+    }
+    if let Some(d) = NORM_DICT.get() {
+        if let Some(p) = d.lookup_merged(w) {
+            if !p.starts_with("<en>") { return 1; }
         }
-        dead[i] = true;
+        if d.lookup_common(w).is_some() { return 1; }
+    }
+    0
+}
+
+/// Tách chuỗi ASCII thường thành dãy mảnh: âm tiết Việt không dấu (is_vi=true)
+/// xen kẽ mảnh NGOẠI LAI >=3 ký tự (is_vi=false) cho từ ghép trộn
+/// ("blogcongnghe" -> blog|cong|nghe, "tapdoanxyz" -> tap|doan|xyz).
+/// DP chọn cách cắt theo thứ tự:
+///   1. ít mảnh ngoại lai nhất (thuần Việt luôn thắng);
+///   2. tổng ký tự ngoại lai ít nhất ("blog|cong|nghe" thắng nguyên khối);
+///   3. ít mảnh nhất ("luu|tru" thắng "lu|u|tru", "blog" trọn thắng cắt vụn);
+///   4. ít âm tiết không-đọc-kiểu-Việt trong dict nhất ("tra|cuu" thắng
+///      "trac|uu" vì "tra" là entry VI còn "trac"/"uu" là entry EN rác);
+///   5. mảnh CUỐI dài hơn ("tin|hoc" thắng "tinh|oc").
+/// Trả None nếu không có mảnh âm tiết Việt nào (từ thuần ngoại lai).
+fn split_vi_syllables(s: &str) -> Option<Vec<(String, bool)>> {
+    if s.is_empty() || !s.is_ascii() { return None; }
+
+    #[derive(Clone)]
+    struct P {
+        jsegs: u32,
+        jletters: u32,
+        score: u32,
+        lens: Vec<u8>,
+        parts: Vec<(String, bool)>,
+    }
+    fn better(a: &P, b: &P) -> bool {
+        if a.jsegs != b.jsegs { return a.jsegs < b.jsegs; }
+        if a.jletters != b.jletters { return a.jletters < b.jletters; }
+        if a.lens.len() != b.lens.len() { return a.lens.len() < b.lens.len(); }
+        if a.score != b.score { return a.score > b.score; }
+        for (x, y) in a.lens.iter().rev().zip(b.lens.iter().rev()) {
+            if x != y { return x > y; }
+        }
         false
     }
-    if s.is_empty() || !s.is_ascii() { return None; }
-    let mut out = Vec::new();
-    let mut dead = vec![false; s.len()];
-    if go(s, 0, &mut out, &mut dead) { Some(out) } else { None }
+
+    let n = s.len();
+    let mut dp: Vec<Option<P>> = vec![None; n + 1];
+    dp[0] = Some(P { jsegs: 0, jletters: 0, score: 0, lens: Vec::new(), parts: Vec::new() });
+    for i in 0..n {
+        let Some(base) = dp[i].clone() else { continue };
+        // Mảnh âm tiết Việt (tối đa 7 ký tự).
+        for j in (i + 1)..=n.min(i + 7) {
+            let seg = &s[i..j];
+            if !is_vi_syllable(seg) { continue; }
+            let mut cand = base.clone();
+            let mut sc = syllable_vi_score(seg);
+            // Cặp kề nhau tạo thành TỪ GHÉP thật ("tin hoc", "khi tuong")
+            // -> cộng đậm, phân định "tin|hoc" thắng "ti|nhoc".
+            if let Some((prev, prev_is_vi)) = base.parts.last() {
+                if *prev_is_vi {
+                    let key = format!("{} {}", prev, seg);
+                    if crate::vi_normalizer::vi_bigrams::VI_BIGRAMS.contains(key.as_str()) {
+                        sc += 3;
+                    }
+                }
+            }
+            cand.score += sc;
+            cand.lens.push((j - i) as u8);
+            cand.parts.push((seg.to_string(), true));
+            if dp[j].as_ref().map_or(true, |old: &P| better(&cand, old)) {
+                dp[j] = Some(cand);
+            }
+        }
+        // Mảnh ngoại lai: >=3 ký tự để không "ăn trộm" phụ âm đầu của âm tiết
+        // kế bên ("blog" không bị cắt thành "b"+"long"), và phải HOẶC toàn
+        // phụ âm ("xyz", "pnn") HOẶC là từ có trong dict ("blog", "abc") —
+        // chặn kiểu "buildserver" -> "bui" + "ldserver".
+        for j in (i + 3)..=n {
+            let seg = &s[i..j];
+            let all_consonant = !seg.chars().any(|c: char| "aeiouy".contains(c));
+            if !all_consonant && !dict_has(seg) { continue; }
+            let mut cand = base.clone();
+            cand.jsegs += 1;
+            cand.jletters += (j - i) as u32;
+            cand.lens.push((j - i).min(255) as u8);
+            cand.parts.push((seg.to_string(), false));
+            if dp[j].as_ref().map_or(true, |old: &P| better(&cand, old)) {
+                dp[j] = Some(cand);
+            }
+        }
+    }
+    let best = dp[n].take()?;
+    // Không có âm tiết Việt nào -> để nguyên cho đường xử lý khác.
+    if !best.parts.iter().any(|(_, is_vi): &(String, bool)| *is_vi) { return None; }
+    Some(best.parts)
 }
 
 fn vi_letter_names(s: &str) -> String {
     s.chars().map(|c: char| {
         let cl = c.to_lowercase().to_string();
         VI_LETTER_NAMES.get(cl.as_str()).map(|v| v.to_string()).unwrap_or(cl)
+    }).collect::<Vec<String>>().join(" ")
+}
+
+/// Ghép kết quả split_vi_syllables thành text đọc: âm tiết Việt để trần;
+/// mảnh ngoại lai toàn phụ âm đánh vần tên chữ Việt ("xyz" -> "ích y dét"),
+/// có nguyên âm thì để trần cho G2P đọc theo dict ("blog").
+fn render_vi_split(pieces: &[(String, bool)]) -> String {
+    pieces.iter().map(|(txt, is_vi): &(String, bool)| {
+        if *is_vi {
+            txt.clone()
+        } else if !txt.chars().any(|c: char| "aeiou".contains(c)) {
+            vi_letter_names(txt)
+        } else {
+            txt.clone()
+        }
     }).collect::<Vec<String>>().join(" ")
 }
 
@@ -148,9 +215,8 @@ fn norm_letter_chunk_email(t: &str, vi_ctx: bool, _en_ctx: bool) -> String {
         return vi_letter_names(&lw);
     }
     if dict_has(&lw) { return lw; }
-    if PATH_EN_WORDS.contains(lw.as_str()) { return lw; }
-    if let Some(sylls) = split_vi_syllables(&lw) {
-        return sylls.join(" ");
+    if let Some(pieces) = split_vi_syllables(&lw) {
+        return render_vi_split(&pieces);
     }
     // Từ lạ: để trần cho G2P tra dict / đọc OOV kiểu Anh.
     lw
@@ -180,13 +246,9 @@ fn norm_letter_chunk(t: &str, vi_ctx: bool, after_dot: bool) -> String {
     if lw.chars().count() == 1 || !lw.chars().any(|c: char| "aeiouy".contains(c)) {
         return vi_letter_names(&lw);
     }
-    // Có trong dict sea-g2p -> để TRẦN (không tag): G2P tự đọc theo dict
-    // (merged EN đọc kiểu Anh, từ common ưu tiên ngữ cảnh Việt xung quanh).
-    if dict_has(&lw) { return lw; }
-    // Fallback khi dict chưa nạp: whitelist từ Anh hay gặp trong path.
-    if PATH_EN_WORDS.contains(lw.as_str()) { return lw; }
     // camelCase mang sẵn ranh giới âm tiết ("CanHoMau" -> Can|Ho|Mau): nếu mọi
-    // mảnh đều là âm tiết Việt thì dùng luôn, khỏi đoán bằng backtracking.
+    // mảnh đều là âm tiết Việt thì dùng luôn — check TRƯỚC dict để entry rác
+    // kiểu "canhan" trong dict không nuốt mất "CaNhan".
     if t.chars().any(|c: char| c.is_uppercase()) && t.chars().any(|c: char| c.is_lowercase()) {
         let mut pieces: Vec<String> = Vec::new();
         let mut cur = String::new();
@@ -202,8 +264,12 @@ fn norm_letter_chunk(t: &str, vi_ctx: bool, after_dot: bool) -> String {
             return pieces.join(" ");
         }
     }
-    if let Some(sylls) = split_vi_syllables(&lw) {
-        return sylls.join(" ");
+    // Có trong dict sea-g2p -> để TRẦN (không tag): G2P tự đọc theo dict
+    // (merged EN đọc kiểu Anh, từ common ưu tiên ngữ cảnh Việt xung quanh).
+    // Nhờ đó từ Anh quen thuộc ("home", "data"...) không bị tách âm tiết Việt.
+    if dict_has(&lw) { return lw; }
+    if let Some(pieces) = split_vi_syllables(&lw) {
+        return render_vi_split(&pieces);
     }
     // Từ lạ ("pnnbao"): để trần, G2P tự tra dict / đọc OOV kiểu Anh.
     lw
@@ -219,7 +285,7 @@ pub static RE_TECHNICAL: Lazy<Regex> = Lazy::new(|| {
     |
     \b(?:www\.)[\p{L}0-9.\-_~:/?#\[\]@!$&\'()*+,;=]+\b
     |
-    \b[A-Za-z0-9.\-]+(?:\.com|\.vn|\.net|\.org|\.gov|\.io|\.biz|\.info)(?:/[\p{L}0-9.\-_~:/?#\[\]@!$&\'()*+,;=]*)?\b
+    \b[A-Za-z0-9.\-]+(?:\.com|\.vn|\.net|\.org|\.gov|\.edu|\.io|\.biz|\.info|\.dev|\.shop|\.app|\.tech|\.studio|\.online|\.store|\.ai|\.ly|\.me)(?:[/?#][\p{L}0-9.\-_~:/?#\[\]@!$&\'()*+,;=]*)?\b
     |
     (?<![\w\\])\\\\[a-zA-Z0-9._\-]+(?:\\[\p{L}0-9._\-]+)*\\?
     |
@@ -268,8 +334,9 @@ pub fn normalize_technical(text: &str, vi_ctx: bool, en_ctx: bool) -> String {
         if let Some(p_idx) = orig.to_lowercase().find("://") {
             let protocol = &orig[..p_idx];
             if vi_ctx {
-                // "https" -> "hát tê tê phê ét", "ftp" -> "ép tê phê"
+                // "https://" -> "hát tê tê phê ét hai chấm gạch chéo gạch chéo"
                 res.push(vi_letter_names(&protocol.to_lowercase()));
+                res.push("hai chấm gạch chéo gạch chéo".to_string());
             } else {
                 let p_norm = if (protocol.chars().all(|c: char| c.is_uppercase()) && protocol.len() <= 4) || protocol.len() <= 3 {
                     protocol.to_lowercase().chars().map(|c: char| c.to_string()).collect::<Vec<String>>().join(" ")
@@ -277,6 +344,9 @@ pub fn normalize_technical(text: &str, vi_ctx: bool, en_ctx: bool) -> String {
                     protocol.to_lowercase()
                 };
                 res.push(format!("__start_en__{}__end_en__", p_norm));
+                if en_ctx {
+                    res.push("colon slash slash".to_string());
+                }
             }
             rest = &orig[p_idx + 3..];
         } else if orig.starts_with('/') {
@@ -338,8 +408,10 @@ pub fn normalize_technical(text: &str, vi_ctx: bool, en_ctx: bool) -> String {
                     // không spell từng ký tự (vd ".../báo-cáo" -> "báo" "cáo").
                     if s.chars().any(|c: char| c.is_alphabetic() && !c.is_ascii()) {
                         res.push(s.to_lowercase());
-                    } else if let Some(suffix) = DOMAIN_SUFFIX_MAP.get(s.to_lowercase().as_str()) {
-                        res.push(suffix.to_string());
+                    } else if !en_ctx && DOMAIN_SUFFIX_MAP.contains_key(s.to_lowercase().as_str()) {
+                        // Đuôi tên miền đọc theo map ("i ô", "vi en") — câu thuần
+                        // Anh bỏ qua map, đọc chữ cái Anh ở nhánh dưới.
+                        res.push(DOMAIN_SUFFIX_MAP.get(s.to_lowercase().as_str()).unwrap().to_string());
                     } else if s.chars().all(|c: char| c.is_alphanumeric() && c.is_ascii()) {
                         // Câu thuần Anh: chữ số đọc từng số kiểu Anh ("127" -> "one two seven").
                         let digits = |d: &str| -> String {

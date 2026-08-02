@@ -1,6 +1,8 @@
 pub mod num2vi;
 pub mod num2en;
 pub mod resources;
+pub mod vi_top_syllables;
+pub mod vi_bigrams;
 pub mod numerical;
 pub mod datestime;
 pub mod units;
