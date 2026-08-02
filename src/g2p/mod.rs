@@ -272,19 +272,17 @@ impl G2PEngine {
         None
     }
 
-    /// DP segmentation cho OOV word.
-    ///
-    /// Điều kiện để một segment được chấp nhận:
-    ///   1. Có trong dict (merged hoặc common)
-    ///   2. Có cả nguyên âm lẫn phụ âm
-    ///
-    /// Điều kiện (2) loại hai nhóm segment không tự nhiên:
-    ///   - Chỉ phụ âm: "n", "st", "ng" → tránh "joshe+n"
-    ///   - Chỉ nguyên âm: "e", "a" → tránh "mixedcas+e"
-    ///
-    /// Trong vòng lặp j chạy từ lớn → nhỏ (rev), `.or()` đảm bảo segment
-    /// dài nhất được ưu tiên — chỉ fallback sang segment ngắn hơn nếu
-    /// segment dài không dẫn đến full coverage.
+    /// DP segmentation cho OOV word, tối ưu theo CHI PHÍ:
+    ///   - Segment là TỪ THẬT trong dict (có nguyên âm + phụ âm, phoneme không
+    ///     phải kiểu đánh vần) -> giá 1. DP vì thế ưu tiên cách cắt ít mảnh,
+    ///     mảnh dài ("vietinbank" -> "viet in bank" thay vì "vi eti en bank").
+    ///   - Segment ngắn (<=4 ký tự) mà phoneme có >=2 trọng âm là entry kiểu
+    ///     ĐÁNH VẦN acronym trong dict ("mbo" -> em bi ô) -> giá đắt, chỉ dùng
+    ///     khi không còn đường nào khác.
+    ///   - Đoạn <=3 ký tự KHÔNG có trong dict -> cho phép đánh vần từng chữ
+    ///     với giá đắt ("vpbank" -> "vp" đánh vần + "bank"; "chunkr" ->
+    ///     "chunk" + "r") thay vì bỏ cả từ sang char_fallback.
+    ///   - Hòa giá -> ưu tiên đoạn ĐẦU dài hơn (leftmost-longest).
     fn segment_oov(&self, word: &str, lang: &str) -> Option<String> {
         // Check cache trước
         let cache_key = format!("{}_{}", word, lang);
@@ -295,39 +293,77 @@ impl G2PEngine {
             }
         }
 
+        const JUNK_COST: u32 = 4;
+
+        #[derive(Clone)]
+        struct Path {
+            cost: u32,
+            lens: Vec<u8>,
+            phones: Vec<String>,
+        }
+        // true nếu a tốt hơn b: giá thấp hơn; hòa giá -> so từ đoạn CUỐI, ưu
+        // tiên đoạn cuối dài hơn ("vin|homes" thắng "vinho|mes", "deep|seek"
+        // thắng "deeps|eek" — morpheme cuối của từ ghép thường là từ thật);
+        // vẫn hòa -> ít đoạn hơn. (Đã thử thêm tiêu chí "cắt cân đối" nhưng
+        // morpheme tiếng Anh không cân đối: nó phá "vin|homes" -> "vinh|omes",
+        // "live|streamer" -> "livest|reamer".)
+        fn better(a: &Path, b: &Path) -> bool {
+            if a.cost != b.cost { return a.cost < b.cost; }
+            for (x, y) in a.lens.iter().rev().zip(b.lens.iter().rev()) {
+                if x != y { return x > y; }
+            }
+            a.lens.len() < b.lens.len()
+        }
+
         let chars: Vec<char> = word.chars().collect();
         let n = chars.len();
-
-        // dp[i] = phoneme string nếu chars[0..i] có thể được segment hoàn toàn
-        let mut dp: Vec<Option<String>> = vec![None; n + 1];
-        dp[0] = Some(String::new());
+        let mut dp: Vec<Option<Path>> = vec![None; n + 1];
+        dp[0] = Some(Path { cost: 0, lens: Vec::new(), phones: Vec::new() });
 
         for i in 0..n {
-            if dp[i].is_none() { continue; }
-
-            // j chạy từ lớn → nhỏ: ưu tiên segment dài hơn trước
-            for j in (i + 1..=n).rev() {
+            let Some(base) = dp[i].clone() else { continue };
+            for j in (i + 1)..=n {
                 let segment: String = chars[i..j].iter().collect();
+                let seg_len = j - i;
 
-                // Phải có cả nguyên âm lẫn phụ âm
-                // Loại: "n","st" (chỉ phụ âm) và "e","a" (chỉ nguyên âm)
-                if !has_vowel_and_consonant(&segment) { continue; }
+                let mut phone: Option<String> = None;
+                let mut cost = 1u32;
+                if has_vowel_and_consonant(&segment) {
+                    if let Some(p) = self.resolve_segment_phone(&segment, lang) {
+                        let primary = p.matches('ˈ').count();
+                        let total = primary + p.matches('ˌ').count();
+                        // Entry "rác" trong dict: đoạn ngắn mà phoneme nhiều trọng
+                        // âm (kiểu đánh vần "mbo" -> em bi ô), hoặc >=2 trọng âm
+                        // CHÍNH (entry ghép "enbank" -> en-bank). Từ thật dài có
+                        // trọng âm phụ (ˈ + ˌ) không bị tính.
+                        if (seg_len <= 4 && total >= 2) || primary >= 2 {
+                            cost = JUNK_COST + seg_len as u32;
+                        }
+                        phone = Some(p);
+                    }
+                }
+                if phone.is_none() && seg_len <= 3 {
+                    // Đánh vần từng chữ, giá tăng theo độ dài: 1 chữ cuối rẻ
+                    // ("chunk r"), cụm 3 phụ âm giữa từ đắt.
+                    let spelled = self.char_fallback(&segment, lang);
+                    if !spelled.trim().is_empty() {
+                        phone = Some(spelled);
+                        cost = JUNK_COST + seg_len as u32;
+                    }
+                }
+                let Some(p) = phone else { continue };
 
-                // Điều kiện 1: phải có trong dict
-                if let Some(phone) = self.resolve_segment_phone(&segment, lang) {
-                    let prev = dp[i].as_ref().unwrap();
-                    let new_phone = if prev.is_empty() {
-                        phone
-                    } else {
-                        format!("{} {}", prev, phone)
-                    };
-                    // .or(): không overwrite nếu đã được set bởi segment dài hơn
-                    dp[j] = dp[j].take().or(Some(new_phone));
+                let mut cand = base.clone();
+                cand.cost += cost;
+                cand.lens.push(seg_len as u8);
+                cand.phones.push(p);
+                if dp[j].as_ref().map_or(true, |old: &Path| better(&cand, old)) {
+                    dp[j] = Some(cand);
                 }
             }
         }
 
-        let result = dp[n].clone();
+        let result = dp[n].take().map(|p: Path| p.phones.join(" "));
 
         // Cache lại — kể cả None để tránh tính lại
         {
