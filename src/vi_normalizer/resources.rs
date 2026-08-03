@@ -58,8 +58,8 @@ pub static MEASUREMENT_KEY_VI: Lazy<HashMap<&'static str, &'static str>> = Lazy:
     m.insert("kw", "ki lô oát"); m.insert("mw", "mê ga oát");
     m.insert("gw", "gi ga oát"); m.insert("kwh", "ki lô oát giờ"); m.insert("kWh", "ki lô oát giờ");
     m.insert("mwh", "mê ga oát giờ"); m.insert("wh", "oát giờ");
-    // "w" trần chỉ khớp khi có SỐ đứng trước ("550 W", "320w") nên không đụng
-    // chữ w đứng một mình (đọc "vê kép").
+    // Bare "w" only matches with a number in front ("550 W", "320w"), so a
+    // standalone letter w still reads as "vê kép".
     m.insert("w", "oát");
     m.insert("hz", "héc"); m.insert("khz", "ki lô héc");
     m.insert("mhz", "mê ga héc"); m.insert("ghz", "gi ga héc");
@@ -83,7 +83,7 @@ pub static MEASUREMENT_KEY_VI: Lazy<HashMap<&'static str, &'static str>> = Lazy:
     m.insert("mmol", "mi li mol");
     m.insert("ms", "mi li giây"); m.insert("M", "triệu");
     m.insert("B", "tỷ"); m.insert("K", "nghìn");
-    // Đơn vị điện ghép viết camelCase (mAh/Ah). kWh/Wh/mWh đã có ở trên.
+    // Compound electrical units written camelCase (mAh/Ah); kWh/Wh/mWh above.
     m.insert("mah", "mi li am pe giờ"); m.insert("ah", "am pe giờ");
     m
 });
@@ -120,20 +120,21 @@ pub static ACRONYMS_EXCEPTIONS_VI: Lazy<HashMap<&'static str, &'static str>> = L
     m.insert("ThS", "thạc sĩ"); m.insert("Th.S", "thạc sĩ"); m.insert("BS", "bác sĩ");
     m.insert("KS", "kỹ sư");
     m.insert("UAE", "u a e"); m.insert("CUDA", "cu đa");
-    // Viết tắt cơ quan/tổ chức/lĩnh vực phổ biến (khớp theo ranh giới từ nên an toàn).
+    // Common agency, organisation and sector abbreviations. Matched on word
+    // boundaries, so they cannot fire inside a longer word.
     m.insert("QĐND", "quân đội nhân dân"); m.insert("CAND", "công an nhân dân");
     m.insert("BCH", "ban chấp hành"); m.insert("TBT", "tổng bí thư");
     m.insert("ĐHQG", "đại học quốc gia"); m.insert("KCN", "khu công nghiệp");
     m.insert("GTVT", "giao thông vận tải"); m.insert("TDTT", "thể dục thể thao");
     m.insert("BĐBP", "bộ đội biên phòng"); m.insert("KHCN", "khoa học công nghệ");
     m.insert("BV", "bệnh viện"); m.insert("BQP", "bộ quốc phòng");
-    // Giấy tờ / hành chính / an toàn.
+    // Documents, administration, safety.
     m.insert("GPLX", "giấy phép lái xe"); m.insert("CMND", "chứng minh nhân dân");
     m.insert("CCCD", "căn cước công dân"); m.insert("PCCC", "phòng cháy chữa cháy");
     m.insert("ATGT", "an toàn giao thông"); m.insert("TNGT", "tai nạn giao thông");
     m.insert("BHYT", "bảo hiểm y tế"); m.insert("ATTP", "an toàn thực phẩm");
     m.insert("ĐKKD", "đăng ký kinh doanh"); m.insert("MST", "mã số thuế");
-    // Bộ/sở ngành (cả dạng có gạch nối lẫn viết liền).
+    // Ministries and departments, hyphenated and run-together spellings alike.
     m.insert("TN-MT", "tài nguyên môi trường"); m.insert("TNMT", "tài nguyên môi trường");
     m.insert("GD-ĐT", "giáo dục đào tạo"); m.insert("GDĐT", "giáo dục đào tạo");
     m.insert("KH-CN", "khoa học công nghệ");
@@ -141,42 +142,45 @@ pub static ACRONYMS_EXCEPTIONS_VI: Lazy<HashMap<&'static str, &'static str>> = L
     m.insert("NN-PTNT", "nông nghiệp phát triển nông thôn"); m.insert("NNPTNT", "nông nghiệp phát triển nông thôn");
     m.insert("VH-TT-DL", "văn hóa thể thao du lịch"); m.insert("VHTTDL", "văn hóa thể thao du lịch");
     m.insert("TT-TT", "thông tin truyền thông"); m.insert("TTTT", "thông tin truyền thông");
-    // Địa lý / tổ chức / nhóm người.
+    // Geography, organisations, groups of people.
     m.insert("ĐBSCL", "đồng bằng sông cửu long"); m.insert("MTTQ", "mặt trận tổ quốc");
     m.insert("ĐBQH", "đại biểu quốc hội"); m.insert("VKS", "viện kiểm sát");
     m.insert("HS-SV", "học sinh sinh viên"); m.insert("HSSV", "học sinh sinh viên");
     m.insert("SV", "sinh viên"); m.insert("GV", "giáo viên");
     m.insert("CBCNV", "cán bộ công nhân viên");
-    // Doanh nghiệp / văn bản.
+    // Companies and official documents.
     m.insert("CP", "cổ phần"); m.insert("NĐ-CP", "nờ đê xê phê");
     m.insert("TT-BTC", "tê tê bê tê xê"); m.insert("QĐ-TTg", "qui đê tê tê giê");
-    // Tư pháp / đất đai / ngân sách / lao động.
+    // Justice, land, budget, labour.
     m.insert("VKSND", "viện kiểm sát nhân dân"); m.insert("GPMB", "giải phóng mặt bằng");
     m.insert("NSNN", "ngân sách nhà nước"); m.insert("XKLĐ", "xuất khẩu lao động");
     m.insert("UBMTTQ", "uỷ ban mặt trận tổ quốc"); m.insert("HĐLĐ", "hợp đồng lao động");
-    // Công nghệ / thương mại.
+    // Technology and commerce.
     m.insert("CNTT", "công nghệ thông tin"); m.insert("TMĐT", "thương mại điện tử");
-    // Doanh nghiệp / tài chính.
+    // Business and finance.
     m.insert("TNDN", "thu nhập doanh nghiệp"); m.insert("TNCN", "thu nhập cá nhân");
     m.insert("GTGT", "giá trị gia tăng"); m.insert("BCTC", "báo cáo tài chính");
     m.insert("ĐHĐCĐ", "đại hội đồng cổ đông"); m.insert("TGĐ", "tổng giám đốc");
     m.insert("PTGĐ", "phó tổng giám đốc"); m.insert("Cty", "công ty");
     m.insert("TNHH MTV", "trách nhiệm hữu hạn một thành viên");
-    // Bộ/sở dạng "&" (mask sớm vì chứa ký tự đặc biệt).
+    // Ministries written with "&". Masked early, since the special character
+    // would otherwise be rewritten before the abbreviation is recognised.
     m.insert("GD&ĐT", "giáo dục đào tạo"); m.insert("TN&MT", "tài nguyên môi trường");
     m.insert("KH&CN", "khoa học công nghệ"); m.insert("LĐ-TB&XH", "lao động thương binh xã hội");
     m.insert("KH&ĐT", "kế hoạch đầu tư"); m.insert("KHĐT", "kế hoạch đầu tư");
     m.insert("TT&TT", "thông tin truyền thông"); m.insert("TTTT", "thông tin truyền thông");
     m.insert("VH-TT&DL", "văn hóa thể thao du lịch"); m.insert("VHTTDL", "văn hóa thể thao du lịch");
     m.insert("CT&XH", "chính trị xã hội");
-    // Số hiệu văn bản.
+    // Document reference numbers.
     m.insert("TT-BYT", "tê tê bê y tê"); m.insert("CT-TTg", "xê tê tê tê giê");
     m.insert("UBND-VP", "uỷ ban nhân dân vê phê");
     m.insert("QH11", "quốc hội mười một"); m.insert("QH12", "quốc hội mười hai");
     m.insert("QH13", "quốc hội mười ba"); m.insert("QH14", "quốc hội mười bốn");
     m.insert("QH15", "quốc hội mười lăm"); m.insert("QH16", "quốc hội mười sáu");
-    // Lưu ý: T2..T7/CN (thứ trong tuần) xử lý theo NGỮ CẢNH ở
-    // expand_weekday_abbr (cần từ dẫn "sáng/chiều/từ/đến..."), không map cứng.
+    // Note: weekday abbreviations T2..T7 and CN are resolved by context in
+    // expand_weekday_abbr, which requires a time cue ("sáng", "chiều", "từ",
+    // "đến"). They are deliberately absent from this table, since a hard
+    // mapping would rewrite "Model T2" and "ga T3" as weekdays.
     m
 });
 
@@ -184,10 +188,11 @@ pub static TECHNICAL_TERMS: Lazy<HashMap<&'static str, &'static str>> = Lazy::ne
     let mut m = HashMap::new();
     m.insert("JSON", "__start_en__j son__end_en__");
     m.insert("VRAM", "__start_en__v ram__end_en__");
-    // "arXiv" viết hoa giữa từ: chặn camelCase tách "ar Xiv" ("xiv" trong dict
-    // là entry "roman fourteen" rác) — ép đọc như dict "arxiv".
+    // "arXiv" has an uppercase letter mid-word. Without this entry the camel
+    // splitter produces "ar Xiv", and "xiv" hits a junk "roman fourteen"
+    // dictionary entry. Forcing the lowercase form makes it read as one word.
     m.insert("arXiv", "__start_en__arxiv__end_en__");
-    // Acronym quen đọc như TỪ (không đánh vần rời từng chữ).
+    // Initialisms conventionally read as words rather than spelled out.
     m.insert("TOEIC", "__start_en__toeic__end_en__");
     m.insert("UNICEF", "__start_en__unicef__end_en__");
     m.insert("ASIAD", "a si át");
@@ -212,8 +217,9 @@ pub static TECHNICAL_TERMS: Lazy<HashMap<&'static str, &'static str>> = Lazy::ne
     m
 });
 
-// Đuôi tên miền đọc theo cách người Việt quen nói: "vê nờ", "i ô", "ê đu",
-// "o rờ gờ". Câu thuần Anh bỏ qua map này, đọc chữ cái Anh.
+// Domain suffixes as Vietnamese speakers actually say them: "vê nờ", "i ô",
+// "ê đu", "o rờ gờ". Pure-English sentences skip this table and use English
+// letter names instead.
 pub static DOMAIN_SUFFIX_MAP: Lazy<HashMap<&'static str, &'static str>> = Lazy::new(|| {
     let mut m = HashMap::new();
     m.insert("com", "com"); m.insert("vn", "vê nờ");
@@ -280,14 +286,15 @@ pub static SYMBOLS_MAP: Lazy<HashMap<char, &'static str>> = Lazy::new(|| {
     m.insert('η', " ê ta "); m.insert('θ', " thê ta "); m.insert('ι', " i ô ta ");
     m.insert('κ', " cáp ba "); m.insert('λ', " lam đa "); m.insert('ᴧ', " và ");
     m.insert('μ', " muy "); m.insert('Δ', " đen ta "); m.insert('ν', " nu ");
-    // U+2206 INCREMENT: ký tự "delta toán học" mà trình soạn thảo hay chèn thay
-    // cho Δ Hy Lạp (vd "Q = mc∆t", "F = k∆l") — trước đây rơi khỏi mọi map.
+    // U+2206 INCREMENT is the "mathematical delta" editors often insert in
+    // place of Greek Δ ("Q = mc∆t", "F = k∆l"). It belonged to no table before
+    // and was therefore deleted in silence.
     m.insert('∆', " đen ta ");
     m.insert('ξ', " xi xi "); m.insert('ο', " o mi ron "); m.insert('π', " pi ");
     m.insert('ρ', " ro "); m.insert('σ', " xích ma "); m.insert('τ', " tao ");
     m.insert('υ', " úp si lon "); m.insert('φ', " phi "); m.insert('χ', " chi ");
     m.insert('ψ', " si "); m.insert('ω', " ô me ga "); m.insert('©', " bản quyền ");
-    // ── Ký hiệu toán bị nuốt trước đây (xóa bởi RE_CLEAN_OTHERS) ──────────────
+    // ── Maths symbols that used to be swallowed by RE_CLEAN_OTHERS ──────────
     m.insert('∫', " tích phân "); m.insert('∮', " tích phân đường ");
     m.insert('∂', " đạo hàm riêng "); m.insert('∇', " nabla ");
     m.insert('∝', " tỉ lệ với "); m.insert('∠', " góc ");
@@ -297,11 +304,11 @@ pub static SYMBOLS_MAP: Lazy<HashMap<char, &'static str>> = Lazy::new(|| {
     m.insert('∅', " tập rỗng "); m.insert('∉', " không thuộc ");
     m.insert('≡', " tương đương "); m.insert('≅', " đồng dạng "); m.insert('∼', " tương đương ");
     m.insert('∴', " suy ra "); m.insert('∵', " bởi vì ");
-    // Sigma hoa (cả chữ Hy Lạp U+03A3 lẫn ký hiệu tổng U+2211) — trước đây bị
-    // rơi khỏi mọi map nên biến mất khỏi output.
+    // Capital sigma, both the Greek letter U+03A3 and the summation sign
+    // U+2211. Neither was mapped, so summations vanished from the output.
     m.insert('Σ', " xích ma "); m.insert('∑', " xích ma ");
     m.insert('⋅', " nhân "); m.insert('·', " nhân "); m.insert('∓', " trừ cộng ");
-    // Tập số kiểu blackboard-bold
+    // Blackboard-bold number sets.
     m.insert('ℝ', " tập số thực "); m.insert('ℕ', " tập số tự nhiên ");
     m.insert('ℤ', " tập số nguyên "); m.insert('ℚ', " tập số hữu tỉ ");
     m.insert('ℂ', " tập số phức ");
@@ -318,14 +325,16 @@ pub static SUPERSCRIPTS_MAP: Lazy<HashMap<char, &'static str>> = Lazy::new(|| {
     let mut m = HashMap::new();
     m.insert('⁰', " không "); m.insert('¹', " một "); m.insert('²', " bình phương ");
     m.insert('³', " lập phương ");
-    // ⁴-⁹ là số mũ -> đọc "mũ X" (²/³ giữ "bình phương"/"lập phương" theo thói quen VN).
+    // ⁴-⁹ are read as "mũ X". ² and ³ keep the idiomatic Vietnamese forms
+    // "bình phương" and "lập phương".
     m.insert('⁴', " mũ bốn "); m.insert('⁵', " mũ năm ");
     m.insert('⁶', " mũ sáu "); m.insert('⁷', " mũ bảy "); m.insert('⁸', " mũ tám ");
     m.insert('⁹', " mũ chín ");
     m.insert('ⁿ', " mũ n "); m.insert('ⁱ', " mũ i ");
-    // Dấu ở vị trí mũ đứng lẻ (cụm "⁻³" đã được pass số mũ có dấu xử trước).
+    // A lone superscript sign; the "⁻³" cluster is handled earlier by the
+    // signed-exponent pass.
     m.insert('⁻', " trừ "); m.insert('⁺', " cộng ");
-    // Mũ chữ cái dạng modifier letter ("2ˣ = 32", "eˣ") — trước đây bị nuốt mất.
+    // Modifier-letter exponents ("2ˣ = 32", "eˣ"), previously deleted.
     m.insert('ˣ', " mũ x "); m.insert('ʸ', " mũ y "); m.insert('ᵏ', " mũ k ");
     m.insert('ᵗ', " mũ t ");
     m
@@ -337,7 +346,7 @@ pub static SUBSCRIPTS_MAP: Lazy<HashMap<char, &'static str>> = Lazy::new(|| {
     m.insert('₃', " ba "); m.insert('₄', " bốn "); m.insert('₅', " năm ");
     m.insert('₆', " sáu "); m.insert('₇', " bảy "); m.insert('₈', " tám ");
     m.insert('₉', " chín ");
-    // Chỉ số dưới dạng CHỮ (aᵢ, xₙ) -> đọc tên chữ; trước đây bị xóa mất.
+    // Letter subscripts (aᵢ, xₙ) read by letter name; previously deleted.
     m.insert('ᵢ', " i "); m.insert('ⱼ', " j "); m.insert('ₐ', " a "); m.insert('ₑ', " e ");
     m.insert('ₒ', " o "); m.insert('ₓ', " x "); m.insert('ₕ', " h "); m.insert('ₖ', " k ");
     m.insert('ₗ', " l "); m.insert('ₘ', " m "); m.insert('ₙ', " n "); m.insert('ₚ', " p ");
@@ -351,7 +360,7 @@ pub static WORD_LIKE_ACRONYMS: Lazy<HashSet<&'static str>> = Lazy::new(|| {
     let words = [
         "UNESCO", "NASA", "NATO", "ASEAN", "OPEC", "SARS", "FIFA", "UNIC", "RAM", "VRAM", "COVID", "IELTS", "STEM",
         "ISO",
-        // Thể thao / tổ chức / thi cử / đời sống — quen đọc như TỪ.
+        // Sport, organisations, examinations, everyday life — all read as words.
         "UEFA", "EURO", "VAR", "ASIAD", "INTERPOL", "UNICEF",
         "TOEFL", "PISA", "STEAM", "SAT", "GMAT",
         "AIDS", "MERS", "ECMO", "LASIK",
@@ -368,9 +377,12 @@ pub static WORD_LIKE_ACRONYMS: Lazy<HashSet<&'static str>> = Lazy::new(|| {
     s
 });
 
-/// Các acronym/thương hiệu tiếng Anh nối bằng "&": đọc "&" thành "and" và bọc
-/// <en> (vd "R&D" -> "<en>r and d</en>"). Key là dạng GỘP-VIẾT-HOA, bỏ "&".
-/// Dùng danh sách có kiểm soát để KHÔNG đụng "A & B" (phương án A và B) -> "và".
+/// English acronyms and brands joined by "&": the "&" is read "and" and the
+/// whole span is tagged English ("R&D" -> "<en>r and d</en>"). Keys are the
+/// uppercase run with the "&" removed.
+///
+/// The list is curated rather than pattern-based so that an ordinary
+/// "A & B" ("option A and B") still takes the Vietnamese reading "và".
 pub static ENGLISH_AMPERSAND: Lazy<HashSet<&'static str>> = Lazy::new(|| {
     let mut s = HashSet::new();
     let words = [
@@ -383,7 +395,8 @@ pub static ENGLISH_AMPERSAND: Lazy<HashSet<&'static str>> = Lazy::new(|| {
 
 pub static COMMON_EMAIL_DOMAINS: Lazy<HashMap<&'static str, &'static str>> = Lazy::new(|| {
     let mut m = HashMap::new();
-    // Tên miền để TRẦN cho G2P tra dict tiếng Anh; đuôi đọc kiểu Việt.
+    // The domain name is left bare for G2P to look up in the English
+    // dictionary; only the suffix takes a Vietnamese reading.
     m.insert("gmail.com", "gmail chấm com");
     m.insert("yahoo.com", "yahoo chấm com");
     m.insert("yahoo.com.vn", "yahoo chấm com chấm vê nờ");
@@ -417,33 +430,39 @@ pub static DATE_KEYWORDS: Lazy<HashSet<&'static str>> = Lazy::new(|| {
     s
 });
 
-/// Từ dẫn ngày-tháng CHỈ tính khi đứng NGAY TRƯỚC cụm "d/m" (khác DATE_KEYWORDS
-/// vốn quét cửa sổ 3 từ hai bên). Chặt như vậy để "chiều 17/10" ra ngày tháng
-/// còn "chiều dài 3/4 mét" vẫn là phân số.
+/// Date lead words, counted ONLY when immediately before a "d/m" cluster —
+/// unlike [`DATE_KEYWORDS`], which scans a three-word window on either side.
+///
+/// The adjacency requirement is what separates "chiều 17/10", a date, from
+/// "chiều dài 3/4 mét", a fraction: in the latter, "dài" sits in between.
 pub static DATE_LEAD_WORDS: Lazy<HashSet<&'static str>> = Lazy::new(|| {
     let mut s = HashSet::new();
     let words = [
-        // Buổi trong ngày: "chiều 17/10", "sáng 5/9", "đêm 30/4".
+        // Parts of the day: "chiều 17/10", "sáng 5/9", "đêm 30/4".
         "sáng", "trưa", "chiều", "tối", "đêm", "khuya", "rạng",
-        // Mốc thời gian: "trước 30/4", "từ 1/8", "hết 31/8", "hạn 20/11".
+        // Time markers: "trước 30/4", "từ 1/8", "hết 31/8", "hạn 20/11".
         "trước", "từ", "hết", "hạn", "đợt", "nghỉ", "lúc",
     ];
     for w in words { s.insert(w); }
     s
 });
 
-/// Từ dẫn đứng NGAY TRƯỚC một cụm số La Mã để xác nhận đó thực sự là số La Mã
-/// (vd "thế kỷ XXI", "chương IV") chứ không phải viết tắt/từ tiếng Anh tình cờ
-/// gồm các chữ I V X L C D M (vd "CD", "MC", "XL", "MIX"). Chỉ kiểm tra TỪ cuối
-/// ngay trước cụm, nên với cụm nhiều từ chỉ cần chứa từ cuối (vd "thế kỷ" -> "kỷ",
-/// "đại hội" -> "hội", "thế chiến" -> "chiến").
+/// Cue words that must sit immediately before a Roman numeral for it to be read
+/// as a number ("thế kỷ XXI", "chương IV").
+///
+/// Without a cue, any abbreviation or English word built from I V X L C D M
+/// would be converted — "CD", "MC", "XL", "MIX". Only the word directly before
+/// the numeral is checked, so multi-word cues need just their final word here:
+/// "thế kỷ" -> "kỷ", "đại hội" -> "hội", "thế chiến" -> "chiến".
 pub static ROMAN_KEYWORDS: Lazy<HashSet<&'static str>> = Lazy::new(|| {
     let mut s = HashSet::new();
     let words = [
         "kỷ", "kỉ", "chương", "phần", "hồi", "quyển", "tập", "kỳ", "kì",
         "khoản", "điều", "mục", "đời", "vua", "chiến", "hội", "khóa", "khoá",
         "đệ", "triều", "quý", "lần", "vòng", "thứ",
-        // Tên vua/giáo hoàng thường đi kèm số La Mã (an toàn vì chỉ khớp số HOA đứng sau).
+        // Names of monarchs and popes, which regularly carry Roman numerals.
+        // Safe to list because only an uppercase numeral directly after them
+        // can match.
         "louis", "napoléon", "napoleon", "henry", "george", "charles",
         "elizabeth", "edward", "william", "james", "richard", "john",
         "philip", "philippe", "frederick", "ferdinand", "peter", "pierre",

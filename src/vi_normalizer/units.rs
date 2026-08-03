@@ -162,9 +162,10 @@ static RE_STANDALONE_UNIT: Lazy<Regex> = Lazy::new(|| {
 });
 
 static RE_CURRENCY_PREFIX_SYMBOL: Lazy<Regex> = Lazy::new(|| {
-    // Hậu tố tài chính kiểu Anh DÍNH LIỀN số: "$5M" -> triệu, "$1.5B" -> tỷ,
-    // "$99K" -> nghìn. Bắt buộc dính liền + \b để không nuốt chữ đầu từ sau
-    // ("₩1000 mỗi..." không được ăn "m").
+    // English magnitude suffixes written flush against the number: "$5M" is
+    // millions, "$1.5B" billions, "$99K" thousands. Requiring adjacency plus a
+    // word boundary stops the rule eating the first letter of the next word
+    // ("₩1000 mỗi…" must not lose its "m").
     Regex::new(&format!(r"(?i)([$€¥£₩₫])\s*{}{}(?:([MBK])\b)?", NUMERIC_P, MAGNITUDE_P)).unwrap()
 });
 
@@ -188,16 +189,18 @@ static RE_SCIENTIFIC_NOTATION: Lazy<Regex> = Lazy::new(|| {
     Regex::new(r"(?i)([-\u2013\u2014])?(\d+(?:[.,]\d+)?e[+-]?\d+)").unwrap()
 });
 
-// Chi\u1ec1u cao ki\u1ec3u Vi\u1ec7t: "1m75" -> "m\u1ed9t m\u00e9t b\u1ea3y m\u01b0\u01a1i l\u0103m", "1m8" -> "m\u1ed9t m\u00e9t t\u00e1m".
-// Ch\u1eef 'm' TH\u01af\u1edcNG (kh\u00f4ng (?i)) \u0111\u1ec3 kh\u00f4ng nu\u1ed1t "1M" (1 tri\u1ec7u). \u0110u\u00f4i: 2 ch\u1eef s\u1ed1 b\u1ea5t k\u1ef3,
-// ho\u1eb7c 1 ch\u1eef s\u1ed1 KH\u00c1C 2/3 (ch\u1eeba "m2"/"m3" = m\u00e9t vu\u00f4ng/kh\u1ed1i).
+// Vietnamese height notation: "1m75" -> "một mét bảy mươi lăm", "1m8" -> "một
+// mét tám". The 'm' is lowercase-only, with no (?i), so "1M" (one million) is
+// not swallowed. The tail is any two digits, or one digit OTHER than 2 or 3,
+// which leaves "m2" and "m3" to the area and volume units.
 static RE_HEIGHT: Lazy<Regex> = Lazy::new(|| {
-    // Lookahead chỉ chặn [.,] khi theo sau là CHỮ SỐ (thập phân "1m75.5");
-    // dấu chấm hết câu "Cao 1m75." vẫn phải khớp.
+    // The lookahead blocks [.,] only when a digit follows, i.e. a real decimal
+    // ("1m75.5"). A sentence-final period ("Cao 1m75.") must still match.
     Regex::new(r"(?<![\d.,a-zA-Z])(\d{1,2})m(\d{2}|[01456789])(?!\d|[.,]\d)").unwrap()
 });
 
-// C\u00e2n n\u1eb7ng ki\u1ec3u Vi\u1ec7t: "1kg2" -> "m\u1ed9t ki l\u00f4 gam hai" (2 = l\u1ea1ng/hectogram).
+// Vietnamese weight notation: "1kg2" -> "một ki lô gam hai", where the trailing
+// 2 counts hectograms ("lạng").
 static RE_WEIGHT: Lazy<Regex> = Lazy::new(|| {
     Regex::new(r"(?<![\d.,a-zA-Z])(\d{1,2})kg(\d{1,2})(?!\d|[.,]\d)").unwrap()
 });
@@ -211,27 +214,29 @@ pub fn expand_height_weight(text: &str) -> String {
     }).into_owned()
 }
 
-// ── Ngữ cảnh cho CHỮ ĐƠN VIẾT HOA sau số ──────────────────────────────────
-// Mặc định chữ HOA đơn dính số ("51M", "12B", "5S", "100K") là mã hiệu -> đánh
-// vần chữ cái. Chỉ đọc thành đơn vị/bậc tiền khi có tín hiệu ngữ cảnh.
+// ── Context for a single uppercase letter after a number ──────────────────
+// By default such a letter ("51M", "12B", "5S", "100K") marks an identifier and
+// is spelled out. A unit or magnitude reading requires one of the cues below.
 static MONEY_LEAD_WORDS: Lazy<std::collections::HashSet<&'static str>> = Lazy::new(|| {
-    // Từ CUỐI của cụm dẫn tiền đứng ngay trước số ("doanh thu" -> "thu",
-    // "thu nhập" -> "nhập", "đầu tư" -> "tư").
+    // The LAST word of a money phrase sitting right before the number
+    // ("doanh thu" -> "thu", "thu nhập" -> "nhập", "đầu tư" -> "tư").
     ["giá", "vé", "phí", "lương", "thưởng", "vốn", "quỹ", "thu", "chi", "lãi",
      "lỗ", "nợ", "tiền", "cọc", "combo", "thầu", "tư", "nhập", "trả", "giảm",
      "tặng", "đơn", "phạt", "ship",
-     // Động từ biến động giá đứng ngay trước số ("giá ... lên 92M", "còn 500K").
+     // Verbs of price movement immediately before the number
+     // ("giá … lên 92M", "còn 500K").
      "lên", "xuống", "còn", "đạt", "chạm", "về", "hết", "tốn", "tầm", "khoảng",
      "gần", "hơn", "tới"].into_iter().collect()
 });
 static MONEY_AFTER_WORDS: Lazy<std::collections::HashSet<&'static str>> = Lazy::new(|| {
-    // Từ đứng ngay sau cụm số+chữ xác nhận nghĩa tiền/số lượng lớn.
+    // A word right after the number-letter pair confirming money or bulk count.
     ["usd", "vnd", "vnđ", "usdt", "eur", "euro", "gbp", "jpy", "cny", "đồng",
      "đô", "lượt", "view", "views", "follower", "followers", "sub", "subs",
      "người"].into_iter().collect()
 });
 static CONTAINER_LEAD_WORDS: Lazy<std::collections::HashSet<&'static str>> = Lazy::new(|| {
-    // Vật chứa/động từ đong đo đứng trước -> "L" là lít ("chai 2L", "bình 20L").
+    // A container or measuring verb before the number makes "L" mean litres
+    // ("chai 2L", "bình 20L").
     ["chai", "bình", "thùng", "can", "xô", "bồn", "két", "lu", "ấm", "nồi",
      "tích", "chứa", "đựng", "đổ", "uống"].into_iter().collect()
 });
@@ -275,16 +280,17 @@ pub fn expand_units_and_currency(text: &str) -> String {
         format!("{} phần trăm", expand_number_with_sep(caps.get(1).unwrap().as_str()))
     }).to_string();
 
-    // CHỮ ĐƠN VIẾT HOA sau số: mặc định là mã hiệu -> giữ nguyên cho pass
-    // chữ-số đánh vần ("51M" -> "mờ", "12B" -> "bê", "5S" -> "ét"). Chỉ đọc
-    // thành đơn vị khi có ngữ cảnh:
-    //   - số THẬP PHÂN ("3.2M", "1.25B", "1.5L"): mã hiệu không có phần lẻ;
-    //   - M/B/K + từ dẫn tiền trước ("lương 20M") hoặc từ tiền/lượng sau
-    //     ("5M USD", "2B đồng") -> triệu/tỷ/nghìn;
-    //   - L + vật chứa đứng trước ("chai 2L") -> lít.
-    // Ngoại lệ: "W" luôn là oát (không nằm trong seri mã hiệu thông dụng);
-    // "G" không bao giờ là gam (5G/4G là thế hệ mạng). Chữ THƯỜNG giữ nguyên
-    // nghĩa đơn vị ("24h", "450g", "30m", "15s").
+    // Single uppercase letter after a number: an identifier by default, so leave
+    // it for the letter-name pass ("51M" -> "mờ", "12B" -> "bê", "5S" -> "ét").
+    // It becomes a unit only with context:
+    //   - a DECIMAL number ("3.2M", "1.25B", "1.5L"), since identifiers have no
+    //     fractional part;
+    //   - M/B/K with a money cue before ("lương 20M") or after ("5M USD",
+    //     "2B đồng") -> million / billion / thousand;
+    //   - L with a container word before it ("chai 2L") -> litres.
+    // Two exceptions: "W" is always watts, as no common serial uses it, and "G"
+    // is never grams because "5G"/"4G" dominate real text. Lowercase always
+    // keeps the unit meaning ("24h", "450g", "30m", "15s").
     let units_src = result.clone();
     result = RE_UNITS_WITH_NUM.replace_all(&units_src, |caps: &Captures| {
         let m0 = caps.get(0).unwrap();
@@ -307,9 +313,10 @@ pub fn expand_units_and_currency(text: &str) -> String {
             }
         }
 
-        // Đơn vị MỘT chữ cái mà NGAY SAU là một chữ cái đơn khác ("2 b c" do
-        // công thức "2bc" đã tách) -> chuỗi biến, không phải đơn vị. Chừa
-        // "x" đứng sau (phép nhân "5 m x 20 m" vẫn là mét).
+        // A one-letter unit followed by another single letter ("2 b c", left
+        // behind after the formula stage split "2bc") is a run of variables, not
+        // a measurement. "x" is excluded because it marks multiplication, so
+        // "5 m x 20 m" still reads as metres.
         if unit.chars().count() == 1 {
             let after = first_word_after(&units_src, m0.end());
             if after.chars().count() == 1
@@ -368,9 +375,9 @@ pub fn expand_compound_units(text: &str) -> String {
             } else if u1_is_unit && u2_is_unit {
                 format!(" {} trên {} ", get_unit(u1_raw), get_unit(u2_raw))
             } else {
-                // Không có số đứng trước và không phải CẶP đơn vị thật ("ML/AI",
-                // "TP/HCM"...): giữ nguyên cho pass acronym + SYMBOLS_MAP ("/" ->
-                // "trên") xử lý, tránh "ML" bị đọc nhầm "mi li lít".
+                // No number in front and not a genuine unit pair ("ML/AI",
+                // "TP/HCM"): leave it to the acronym pass and SYMBOLS_MAP, which
+                // reads "/" as "trên". Otherwise "ML" would become "mi li lít".
                 caps.get(0).unwrap().as_str().to_string()
             }
         } else {

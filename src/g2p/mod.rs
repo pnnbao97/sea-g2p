@@ -138,13 +138,14 @@ static RE_TAG_STRIP: Lazy<Regex> = Lazy::new(|| {
 
 static VI_ACCENTS: &str = "àáảãạăằắẳẵặâầấẩẫậèéẻẽẹêềếểễệìíỉĩịòóỏõọôồốổỗộơờớởỡợùúủũụưừứửữựỳýỷỹỵđ";
 
-// Nguyên âm tiếng Anh + tiếng Việt (lowercase, đã include dấu)
+// English and Vietnamese vowels, lowercase, diacritics included.
 static VOWELS: &str = "aeiouyàáảãạăằắẳẵặâầấẩẫậèéẻẽẹêềếểễệìíỉĩịòóỏõọôồốổỗộơờớởỡợùúủũụưừứửữựỳýỷỹỵ";
 
-/// Kiểm tra segment có cả nguyên âm lẫn phụ âm không.
-/// Loại "n", "st" (chỉ phụ âm) và "e", "a" (chỉ nguyên âm).
-/// Với tiếng Việt, các từ đơn âm thuần nguyên âm như "ơi", "ừ"
-/// thường đã có trong dict nên không đi qua segment_oov.
+/// Does the segment contain both a vowel and a consonant?
+///
+/// Rejects consonant-only pieces ("n", "st") and vowel-only ones ("e", "a").
+/// Vietnamese words made purely of vowels, such as "ơi" and "ừ", are almost
+/// always in the dictionary already and never reach `segment_oov`.
 fn has_vowel_and_consonant(s: &str) -> bool {
     let mut has_v = false;
     let mut has_c = false;
@@ -160,19 +161,20 @@ fn has_vowel_and_consonant(s: &str) -> bool {
     false
 }
 
-/// Ánh xạ một token dấu câu về dạng GIỮ trong chuỗi phoneme, ĐỒNG BỘ với quy
-/// tắc của `Normalizer`. Trả `None` nghĩa là bỏ hẳn ký hiệu đó.
+/// Map a punctuation token to the form kept in the phoneme string, matching the
+/// rules used by `Normalizer`. `None` means drop the mark entirely.
 ///
-/// Cần thiết vì nội dung trong tag `<en>` KHÔNG đi qua `Normalizer` (normalizer
-/// giữ nguyên nội dung <en>), nên các dấu như `"` `(` `-` sẽ lọt vào phoneme nếu
-/// không xử lý ở đây. Quy tắc khớp `Normalizer`:
-///   - `, . ! ?`            -> giữ nguyên
+/// This is needed because content inside `<en>` tags never passes through
+/// `Normalizer` — the normalizer preserves it verbatim — so marks such as `"`,
+/// `(` and `-` would leak into the phoneme string without this. The rules mirror
+/// `Normalizer`:
+///   - `, . ! ?`            -> kept as-is
 ///   - `; :`                -> `,`
 ///   - `… ‥ ․` (ellipsis)   -> `.`
-///   - còn lại (nháy `"` `'` `«` `»`, ngoặc `(` `)` `{` `}` `[` `]`,
-///     gạch nối rời `-` `–` `—`, ...) -> bỏ
+///   - everything else — quotes `"` `'` `«` `»`, brackets `(` `)` `{` `}`
+///     `[` `]`, free-standing dashes `-` `–` `—` — is dropped
 ///
-/// Token punct luôn là MỘT ký tự (regex `[^\w\s]`).
+/// A punctuation token is always a single character (regex `[^\w\s]`).
 fn map_punct(s: &str) -> Option<&'static str> {
     let mut it = s.chars();
     let c = match (it.next(), it.next()) {
@@ -207,7 +209,8 @@ pub struct G2PEngine {
     common_cache: RwLock<HashMap<String, (String, String)>>,
     missing_merged: RwLock<std::collections::HashSet<String>>,
     missing_common: RwLock<std::collections::HashSet<String>>,
-    /// Cache kết quả segment_oov. Key = "{word}_{lang}", value = None nếu không segment được.
+    /// Cache of `segment_oov` results, keyed by "{word}_{lang}". A `None` value
+    /// records that the word could not be segmented, so the work is not repeated.
     segmentation_cache: RwLock<HashMap<String, Option<String>>>,
 }
 
@@ -273,7 +276,8 @@ impl G2PEngine {
         }
     }
 
-    /// Resolve phoneme cho một segment đơn từ dict, theo ngữ cảnh lang.
+    /// Resolve the phonemes of a single segment from the dictionary, honouring
+    /// the language context.
     fn resolve_segment_phone(&self, segment: &str, lang: &str) -> Option<String> {
         let lw = segment.to_lowercase();
 
@@ -295,19 +299,21 @@ impl G2PEngine {
         None
     }
 
-    /// DP segmentation cho OOV word, tối ưu theo CHI PHÍ:
-    ///   - Segment là TỪ THẬT trong dict (có nguyên âm + phụ âm, phoneme không
-    ///     phải kiểu đánh vần) -> giá 1. DP vì thế ưu tiên cách cắt ít mảnh,
-    ///     mảnh dài ("vietinbank" -> "viet in bank" thay vì "vi eti en bank").
-    ///   - Segment ngắn (<=4 ký tự) mà phoneme có >=2 trọng âm là entry kiểu
-    ///     ĐÁNH VẦN acronym trong dict ("mbo" -> em bi ô) -> giá đắt, chỉ dùng
-    ///     khi không còn đường nào khác.
-    ///   - Đoạn <=3 ký tự KHÔNG có trong dict -> cho phép đánh vần từng chữ
-    ///     với giá đắt ("vpbank" -> "vp" đánh vần + "bank"; "chunkr" ->
-    ///     "chunk" + "r") thay vì bỏ cả từ sang char_fallback.
-    ///   - Hòa giá -> ưu tiên đoạn ĐẦU dài hơn (leftmost-longest).
+    /// Segment an out-of-vocabulary word by dynamic programming, minimising cost:
+    ///   - a segment that is a REAL dictionary word (vowel plus consonant, and
+    ///     phonemes that are not a spelled-out form) costs 1, so the search
+    ///     naturally prefers few long pieces — "vietinbank" becomes
+    ///     "viet in bank" rather than "vi eti en bank";
+    ///   - a short segment of at most four characters whose phonemes carry two
+    ///     or more stresses is a spelled-out acronym entry ("mbo" -> em bi ô).
+    ///     It is priced high and used only when nothing else fits;
+    ///   - a run of at most three characters absent from the dictionary may be
+    ///     spelled letter by letter, again at a high price ("vpbank" -> spelled
+    ///     "vp" plus "bank"; "chunkr" -> "chunk" plus "r"), which still beats
+    ///     dropping the whole word to `char_fallback`;
+    ///   - on equal cost, prefer the longer LEADING piece (leftmost-longest).
     fn segment_oov(&self, word: &str, lang: &str) -> Option<String> {
-        // Check cache trước
+        // Consult the cache first.
         let cache_key = format!("{}_{}", word, lang);
         {
             let r = self.segmentation_cache.read().unwrap();
@@ -325,12 +331,13 @@ impl G2PEngine {
             lens: Vec<u8>,
             phones: Vec<String>,
         }
-        // true nếu a tốt hơn b: giá thấp hơn; hòa -> NHIỀU từ tiếng Anh phổ
-        // biến hơn ("fine|tune" thắng "fin|etune", "family|app" thắng
-        // "famil|yapp" — entry rác trong dict không nằm trong top wordlist);
-        // hòa tiếp -> đoạn CUỐI dài hơn ("vin|homes" thắng "vinho|mes");
-        // vẫn hòa -> ít đoạn hơn. (Đã thử tiêu chí "cắt cân đối" nhưng
-        // morpheme tiếng Anh không cân đối: nó phá "vin|homes" -> "vinh|omes".)
+        // True when a beats b. Lower cost first; on a tie, MORE common English
+        // words ("fine|tune" beats "fin|etune", "family|app" beats "famil|yapp",
+        // because junk dictionary entries are absent from the top wordlist);
+        // then a longer FINAL piece ("vin|homes" beats "vinho|mes"); then fewer
+        // pieces. A "balanced split" criterion was tried and rejected: English
+        // morphemes are not balanced, and it broke "vin|homes" into
+        // "vinh|omes".
         fn better(a: &Path, b: &Path) -> bool {
             if a.cost != b.cost { return a.cost < b.cost; }
             if a.top != b.top { return a.top > b.top; }
@@ -357,10 +364,11 @@ impl G2PEngine {
                     if let Some(p) = self.resolve_segment_phone(&segment, lang) {
                         let primary = p.matches('ˈ').count();
                         let total = primary + p.matches('ˌ').count();
-                        // Entry "rác" trong dict: đoạn ngắn mà phoneme nhiều trọng
-                        // âm (kiểu đánh vần "mbo" -> em bi ô), hoặc >=2 trọng âm
-                        // CHÍNH (entry ghép "enbank" -> en-bank). Từ thật dài có
-                        // trọng âm phụ (ˈ + ˌ) không bị tính.
+                        // Junk dictionary entries: a short piece whose phonemes
+                        // carry many stresses (a spelled-out form, "mbo" -> em
+                        // bi ô), or two or more PRIMARY stresses (a glued entry,
+                        // "enbank" -> en-bank). Long real words with a secondary
+                        // stress (ˈ plus ˌ) are not caught by this.
                         if (seg_len <= 4 && total >= 2) || primary >= 2 {
                             cost = JUNK_COST + seg_len as u32;
                         }
@@ -368,8 +376,9 @@ impl G2PEngine {
                     }
                 }
                 if phone.is_none() && seg_len <= 3 {
-                    // Đánh vần từng chữ, giá tăng theo độ dài: 1 chữ cuối rẻ
-                    // ("chunk r"), cụm 3 phụ âm giữa từ đắt.
+                    // Spelling letter by letter, priced by length: a single
+                    // trailing letter is cheap ("chunk r"), a three-consonant
+                    // run mid-word is expensive.
                     let spelled = self.char_fallback(&segment, lang);
                     if !spelled.trim().is_empty() {
                         phone = Some(spelled);
@@ -393,7 +402,7 @@ impl G2PEngine {
 
         let result = dp[n].take().map(|p: Path| p.phones.join(" "));
 
-        // Cache lại — kể cả None để tránh tính lại
+        // Cache the result, `None` included, so the work is not repeated.
         {
             let mut w = self.segmentation_cache.write().unwrap();
             if w.len() >= 5_000 { w.clear(); }
@@ -403,7 +412,8 @@ impl G2PEngine {
         result
     }
 
-    /// Char-by-char fallback — last resort khi segment_oov cũng thất bại.
+    /// Character-by-character fallback, the last resort when `segment_oov` also
+    /// fails.
     fn char_fallback(&self, content: &str, lang: &str) -> String {
         content.chars().map(|c| {
             let cl = c.to_lowercase().to_string();
@@ -421,8 +431,8 @@ impl G2PEngine {
     }
 
     pub fn phonemize(&self, text: &str) -> String {
-        // Nháy cong -> nháy thẳng để "i’m" tra được dict ("i'm") khi caller
-        // gọi G2P trực tiếp không qua Normalizer.
+        // Curly to straight apostrophe, so "i’m" finds the dictionary entry
+        // "i'm" when a caller invokes G2P directly, bypassing the Normalizer.
         let text: std::borrow::Cow<str> = if text.contains('\u{2019}') || text.contains('\u{2018}') {
             std::borrow::Cow::Owned(text.replace(['\u{2019}', '\u{2018}'], "'"))
         } else {
@@ -507,7 +517,8 @@ impl G2PEngine {
         let mut result = Vec::new();
         for t in tokens {
             if t.lang == "punct" {
-                // Map dấu câu theo quy tắc Normalizer; bỏ nháy/ngoặc/gạch nối rời...
+                // Map punctuation by the Normalizer's rules, dropping quotes,
+                // brackets and free-standing dashes.
                 if let Some(p) = map_punct(&t.content) {
                     result.push(p.to_string());
                 }
@@ -536,7 +547,7 @@ impl G2PEngine {
                     }
                 } else {
                     // Fallback chain:
-                    // 1. DP segmentation với vowel filter
+                    // 1. Dynamic-programming segmentation with the vowel filter.
                     // 2. Char-by-char (last resort)
                     let lw = t.content.to_lowercase();
                     self.segment_oov(&lw, &t.lang)
@@ -553,8 +564,9 @@ impl G2PEngine {
             .replace(" ?", "?")
             .replace(" ;", ";")
             .replace(" :", ":");
-        // Gộp dấu câu lặp liên tiếp về một (đồng bộ Normalizer: "..."/"…" -> ".",
-        // ",," -> ","). An toàn vì chuỗi phoneme không chứa '.'/','.
+        // Collapse repeated punctuation, mirroring the Normalizer: "..." and
+        // "…" become ".", ",," becomes ",". Safe because phoneme strings never
+        // contain '.' or ',' themselves.
         while joined.contains("..") { joined = joined.replace("..", "."); }
         while joined.contains(",,") { joined = joined.replace(",,", ","); }
         joined
@@ -562,8 +574,9 @@ impl G2PEngine {
 
     fn propagate_language(&self, tokens: &mut Vec<Token>) {
         let n = tokens.len();
-        // Câu không có token tiếng Việt nào -> mặc định cho từ common là EN
-        // ("I can do it" toàn từ common không được rơi về đọc kiểu Việt).
+        // With no Vietnamese token anywhere, shared words default to English:
+        // "I can do it" is entirely common words and must not fall back to a
+        // Vietnamese reading.
         let default_lang = if tokens.iter().any(|t: &Token| t.lang == "vi") {
             "vi"
         } else {
@@ -582,9 +595,11 @@ impl G2PEngine {
                         .unwrap_or(false)
                 };
 
-                // Khoảng cách tới neo đếm theo TOKEN TỪ, bỏ qua dấu câu không chặn
-                // (phẩy, nháy...): "OK, go thôi" -> "go" cách "ok" 1 từ, hòa với
-                // "thôi" -> đi theo neo EN thay vì bị dấu phẩy đẩy xa neo trái.
+                // Distance to an anchor counts WORD tokens only; non-blocking
+                // punctuation such as commas and apostrophes is skipped. In
+                // "OK, go thôi", "go" is one word from "ok", tying with "thôi",
+                // and follows the English anchor instead of being pushed away
+                // from it by the comma.
                 let mut left_anchor = None;
                 let mut left_dist = 999;
                 let mut d = 0;
@@ -619,11 +634,13 @@ impl G2PEngine {
                     } else if left_dist < right_dist {
                         l.clone()
                     } else {
-                        // Hòa khoảng cách: từ common là TỪ thật đứng sát từ tiếng Anh
-                        // thường thuộc cụm tiếng Anh đó ("let's go ăn" -> "go" là EN,
-                        // "muốn go to market" -> "go to" là EN). Riêng chữ cái đơn lẻ
-                        // ("a" trong "a còng", "i" trong "core i chín") giữ ưu tiên
-                        // neo phải như cũ để không bị kéo sang EN.
+                        // On a tie: a shared word that is a REAL word sitting
+                        // next to an English word usually belongs to that
+                        // English phrase ("let's go ăn" -> "go" is English;
+                        // "muốn go to market" -> "go to" is English). Single
+                        // letters are the exception ("a" in "a còng", "i" in
+                        // "core i chín"): they keep the right-anchor preference
+                        // so they are not dragged into English.
                         let run_is_bare_letters = (start..=end)
                             .all(|k| tokens[k].content.chars().count() == 1);
                         if !run_is_bare_letters && (l == "en" || r == "en") {

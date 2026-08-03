@@ -35,8 +35,9 @@ use crate::g2p::PhonemeDict;
 use crate::vi_normalizer::num2vi::{n2w, n2w_single};
 use crate::vi_normalizer::resources::{VI_LETTER_NAMES, COMMON_EMAIL_DOMAINS, DOMAIN_SUFFIX_MAP};
 
-// Dict phoneme dùng chung với G2P (mmap, rẻ) — để normalizer tra "từ này có
-// trong dict không" khi quyết định giữ nguyên hay tách âm tiết trong path/email.
+// The phoneme dictionary shared with G2P, memory-mapped so the lookup is cheap.
+// The normalizer only asks "is this word known?" when deciding whether to keep
+// a path or email token whole or split it into syllables.
 static NORM_DICT: OnceLock<PhonemeDict> = OnceLock::new();
 
 pub fn init_norm_dict(path: &str) {
@@ -52,16 +53,18 @@ fn dict_has(word: &str) -> bool {
         .unwrap_or(false)
 }
 
-// ── Đọc path/URL/email kiểu Việt khi câu chứa từ tiếng Việt ──────────────────
-// Âm đầu tiếng Việt dạng KHÔNG DẤU ("đ" gộp về "d"). Chuỗi dài xếp trước để
-// thử khớp trước; "" cuối cùng cho âm tiết không có âm đầu ("an", "uong").
+// ── Vietnamese-style reading of paths, URLs and emails ──────────────────────
+// Vietnamese onsets without diacritics ("đ" folded to "d"). Longer strings come
+// first so they are tried first; the empty string last covers syllables with no
+// onset at all ("an", "uong").
 static VI_ONSETS: &[&str] = &[
     "ngh", "ch", "gh", "gi", "kh", "ng", "nh", "ph", "qu", "th", "tr",
     "b", "c", "d", "g", "h", "k", "l", "m", "n", "p", "r", "s", "t", "v", "x", "",
 ];
 
-// Vần tiếng Việt dạng không dấu (gộp ă/â->a, ê->e, ô/ơ->o, ư->u, các biến thể
-// có dấu quy về cùng skeleton). Chỉ cần đúng ở mức "trông như âm tiết Việt".
+// Vietnamese rimes without diacritics (ă/â -> a, ê -> e, ô/ơ -> o, ư -> u, all
+// tone variants collapsing to one skeleton). Accuracy only has to reach
+// "plausibly a Vietnamese syllable".
 static VI_RHYMES: Lazy<HashSet<&'static str>> = Lazy::new(|| {
     [
         "a", "ac", "ach", "ai", "am", "an", "ang", "anh", "ao", "ap", "at", "au", "ay",
@@ -77,8 +80,8 @@ static VI_RHYMES: Lazy<HashSet<&'static str>> = Lazy::new(|| {
     ].into_iter().collect()
 });
 
-// Phần mở rộng file: đứng sau "chấm" thì giữ cách đọc kiểu Anh hiện tại
-// (kể cả trong câu tiếng Việt) — "chấm p y", "chấm jpg"...
+// File extensions: after "chấm" they keep the established English-style
+// reading even inside a Vietnamese sentence — "chấm p y", "chấm jpg".
 static FILE_EXTS: Lazy<HashSet<&'static str>> = Lazy::new(|| {
     [
         "txt", "log", "tar", "gz", "zip", "rar", "sh", "py", "js", "ts", "cpp",
@@ -99,11 +102,15 @@ fn is_vi_syllable(s: &str) -> bool {
     false
 }
 
-/// Điểm "Việt tính" của một âm tiết:
-///   2 = skeleton của âm tiết Việt PHỔ BIẾN (bảng tần suất) — "tin", "hoc";
-///   1 = có trong dict với cách đọc Việt (merged VI hoặc common) — "nhoc";
-///   0 = còn lại (entry EN hoặc ngoài dict).
-/// Nhờ đó "tin|hoc" (2+2) thắng "ti|nhoc" (2+1), "khi|tuong" thắng "khit|uong".
+/// How Vietnamese a syllable looks:
+///   2 = skeleton of a FREQUENT Vietnamese syllable, per the frequency table
+///       ("tin", "hoc");
+///   1 = present in the dictionary with a Vietnamese reading, merged VI or
+///       common ("nhoc");
+///   0 = anything else: an English entry, or absent from the dictionary.
+///
+/// This scoring is what makes "tin|hoc" (2+2) beat "ti|nhoc" (2+1), and
+/// "khi|tuong" beat "khit|uong".
 fn syllable_vi_score(w: &str) -> u32 {
     if crate::vi_normalizer::vi_top_syllables::VI_TOP_SYLLABLES.contains(w) {
         return 2;
@@ -117,17 +124,21 @@ fn syllable_vi_score(w: &str) -> u32 {
     0
 }
 
-/// Tách chuỗi ASCII thường thành dãy mảnh: âm tiết Việt không dấu (is_vi=true)
-/// xen kẽ mảnh NGOẠI LAI >=3 ký tự (is_vi=false) cho từ ghép trộn
+/// Split a lowercase ASCII run into pieces: toneless Vietnamese syllables
+/// (`is_vi = true`) interleaved with FOREIGN pieces of at least three
+/// characters (`is_vi = false`) for mixed compounds
 /// ("blogcongnghe" -> blog|cong|nghe, "tapdoanxyz" -> tap|doan|xyz).
-/// DP chọn cách cắt theo thứ tự:
-///   1. ít mảnh ngoại lai nhất (thuần Việt luôn thắng);
-///   2. tổng ký tự ngoại lai ít nhất ("blog|cong|nghe" thắng nguyên khối);
-///   3. ít mảnh nhất ("luu|tru" thắng "lu|u|tru", "blog" trọn thắng cắt vụn);
-///   4. ít âm tiết không-đọc-kiểu-Việt trong dict nhất ("tra|cuu" thắng
-///      "trac|uu" vì "tra" là entry VI còn "trac"/"uu" là entry EN rác);
-///   5. mảnh CUỐI dài hơn ("tin|hoc" thắng "tinh|oc").
-/// Trả None nếu không có mảnh âm tiết Việt nào (từ thuần ngoại lai).
+/// Dynamic programming picks the split by these criteria, in order:
+///   1. fewest foreign pieces, so a fully Vietnamese split always wins;
+///   2. fewest foreign characters in total ("blog|cong|nghe" beats one block);
+///   3. fewest pieces ("luu|tru" beats "lu|u|tru"; whole "blog" beats fragments);
+///   4. fewest dictionary syllables that are not read the Vietnamese way
+///      ("tra|cuu" beats "trac|uu", because "tra" is a VI entry while
+///      "trac" and "uu" are junk EN entries);
+///   5. longer FINAL piece ("tin|hoc" beats "tinh|oc").
+///
+/// Returns `None` when no Vietnamese syllable is found at all, i.e. the token is
+/// entirely foreign.
 fn split_vi_syllables(s: &str) -> Option<Vec<(String, bool)>> {
     if s.is_empty() || !s.is_ascii() { return None; }
 
@@ -155,14 +166,15 @@ fn split_vi_syllables(s: &str) -> Option<Vec<(String, bool)>> {
     dp[0] = Some(P { jsegs: 0, jletters: 0, score: 0, lens: Vec::new(), parts: Vec::new() });
     for i in 0..n {
         let Some(base) = dp[i].clone() else { continue };
-        // Mảnh âm tiết Việt (tối đa 7 ký tự).
+        // Vietnamese syllable piece, at most seven characters.
         for j in (i + 1)..=n.min(i + 7) {
             let seg = &s[i..j];
             if !is_vi_syllable(seg) { continue; }
             let mut cand = base.clone();
             let mut sc = syllable_vi_score(seg);
-            // Cặp kề nhau tạo thành TỪ GHÉP thật ("tin hoc", "khi tuong")
-            // -> cộng đậm, phân định "tin|hoc" thắng "ti|nhoc".
+            // Adjacent pieces forming a real compound ("tin hoc", "khi tuong")
+            // get a large bonus. This is the tie-breaker that makes "tin|hoc"
+            // win over "ti|nhoc".
             if let Some((prev, prev_is_vi)) = base.parts.last() {
                 if *prev_is_vi {
                     let key = format!("{} {}", prev, seg);
@@ -178,8 +190,9 @@ fn split_vi_syllables(s: &str) -> Option<Vec<(String, bool)>> {
                 dp[j] = Some(cand);
             }
         }
-        // Mảnh TỪ ANH PHỔ BIẾN (top wordlist): không bị phạt như mảnh lạ —
-        // "smart|home" (2 từ Anh) thắng "smart|ho|me", "blog|cong|nghe" giữ.
+        // Pieces that are common English words (top wordlist) escape the
+        // foreign-piece penalty: "smart|home" beats "smart|ho|me", and
+        // "blog|cong|nghe" survives intact.
         for j in (i + 3)..=n {
             let seg = &s[i..j];
             if !crate::g2p::en_top_words::EN_TOP_WORDS.contains(seg) { continue; }
@@ -190,11 +203,12 @@ fn split_vi_syllables(s: &str) -> Option<Vec<(String, bool)>> {
                 dp[j] = Some(cand);
             }
         }
-        // Mảnh ngoại lai TOÀN PHỤ ÂM ("xyz", "pnn", "tsn" — "y" tính là phụ
-        // âm để đánh vần được): >=3 ký tự, bị phạt jsegs/jletters — chỉ dùng
-        // khi không còn đường nào khác. Mảnh lạ có nguyên âm ngoài top
-        // wordlist KHÔNG được phép ("smar", "ldserver") -> từ như
-        // "buildserver" giữ nguyên khối cho G2P.
+        // Consonant-only foreign pieces ("xyz", "pnn", "tsn"; "y" counts as a
+        // consonant so the piece can be spelled out): at least three
+        // characters, penalised on both counters, and therefore used only when
+        // nothing else fits. A foreign piece containing a vowel but absent from
+        // the top wordlist is rejected outright ("smar", "ldserver"), which
+        // keeps words like "buildserver" whole for G2P.
         for j in (i + 3)..=n {
             let seg = &s[i..j];
             if seg.chars().any(|c: char| "aeiou".contains(c)) { continue; }
@@ -209,7 +223,7 @@ fn split_vi_syllables(s: &str) -> Option<Vec<(String, bool)>> {
         }
     }
     let best = dp[n].take()?;
-    // Không có âm tiết Việt nào -> để nguyên cho đường xử lý khác.
+    // No Vietnamese syllable at all: leave the token to another code path.
     if !best.parts.iter().any(|(_, is_vi): &(String, bool)| *is_vi) { return None; }
     Some(best.parts)
 }
@@ -221,9 +235,10 @@ fn vi_letter_names(s: &str) -> String {
     }).collect::<Vec<String>>().join(" ")
 }
 
-/// Ghép kết quả split_vi_syllables thành text đọc: âm tiết Việt để trần;
-/// mảnh ngoại lai toàn phụ âm đánh vần tên chữ Việt ("xyz" -> "ích y dét"),
-/// có nguyên âm thì để trần cho G2P đọc theo dict ("blog").
+/// Render the output of `split_vi_syllables` as readable text: Vietnamese
+/// syllables are emitted bare; consonant-only foreign pieces are spelled with
+/// Vietnamese letter names ("xyz" -> "ích y dét"); foreign pieces containing a
+/// vowel stay bare for G2P to read from the dictionary ("blog").
 fn render_vi_split(pieces: &[(String, bool)]) -> String {
     pieces.iter().map(|(txt, is_vi): &(String, bool)| {
         if *is_vi {
@@ -236,8 +251,8 @@ fn render_vi_split(pieces: &[(String, bool)]) -> String {
     }).collect::<Vec<String>>().join(" ")
 }
 
-/// Cách đọc kiểu Anh hiện hành cho một cụm chữ cái (giữ nguyên hành vi cũ):
-/// ALL-CAPS ngắn hoặc <=2 ký tự -> đánh vần chữ cái Anh, còn lại đọc như từ.
+/// English-style reading of a letter cluster: short all-caps runs and clusters
+/// of at most two characters are spelled out; anything longer is read as a word.
 fn en_chunk(t: &str) -> String {
     let mut val = t.to_lowercase();
     if (t.chars().all(|c: char| c.is_uppercase()) && t.len() <= 4) || t.len() <= 2 {
@@ -246,12 +261,13 @@ fn en_chunk(t: &str) -> String {
     format!("__start_en__{}__end_en__", val)
 }
 
-/// Bản cho email: hành vi cũ là luôn đọc như TỪ tiếng Anh (không đánh vần
-/// token ngắn), nên chỉ thêm nhánh tiếng Việt khi vi_ctx.
+/// Email variant: local parts are always read as English words, short tokens
+/// included, so the Vietnamese branch is added only when `vi_ctx` holds.
 fn norm_letter_chunk_email(t: &str, vi_ctx: bool, _en_ctx: bool) -> String {
     let lw = t.to_lowercase();
     if !vi_ctx { return format!("__start_en__{}__end_en__", lw); }
-    // Chữ cái đơn / toàn phụ âm -> tên chữ Việt (trước dict, như path).
+    // Single letters and consonant-only runs take Vietnamese letter names,
+    // checked before the dictionary, exactly as in paths.
     if lw.chars().count() == 1 || !lw.chars().any(|c: char| "aeiouy".contains(c)) {
         return vi_letter_names(&lw);
     }
@@ -259,37 +275,42 @@ fn norm_letter_chunk_email(t: &str, vi_ctx: bool, _en_ctx: bool) -> String {
     if let Some(pieces) = split_vi_syllables(&lw) {
         return render_vi_split(&pieces);
     }
-    // Từ lạ: để trần cho G2P tra dict / đọc OOV kiểu Anh.
+    // Unknown word: leave it bare for G2P to look up, or read as English OOV.
     lw
 }
 
-/// Đọc một cụm chữ cái trong path/URL/email.
-/// `vi_ctx`: câu chứa từ tiếng Việt -> ưu tiên đọc kiểu Việt: tách âm tiết
-/// không dấu ("thongbao" -> "thong bao"); toàn phụ âm -> tên chữ Việt
-/// ("mn" -> "mờ nờ"); từ Anh quen thuộc vẫn đọc kiểu Anh.
+/// Read one letter cluster from a path, URL or email.
+///
+/// With `vi_ctx` — the sentence contains Vietnamese words — the Vietnamese
+/// reading is preferred: toneless syllable splitting ("thongbao" -> "thong
+/// bao") and letter names for consonant-only runs ("mn" -> "mờ nờ"). Familiar
+/// English words keep their English reading regardless.
 fn norm_letter_chunk(t: &str, vi_ctx: bool, after_dot: bool) -> String {
     if !vi_ctx { return en_chunk(t); }
     let lw = t.to_lowercase();
-    // Đuôi file quen thuộc: có nguyên âm thật -> để trần đọc như từ ("zip",
-    // "yaml"); toàn phụ âm (y không tính) -> tên chữ Việt ("py" -> "phê y",
-    // "jpg" -> "giây phê gờ").
+    // Known file extensions: those with a real vowel are read as words ("zip",
+    // "yaml"); consonant-only ones, where "y" does not count as a vowel, take
+    // Vietnamese letter names ("py" -> "phê y", "jpg" -> "giây phê gờ").
     if after_dot && FILE_EXTS.contains(lw.as_str()) {
         if lw.chars().any(|c: char| "aeiou".contains(c)) { return lw; }
         return vi_letter_names(&lw);
     }
-    // ALL-CAPS ngắn coi là acronym (TTS, GPU) -> tên chữ Việt "tê tê ét".
+    // A short all-caps run is an acronym (TTS, GPU), spelled with Vietnamese
+    // letter names: "tê tê ét".
     if t.chars().all(|c: char| c.is_uppercase()) && t.len() <= 4 && t.len() >= 2 {
         return vi_letter_names(&lw);
     }
-    // Chữ cái đơn ("v" trong v2, "c" trong C:) và cụm toàn phụ âm ("www",
-    // "mn", "db") -> tên chữ Việt, TRƯỚC khi tra dict để "www"/"v" không bị
-    // dict nuốt mất ("vê kép vê kép vê kép", "vê", "xê", "mờ nờ").
+    // Single letters ("v" in v2, "c" in C:) and consonant-only runs ("www",
+    // "mn", "db") take Vietnamese letter names. Checked BEFORE the dictionary,
+    // otherwise a dictionary entry would swallow "www" or "v" instead of
+    // yielding "vê kép vê kép vê kép", "vê", "xê", "mờ nờ".
     if lw.chars().count() == 1 || !lw.chars().any(|c: char| "aeiouy".contains(c)) {
         return vi_letter_names(&lw);
     }
-    // camelCase mang sẵn ranh giới âm tiết ("CanHoMau" -> Can|Ho|Mau): nếu mọi
-    // mảnh đều là âm tiết Việt thì dùng luôn — check TRƯỚC dict để entry rác
-    // kiểu "canhan" trong dict không nuốt mất "CaNhan".
+    // camelCase already encodes syllable boundaries ("CanHoMau" ->
+    // Can|Ho|Mau), so if every piece is a Vietnamese syllable, use that split
+    // directly. Checked BEFORE the dictionary so a junk entry such as "canhan"
+    // cannot swallow "CaNhan".
     if t.chars().any(|c: char| c.is_uppercase()) && t.chars().any(|c: char| c.is_lowercase()) {
         let mut pieces: Vec<String> = Vec::new();
         let mut cur = String::new();
@@ -305,14 +326,17 @@ fn norm_letter_chunk(t: &str, vi_ctx: bool, after_dot: bool) -> String {
             return pieces.join(" ");
         }
     }
-    // Có trong dict sea-g2p -> để TRẦN (không tag): G2P tự đọc theo dict
-    // (merged EN đọc kiểu Anh, từ common ưu tiên ngữ cảnh Việt xung quanh).
-    // Nhờ đó từ Anh quen thuộc ("home", "data"...) không bị tách âm tiết Việt.
+    // Present in the sea-g2p dictionary: leave it bare and untagged so G2P
+    // reads it from the dictionary — merged English entries in English, common
+    // entries following the surrounding Vietnamese context. This is what stops
+    // familiar English words ("home", "data") from being split into Vietnamese
+    // syllables.
     if dict_has(&lw) { return lw; }
     if let Some(pieces) = split_vi_syllables(&lw) {
         return render_vi_split(&pieces);
     }
-    // Từ lạ ("pnnbao"): để trần, G2P tự tra dict / đọc OOV kiểu Anh.
+    // Unknown word ("pnnbao"): left bare for dictionary lookup or English OOV
+    // reading.
     lw
 }
 
@@ -422,7 +446,7 @@ pub fn normalize_technical(text: &str, vi_ctx: bool, en_ctx: bool) -> String {
                             break;
                         }
                     }
-                    // Suffix map ("com", "o rờ gờ"...) chỉ dùng ngoài câu thuần Anh.
+                    // The suffix table ("com", "o rờ gờ") applies outside English sentences.
                     if !en_ctx && !next_seg.is_empty() && DOMAIN_SUFFIX_MAP.contains_key(next_seg.to_lowercase().as_str()) {
                         res.push("chấm".to_string());
                         res.push(DOMAIN_SUFFIX_MAP.get(next_seg.to_lowercase().as_str()).unwrap().to_string());
@@ -446,16 +470,19 @@ pub fn normalize_technical(text: &str, vi_ctx: bool, en_ctx: bool) -> String {
                 "#" => res.push(if en_ctx { "hash" } else { "thăng" }.to_string()),
                 "@" => res.push(if en_ctx { "at" } else { "a còng" }.to_string()),
                 _ => {
-                    // Đoạn path chứa chữ tiếng Việt (có dấu) -> đọc như TỪ tiếng Việt,
-                    // không spell từng ký tự (vd ".../báo-cáo" -> "báo" "cáo").
+                    // A path segment containing diacritic Vietnamese is read as
+                    // Vietnamese words rather than spelled out character by
+                    // character (".../báo-cáo" -> "báo" "cáo").
                     if s.chars().any(|c: char| c.is_alphabetic() && !c.is_ascii()) {
                         res.push(s.to_lowercase());
                     } else if !en_ctx && DOMAIN_SUFFIX_MAP.contains_key(s.to_lowercase().as_str()) {
-                        // Đuôi tên miền đọc theo map ("i ô", "vi en") — câu thuần
-                        // Anh bỏ qua map, đọc chữ cái Anh ở nhánh dưới.
+                        // Domain suffixes follow the table ("i ô", "vi en").
+                        // English sentences skip it and fall through to the
+                        // English letter branch below.
                         res.push(DOMAIN_SUFFIX_MAP.get(s.to_lowercase().as_str()).unwrap().to_string());
                     } else if s.chars().all(|c: char| c.is_alphanumeric() && c.is_ascii()) {
-                        // Câu thuần Anh: chữ số đọc từng số kiểu Anh ("127" -> "one two seven").
+                        // In English sentences digits are read individually in
+                        // English ("127" -> "one two seven").
                         let digits = |d: &str| -> String {
                             if en_ctx {
                                 crate::vi_normalizer::num2en::n2w_en_digits(d)
@@ -601,7 +628,8 @@ pub fn normalize_emails(text: &str, vi_ctx: bool, en_ctx: bool) -> String {
 
         let user_norm = process_part(user_part, false);
         let domain_part_lower = domain_part.to_lowercase();
-        // Map domain quen thuộc chứa "chấm" tiếng Việt -> chỉ dùng ngoài câu thuần Anh.
+        // The familiar-domain table spells "chấm" in Vietnamese, so it applies only
+    // outside pure-English sentences.
         let domain_norm = if !en_ctx {
             if let Some(dn) = COMMON_EMAIL_DOMAINS.get(domain_part_lower.as_str()) {
                 dn.to_string()

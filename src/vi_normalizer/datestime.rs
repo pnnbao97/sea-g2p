@@ -63,9 +63,10 @@ static RE_PERIOD_YEAR: Lazy<Regex> = Lazy::new(|| {
     Regex::new(r"(?i)\b([a-zA-Z]\d*)/(\d{4})\b").unwrap()
 });
 
-// "quý 1/2025" -> "quý một năm hai nghìn...". Chạy trước RE_MONTH_YEAR để không bị
-// đọc nhầm "1/2025" thành "tháng một năm...". Nhận cả quý viết số La Mã ("quý III/2027",
-// "Quý I/2026") vì pass La Mã chung chạy sau pass ngày tháng nên không kịp đổi.
+// "quý 1/2025" -> "quý một năm hai nghìn…". Runs before RE_MONTH_YEAR, which
+// would otherwise read "1/2025" as a month and year. Roman quarters are matched
+// here too ("quý III/2027") because the general Roman-numeral pass comes after
+// the date stage and so arrives too late.
 static RE_QUY_YEAR: Lazy<Regex> = Lazy::new(|| {
     Regex::new(r"(?i)\b(quý)\s+(\d{1,2}|IV|III|II|I)\s*/\s*(\d{4})\b").unwrap()
 });
@@ -75,7 +76,7 @@ static RE_FULL_TIME: Lazy<Regex> = Lazy::new(|| {
     Regex::new(r"(?i)\b(\d+)(g|:|h)(\d{1,2})(p|:|m)(\d{1,2})(?:\s*(giây|s|g))?\b").unwrap()
 });
 
-// Regular time like 10:30, 14h30, 10:20 phút.
+// Plain clock times: 10:30, 14h30, "10:20 phút".
 // Captured groups: 1:hour, 2:separator, 3:minute, 4:suffix (optional)
 static RE_TIME: Lazy<Regex> = Lazy::new(|| {
     Regex::new(r"(?ix)
@@ -91,10 +92,11 @@ static RE_LUC_HOUR: Lazy<Regex> = Lazy::new(|| {
     Regex::new(r"(?i)\blúc\s*(\d+)g\b").unwrap()
 });
 
-// Các pass ngày-tháng có thể sinh "ngày ngày ..." khi văn bản đã có sẵn từ dẫn
-// ("ngày 15/3" -> "ngày" + "ngày mười lăm..."). CHỈ gộp khi từ ngay sau là CHỮ SỐ
-// — nếu không thì đó là từ láy thật ("ngày ngày năn nỉ", "suốt năm năm trời",
-// "tháng tháng đóng tiền") và phải giữ nguyên.
+// Date expansion can produce "ngày ngày …" when the author already wrote the
+// lead word ("ngày 15/3" becomes "ngày" + "ngày mười lăm…"). Collapse the pair
+// **only when a number follows**; otherwise it is genuine reduplication
+// ("ngày ngày năn nỉ", "suốt năm năm trời", "tháng tháng đóng tiền") and
+// deleting one half silently removes a word from the sentence.
 pub static NUM_WORDS: Lazy<std::collections::HashSet<&'static str>> = Lazy::new(|| {
     ["không", "một", "hai", "ba", "bốn", "năm", "sáu", "bảy", "tám", "chín",
      "mười", "mươi", "mốt", "lăm", "tư", "trăm", "nghìn", "ngàn", "triệu", "tỷ"]
@@ -112,7 +114,7 @@ fn dedup_lead(text: &str, re: &Regex, keep: &str) -> String {
     }).into_owned()
 }
 
-// "từ 1/8 đến hết 31/8", "ngày 20/11 - 25/11": cả cụm là KHOẢNG NGÀY.
+// "từ 1/8 đến hết 31/8", "ngày 20/11 - 25/11": the whole span is a date range.
 static RE_DATE_RANGE: Lazy<Regex> = Lazy::new(|| {
     Regex::new(r"(?i)\b(từ|ngày|hôm)\s+(\d{1,2})/(\d{1,2})\s*(đến hết|đến|tới|-|–)\s*(\d{1,2})/(\d{1,2})\b").unwrap()
 });
@@ -129,8 +131,8 @@ static RE_REDUNDANT_NAM: Lazy<Regex> = Lazy::new(|| {
     Regex::new(r"(?i)\bnăm\s+năm\s+(\S+)").unwrap()
 });
 
-// Cùng nguyên tắc với dedup_lead: chỉ bỏ "ngày" khi nó là do pass ngày-tháng
-// chèn (tức ngay sau là chữ số). "Hôm ngày lễ", "mùng ngày rằm" phải giữ nguyên.
+// Same principle as dedup_lead: drop "ngày" only when the date pass inserted it,
+// i.e. when a number follows. "Hôm ngày lễ" and "mùng ngày rằm" must survive.
 static RE_REDUNDANT_HOM_NGAY: Lazy<Regex> = Lazy::new(|| {
     Regex::new(r"(?i)\bhôm\s+ngày\s+(\S+)").unwrap()
 });
@@ -237,8 +239,9 @@ pub fn normalize_date(text: &str) -> String {
             let m_val = if month.parse::<i32>().unwrap_or(0) == 4 { "tư".to_string() } else { n2w(&month.parse::<i32>().unwrap_or(0).to_string()) };
             format!("ngày {} tháng {} năm {}", n2w(&day.parse::<i32>().unwrap_or(0).to_string()), m_val, n2w(year))
         } else {
-            // Ngày không hợp lệ (vd 30/2/2024): đọc như dãy số nối bằng "trên" để
-            // tiêu thụ trọn cụm, tránh để pass tháng-năm ghép nhầm thành output lỗi.
+            // An impossible date (30/2/2024) is read as numbers joined by "trên",
+            // which consumes the whole cluster. Leaving parts behind would let
+            // the month-year rule recombine them into nonsense.
             format!(" {} trên {} trên {} ", n2w(day), n2w(month), n2w(year))
         }
     }).to_string();
@@ -256,8 +259,9 @@ pub fn normalize_date(text: &str) -> String {
         }
     }).to_string();
 
-    // Khoảng ngày "từ 1/8 đến 31/8", "ngày 20/11 - 25/11": xử cả cụm để vế SAU
-    // cũng thành ngày tháng (từ dẫn "đến" đứng một mình quá mơ hồ với phân số).
+    // Date ranges are handled as one unit so the second half also becomes a
+    // date. Treating "đến" as a lead word on its own would be too weak a signal
+    // and would start turning fractions into dates.
     result = RE_DATE_RANGE.replace_all(&result, |caps: &Captures| {
         let d1 = caps.get(2).unwrap().as_str();
         let m1 = caps.get(3).unwrap().as_str();
@@ -282,8 +286,9 @@ pub fn normalize_date(text: &str) -> String {
         let day_str = caps.get(1).unwrap().as_str();
         let month_str = caps.get(3).unwrap().as_str();
         let sep = caps.get(2).unwrap().as_str();
-        // Dấu "-" giữa hai số (không phải ngày hợp lệ có ngữ cảnh) thiên về KHOẢNG
-        // ("5-10" -> "năm đến mười"); dấu "/" thiên về PHÂN SỐ ("3/5" -> "ba trên năm").
+        // Absent date context, a dash between numbers leans towards a range
+        // ("5-10" -> "năm đến mười") while a slash leans towards a fraction
+        // ("3/5" -> "ba trên năm").
         let joiner = if sep == "-" { "đến" } else { "trên" };
         let a = day_str.parse::<i32>().unwrap_or(0);
         let b = month_str.parse::<i32>().unwrap_or(0);
@@ -299,7 +304,7 @@ pub fn normalize_date(text: &str) -> String {
             return format!("ngày {} tháng {}", n2w(&a.to_string()), m_val);
         }
 
-        // Từ dẫn đứng NGAY TRƯỚC ("chiều 17/10", "từ 1/8", "trước 30/4").
+        // Lead word immediately before ("chiều 17/10", "từ 1/8", "trước 30/4").
         let lead_word = current_text[..full_match.start()]
             .split_whitespace()
             .next_back()
@@ -353,8 +358,9 @@ pub fn normalize_time(text: &str) -> String {
         let m = caps.get(3).unwrap().as_str();
         let sep2 = caps.get(4).unwrap().as_str();
         let s = caps.get(5).unwrap().as_str();
-        // Dạng toàn dấu ":" chỉ là GIỜ khi phút & giây đủ 2 chữ số (vd 01:02:03).
-        // "1:2:3" (phút/giây 1 chữ số) chắc chắn là TỶ LỆ -> để pass sau xử lý.
+        // An all-colon form is a time only when minutes and seconds are both two
+        // digits (01:02:03). Single-digit parts ("1:2:3") mean a ratio, so leave
+        // it for the ratio pass.
         if sep1 == ":" && sep2 == ":" && (m.len() != 2 || s.len() != 2) {
             return caps.get(0).unwrap().as_str().to_string();
         }
