@@ -40,42 +40,51 @@ const VI_UPPER: &str = "ĐĂÂÊÔƠƯ";
 
 // ─ Patterns requiring look-arounds ───────────────────────────────────────
 static RE_ROMAN_NUMBER: Lazy<FRegex> = Lazy::new(|| {
-    // CHỈ chữ HOA: số La Mã thật luôn viết hoa ("Chương IV", "Edward II"). Không nhận
-    // chữ thường vì các âm tiết tiếng Việt viết thường ("di", "vi", "li", "cd"...) trùng
-    // dạng số La Mã và gây mở rộng sai (vd "lần di chuyển" -> "lần 501 chuyển").
+    // UPPERCASE ONLY: real Roman numerals are always capitalised ("Chương IV",
+    // "Edward II"). Lowercase is rejected because ordinary Vietnamese syllables
+    // ("di", "vi", "li", "cd") have the same shape, and accepting them turns
+    // "lần di chuyển" into "lần 501 chuyển".
     FRegex::new(r"\b(?=[IVXLCDM]{2,})(?:M{0,4}(?:CM|CD|D?C{0,3})(?:XC|XL|L?X{0,3})(?:IX|IV|V?I{0,3}))(?<=[IVXLCDM])\b").unwrap()
 });
-// Số La Mã mở đầu dòng ở dạng SỐ THỨ TỰ ĐỀ MỤC: "I. VỀ ĐỀ NGHỊ...", "II. Về ...".
-// Đọc là số ("một", "hai"...) chứ không phải chữ cái. Bắt cả trường hợp 1 ký tự (như "I")
-// mà RE_ROMAN_NUMBER (yêu cầu ≥2 ký tự + từ dẫn) bỏ sót. Điều kiện: đứng đầu dòng, kèm dấu ".".
-// Group: (1)=thụt đầu dòng, (2)=số La Mã, (3)=dấu chấm + khoảng trắng, (4)=chuỗi chữ HOA của
-// tiêu đề theo sau (lookahead, không nuốt) — dùng để phân biệt số thứ tự với chữ viết tắt tên
-// riêng ("C. Mác", "V. Nguyễn"): ký tự đơn chỉ coi là số khi tiêu đề viết HOA (≥2 chữ HOA).
+// Roman numerals opening a line as a SECTION NUMBER: "I. VỀ ĐỀ NGHỊ…",
+// "II. Về …". These read as numbers ("một", "hai"), not letters, and include the
+// single-character case ("I") that RE_ROMAN_NUMBER misses by requiring two
+// characters plus a cue word. Conditions: start of line, followed by ".".
+//
+// Groups: (1) indentation, (2) the numeral, (3) period and spacing, (4) the
+// uppercase run of the heading that follows, matched by lookahead so it is not
+// consumed. Group 4 separates a section number from an abbreviated personal name
+// ("C. Mác", "V. Nguyễn"): a single character counts as a number only when the
+// heading itself is uppercase, i.e. at least two capitals.
 static RE_ROMAN_LIST_MARKER: Lazy<FRegex> = Lazy::new(|| {
     FRegex::new(r"(?m)^([ \t]*)([IVXLCDM]+)(\.[ \t]+)(?=(\p{Lu}+))").unwrap()
 });
-// Đề mục La Mã thực tế không vượt quá ~XX; giá trị lớn hơn gần như chắc chắn là chữ viết tắt
-// tên riêng (C=100, L=50, D=500, M=1000) nên loại ra để tránh đọc nhầm "C. Mác" -> "một trăm".
+// Real section numbers rarely pass XX. Anything larger is almost certainly an
+// abbreviated name, since C=100, L=50, D=500 and M=1000 are all common initials.
+// Excluding them stops "C. Mác" from being read as "một trăm".
 const ROMAN_MARKER_MAX: i32 = 30;
-// Chỉ I/V/X: L/C/D/M một mình gần như luôn là chữ viết tắt, không phải số La Mã.
+// I/V/X only: a lone L, C, D or M is nearly always an initial, not a numeral.
 static RE_ROMAN_SINGLE: Lazy<FRegex> = Lazy::new(|| {
     FRegex::new(r"\b[IVX]\b(?!['’])").unwrap()
 });
-// Bỏ dấu chấm viết tắt chức danh khi theo sau là tên riêng (TS. Nguyễn -> TS Nguyễn),
-// tránh dấu "." biến thành ranh giới câu gây ngắt nhịp sai.
+// Drop the period after a title abbreviation when a proper name follows
+// ("TS. Nguyễn" -> "TS Nguyễn"), so the dot is not mistaken for a sentence
+// boundary and does not introduce a false pause.
 static RE_TITLE_DOT: Lazy<FRegex> = Lazy::new(|| {
     FRegex::new(r"\b(TS|GS|BS|ThS|PGS|KS|ĐH)\.\s+(?=\p{Lu})").unwrap()
 });
-// "Q.1"/"P.7" và "Q.Bình Thạnh"/"P.Bến Nghé" -> "quận"/"phường". Tên riêng đòi
-// chữ HOA + chữ thường theo sau để không đụng "P.S." hay viết tắt khác.
+// "Q.1"/"P.7" and "Q.Bình Thạnh"/"P.Bến Nghé" -> "quận"/"phường". The proper
+// name form requires an uppercase letter followed by a lowercase one, which
+// keeps "P.S." and other abbreviations out.
 static RE_DISTRICT_DOT: Lazy<FRegex> = Lazy::new(|| {
     FRegex::new(r"\bQ\.\s*(?=\d|\p{Lu}\p{Ll})").unwrap()
 });
 static RE_WARD_DOT: Lazy<FRegex> = Lazy::new(|| {
     FRegex::new(r"\bP\.\s*(?=\d|\p{Lu}\p{Ll})").unwrap()
 });
-// Lookahead loại contraction tiếng Anh ("I'm", "I'll", "I'd"...): chữ cái + nháy + chữ
-// phải giữ nguyên vẹn để G2P tra dict tiếng Anh, không đọc rời "i" + "'m".
+// The lookahead excludes English contractions ("I'm", "I'll", "I'd"): a letter,
+// an apostrophe and another letter must stay together for G2P to find them in
+// the English dictionary, rather than being read as "i" plus "'m".
 static RE_STANDALONE_LETTER: Lazy<FRegex> = Lazy::new(|| {
     FRegex::new(r"(?<![\''])\b([a-zA-Z])(?!['’]\w)\b(\.?)").unwrap()
 });
@@ -86,11 +95,12 @@ static RE_VERSION: Lazy<FRegex> = Lazy::new(|| {
     FRegex::new(r"(?<![-\u2013\u2014])\b(\d+(?:\.\d+){2,})\b").unwrap()
 });
 static RE_PRIME: Lazy<FRegex> = Lazy::new(|| {
-    // \u0110\u1ebfm s\u1ed1 d\u1ea5u ph\u1ea9y: f' -> "ph\u1ea9y", y'' -> "ph\u1ea9y ph\u1ea9y" (\u0111\u1ea1o h\u00e0m c\u1ea5p 2).
+    // Count the primes: f' -> "phẩy", y'' -> "phẩy phẩy" (second derivative).
     FRegex::new(r"(\b[a-zA-Z0-9])(['\u2019]+)(?!\w)").unwrap()
 });
-// Gi\u00e1 tr\u1ecb tuy\u1ec7t \u0111\u1ed1i |x|, |x+1| -> "gi\u00e1 tr\u1ecb tuy\u1ec7t \u0111\u1ed1i c\u1ee7a ...". Y\u00eau c\u1ea7u n\u1ed9i dung
-// kh\u00f4ng c\u00f3 kho\u1ea3ng tr\u1eafng \u1edf m\u00e9p -> kh\u00f4ng \u0111\u1ee5ng d\u1ea5u "|" c\u1ee7a b\u1ea3ng "| c\u1ed9t |".
+// Absolute value |x|, |x+1| -> "giá trị tuyệt đối của …". The content must have
+// no whitespace at its edges, which keeps the rule away from the pipes of a
+// markdown table ("| cột |").
 static RE_ABS: Lazy<FRegex> = Lazy::new(|| {
     FRegex::new(r"\|(\S(?:[^|]*\S)?)\|").unwrap()
 });
@@ -105,12 +115,13 @@ static RE_LETTER: Lazy<Regex> = Lazy::new(|| {
 static RE_ALPHANUMERIC: Lazy<Regex> = Lazy::new(|| {
     Regex::new(r"\b(\d+)([a-zA-Z])\b").unwrap()
 });
-// Cụm acronym/thương hiệu Anh nối "&" (R&D, R & D, AT&T, S&P...).
+// English acronyms and brands joined by "&" (R&D, R & D, AT&T, S&P).
 static RE_AMPERSAND_ACRONYM: Lazy<Regex> = Lazy::new(|| {
     Regex::new(r"(?i)\b([a-z]{1,4})\s*&\s*([a-z]{1,4})\b").unwrap()
 });
-// Nhãn size quần áo: PHẢI có "size"/"cỡ" đứng trước (size M/L/XL, cỡ M).
-// Khi đó S/M/L/XL... là nhãn (đọc chữ cái), không phải đơn vị (triệu/lít).
+// Clothing size labels REQUIRE "size" or "cỡ" in front (size M/L/XL, cỡ M).
+// With that cue, S/M/L/XL are labels read as letters rather than units, which
+// is what stops them becoming "triệu" or "lít".
 static RE_SIZE_LABEL: Lazy<Regex> = Lazy::new(|| {
     Regex::new(r"(?i)\b(size|cỡ)\s+((?:xxxl|xxl|xl|xs|[sml])(?:\s*/\s*(?:xxxl|xxl|xl|xs|[sml]))*)\b").unwrap()
 });
@@ -154,15 +165,17 @@ static RE_TEMP_F: Lazy<Regex> = Lazy::new(|| {
 });
 static RE_DEGREE: Lazy<Regex> = Lazy::new(|| Regex::new(r"°").unwrap());
 static RE_STANDARD_COLON: Lazy<FRegex> = Lazy::new(|| {
-    // Lookbehind tránh khớp một phần "1.5:1"; lookahead chặn số nối tiếp/thập phân
-    // nhưng CHO PHÉP dấu câu cuối câu ("2:1." vẫn là tỷ lệ "hai trên một").
+    // The lookbehind prevents a partial match inside "1.5:1"; the lookahead
+    // blocks a continuing or decimal number but still ALLOWS sentence-final
+    // punctuation, so "2:1." remains the ratio "hai trên một".
     FRegex::new(r"(?<![.,\d])\b(\d+):(\d+(?:\.\d+)?)\b(?!\d)(?![.,]\d)").unwrap()
 });
-// Tỷ lệ >= 3 thành phần ngăn bởi ":" (1:2:3) — KHÔNG phải giờ (đã loại ở
-// normalize_time). Đọc các số nối bằng "trên".
+// Ratios of three or more parts separated by ":" (1:2:3). These are not times —
+// normalize_time has already rejected them — and are read joined by "trên".
 static RE_RATIO_MULTI: Lazy<FRegex> = Lazy::new(|| {
-    // Chặn nối tiếp số (:\d, \d) và số thập phân (.\d/,\d) nhưng CHO PHÉP dấu câu
-    // cuối câu (vd "1:2:3." vẫn là tỷ lệ, không bị cắt thành "một trên hai, ba").
+    // Blocks a continuing number (:\d, \d) and decimals (.\d, ,\d) while
+    // ALLOWING sentence-final punctuation, so "1:2:3." stays one ratio instead
+    // of being cut into "một trên hai, ba".
     FRegex::new(r"(?<![.,\d:])\d+(?::\d+){2,}(?![\d:])(?![.,]\d)").unwrap()
 });
 static RE_CLEAN_OTHERS: Lazy<Regex> = Lazy::new(|| {
@@ -189,28 +202,33 @@ pub static RE_ACRONYMS_EXCEPTIONS: Lazy<Regex> = Lazy::new(|| {
 pub static DOMAIN_SUFFIXES_RE: Lazy<Regex> = Lazy::new(|| {
     Regex::new(r"(?i)\.(com|vn|net|org|edu|gov|io|biz|info)\b").unwrap()
 });
-// Ranh giới "câu" để xét heuristic TOÀN HOA: dấu kết câu .!? HOẶC xuống dòng \n.
-// Xuống dòng là ranh giới đề mục: tiêu đề viết HOA thường KHÔNG có dấu chấm cuối mà chỉ
-// ngắt dòng ("...CÔNG TRẠNG\n\nHuân chương..."). Nếu không tách theo \n, đề mục HOA bị gộp
-// với đoạn thường phía sau -> mất tính "toàn hoa" -> từ Việt không dấu (LAO, KHEN) bị đọc
-// như tiếng Anh (<en>l a o</en>). Xem issue #177.
+// Sentence boundaries for the ALL-CAPS heuristic: terminators .!? OR a newline.
+//
+// Newlines matter because headings are a boundary of their own: an uppercase
+// heading usually has no final period and is separated only by a line break
+// ("…CÔNG TRẠNG\n\nHuân chương…"). Without splitting on \n the heading merges
+// with the ordinary paragraph below it, the run stops looking all-caps, and
+// toneless Vietnamese words (LAO, KHEN) get read as English (<en>l a o</en>).
+// See issue #177.
 static RE_ACRONYMS_SPLIT: Lazy<regex::Regex> = Lazy::new(|| {
     regex::Regex::new(r"([.!?]+(?:\s+|$)|\n+)").unwrap()
 });
 
-/// Tập nguyên âm tiếng Việt (kèm mọi dấu thanh), chữ thường.
+/// Vietnamese vowels in lowercase, including every tone mark.
 const VI_VOWELS: &str = "aáàảãạăắằẳẵặâấầẩẫậeéèẻẽẹêếềểễệiíìỉĩịoóòỏõọôốồổỗộơớờởỡợuúùủũụưứừửữựyýỳỷỹỵ";
 
 fn is_vi_vowel(c: char) -> bool {
     VI_VOWELS.contains(c)
 }
 
-/// Kiểm tra `s` có phải MỘT âm tiết tiếng Việt hợp lệ không
-/// (phụ âm đầu? + nguyên âm + phụ âm cuối?). Dùng để phân biệt TỪ tiếng Việt
-/// viết hoa ("CHƯƠNG","ĐƯỜNG","PHƯỜNG") với acronym/công thức gồm các chữ cái
-/// (vd "ĐKVĐ" không có nguyên âm hợp lệ -> không phải âm tiết -> vẫn tách).
-/// Thiên về CHẶT: khi không chắc thì trả false (hệ quả là tách ký tự như cũ,
-/// an toàn hơn việc giữ nhầm một acronym).
+/// Is `s` a single valid Vietnamese syllable — optional onset, vowel nucleus,
+/// optional coda?
+///
+/// Used to tell an uppercase Vietnamese WORD ("CHƯƠNG", "ĐƯỜNG", "PHƯỜNG") from
+/// an acronym or formula made of letters: "ĐKVĐ" has no valid nucleus, so it is
+/// not a syllable and stays spelled out.
+/// Biased towards STRICT: return false when unsure. The consequence is spelling
+/// the letters out, which is safer than mistakenly reading an acronym as a word.
 fn is_vietnamese_syllable(s: &str) -> bool {
     let lower = s.to_lowercase();
     let chars: Vec<char> = lower.chars().collect();
@@ -218,7 +236,7 @@ fn is_vietnamese_syllable(s: &str) -> bool {
     if n == 0 || chars.iter().any(|c: &char| !c.is_alphabetic()) {
         return false;
     }
-    // Phụ âm đầu (onset): thử dài nhất trước, chỉ tách khi ngay sau là nguyên âm.
+    // Onset: try the longest first, and accept it only if a vowel follows.
     const ONSETS: [&str; 28] = [
         "ngh", "ng", "nh", "ch", "gh", "gi", "kh", "ph", "th", "tr", "qu",
         "b", "c", "d", "đ", "g", "h", "k", "l", "m", "n", "p", "q", "r", "s", "t", "v", "x",
@@ -234,7 +252,7 @@ fn is_vietnamese_syllable(s: &str) -> bool {
             }
         }
     }
-    // Nguyên âm (nucleus): chuỗi nguyên âm liên tiếp, bắt buộc >= 1.
+    // Nucleus: a run of consecutive vowels, at least one required.
     let v_start = i;
     while i < n && is_vi_vowel(chars[i]) {
         i += 1;
@@ -242,7 +260,7 @@ fn is_vietnamese_syllable(s: &str) -> bool {
     if i == v_start {
         return false;
     }
-    // Phụ âm cuối (coda): phần còn lại phải rỗng hoặc là một coda hợp lệ.
+    // Coda: whatever remains must be empty or a valid final consonant cluster.
     let coda: String = chars[i..].iter().collect();
     matches!(
         coda.as_str(),
@@ -250,8 +268,8 @@ fn is_vietnamese_syllable(s: &str) -> bool {
     )
 }
 
-/// Trả về true nếu TỪ cuối cùng của `preceding` (đoạn văn ngay trước cụm La Mã)
-/// nằm trong `ROMAN_KEYWORDS`. Bỏ qua dấu câu bám quanh từ.
+/// True when the LAST word of `preceding` — the text immediately before the
+/// numeral — is in `ROMAN_KEYWORDS`. Punctuation attached to the word is ignored.
 fn has_roman_context(preceding: &str) -> bool {
     let last = preceding
         .split(|c: char| c.is_whitespace())
@@ -263,31 +281,37 @@ fn has_roman_context(preceding: &str) -> bool {
     !last.is_empty() && ROMAN_KEYWORDS.contains(last.as_str())
 }
 
-/// Chuyển cụm số La Mã sang giá trị nguyên (0 nếu chứa ký tự không hợp lệ / rỗng).
-// ─ Biển số xe & mã định danh ─────────────────────────────────────────────
-// Biển số VN: "51H-123.45", "30K-567.89", "51K1-123.45". Phải chạy TRƯỚC pass
-// giờ vì "51H" khớp mẫu "<số>h" và bị đọc nhầm thành "năm mươi mốt giờ".
+/// Convert a Roman numeral to its integer value; 0 if empty or malformed.
+// ─ Licence plates and identifiers ────────────────────────────────────────
+// Vietnamese plates: "51H-123.45", "30K-567.89", "51K1-123.45". Must run BEFORE
+// the clock pass, since "51H" matches the "<number>h" pattern and would be read
+// as "năm mươi mốt giờ".
 static RE_PLATE: Lazy<Regex> = Lazy::new(|| {
-    // Đuôi: "123.45" (biển ô tô), hoặc 2-5 chữ số trần ("12345", "1234" xe máy,
-    // "234" mã lô/phòng kiểu "51M-234") — đều đọc từng chữ số.
+    // Tail: "123.45" for cars, or a bare run of two to five digits — "12345"
+    // and "1234" for motorbikes, "234" for lot or room codes like "51M-234".
+    // All are read figure by figure.
     Regex::new(r"\b(\d{2})([A-Z]{1,2}\d?)\s*[-–]\s*(\d{3}\.\d{2}|\d{2,5})\b").unwrap()
 });
-// Biển số CỤT (chỉ mã tỉnh + seri, không kèm dãy số): "biển số 51H", "BKS 30K".
-// Bắt buộc từ dẫn vì "51h" trần trụi là thời lượng hợp lệ ("làm 51h mỗi tuần").
+// Truncated plates — province code and series only, with no digit run: "biển số
+// 51H", "BKS 30K". A cue word is mandatory because a bare "51h" is a legitimate
+// duration ("làm 51h mỗi tuần").
 static RE_PLATE_LEAD: Lazy<Regex> = Lazy::new(|| {
     Regex::new(r"\b([Bb]iển(?:\s+số|\s+kiểm\s+soát)?|BKS)\s+(\d{2})([A-Z]{1,2}\d?)\b").unwrap()
 });
-// Mã chữ-số kiểu "ABC-1234"/"XYZ-9876": phần số đọc từng chữ số như đọc mã.
-// Đòi ≥3 chữ số để không đụng "COVID-19", "U-17", "F-16" (đọc số đếm tự nhiên hơn).
+// Letter-digit codes such as "ABC-1234" or "XYZ-9876": the digits are read one
+// by one, as codes are. At least three digits are required so that "COVID-19",
+// "U-17" and "F-16" keep their more natural cardinal reading.
 static RE_CODE_DIGITS: Lazy<Regex> = Lazy::new(|| {
     Regex::new(r"\b([A-Z]{2,6})-(\d{3,6})\b").unwrap()
 });
-// "#45021" (mã đơn hàng/phiếu): bỏ "#" (tránh đọc "thăng"), đọc từng chữ số.
+// "#45021" (order or ticket number): drop the "#" rather than saying "thăng",
+// and read the digits individually.
 static RE_HASH_ID: Lazy<Regex> = Lazy::new(|| {
     Regex::new(r"#(\d{3,8})\b").unwrap()
 });
-// "tổng đài 1900", "tổng đài 1800.6601": số đầu mối dịch vụ đọc từng chữ số,
-// không đọc số đếm. Nhận cả nhóm nối bằng "." (n2w_single tự lọc ký tự không phải số).
+// "tổng đài 1900", "tổng đài 1800.6601": service numbers are read figure by
+// figure, never as cardinals. Dot-separated groups are accepted too, since
+// n2w_single filters out non-digits itself.
 static RE_HOTLINE: Lazy<Regex> = Lazy::new(|| {
     Regex::new(r"(?i)\b(tổng đài|hotline|đầu số)\s+(\d{3,8}(?:\.\d{2,6})*)\b").unwrap()
 });
@@ -409,8 +433,9 @@ pub fn expand_standalone_letters(text: &str) -> String {
         let char_lower = char_raw.to_lowercase();
         let dot = caps.get(2).unwrap().as_str();
         if let Some(name) = VI_LETTER_NAMES.get(char_lower.as_str()) {
-            // Chấm sau chữ HOA giữa câu là dấu viết tắt tên ("R. Nguyễn") ->
-            // bỏ; nhưng ở CUỐI chuỗi là dấu chấm hết câu ("... = 2R.") -> giữ.
+            // A period after an uppercase letter mid-sentence abbreviates a
+            // name ("R. Nguyễn") and is dropped; at the END of the string it
+            // terminates the sentence ("… = 2R.") and is kept.
             let at_end = caps.get(0).unwrap().end() >= end_pos;
             if char_raw.chars().next().unwrap().is_uppercase() && dot == "." && !at_end {
                 format!(" {} ", name)
@@ -423,12 +448,13 @@ pub fn expand_standalone_letters(text: &str) -> String {
     }).to_string()
 }
 
-// T2..T7/CN là thứ trong tuần CHỈ KHI có từ dẫn thời gian phía trước
-// ("sáng T2", "từ T2 đến T6", "nghỉ T7") — "Model T2", "tòa T3" giữ nguyên.
+// T2..T7 and CN are weekdays ONLY with a time cue in front ("sáng T2", "từ T2
+// đến T6", "nghỉ T7"). Without one, "Model T2" and "tòa T3" stay as written.
 static RE_WEEKDAY_LEAD: Lazy<Regex> = Lazy::new(|| {
     Regex::new(r"(?i)\b(sáng|trưa|chiều|tối|đêm|hôm|ngày|từ|đến|tới|vào|mỗi|hằng|nghỉ)\s+(?:T([2-7])|CN)\b").unwrap()
 });
-// Nối chuỗi: "thứ hai, T4 và CN" — T/CN đứng sau một "thứ X" đã chuyển.
+// Chaining: in "thứ hai, T4 và CN" the later T/CN follow an already converted
+// "thứ X" and inherit the weekday reading.
 static RE_WEEKDAY_CHAIN: Lazy<Regex> = Lazy::new(|| {
     Regex::new(r"(thứ (?:hai|ba|tư|năm|sáu|bảy))(\s*(?:,|và|-|–|đến|tới)\s*)(?:T([2-7])|CN)\b").unwrap()
 });
@@ -448,7 +474,7 @@ pub fn expand_weekday_abbr(text: &str) -> String {
         let day = caps.get(2).map(|m| m.as_str()).unwrap_or("cn");
         format!("{} {}", lead, weekday_name(day))
     }).into_owned();
-    // Chuỗi liệt kê có thể dài ("từ T2, T4 và CN") -> lặp tới khi ổn định.
+    // Lists can be long ("từ T2, T4 và CN"), so iterate to a fixed point.
     for _ in 0..6 {
         let next = RE_WEEKDAY_CHAIN.replace_all(&res, |caps: &Captures| {
             let day = caps.get(3).map(|m| m.as_str()).unwrap_or("cn");
@@ -482,11 +508,14 @@ pub fn normalize_acronyms(text: &str) -> String {
         }
 
         let words: Vec<&str> = s.split_whitespace().collect();
-        // Quyết định "toàn chữ hoa" (heading/câu hét -> đọc như prose tiếng Việt):
-        //   - Token thuần số/dấu câu ("4", "06") KHÔNG tính, nếu không "CHƯƠNG 4"
-        //     sẽ bị coi là không-toàn-hoa và từ Việt viết hoa bị spell thành ký tự.
-        //   - Token có chữ cái LẪN chữ số (CO2, H2O, B2B) là công thức/mã, KHÔNG
-        //     phải prose -> để nhánh acronym xử lý (CO2 -> "xê ô hai").
+        // Decide whether the span is all-caps — a heading or shouted sentence,
+        // to be read as Vietnamese prose:
+        //   - purely numeric or punctuation tokens ("4", "06") do NOT count,
+        //     otherwise "CHƯƠNG 4" would fail the test and its Vietnamese word
+        //     would be spelled out letter by letter;
+        //   - tokens mixing letters and digits (CO2, H2O, B2B) are formulas or
+        //     codes rather than prose, and go to the acronym branch instead
+        //     ("CO2" -> "xê ô hai").
         let letter_tokens: Vec<&&str> = words.iter()
             .filter(|w: &&&str| w.chars().any(|c: char| c.is_alphabetic()))
             .collect();
@@ -509,9 +538,10 @@ pub fn normalize_acronyms(text: &str) -> String {
                 let is_mixed_case = word.chars().any(|c: char| c.is_lowercase()) && word.chars().any(|c: char| c.is_uppercase());
                 let has_subscript = word.chars().any(|c: char| c >= '₀' && c <= '₉');
 
-                // Từ tiếng Việt viết hoa toàn bộ tạo thành MỘT âm tiết hợp lệ là TỪ
-                // (không phải acronym/công thức) -> giữ nguyên, không tách ký tự.
-                // vd "CHƯƠNG"->"chương" giữa câu chữ thường; còn "ĐKVĐ" vẫn tách.
+                // An all-caps Vietnamese token that forms ONE valid syllable is
+                // a word, not an acronym or formula, so it is left whole:
+                // "CHƯƠNG" -> "chương" inside lowercase prose, while "ĐKVĐ" is
+                // still spelled out.
                 if has_vi_letter && is_vietnamese_syllable(word) {
                     return word.to_lowercase();
                 }
@@ -562,8 +592,9 @@ pub fn expand_alphanumeric(text: &str) -> String {
     }).into_owned()
 }
 
-/// "R&D"/"R & D" -> "<en>r and d</en>" cho các acronym tiếng Anh đã biết.
-/// Cụm không nằm trong danh sách (vd "A & B") giữ nguyên để "&" -> "và" như cũ.
+/// "R&D" and "R & D" become "<en>r and d</en>" for known English acronyms.
+/// Anything not on the list ("A & B") is left alone, so its "&" still reads
+/// "và".
 pub fn expand_english_ampersand(text: &str) -> String {
     RE_AMPERSAND_ACRONYM.replace_all(text, |caps: &Captures| {
         let l = caps.get(1).unwrap().as_str();
@@ -638,8 +669,9 @@ pub fn normalize_others(text: &str, en_ctx: bool) -> String {
         RE_WARD_DOT.replace_all(&t, "phường ").into_owned()
     };
     let text = RE_ABS.replace_all(&text, " giá trị tuyệt đối của $1 ").into_owned();
-    // Câu thuần Anh: KHÔNG Việt hóa viết tắt ("VN" giữ nguyên -> acronym pass
-    // đánh vần chữ Anh, không thành "việt nam").
+    // Pure-English sentences do NOT get Vietnamese expansions: "VN" stays as
+    // it is, so the acronym pass spells English letters instead of producing
+    // "việt nam".
     let mut res = if en_ctx {
         text
     } else {
@@ -654,8 +686,9 @@ pub fn normalize_others(text: &str, en_ctx: bool) -> String {
         format!(" chấm {} ", if suffix.is_empty() { caps.get(1).unwrap().as_str() } else { suffix })
     }).into_owned();
 
-    // Số thứ tự đề mục La Mã đầu dòng ("I. VỀ ...", "II. Về ...") -> đọc là số.
-    // Giữ nguyên dấu "." (đóng vai trò ngắt nhịp cho đề mục), chỉ thay phần số La Mã.
+    // Roman section numbers at the start of a line ("I. VỀ …", "II. Về …") read
+    // as numbers. The "." is kept, since it provides the heading's pause; only
+    // the numeral itself is replaced.
     res = RE_ROMAN_LIST_MARKER.replace_all(&res, |caps: &FCaps| {
         let lead = caps.get(1).unwrap().as_str();
         let roman = caps.get(2).unwrap().as_str();
@@ -663,8 +696,9 @@ pub fn normalize_others(text: &str, en_ctx: bool) -> String {
         let head_upper = caps.get(4).map(|m| m.as_str()).unwrap_or("");
         let value = roman_to_int(roman);
         let single = roman.chars().count() == 1;
-        // Loại số quá lớn (chữ viết tắt tên: C/L/D/M) và ký tự đơn mà tiêu đề không viết HOA
-        // toàn bộ (dễ nhầm chữ viết tắt tên riêng: "V. Nguyễn", "I. Trần").
+        // Reject implausibly large values, which are really initials
+        // (C/L/D/M), and single characters whose heading is not fully
+        // uppercase — those are abbreviated names ("V. Nguyễn", "I. Trần").
         if value <= 0 || value > ROMAN_MARKER_MAX
             || (single && head_upper.chars().count() < 2)
         {
@@ -673,8 +707,9 @@ pub fn normalize_others(text: &str, en_ctx: bool) -> String {
         format!("{}{}{}", lead, n2w(&value.to_string()), tail)
     }).to_string();
 
-    // Chỉ mở rộng số La Mã khi có từ dẫn ngay trước (thế kỷ/chương/phần/đời/vua...).
-    // Nếu không, để nguyên cụm để nhánh acronym xử lý (vd "CD","MC","XL" -> <en>).
+    // Expand Roman numerals only with a cue word immediately before (thế kỷ,
+    // chương, phần, đời, vua). Otherwise leave the run for the acronym branch,
+    // which reads "CD", "MC" and "XL" as English letters.
     let roman_src = res.clone();
     res = RE_ROMAN_NUMBER.replace_all(&roman_src, |caps: &FCaps| {
         let m = caps.get(0).unwrap();
@@ -685,9 +720,10 @@ pub fn normalize_others(text: &str, en_ctx: bool) -> String {
         }
     }).to_string();
 
-    // Số La Mã MỘT ký tự (I/V/X): RE_ROMAN_NUMBER đòi ≥2 ký tự nên "quý I",
-    // "chương V", "khóa X" bị bỏ sót. Một ký tự quá dễ nhầm chữ cái đơn nên
-    // bắt buộc có từ dẫn ngay trước mới đọc thành số.
+    // Single-character Roman numerals (I/V/X). RE_ROMAN_NUMBER requires two
+    // characters, so "quý I", "chương V" and "khóa X" slip through it. One
+    // character is far too easy to confuse with an ordinary letter, so a cue
+    // word immediately before is mandatory here.
     let roman1_src = res.clone();
     res = RE_ROMAN_SINGLE.replace_all(&roman1_src, |caps: &FCaps| {
         let m = caps.get(0).unwrap();
@@ -727,7 +763,8 @@ pub fn normalize_others(text: &str, en_ctx: bool) -> String {
         parts.join(" chấm ")
     }).to_string();
 
-    // Tỷ lệ nhiều thành phần "1:2:3" -> "một trên hai trên ba" (trước ratio 2 số).
+    // Multi-part ratios "1:2:3" -> "một trên hai trên ba", before the two-part
+    // ratio rule.
     res = RE_RATIO_MULTI.replace_all(&res, |caps: &FCaps| {
         let parts: Vec<String> = caps.get(0).unwrap().as_str()
             .split(':')

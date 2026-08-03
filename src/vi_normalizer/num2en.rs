@@ -62,7 +62,8 @@ pub fn n2w_en_int(mut n: u64) -> String {
     parts.join(" ")
 }
 
-/// Đọc từng chữ số: "8080" -> "eight zero eight zero" (IP, port, số dài).
+/// Read figure by figure: "8080" -> "eight zero eight zero".
+/// Used for IP addresses, ports and other long identifiers.
 pub fn n2w_en_digits(s: &str) -> String {
     s.chars()
         .filter(|c: &char| c.is_ascii_digit())
@@ -71,8 +72,11 @@ pub fn n2w_en_digits(s: &str) -> String {
         .join(" ")
 }
 
-/// Đọc số kiểu Anh: "123" -> "one hundred twenty three", "2.5" -> "two point five",
-/// "1,234" -> "one thousand two hundred thirty four". Số 0 đầu -> đọc từng chữ số.
+/// Read as an English cardinal: "123" -> "one hundred twenty three",
+/// "2.5" -> "two point five", "1,234" -> "one thousand two hundred thirty four".
+///
+/// A leading zero switches to figure-by-figure reading, since it marks the
+/// digits as an identifier rather than a quantity.
 pub fn n2w_en(s: &str) -> String {
     let clean = s.replace(',', "");
     if let Some(dot) = clean.find('.') {
@@ -91,8 +95,9 @@ pub fn n2w_en(s: &str) -> String {
     }
 }
 
-// "text2text" / "sale4u": số 2/4 kẹp giữa chữ thường là viết tắt to/for tiếng Anh.
-// Chỉ nhận đúng MỘT chữ số 2 hoặc 4 để không đụng chuỗi mã ("abc123xyz").
+// "text2text" / "sale4u": a 2 or 4 between lowercase letters is English
+// shorthand for "to" / "for". Exactly one digit is required, so identifier
+// strings like "abc123xyz" are left alone.
 static RE_SANDWICH_24: Lazy<Regex> = Lazy::new(|| {
     Regex::new(r"\b([a-z]+)([24])([a-z]+)\b").unwrap()
 });
@@ -100,15 +105,17 @@ static RE_SANDWICH_24: Lazy<Regex> = Lazy::new(|| {
 pub fn expand_sandwich_digits(text: &str) -> String {
     if !text.chars().any(|c: char| c == '2' || c == '4') { return text.to_string(); }
     RE_SANDWICH_24.replace_all(text, |caps: &Captures| {
-        // Tên hàm toán + số + biến ("cos2x", "sin2a", "log2n") KHÔNG phải kiểu
-        // "text2text" -> giữ nguyên cho nhánh công thức đọc "cos hai ích".
+        // A maths function name plus coefficient and variable ("cos2x", "sin2a",
+        // "log2n") is not the "text2text" pattern. Leave it for the formula
+        // branch, which reads it as "cos hai ích".
         let left = caps.get(1).unwrap().as_str();
         if matches!(left, "sin" | "cos" | "tan" | "cot" | "log" | "lg" | "ln" | "lim") {
             return caps.get(0).unwrap().as_str().to_string();
         }
         let d = if caps.get(2).unwrap().as_str() == "2" { "two" } else { "four" };
-        // Vế 1 chữ cái ("b2b") bọc <en> để không bị pass chữ-cái-đơn đọc tên
-        // chữ Việt ("bê two bê"); vế nhiều chữ để trần cho G2P tra dict.
+        // A single-letter side ("b2b") is wrapped in an English tag, otherwise
+        // the letter-name pass would say "bê two bê". Longer sides stay bare so
+        // G2P can look them up in the dictionary.
         let wrap = |s: &str| -> String {
             if s.chars().count() == 1 {
                 format!("__start_en__{}__end_en__", s)
@@ -120,7 +127,7 @@ pub fn expand_sandwich_digits(text: &str) -> String {
     }).into_owned()
 }
 
-// ── Các pass cho câu thuần Anh ──────────────────────────────────────────────
+// ── Passes for pure-English sentences ───────────────────────────────────────
 static RE_EN_TIME: Lazy<Regex> = Lazy::new(|| {
     Regex::new(r"\b(\d{1,2}):([0-5]\d)\b").unwrap()
 });
@@ -136,8 +143,9 @@ static RE_EN_UNIT: Lazy<Regex> = Lazy::new(|| {
 static RE_EN_SLASH_NUM: Lazy<Regex> = Lazy::new(|| {
     Regex::new(r"\b(\d{1,4})/(\d{1,4})\b").unwrap()
 });
-// Token trộn chữ-số còn lại (4K, 23H2, 1080p): số đọc kiểu Anh, chữ giữ nguyên.
-// regex crate không có lookahead -> match rộng rồi lọc trong closure.
+// Remaining mixed letter-digit tokens (4K, 23H2, 1080p): digits read in
+// English, letters kept as they are. The regex crate has no lookahead, so this
+// matches broadly and filters inside the closure.
 static RE_EN_ALNUM: Lazy<Regex> = Lazy::new(|| {
     Regex::new(r"\b[A-Za-z0-9]+\b").unwrap()
 });
@@ -157,17 +165,21 @@ fn en_unit_name(unit: &str, singular: bool) -> String {
         "mph" => "mile per hour",
         _ => unit,
     };
-    // Đơn vị dạng đánh vần / đã có "per" thì không thêm "s".
+    // Units spelled out letter by letter, or already containing "per", take no
+    // plural "s".
     let no_plural = matches!(unit, "hz" | "ghz" | "mhz" | "khz" | "dpi" | "fps" | "mph");
     if singular || no_plural { base.to_string() } else { format!("{}s", base) }
 }
 
-/// Chuyển số/ký hiệu trong câu THUẦN ANH thành chữ Anh. Chạy sau khi URL/email
-/// đã được mask, trước mọi pass tiếng Việt.
+/// Rewrite numbers and symbols in a pure-English sentence as English words.
+///
+/// Runs after URLs and emails have been masked, and before every Vietnamese
+/// pass — which then find no digits left to act on.
 pub fn english_prenormalize(text: &str) -> String {
     let mut t = text.to_string();
 
-    // Giờ phút: 10:30 -> "ten thirty", 10:05 -> "ten oh five", 10:00 -> "ten o'clock".
+    // Clock times: 10:30 -> "ten thirty", 10:05 -> "ten oh five",
+    // 10:00 -> "ten o'clock".
     t = RE_EN_TIME.replace_all(&t, |caps: &Captures| {
         let h: u64 = caps.get(1).unwrap().as_str().parse().unwrap_or(0);
         let m: u64 = caps.get(2).unwrap().as_str().parse().unwrap_or(0);
@@ -211,7 +223,7 @@ pub fn english_prenormalize(text: &str) -> String {
         }).collect::<Vec<String>>().join(" ")
     }).into_owned();
 
-    // "-5" -> "minus five", "+84" -> "plus eight four" (trước pass số).
+    // Signs before the number pass: "-5" -> "minus five", "+84" -> "plus eight four".
     t = {
         static RE_EN_MINUS: Lazy<Regex> = Lazy::new(|| Regex::new(r"(^|[\s(])-(\d)").unwrap());
         RE_EN_MINUS.replace_all(&t, "${1}minus $2").into_owned()
@@ -225,9 +237,10 @@ pub fn english_prenormalize(text: &str) -> String {
         n2w_en(caps.get(0).unwrap().as_str())
     }).into_owned();
 
-    // Dấu chấm KẸP GIỮA chữ cái (TP.HCM) -> "dot". Chấm cuối câu có khoảng
-    // trắng theo sau không bị đụng. Chạy lặp vì regex crate không có lookahead
-    // ("A.B.C" cần 2 lượt cho các cặp xen kẽ).
+    // A dot *between* letters ("TP.HCM") is spoken as "dot"; a sentence-final
+    // dot, which has whitespace after it, is untouched. Looping is needed
+    // because the regex crate has no lookahead, so "A.B.C" takes two passes to
+    // cover the overlapping pairs.
     {
         static RE_EN_INNER_DOT: Lazy<Regex> = Lazy::new(|| {
             Regex::new(r"([A-Za-z])\.([A-Za-z])").unwrap()
@@ -239,7 +252,7 @@ pub fn english_prenormalize(text: &str) -> String {
         }
     }
 
-    // Ký hiệu rời phổ biến.
+    // Common free-standing symbols.
     t = t.replace(" & ", " and ").replace(" + ", " plus ").replace(" = ", " equals ");
     t
 }

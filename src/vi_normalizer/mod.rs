@@ -66,11 +66,12 @@ use crate::vi_normalizer::resources::{COMBINED_EXCEPTIONS, MEASUREMENT_KEY_VI};
 // ── Tier 1: regex crate (Thompson NFA, much faster for simple patterns) ────
 static RE_EXTRA_SPACES: Lazy<Regex> = Lazy::new(|| Regex::new(r"[ \t\xA0]+").unwrap());
 static RE_EXTRA_COMMAS: Lazy<Regex> = Lazy::new(|| Regex::new(r",\s*,").unwrap());
-// Ellipsis một-ký-tự: ․(U+2024) ‥(U+2025) …(U+2026) -> "." để đi chung đường
-// với "..." (RE_MULTI_DOT gộp tiếp về một dấu chấm).
+// Single-character ellipses ․(U+2024) ‥(U+2025) …(U+2026) fold to "." so they
+// travel the same path as "...", which RE_MULTI_DOT then reduces to one period.
 static RE_ELLIPSIS: Lazy<Regex> = Lazy::new(|| Regex::new(r"[\u{2024}\u{2025}\u{2026}]").unwrap());
 static RE_MULTI_DOT: Lazy<Regex> = Lazy::new(|| Regex::new(r"\.[\s.]*\.").unwrap());
-// Gộp chuỗi dấu kết câu lặp/hỗn hợp ("!!!", "???", "?!", "!?!?") về một dấu đầu tiên.
+// Collapse repeated or mixed terminators ("!!!", "???", "?!", "!?!?") to the
+// first mark.
 static RE_MULTI_BANG: Lazy<Regex> = Lazy::new(|| Regex::new(r"([!?])[!?\s]*[!?]").unwrap());
 static RE_COMMA_BEFORE_PUNCT: Lazy<Regex> = Lazy::new(|| Regex::new(r",\s*([.!?;])").unwrap());
 static RE_SPACE_BEFORE_PUNCT: Lazy<Regex> = Lazy::new(|| Regex::new(r"\s+([,.!?;:])").unwrap());
@@ -78,22 +79,24 @@ static RE_SPACE_BEFORE_PUNCT: Lazy<Regex> = Lazy::new(|| Regex::new(r"\s+([,.!?;
 static RE_MISSING_SPACE_AFTER_PUNCT: Lazy<Regex> = Lazy::new(|| Regex::new(r"([.,!?;:])([^\s\d<])").unwrap());
 static RE_INTERNAL_EN_TAG: Lazy<Regex> = Lazy::new(|| Regex::new(r"(?i)(?s)(__start_en__.*?__end_en__|<en>.*?</en>)").unwrap());
 static RE_DOT_BETWEEN_DIGITS: Lazy<Regex> = Lazy::new(|| Regex::new(r"(\d+)\.(\d+)").unwrap());
-// "âm âm năm" (văn bản có sẵn "âm" + số mang dấu trừ) -> "âm năm".
+// "âm âm năm" — the text already said "âm" and the number kept its minus sign.
 static RE_DOUBLE_AM: Lazy<Regex> = Lazy::new(|| Regex::new(r"(?i)\bâm\s+âm\s+(\S+)").unwrap());
 static RE_ENTOKEN: Lazy<Regex> = Lazy::new(|| Regex::new(r"(?i)ENTOKEN\d+").unwrap());
 static RE_EN_TAG: Lazy<Regex> = Lazy::new(|| Regex::new(r"(?si)<en>.*?</en>").unwrap());
-// Vùng công thức toán do người dùng khai báo: <math>...</math>. Bên trong, mọi cụm
-// chữ cái (trừ tên hàm) được tách thành chữ rời để đọc tên chữ (4ac -> bốn a xê,
-// dx -> đê ích). Phần còn lại để pipeline thường xử lý (ký hiệu, số mũ, căn...).
+// Author-declared formula region: <math>...</math>. Inside it every letter
+// cluster except function names is split into individual letters so they are
+// read by name ("4ac" -> "bốn a xê", "dx" -> "đê ích"). The rest — symbols,
+// exponents, radicals — is left to the normal pipeline.
 static RE_MATH_TAG: Lazy<Regex> = Lazy::new(|| Regex::new(r"(?si)<math>(.*?)</math>").unwrap());
 static RE_MATH_WORD: Lazy<Regex> = Lazy::new(|| Regex::new(r"[a-zA-Z]+").unwrap());
-// Dấu trừ đứng ĐẦU công thức (-a + b) -> "âm a ...".
+// Minus at the START of a formula ("-a + b") is a sign: "âm a …".
 static RE_LEAD_NEG: Lazy<Regex> = Lazy::new(|| Regex::new(r"^[-–—]\s*([a-zA-Z0-9])").unwrap());
-// Trong <math>: giai thừa "n!"/"5!"/"(n+1)!" -> "... giai thừa".
+// Inside <math>: factorials "n!", "5!", "(n+1)!" -> "… giai thừa".
 static RE_MATH_FACTORIAL: Lazy<FRegex> = Lazy::new(|| FRegex::new(r"(?<=[0-9A-Za-z)])!").unwrap());
-// Trong <math>: dấu trừ NHỊ PHÂN giữa hai toán hạng (c-d, a-b, 5-3) -> "trừ".
-// Lookbehind/lookahead nên không nuốt toán hạng -> xử lý được chuỗi "a-b-c".
-// Đứng sau "(" / "=" thì KHÔNG khớp -> để nhánh đơn nguyên đọc "âm".
+// Inside <math>: BINARY minus between two operands (c-d, a-b, 5-3) -> "trừ".
+// Look-around means the operands are not consumed, so chains like "a-b-c" work.
+// After "(" or "=" it deliberately fails to match, leaving the unary branch to
+// read "âm".
 static RE_MATH_BIN_MINUS: Lazy<FRegex> = Lazy::new(|| FRegex::new(r"(?<=[0-9A-Za-z)])\s*[-–—]\s*(?=[0-9A-Za-z(∫√])").unwrap());
 static MATH_FUNCS: Lazy<std::collections::HashSet<&'static str>> = Lazy::new(|| {
     [
@@ -115,35 +118,43 @@ fn split_math_letters(content: &str) -> String {
     }).into_owned()
 }
 
-// ─ Công thức "trần" (không bọc <math>) ────────────────────────────────────
-// Nhận diện CỤM token dạng toán trong câu thường rồi áp cùng bộ xử lý như
-// vùng <math>: tách cụm biến ("mc²" -> "m c²", "4ac" -> "4 a c"), giai thừa,
-// trừ nhị phân. Điều kiện chặt để không đụng văn xuôi:
-//  - mọi token trong cụm chỉ gồm chữ số/toán tử/ngoặc/Hy Lạp/mũ-chỉ số,
-//    cụm chữ ASCII bên trong dài ≤3 hoặc là tên hàm;
-//  - token THUẦN CHỮ ≥2 ký tự ("ma", "khi") chỉ được nhận khi đứng cạnh
-//    token chứa toán tử ("F = ma" nhận "ma"; "khi x = 1" loại "khi");
-//  - cụm phải chứa ít nhất MỘT dấu toán mạnh: = √ ∫ ± ≤ ≥ ≠ hoặc mũ/chỉ số.
+// ─ Bare formulas, written without <math> tags ─────────────────────────────
+// Find runs of maths-shaped tokens in ordinary prose and apply the same
+// treatment as a <math> region: split variable clusters ("mc²" -> "m c²",
+// "4ac" -> "4 a c"), factorials, binary minus.
+//
+// The admission rules are deliberately strict, because prose and formulas share
+// an alphabet:
+//  - every token in the run consists only of digits, operators, brackets, Greek
+//    letters or super/subscripts, and any ASCII letter cluster inside it is at
+//    most three characters long or is a function name;
+//  - a token of PURE LETTERS two or more characters long ("ma", "khi") is
+//    admitted only when adjacent to a token containing an operator, so "F = ma"
+//    takes "ma" while "khi x = 1" leaves "khi" alone;
+//  - the run must contain at least one strong maths mark: = √ ∫ ± ≤ ≥ ≠ or a
+//    super/subscript.
 fn is_strong_math_char(c: char) -> bool {
     matches!(c, '=' | '√' | '∫' | '±' | '≤' | '≥' | '≠')
         || crate::vi_normalizer::resources::SUPERSCRIPTS_MAP.contains_key(&c)
         || crate::vi_normalizer::resources::SUBSCRIPTS_MAP.contains_key(&c)
 }
 
-// KHÔNG tính "/" và √ ∫ là toán tử NGỮ CẢNH: phân số/căn nằm trong token
-// ("Σ(1/2ⁿ)", "1/√3,") đứng cạnh từ Việt không dấu ("khi", "ta") sẽ kéo nhầm
-// từ đó vào cụm công thức. (√ ∫ vẫn là bằng chứng toán BÊN TRONG token.)
+// "/", √ and ∫ do NOT count as *contextual* operators. A fraction or radical
+// inside a token ("Σ(1/2ⁿ)", "1/√3,") sitting next to a toneless Vietnamese word
+// ("khi", "ta") would otherwise drag that word into the formula run. They remain
+// valid maths evidence *within* a token.
 fn has_operator_char(tok: &str) -> bool {
     tok.chars().any(|c| matches!(c, '=' | '+' | '-' | '–' | '—' | '±' | '*' | '×' | '÷'))
 }
 
-// Vi phân dx/dy/du/dv/dt: luôn coi là token toán (kể cả khi đứng cạnh token
-// không có toán tử: "∫sin x dx") nhưng vẫn TÁCH chữ khi đọc ("đê ích").
+// Differentials dx/dy/dz/du/dv/dt always count as maths tokens, even next to a
+// token with no operator ("∫sin x dx"), and are still split into letters when
+// read ("đê ích").
 static MATH_DIFFS: Lazy<std::collections::HashSet<&'static str>> = Lazy::new(|| {
     ["dx", "dy", "dz", "du", "dv", "dt"].into_iter().collect()
 });
 
-/// (đạt chuẩn ký tự toán, là token thuần chữ ≥2 ký tự cần xét ngữ cảnh)
+/// Returns `(passes the character test, is a multi-letter word needing context)`.
 fn classify_math_token(tok: &str) -> (bool, bool) {
     if tok.is_empty() { return (false, false); }
     let allowed = |c: char| {
@@ -166,9 +177,11 @@ fn classify_math_token(tok: &str) -> (bool, bool) {
             return (false, false);
         }
     }
-    // Thuần chữ (không có CHỮ SỐ/toán tử/ký hiệu toán trong token — dấu câu
-    // đuôi như "thi," không được tính là bằng chứng), nhiều ký tự, không phải
-    // tên hàm/vi phân -> dễ trùng từ thật, cần toán tử đứng cạnh mới nhận.
+    // Pure letters — no digit, operator or maths symbol anywhere in the token,
+    // and trailing punctuation such as the comma in "thi," does not count as
+    // evidence — several characters long, and neither a function name nor a
+    // differential. Such tokens collide with real words, so they need an
+    // operator beside them before being admitted.
     let has_math_evidence = tok.chars().any(|c| {
         c.is_ascii_digit()
             || "+-–—*/=±≤≥≠≈×÷√∫^'!½¼¾⅓⅔∆∑".contains(c)
@@ -222,15 +235,17 @@ fn expand_inline_math(text: &str) -> String {
             while j < toks.len() && mathy[j] { j += 1; }
             let span = toks[i..j].join(" ");
             let strong = span.chars().any(is_strong_math_char);
-            // Cụm 1 token chỉ nhận khi có dấu mạnh KHÁC "=" ("½mv²", "eˣ"):
-            // "id=1;"/"x=5" quá ít bằng chứng, "id" phải giữ nguyên cho G2P.
+            // A single-token run needs a strong mark OTHER than "=" ("½mv²",
+            // "eˣ"). "id=1;" or "x=5" is too little evidence, and "id" must stay
+            // intact for G2P to look up.
             let strong_non_eq = span.chars().any(|c| c != '=' && is_strong_math_char(c));
             if (j - i >= 2 && strong) || (j - i == 1 && strong_non_eq) {
                 let mut parts: Vec<String> = Vec::with_capacity(j - i);
                 for (k, t) in toks[i..j].iter().enumerate() {
-                    // Cụm chữ là ĐƠN VỊ ĐO đứng sau con số ("170 km²") hoặc
-                    // trong token đơn lẻ ("km²") -> giữ nguyên cho pass đơn vị;
-                    // sau "=" thì là tích biến ("= mg" -> "m g").
+                    // A letter cluster that is a MEASUREMENT UNIT following a
+                    // number ("170 km²"), or alone in its token ("km²"), is left
+                    // for the unit pass. After "=" the same letters are a product
+                    // of variables instead ("= mg" -> "m g").
                     let prev_numeric = k == 0
                         || toks[i + k - 1].chars().any(|c| c.is_ascii_digit());
                     parts.push(split_math_token(t, prev_numeric));
@@ -247,9 +262,10 @@ fn expand_inline_math(text: &str) -> String {
         out.join(" ")
     }).collect::<Vec<_>>().join("\n")
 }
-// L\u01b0u \u00fd: c\u00e1c t\u1eeb ng\u1eef c\u1ea3nh ph\u1ea3i l\u00e0 k\u00fd t\u1ef1 Vi\u1ec7t th\u1eadt. KH\u00d4NG d\u00f9ng byte-escape
-// `\xHH` trong raw string `r"..."` \u2014 raw string kh\u00f4ng x\u1eed l\u00fd escape n\u00ean engine
-// hi\u1ec3u `\xe1` l\u00e0 codepoint U+00E1, bi\u1ebfn "b\u1eb1ng" th\u00e0nh mojibake kh\u00f4ng bao gi\u1edd kh\u1edbp.
+// Context words must be written as real Vietnamese characters. Do NOT use byte
+// escapes like `\xHH` inside a raw string `r"..."`: raw strings do not process
+// escapes, so the engine reads `\xe1` as codepoint U+00E1 and "bằng" turns into
+// mojibake that can never match.
 static RE_CONTEXT_TRU: Lazy<Regex> = Lazy::new(|| Regex::new(r"(?i)\b(b\u1eb1ng|t\u00ednh|k\u1ebft qu\u1ea3)\s+(\d+(?:[.,]\d+)?)\s*[-\u2013\u2014]\s*(\d+(?:[.,]\d+)?)\b").unwrap());
 static RE_CONTEXT_TRU_POST: Lazy<Regex> = Lazy::new(|| Regex::new(r"(?i)\b(\d+(?:[.,]\d+)?)\s*[-\u2013\u2014]\s*(\d+(?:[.,]\d+)?)\s+(b\u1eb1ng|t\u00ednh|k\u1ebft qu\u1ea3)\b").unwrap());
 static RE_CONTEXT_DEN: Lazy<Regex> = Lazy::new(|| Regex::new(r"(?i)\b(t\u1eeb|kho\u1ea3ng|trong)\s+(\d+(?:[.,]\d+)?)\s*[-\u2013\u2014]\s*(\d+(?:[.,]\d+)?)\b").unwrap());
@@ -261,71 +277,82 @@ static RE_TO_SANG: Lazy<Regex> = Lazy::new(|| Regex::new(r"\s*(?:->|=>)\s*").unw
 static RE_MULTI_COMMA: Lazy<Regex> = Lazy::new(|| Regex::new(r"\b(\d+(?:,\d+){2,})\b").unwrap());
 static RE_NUMERIC_DASH_GROUPS: Lazy<Regex> = Lazy::new(|| Regex::new(r"\b\d+(?:[\u2013\-\u2014]\d+){2,}\b").unwrap());
 static RE_PHONE_SPACE: Lazy<Regex> = Lazy::new(|| Regex::new(r"\b0\d{2,3}(?:\s\d{3}){2}\b").unwrap());
-// Khoảng phần trăm "5-7%" -> "5 đến 7%" (dấu % xác nhận đây là KHOẢNG, không phải
-// phân số/ngày-tháng). Chạy trước normalize_date để không bị đọc thành "trên".
+// Percentage range "5-7%" -> "5 đến 7%". The percent sign is what proves this is
+// a range rather than a fraction or a date, and the rule must precede
+// normalize_date, which would otherwise claim it.
 static RE_RANGE_PCT: Lazy<Regex> = Lazy::new(|| Regex::new(r"(\d+(?:[.,]\d+)?)\s*[-–—]\s*(\d+(?:[.,]\d+)?)\s*%").unwrap());
-// Phần trăm ÂM: "-5%" -> "âm 5%" (giữ % để pass đơn vị đọc "phần trăm"). Lookbehind
-// (?<![\d.,]) đảm bảo dấu trừ là đơn nguyên, không phải hiệu (khoảng "10-5%" đã được
-// RE_RANGE_PCT xử lý trước đó).
+// Negative percentage: "-5%" -> "âm 5%", keeping the "%" for the unit pass to
+// read as "phần trăm". The lookbehind (?<![\d.,]) confirms the minus is unary
+// rather than a subtraction; genuine ranges like "10-5%" were already consumed
+// by RE_RANGE_PCT above.
 static RE_PCT_NEG: Lazy<FRegex> = Lazy::new(|| FRegex::new(r"(?<![\d.,])[-–—]\s?(\d+(?:[.,]\d+)?)\s*%").unwrap());
-// Viết tắt địa chỉ: "P.5"->"phường 5", "Q.1"->"quận 1", "Đ.3/2"->"đường 3/2".
-// Yêu cầu ngay sau là CHỮ SỐ -> tránh nhầm "P.S." hay tên viết tắt.
+// Address abbreviations: "P.5" -> "phường 5", "Q.1" -> "quận 1",
+// "Đ.3/2" -> "đường 3/2". A digit must follow, which rules out "P.S." and
+// abbreviated personal names.
 static RE_ADDR_ABBR: Lazy<FRegex> = Lazy::new(|| FRegex::new(r"\b([PQĐ])\.\s*(?=\d)").unwrap());
-// Tỉ số thể thao: đọc thành hai số RỜI ("2-1" -> "hai một"), không phải khoảng
-// ("đến") hay phân số ("trên"). Nhận diện qua: (a) từ khóa tỉ số đứng NGAY trước,
-// (b) cụm số nằm giữa hai TÊN RIÊNG viết hoa (đội bóng).
+// Sport scores are read as two separate numbers ("2-1" -> "hai một"), not as a
+// range ("đến") or a fraction ("trên"). Two signals identify them: a score
+// keyword immediately before, or the numbers sitting between two capitalized
+// proper nouns, i.e. team names.
 static RE_SCORE_KW: Lazy<Regex> = Lazy::new(|| Regex::new(r"(?i)\b(thắng|thua|hòa|hoà|tỉ số|tỷ số|chung cuộc|đánh bại|cầm hòa|cầm hoà)\s+(\d{1,2})\s*[-–—]\s*(\d{1,2})\b").unwrap());
 static RE_SCORE_TEAMS: Lazy<Regex> = Lazy::new(|| Regex::new(r"(\p{Lu}\p{L}+(?:\s\p{Lu}\p{L}+)?)\s(\d{1,2})\s*[-–—]\s*(\d{1,2})\s(\p{Lu}\p{L}+)").unwrap());
-// Tiền tố cấu trúc/khoảng đứng trước "số-số" -> KHÔNG phải tỉ số (giữ logic khoảng).
+// Structural or range prefixes before "number-number" rule out a score reading,
+// leaving the range logic in charge.
 const SCORE_EXCLUDE: [&str; 26] = [
     "điều", "khoản", "chương", "mục", "phần", "điểm", "tiết", "tập", "quyển",
     "hồi", "kỳ", "kì", "quý", "tháng", "ngày", "năm", "tuần", "từ", "khoảng",
     "trong", "bài", "câu", "trang", "dòng", "khóa", "khoá",
 ];
 
-// Tổng đài 1800/1900: đọc rời từng chữ số thay vì gộp thành số lớn.
+// Service numbers 1800/1900 are read figure by figure, never as a cardinal.
 static RE_HOTLINE: Lazy<Regex> = Lazy::new(|| Regex::new(r"\b(1800|1900)[\s.\-–—]?(\d{3,6})\b").unwrap());
-// Số điện thoại bàn: mã vùng (có/không ngoặc) + 2 nhóm 3-4 chữ số ngăn bởi KHOẢNG
-// TRẮNG -> đọc rời từng số. vd "(028) 3822 1234", "024 3822 1234", "+84 28 3822 1234".
-// Lookbehind (?<![\d.,]) chặn khớp giữa số phân tách bằng dấu chấm (1.000.000.000).
+// Landline numbers: an area code, bracketed or not, plus two groups of three or
+// four digits separated by SPACES — read figure by figure. Examples:
+// "(028) 3822 1234", "024 3822 1234", "+84 28 3822 1234". The lookbehind
+// (?<![\d.,]) prevents matching inside a dot-separated amount (1.000.000.000).
 static RE_LANDLINE: Lazy<FRegex> = Lazy::new(|| FRegex::new(r"(?<![\d.,])\(?(?:\+84\s?|0)\d{1,3}\)?\s\d{3,4}\s\d{3,4}(?!\d)").unwrap());
 
-// Tiền lóng: "500k" -> năm trăm nghìn, "1tr"/"15tr" -> triệu, "1tr5" -> một triệu
-// năm trăm nghìn. CHỈ chữ thường k/tr và ≤4 chữ số -> tránh nhầm hậu tố model
-// viết HOA ("i9-14900K", "RTX") và tránh nuốt "5kg"/"5km"/"4trung" (lookahead (?!\w)).
+// Colloquial money: "500k" -> five hundred thousand, "1tr"/"15tr" -> millions,
+// "1tr5" -> one and a half million. Restricted to lowercase k/tr and at most
+// four digits, which avoids uppercase model suffixes ("i9-14900K", "RTX"), while
+// the (?!\w) lookahead stops it eating "5kg", "5km" or "4trung".
 static RE_MONEY_K: Lazy<FRegex> = Lazy::new(|| FRegex::new(r"\b(\d{1,4})k(?![\w])").unwrap());
 static RE_MONEY_TR: Lazy<FRegex> = Lazy::new(|| FRegex::new(r"\b(\d{1,4})tr(\d)?(?![\w])").unwrap());
 
 // ── Tier 2: fancy_regex (REQUIRED for look-around assertions) ────────────────
 // RE_COMBINED_TECH_EMAIL removed — two separate passes are faster (mirrors Python)
-// Lookahead cu\u1ed1i `(?![a-zA-Z])`: s\u1ed1 th\u1ee9 hai D\u00cdNH ch\u1eef ("5 - 2i", "1 - 2sin\u00b2x")
-// l\u00e0 ph\u00e9p TR\u1eea trong c\u00f4ng th\u1ee9c, kh\u00f4ng ph\u1ea3i kho\u1ea3ng -> nh\u01b0\u1eddng cho RE_MATH_MINUS_COEF.
+// The trailing lookahead `(?![a-zA-Z])` catches a second number glued to a
+// letter ("5 - 2i", "1 - 2sin²x"). That is subtraction inside a formula, not a
+// range, so the match is left to RE_MATH_MINUS_COEF.
 static RE_RANGE: Lazy<FRegex> = Lazy::new(|| FRegex::new(r"(?<!\d)(?<!\d[,.])(?<![a-zA-Z])(\d{1,15}(?:[,.]\d{1,15})?)(\s*)[\u2013\-\u2014](\s*)(\d{1,15}(?:[,.]\d{1,15})?)(?!\d)(?![.,]\d)(?![a-zA-Z])").unwrap());
 static RE_DASH_TO_COMMA: Lazy<FRegex> = Lazy::new(|| FRegex::new(r"(?<=\s)[\u2013\-\u2014](?=\s)").unwrap());
-// D\u1ea5u tr\u1eeb trong C\u00d4NG TH\u1ee8C: " - " -> " tr\u1eeb " khi v\u1ebf tr\u00e1i k\u1ebft th\u00fac b\u1eb1ng s\u1ed1 m\u0169
-// (b\u00b2 - 4ac) ho\u1eb7c v\u1ebf ph\u1ea3i l\u00e0 h\u1ec7 s\u1ed1 d\u00ednh s\u1ed1+ch\u1eef (2x - 3y). B\u1ea3o th\u1ee7 \u0111\u1ec3 kh\u00f4ng \u0111\u1ee5ng
-// g\u1ea1ch ngang trong v\u0103n xu\u00f4i ("H\u00e0 N\u1ed9i - th\u1ee7 \u0111\u00f4" gi\u1eef nguy\u00ean th\u00e0nh d\u1ea5u ph\u1ea9y).
+// Minus inside a FORMULA: " - " becomes " trừ " when the left side ends in an
+// exponent (b² - 4ac) or the right side is a number-letter coefficient
+// (2x - 3y). Deliberately conservative, so a dash in ordinary prose
+// ("Hà Nội - thủ đô") still becomes a comma.
 static RE_MATH_MINUS_SUP: Lazy<FRegex> = Lazy::new(|| FRegex::new(r"(?<=[\u00b2\u00b3\u2074\u2075\u2076\u2077\u2078\u2079\u207f\u2071])\s*[-\u2013\u2014]\s*").unwrap());
 static RE_MATH_MINUS_COEF: Lazy<FRegex> = Lazy::new(|| FRegex::new(r"\s[-\u2013\u2014]\s(?=\d+[a-zA-Z])").unwrap());
 static RE_MATH_MINUS_COEFL: Lazy<FRegex> = Lazy::new(|| FRegex::new(r"(?<=\d[a-zA-Z])\s[-\u2013\u2014]\s(?=\d)").unwrap());
-// D\u1ea5u tr\u1eeb \u0110\u01a0N NGUY\u00caN tr\u01b0\u1edbc bi\u1ebfn ch\u1eef (-b, =-x, (-y) -> "\u00e2m b"). Ch\u1ec9 kh\u1edbp khi \u0111\u1ee9ng
-// sau to\u00e1n t\u1eed/ngo\u1eb7c/b\u1eb1ng (kh\u00f4ng ph\u1ea3i sau to\u00e1n h\u1ea1ng) -> kh\u00f4ng \u0111\u1ee5ng "a - b" (tr\u1eeb).
-// Nh\u1eadn c\u1ea3 T\u00caN H\u00c0M ("-sin x" -> "\u00e2m sin x"); ch\u1eef \u0111\u01a1n ph\u1ea3i tr\u1ecdn v\u1eb9n (\b) \u0111\u1ec3
-// "-sin" kh\u00f4ng b\u1ecb x\u00e9 th\u00e0nh "\u00e2m s" + "in".
+// UNARY minus before a variable (-b, =-x, (-y) -> "âm b"). It matches only after
+// an operator, bracket or equals sign — never after an operand — so "a - b"
+// stays subtraction. Function names are included ("-sin x" -> "âm sin x"), and
+// the single-letter alternative needs a word boundary so "-sin" is not torn into
+// "âm s" plus "in".
 static RE_NEG_VAR1: Lazy<FRegex> = Lazy::new(|| FRegex::new(r"(?<=[(\[{=\u00b1+*/\u00d7\u00f7])[-\u2013\u2014]((?:sin|cos|tan|cot|log|ln|lim)\b|[a-zA-Z]\b)").unwrap());
 static RE_NEG_VAR2: Lazy<FRegex> = Lazy::new(|| FRegex::new(r"(?<=[(\[{=\u00b1+*/\u00d7\u00f7]\s)[-\u2013\u2014]((?:sin|cos|tan|cot|log|ln|lim)\b|[a-zA-Z]\b)").unwrap());
-// "-sin x" gi\u1eefa c\u00e2u v\u0103n ("l\u00e0 -sin x"): d\u1ea5u tr\u1eeb \u0111\u1ee9ng sau kho\u1ea3ng tr\u1eafng, ngay
-// tr\u01b0\u1edbc t\u00ean h\u00e0m l\u01b0\u1ee3ng gi\u00e1c -> "\u00e2m sin".
+// "-sin x" mid-sentence ("là -sin x"): a minus after whitespace and directly
+// before a trigonometric function name reads as "âm sin".
 static RE_NEG_FUNC: Lazy<FRegex> = Lazy::new(|| FRegex::new(r"(?<=\s)[-\u2013\u2014](?=(?:sin|cos|tan|cot|log|ln|lim)\b)").unwrap());
-// Giai th\u1eeba ngo\u00e0i <math>: "5! = 120", "n!/(", "O(n!)". Ch\u1ec9 khi "!" \u0111\u1ee9ng sau
-// M\u1ed8T k\u00fd t\u1ef1 alnum tr\u1ecdn v\u1eb9n (token 1 k\u00fd t\u1ef1) v\u00e0 tr\u01b0\u1edbc k\u00fd t\u1ef1 to\u00e1n -> kh\u00f4ng \u0111\u1ee5ng
-// c\u00e2u c\u1ea3m th\u00e1n ("tuy\u1ec7t!" c\u00f3 ch\u1eef c\u00e1i li\u1ec1n tr\u01b0\u1edbc n\u00ean \b kh\u00f4ng kh\u1edbp).
+// Factorials outside <math>: "5! = 120", "n!/(", "O(n!)". The "!" must follow a
+// single complete alphanumeric token and precede a maths character, which keeps
+// exclamations out — "tuyệt!" has letters immediately before, so \b fails.
 static RE_FACTORIAL_INLINE: Lazy<FRegex> = Lazy::new(|| FRegex::new(r"(?<=\b[0-9a-zA-Z])!(?=\s*[)=/,(+\u00d7*-])").unwrap());
-// C\u1ee5m m\u0169 Unicode li\u00ean ti\u1ebfp ("10\u00b2\u00b3") l\u00e0 M\u1ed8T s\u1ed1 m\u0169 ("m\u01b0\u1eddi m\u0169 hai m\u01b0\u01a1i ba"),
-// kh\u00f4ng ph\u1ea3i chu\u1ed7i "b\u00ecnh ph\u01b0\u01a1ng l\u1eadp ph\u01b0\u01a1ng".
+// A run of consecutive Unicode superscripts ("10²³") is ONE exponent
+// ("mười mũ hai mươi ba"), not the sequence "bình phương lập phương".
 static RE_SUPERSCRIPT_RUN: Lazy<Regex> = Lazy::new(|| Regex::new(r"[\u2070\u00b9\u00b2\u00b3\u2074\u2075\u2076\u2077\u2078\u2079]{2,}").unwrap());
-// S\u1ed1 m\u0169 c\u00f3 D\u1ea4U ("10\u207b\u00b3", "2\u207b\u00b9", "10\u207a\u2076"): d\u1ea5u \u207b (U+207B) tr\u01b0\u1edbc \u0111\u00e2y b\u1ecb nu\u1ed1t n\u00ean
-// "10\u207b\u00b3" \u0111\u1ecdc th\u00e0nh "m\u01b0\u1eddi l\u1eadp ph\u01b0\u01a1ng". Ph\u1ea3i ch\u1ea1y TR\u01af\u1edaC RE_SUPERSCRIPT_RUN.
+// SIGNED exponents ("10⁻³", "2⁻¹", "10⁺⁶"). The sign ⁻ (U+207B) used to be
+// swallowed, so "10⁻³" was read as "mười lập phương" — six orders of magnitude
+// off. Must run BEFORE RE_SUPERSCRIPT_RUN, which would consume the digits alone.
 static RE_SUPERSCRIPT_SIGNED: Lazy<Regex> = Lazy::new(|| Regex::new(r"([\u207b\u207a])([\u2070\u00b9\u00b2\u00b3\u2074\u2075\u2076\u2077\u2078\u2079]+)").unwrap());
 
 fn sup_digits(s: &str) -> String {
@@ -334,22 +361,24 @@ fn sup_digits(s: &str) -> String {
         '\u{2075}' => '5', '\u{2076}' => '6', '\u{2077}' => '7', '\u{2078}' => '8', _ => '9',
     }).collect()
 }
-// \u0110\u01a1n v\u1ecb di\u1ec7n t\u00edch/th\u1ec3 t\u00edch vi\u1ebft m\u0169 Unicode ("68 m\u00b2", "170 km\u00b3") quy v\u1ec1 d\u1ea1ng
-// ASCII ("m2", "km3") \u0111\u1ec3 kh\u1edbp b\u1ea3ng \u0111\u01a1n v\u1ecb -> "m\u00e9t vu\u00f4ng"/"m\u00e9t kh\u1ed1i" thay v\u00ec
-// "m\u00e9t b\u00ecnh ph\u01b0\u01a1ng". Ch\u1ec9 \u00e1p cho CH\u1eee \u0110\u01a0N V\u1eca th\u1eadt, kh\u00f4ng \u0111\u1ee5ng bi\u1ebfn c\u00f4ng th\u1ee9c
-// ("r\u00b2", "c\u00b2" v\u1eabn \u0111\u1ecdc "b\u00ecnh ph\u01b0\u01a1ng").
+// Area and volume units written with Unicode superscripts ("68 m²", "170 km³")
+// fold to their ASCII forms ("m2", "km3") so they match the unit table and read
+// "mét vuông" / "mét khối" instead of "mét bình phương". Applied only to real
+// unit letters, so formula variables ("r²", "c²") keep "bình phương".
 static RE_SUP_UNIT: Lazy<Regex> = Lazy::new(|| Regex::new(r"\b(km|cm|mm|m)\u00b2").unwrap());
 static RE_SUP_UNIT3: Lazy<Regex> = Lazy::new(|| Regex::new(r"\b(km|cm|mm|m)\u00b3").unwrap());
-// H\u1ec7 s\u1ed1 \u0111\u1ee9ng TR\u01af\u1edaC c\u00f4ng th\u1ee9c h\u00f3a h\u1ecdc ("6CO2", "2HCl", "2H2O"): t\u00e1ch r\u1eddi s\u1ed1
-// \u0111\u1ec3 ph\u1ea7n ch\u1eef \u0111i theo nh\u00e1nh acronym ("x\u00ea \u00f4 hai"...). \u0110i\u1ec1u ki\u1ec7n ch\u1eb7t:
-//  - h\u1ec7 s\u1ed1 \u0111\u00fang M\u1ed8T ch\u1eef s\u1ed1 (kh\u00f4ng \u0111\u1ee5ng "11T14" trong ISO, "14H30");
-//  - c\u1ee5m ch\u1eef sau \u0111\u00f3 ph\u1ea3i ch\u1ee9a ch\u1eef TH\u01af\u1edcNG (Cl, Na) ho\u1eb7c CH\u1eee S\u1ed0 (H2, O2, CO2)
-//    -> lo\u1ea1i "2FA", "3D", "1TB" (to\u00e0n ch\u1eef HOA tr\u01a1n);
-//  - kh\u00f4ng ph\u1ea3i d\u1ea1ng gi\u1edd "4H30" (H + \u0111\u00fang hai ch\u1eef s\u1ed1 cu\u1ed1i t\u1eeb).
+// A coefficient BEFORE a chemical formula ("6CO2", "2HCl", "2H2O") is detached
+// so the letters follow the acronym branch ("xê ô hai"). Strict conditions:
+//  - the coefficient is exactly ONE digit, which avoids "11T14" in ISO
+//    timestamps and "14H30";
+//  - the letter cluster must contain a LOWERCASE letter (Cl, Na) or a DIGIT
+//    (H2, O2, CO2), ruling out "2FA", "3D" and "1TB", which are plain uppercase;
+//  - it must not be a clock form "4H30", i.e. H followed by exactly two final
+//    digits.
 static RE_CHEM_DIGIT_PREFIX: Lazy<FRegex> = Lazy::new(|| {
     FRegex::new(r"\b(\d)(?!H\d{2}\b)(?=[A-Z][a-z]|[A-Z][A-Z]?\d|[A-Z][A-Z][a-z])").unwrap()
 });
-// Trừ giữa hai biến chữ thường ĐƠN LẺ có khoảng trắng ("x - a", "u - v").
+// Spaced minus between two single lowercase variables ("x - a", "u - v").
 static RE_MINUS_SINGLE_VARS: Lazy<Regex> = Lazy::new(|| {
     Regex::new(r"\b([a-z])\s+[-–—]\s+([a-z])\b").unwrap()
 });
@@ -412,8 +441,8 @@ fn split_concatenated_terms(text: &str) -> String {
 
     re_potential.replace_all(text, |caps: &Captures| {
         let word = caps.get(0).unwrap().as_str();
-        // Giữ nguyên đơn vị viết camelCase đã biết (kWh, mAh, mWh...) để pass đơn vị
-        // bắt được; nếu để splitter cắt "kWh" -> "k Wh" sẽ đọc sai ("ca wh").
+        // Keep known camelCase units (kWh, mAh, mWh) whole so the unit pass can
+        // match them. Splitting "kWh" into "k Wh" would be read "ca wh".
         if re_acronym.is_match(word).unwrap_or(false)
             || MEASUREMENT_KEY_VI.contains_key(word.to_lowercase().as_str())
         {
@@ -483,11 +512,13 @@ pub fn clean_vietnamese_text(text: &str) -> String {
     clean_vietnamese_text_ctx(text, false)
 }
 
-// Token "trông như từ" (thuần chữ cái, >=2 ký tự) — dùng nhận diện câu tiếng Anh.
+// Word-like tokens (letters only, at least two characters), used to decide
+// whether a sentence is English.
 static RE_WORDISH: Lazy<Regex> = Lazy::new(|| Regex::new(r"\b[a-zA-Z]{2,}\b").unwrap());
 
-// Exception dạng camelCase ("arXiv") hoặc chứa "&" ("GD&ĐT") — phải mask
-// TRƯỚC các pass tách từ/ký hiệu kẻo bị xé đôi hoặc "&" bị đổi thành "và".
+// Exceptions written in camelCase ("arXiv") or containing "&" ("GD&ĐT") must be
+// masked BEFORE any word- or symbol-splitting pass, which would otherwise break
+// them apart or turn the "&" into "và".
 static RE_EARLY_EXCEPTIONS: Lazy<Option<Regex>> = Lazy::new(|| {
     let keys: Vec<String> = COMBINED_EXCEPTIONS.keys()
         .filter(|k: &&String| {
@@ -1000,13 +1031,15 @@ impl Normalizer {
         if text.is_empty() { return String::new(); }
 
         let nfc_text: String = sanitize_unicode(text).nfc().collect();
-        // Quy ellipsis (… ‥ ․) về "." NGAY ĐẦU để nó theo cùng đường xử lý với
-        // "...". Nếu để muộn, "…" bị các pass trước đó nuốt thành dấu phân tách.
+        // Fold ellipses (… ‥ ․) to "." right away so they follow the same path
+        // as "...". Any later and an earlier pass would have swallowed "…" as a
+        // separator.
         let mut current_text = RE_ELLIPSIS.replace_all(&nfc_text, ".").into_owned();
 
-        // Vùng <math>...</math>: tách cụm biến thành chữ rời, bỏ tag, để pipeline
-        // thường đọc tên chữ + ký hiệu. Làm trước khi tách <en>. Công thức luôn
-        // đọc kiểu Việt (force_vi) dù không có chữ có dấu.
+        // <math> regions: split variable clusters into single letters, drop the
+        // tags, and let the normal pipeline read the letters and symbols. Done
+        // before <en> extraction. Formulas are always read as Vietnamese
+        // (force_vi) even when they contain no diacritics.
         let had_math = current_text.to_lowercase().contains("<math>");
         if had_math {
             current_text = RE_MATH_TAG.replace_all(&current_text, |caps: &Captures| {
