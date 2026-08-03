@@ -268,10 +268,19 @@ pub fn clean_vietnamese_text_ctx(text: &str, force_vi: bool) -> String {
     // kiểu Anh ("3" -> "three", "." -> "dot"). Ngưỡng này giữ các mẩu trơ
     // ("50km", "3 x 4", "Arsenal 3-0 Chelsea", công thức toán) ở lại đường
     // tiếng Việt. force_vi (nội dung <math>) tắt hẳn chế độ Anh.
+    // Nới ngưỡng: chỉ cần 2 từ nếu CẢ HAI thuần chữ thường VÀ là từ tiếng Anh
+    // thật trong wordlist ("print 3D technology" chỉ có 2 từ đếm được vì "3D"
+    // lẫn chữ số). Tên riêng viết Hoa không được tính nên "Arsenal 3-0 Chelsea"
+    // vẫn ở lại đường tiếng Việt.
+    let en_dict_words = RE_WORDISH.find_iter(text)
+        .filter(|m: &regex::Match| m.as_str().chars().all(|c: char| c.is_ascii_lowercase()))
+        .filter(|m: &regex::Match| crate::g2p::en_top_words::EN_TOP_WORDS.contains(m.as_str()))
+        .take(2).count();
     let en_ctx = !force_vi && !vi_ctx
-        && RE_WORDISH.find_iter(text)
+        && (RE_WORDISH.find_iter(text)
             .filter(|m: &regex::Match| m.as_str().chars().any(|c: char| c.is_ascii_lowercase()))
-            .take(3).count() >= 3;
+            .take(3).count() >= 3
+            || en_dict_words >= 2);
 
     let protect = |original: String, map: &mut Vec<(String, String)>| -> String {
         let idx = map.len();
