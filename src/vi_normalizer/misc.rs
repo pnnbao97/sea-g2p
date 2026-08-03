@@ -306,6 +306,43 @@ pub fn expand_standalone_letters(text: &str) -> String {
     }).to_string()
 }
 
+// T2..T7/CN là thứ trong tuần CHỈ KHI có từ dẫn thời gian phía trước
+// ("sáng T2", "từ T2 đến T6", "nghỉ T7") — "Model T2", "tòa T3" giữ nguyên.
+static RE_WEEKDAY_LEAD: Lazy<Regex> = Lazy::new(|| {
+    Regex::new(r"(?i)\b(sáng|trưa|chiều|tối|đêm|hôm|ngày|từ|đến|tới|vào|mỗi|hằng|nghỉ)\s+(?:T([2-7])|CN)\b").unwrap()
+});
+// Nối chuỗi: "thứ hai, T4 và CN" — T/CN đứng sau một "thứ X" đã chuyển.
+static RE_WEEKDAY_CHAIN: Lazy<Regex> = Lazy::new(|| {
+    Regex::new(r"(thứ (?:hai|ba|tư|năm|sáu|bảy))(\s*(?:,|và|-|–|đến|tới)\s*)(?:T([2-7])|CN)\b").unwrap()
+});
+
+fn weekday_name(d: &str) -> &'static str {
+    match d {
+        "2" => "thứ hai", "3" => "thứ ba", "4" => "thứ tư",
+        "5" => "thứ năm", "6" => "thứ sáu", "7" => "thứ bảy",
+        _ => "chủ nhật",
+    }
+}
+
+pub fn expand_weekday_abbr(text: &str) -> String {
+    if !text.contains('T') && !text.contains("CN") { return text.to_string(); }
+    let mut res = RE_WEEKDAY_LEAD.replace_all(text, |caps: &Captures| {
+        let lead = caps.get(1).unwrap().as_str();
+        let day = caps.get(2).map(|m| m.as_str()).unwrap_or("cn");
+        format!("{} {}", lead, weekday_name(day))
+    }).into_owned();
+    // Chuỗi liệt kê có thể dài ("từ T2, T4 và CN") -> lặp tới khi ổn định.
+    for _ in 0..6 {
+        let next = RE_WEEKDAY_CHAIN.replace_all(&res, |caps: &Captures| {
+            let day = caps.get(3).map(|m| m.as_str()).unwrap_or("cn");
+            format!("{}{}{}", caps.get(1).unwrap().as_str(), caps.get(2).unwrap().as_str(), weekday_name(day))
+        }).into_owned();
+        if next == res { break; }
+        res = next;
+    }
+    res
+}
+
 pub fn normalize_acronyms(text: &str) -> String {
     let mut result = Vec::new();
     let re_split = &*RE_ACRONYMS_SPLIT;

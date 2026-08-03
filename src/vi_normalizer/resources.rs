@@ -99,6 +99,31 @@ pub static ACRONYMS_EXCEPTIONS_VI: Lazy<HashMap<&'static str, &'static str>> = L
     m.insert("GTVT", "giao thông vận tải"); m.insert("TDTT", "thể dục thể thao");
     m.insert("BĐBP", "bộ đội biên phòng"); m.insert("KHCN", "khoa học công nghệ");
     m.insert("BV", "bệnh viện"); m.insert("BQP", "bộ quốc phòng");
+    // Giấy tờ / hành chính / an toàn.
+    m.insert("GPLX", "giấy phép lái xe"); m.insert("CMND", "chứng minh nhân dân");
+    m.insert("CCCD", "căn cước công dân"); m.insert("PCCC", "phòng cháy chữa cháy");
+    m.insert("ATGT", "an toàn giao thông"); m.insert("TNGT", "tai nạn giao thông");
+    m.insert("BHYT", "bảo hiểm y tế"); m.insert("ATTP", "an toàn thực phẩm");
+    m.insert("ĐKKD", "đăng ký kinh doanh"); m.insert("MST", "mã số thuế");
+    // Bộ/sở ngành (cả dạng có gạch nối lẫn viết liền).
+    m.insert("TN-MT", "tài nguyên môi trường"); m.insert("TNMT", "tài nguyên môi trường");
+    m.insert("GD-ĐT", "giáo dục đào tạo"); m.insert("GDĐT", "giáo dục đào tạo");
+    m.insert("KH-CN", "khoa học công nghệ");
+    m.insert("LĐ-TB-XH", "lao động thương binh xã hội"); m.insert("LĐTBXH", "lao động thương binh xã hội");
+    m.insert("NN-PTNT", "nông nghiệp phát triển nông thôn"); m.insert("NNPTNT", "nông nghiệp phát triển nông thôn");
+    m.insert("VH-TT-DL", "văn hóa thể thao du lịch"); m.insert("VHTTDL", "văn hóa thể thao du lịch");
+    m.insert("TT-TT", "thông tin truyền thông"); m.insert("TTTT", "thông tin truyền thông");
+    // Địa lý / tổ chức / nhóm người.
+    m.insert("ĐBSCL", "đồng bằng sông cửu long"); m.insert("MTTQ", "mặt trận tổ quốc");
+    m.insert("ĐBQH", "đại biểu quốc hội"); m.insert("VKS", "viện kiểm sát");
+    m.insert("HS-SV", "học sinh sinh viên"); m.insert("HSSV", "học sinh sinh viên");
+    m.insert("SV", "sinh viên"); m.insert("GV", "giáo viên");
+    m.insert("CBCNV", "cán bộ công nhân viên");
+    // Doanh nghiệp / văn bản.
+    m.insert("CP", "cổ phần"); m.insert("NĐ-CP", "nờ đê xê phê");
+    m.insert("TT-BTC", "tê tê bê tê xê"); m.insert("QĐ-TTg", "qui đê tê tê giê");
+    // Lưu ý: T2..T7/CN (thứ trong tuần) xử lý theo NGỮ CẢNH ở
+    // expand_weekday_abbr (cần từ dẫn "sáng/chiều/từ/đến..."), không map cứng.
     m
 });
 
