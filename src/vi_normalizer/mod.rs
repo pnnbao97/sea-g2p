@@ -377,6 +377,11 @@ pub fn clean_vietnamese_text_ctx(text: &str, force_vi: bool) -> String {
         }.to_string()
     }).into_owned();
     current_text = expand_money_slang(&current_text);
+    // Biển số xe / mã định danh: phải trước normalize_time để "51H-123.45"
+    // không bị đọc "51H" thành giờ. Câu thuần Anh giữ nguyên cho nhánh Anh xử lý.
+    if !en_ctx {
+        current_text = crate::vi_normalizer::misc::expand_codes_and_plates(&current_text);
+    }
     current_text = expand_scientific_notation(&current_text);
 
     current_text = RE_RANGE_PCT.replace_all(&current_text, "$1 đến $2%").into_owned();

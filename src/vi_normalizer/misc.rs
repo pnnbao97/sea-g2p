@@ -30,6 +30,10 @@ static RE_ROMAN_LIST_MARKER: Lazy<FRegex> = Lazy::new(|| {
 // Đề mục La Mã thực tế không vượt quá ~XX; giá trị lớn hơn gần như chắc chắn là chữ viết tắt
 // tên riêng (C=100, L=50, D=500, M=1000) nên loại ra để tránh đọc nhầm "C. Mác" -> "một trăm".
 const ROMAN_MARKER_MAX: i32 = 30;
+// Chỉ I/V/X: L/C/D/M một mình gần như luôn là chữ viết tắt, không phải số La Mã.
+static RE_ROMAN_SINGLE: Lazy<FRegex> = Lazy::new(|| {
+    FRegex::new(r"\b[IVX]\b(?!['’])").unwrap()
+});
 // Bỏ dấu chấm viết tắt chức danh khi theo sau là tên riêng (TS. Nguyễn -> TS Nguyễn),
 // tránh dấu "." biến thành ranh giới câu gây ngắt nhịp sai.
 static RE_TITLE_DOT: Lazy<FRegex> = Lazy::new(|| {
@@ -233,6 +237,63 @@ fn has_roman_context(preceding: &str) -> bool {
 }
 
 /// Chuyển cụm số La Mã sang giá trị nguyên (0 nếu chứa ký tự không hợp lệ / rỗng).
+// ─ Biển số xe & mã định danh ─────────────────────────────────────────────
+// Biển số VN: "51H-123.45", "30K-567.89", "51K1-123.45". Phải chạy TRƯỚC pass
+// giờ vì "51H" khớp mẫu "<số>h" và bị đọc nhầm thành "năm mươi mốt giờ".
+static RE_PLATE: Lazy<Regex> = Lazy::new(|| {
+    Regex::new(r"\b(\d{2})([A-Z]{1,2}\d?)\s*[-–]\s*(\d{3})(\.?)(\d{2})\b").unwrap()
+});
+// Mã chữ-số kiểu "ABC-1234"/"XYZ-9876": phần số đọc từng chữ số như đọc mã.
+// Đòi ≥3 chữ số để không đụng "COVID-19", "U-17", "F-16" (đọc số đếm tự nhiên hơn).
+static RE_CODE_DIGITS: Lazy<Regex> = Lazy::new(|| {
+    Regex::new(r"\b([A-Z]{2,6})-(\d{3,6})\b").unwrap()
+});
+// "#45021" (mã đơn hàng/phiếu): bỏ "#" (tránh đọc "thăng"), đọc từng chữ số.
+static RE_HASH_ID: Lazy<Regex> = Lazy::new(|| {
+    Regex::new(r"#(\d{3,8})\b").unwrap()
+});
+// "tổng đài 1900", "tổng đài 1800.6601": số đầu mối dịch vụ đọc từng chữ số,
+// không đọc số đếm. Nhận cả nhóm nối bằng "." (n2w_single tự lọc ký tự không phải số).
+static RE_HOTLINE: Lazy<Regex> = Lazy::new(|| {
+    Regex::new(r"(?i)\b(tổng đài|hotline|đầu số)\s+(\d{3,8}(?:\.\d{2,6})*)\b").unwrap()
+});
+
+fn spell_plate_serie(serie: &str) -> String {
+    serie.chars()
+        .map(|c| {
+            if c.is_ascii_digit() {
+                n2w_single(&c.to_string())
+            } else {
+                let cl = c.to_lowercase().to_string();
+                VI_LETTER_NAMES.get(cl.as_str()).map(|s| s.to_string()).unwrap_or(cl)
+            }
+        })
+        .collect::<Vec<_>>()
+        .join(" ")
+}
+
+pub fn expand_codes_and_plates(text: &str) -> String {
+    let mut res = RE_PLATE.replace_all(text, |caps: &Captures| {
+        let dot = if caps.get(4).unwrap().as_str().is_empty() { " " } else { " chấm " };
+        format!("{} {} {}{}{}",
+            n2w(caps.get(1).unwrap().as_str()),
+            spell_plate_serie(caps.get(2).unwrap().as_str()),
+            n2w_single(caps.get(3).unwrap().as_str()),
+            dot,
+            n2w_single(caps.get(5).unwrap().as_str()))
+    }).into_owned();
+    res = RE_CODE_DIGITS.replace_all(&res, |caps: &Captures| {
+        format!("{} {}", caps.get(1).unwrap().as_str(), n2w_single(caps.get(2).unwrap().as_str()))
+    }).into_owned();
+    res = RE_HASH_ID.replace_all(&res, |caps: &Captures| {
+        n2w_single(caps.get(1).unwrap().as_str())
+    }).into_owned();
+    res = RE_HOTLINE.replace_all(&res, |caps: &Captures| {
+        format!("{} {}", caps.get(1).unwrap().as_str(), n2w_single(caps.get(2).unwrap().as_str()))
+    }).into_owned();
+    res
+}
+
 pub fn roman_to_int(match_str: &str) -> i32 {
     let num = match_str.to_uppercase();
     let chars: Vec<char> = num.chars().collect();
@@ -571,6 +632,19 @@ pub fn normalize_others(text: &str, en_ctx: bool) -> String {
         let m = caps.get(0).unwrap();
         if has_roman_context(&roman_src[..m.start()]) {
             expand_roman(m.as_str())
+        } else {
+            m.as_str().to_string()
+        }
+    }).to_string();
+
+    // Số La Mã MỘT ký tự (I/V/X): RE_ROMAN_NUMBER đòi ≥2 ký tự nên "quý I",
+    // "chương V", "khóa X" bị bỏ sót. Một ký tự quá dễ nhầm chữ cái đơn nên
+    // bắt buộc có từ dẫn ngay trước mới đọc thành số.
+    let roman1_src = res.clone();
+    res = RE_ROMAN_SINGLE.replace_all(&roman1_src, |caps: &FCaps| {
+        let m = caps.get(0).unwrap();
+        if has_roman_context(&roman1_src[..m.start()]) {
+            n2w(&roman_to_int(m.as_str()).to_string())
         } else {
             m.as_str().to_string()
         }
