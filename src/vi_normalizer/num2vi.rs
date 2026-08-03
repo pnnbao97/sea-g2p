@@ -1,3 +1,21 @@
+//! Vietnamese number-to-words conversion.
+//!
+//! Two reading modes, chosen by the caller:
+//!
+//!   - **cardinal** ([`n2w`]) for quantities — "1250" becomes "một nghìn hai
+//!     trăm năm mươi";
+//!   - **digit by digit** ([`n2w_single`]) for identifiers such as phone
+//!     numbers, licence plates and order codes, where the figures carry no
+//!     arithmetic meaning.
+//!
+//! Vietnamese changes the word for a digit according to its position, and these
+//! alternations are obligatory rather than stylistic:
+//!
+//!   - final 1 after a tens digit is "mốt", not "một" ("21" -> "hai mươi mốt");
+//!   - final 5 after a tens digit is "lăm", not "năm" ("15" -> "mười lăm");
+//!   - 4 in ordinals and some dates is "tư", not "bốn" ("tháng 4" -> "tháng tư");
+//!   - a zero inside a number becomes "lẻ" or "linh" ("101" -> "một trăm lẻ một").
+
 pub fn units(digit: char) -> &'static str {
     match digit {
         '0' => "không",

@@ -1,13 +1,30 @@
+//! Rust core of sea-g2p: Vietnamese text normalization and grapheme-to-phoneme
+//! conversion, exposed to Python through PyO3.
+//!
+//! Two independent stages, usable together or apart:
+//!
+//!   - [`vi_normalizer`] rewrites raw text into something pronounceable —
+//!     numbers, dates, units, abbreviations, formulas, URLs. Its module docs
+//!     describe the staged pipeline and the ordering contract between stages.
+//!   - [`g2p`] maps normalized text to phonemes, resolving Vietnamese and
+//!     English readings for the same token from surrounding context.
+//!
+//! [`punc`] holds the shared trailing-punctuation rule, applied at chunk
+//! boundaries by both stages.
+
 use pyo3::prelude::*;
 use pyo3::wrap_pyfunction;
 pub mod g2p;
 pub mod punc;
 pub mod vi_normalizer;
 
-/// Chuẩn hóa dấu câu cuối (punc_norm) như một hàm chuỗi THUẦN, không chạy lại
-/// normalize/G2P. Câu < 5 từ bị ép kết thúc bằng đúng một ".", câu dài chỉ thêm
-/// "." nếu chưa kết thúc bằng , . ! ?. Dùng chung cho các pipeline cần chốt dấu
-/// câu ở ranh giới chunk (text hoặc phoneme) mà không phải chuẩn hóa lại.
+/// Normalize trailing punctuation as a **pure string operation**, without
+/// re-running normalization or G2P.
+///
+/// Sentences shorter than five words are forced to end in exactly one ".";
+/// longer ones only get a "." appended when they do not already end in
+/// `,` `.` `!` `?`. Pipelines that need to settle punctuation at a chunk
+/// boundary — text or phonemes — can call this instead of normalizing again.
 #[pyfunction]
 fn punc_norm(text: &str) -> String {
     crate::punc::apply_punc_norm(text)

@@ -1,3 +1,30 @@
+//! Symbols, acronyms, Roman numerals, licence plates and letter names.
+//!
+//! This module backs several pipeline stages; `normalize_others` is stage 15,
+//! the last chance for anything still unread.
+//!
+//! # Where silent deletion happens
+//!
+//! `normalize_others` ends with `RE_CLEAN_OTHERS`, which strips every character
+//! outside its whitelist. That is the safety net keeping stray bytes out of the
+//! TTS tokenizer — and also the exact point where an undeclared symbol vanishes
+//! without a sound. `∆`, `⁻` and `Σ` were all lost here. Before adding a symbol
+//! anywhere in the codebase, give it a reading or declare it in
+//! [`crate::vi_normalizer::audit`]; `tests/test_invariants.py` enforces this.
+//!
+//! # Context-dependent readings
+//!
+//! Several rules here need a lead word rather than a pattern, because the same
+//! characters mean different things:
+//!
+//!   - **Roman numerals** only expand after a cue word ("thế kỷ XXI", "chương
+//!     IV"). Without one, "CD" and "MC" would become numbers. Single letters
+//!     (I/V/X) demand the cue too, and L/C/D/M never expand alone.
+//!   - **Weekday abbreviations** (T2–T7, CN) need a time cue ("sáng T2"), so
+//!     "Model T2" and "ga T3" survive.
+//!   - **Licence plates** run before the clock pass, since "51H" also matches
+//!     an hour, and before the multiplication pass, since "59X1" contains an X.
+
 use fancy_regex::{Regex as FRegex, Captures as FCaps};
 use regex::{Regex, Captures};
 use once_cell::sync::Lazy;

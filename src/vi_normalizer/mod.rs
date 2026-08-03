@@ -1,3 +1,42 @@
+//! Vietnamese text normalization, run before grapheme-to-phoneme conversion.
+//!
+//! # Architecture: a staged pipeline
+//!
+//! `clean_vietnamese_text_ctx` applies a fixed sequence of stages (`stage_*`).
+//! The order is **not** arbitrary: each stage assumes earlier ones have already
+//! resolved a particular class of ambiguity. The table below is the contract
+//! between stages — reordering without updating it reliably produces silent
+//! misreadings.
+//!
+//! | # | Stage | Does | Why it sits here |
+//! |---|-------|------|------------------|
+//! | 0 | `detect_context` | Classify the sentence as Vietnamese or English | Every later stage reads these flags |
+//! | 1 | `protect_spans` | Mask emails, URLs, paths, camelCase exceptions | Technical spans must be untouchable before any word/symbol splitting runs |
+//! | 2 | `early_lexical` | Weekday abbreviations, `text2text`, English pre-normalization | Before any letter-digit pass, otherwise "T2" becomes "tê hai" |
+//! | 3 | `superscripts` | `m²`→`m2`, `10⁻³`→"mũ trừ ba", `10²³` | Before `expand_symbols`, which would read each exponent character separately |
+//! | 4 | `math` | Bare formulas: split variable clusters, factorials, binary minus | Before term splitting and the multiplication pass, so "mc²" / "4ac" survive intact |
+//! | 5 | `split_terms` | Split camelCase | After math, which needs whole tokens |
+//! | 6 | `codes` | Licence plates, identifiers, chemical coefficients | Before the multiplication pass ("59X1" contains X) and before clock times ("51H") |
+//! | 7 | `arithmetic` | Powers, multiplication, context-dependent minus / range | After codes, so identifiers are not consumed |
+//! | 8 | `abbreviations` | Abbreviations, address prefixes, money slang | Before dates, since some abbreviations embed digits |
+//! | 9 | `percent_scores` | Percentage ranges, negative percentages, sport scores | Before dates: "3-1" must not become a date |
+//! | 10 | `datetime` | Dates and clock times | After codes and scores, before the generic number passes |
+//! | 11 | `phones` | Phone numbers, hotlines, grouped digit runs | Before generic numbers, which would read them as cardinals |
+//! | 12 | `ranges_signs` | Numeric ranges, negative signs, dash → comma | After dates and phones have consumed the legitimate dashes |
+//! | 13 | `units` | Measurement units, currencies, height and weight | Once every sign and numeric cluster is settled |
+//! | 14 | `decimals` | Decimal marks and thousand separators | Last step of numeric processing |
+//! | 15 | `residual` | Leftover symbols, stray numbers, "âm âm" collapse | Cleans up whatever no earlier stage claimed |
+//! | 16 | `letters` | Single letters → Vietnamese letter names | Last, otherwise it would swallow letters the stages above still need |
+//! | 17 | `finalize` | Unmask, restore tags, collapse whitespace | Must be last |
+//!
+//! # Invariant: nothing disappears in silence
+//!
+//! Any non-alphanumeric character reaching the end of the pipeline is deleted
+//! by `RE_CLEAN_OTHERS` **without a trace** — the root cause of a whole family
+//! of past defects (`∆` U+2206, `⁻` U+207B, `Σ`). The [`audit`] module lists
+//! such characters for a given input so tests catch them before production
+//! does. See [`audit::audit_unmapped`].
+
 pub mod num2vi;
 pub mod num2en;
 pub mod resources;
@@ -8,6 +47,7 @@ pub mod datestime;
 pub mod units;
 pub mod technical;
 pub mod misc;
+pub mod audit;
 
 use pyo3::prelude::*;
 // fancy_regex only for patterns requiring look-arounds
@@ -384,31 +424,59 @@ fn split_concatenated_terms(text: &str) -> String {
     }).into_owned()
 }
 
-/// Dọn ký tự Unicode "ẩn" thường lẫn trong văn bản dán từ Word/web/PDF trước khi
-/// chuẩn hóa. Nếu không dọn, chúng lọt tới tokenizer của TTS -> token OOV -> mô hình
-/// sinh ra "tiếng lạ" trước khi đọc phần còn lại (issue #177).
-///  - Zero-width mang tính RANH GIỚI TỪ -> đổi thành dấu cách để không dính 2 âm tiết
-///    thành token OOV (và tránh văn bản kiểu "thànhphố"): ZWSP (vốn là "space"),
-///    ZWNJ ("non-joiner" = tách rời), soft hyphen (điểm ngắt của trình soạn thảo,
-///    thường rơi đúng ranh giới âm tiết tiếng Việt). Dấu cách thừa sẽ được gộp lại sau.
-///  - Zero-width mang tính NỐI/đánh dấu -> bỏ hẳn (gộp lại là đúng): ZWJ ("joiner"),
-///    word joiner, BOM/ZWNBSP, combining grapheme joiner, Mongolian vowel separator.
-///  - Đổi MỌI khoảng trắng Unicode lạ (NBSP, ogham, en/em space, narrow/medium NBSP,
-///    ideographic space, line/paragraph separator, NEL, vertical tab, form feed) về
-///    dấu cách ASCII thường. Giữ nguyên '\n' '\r' '\t' vì các pass sau còn dựa vào.
-///  - Bỏ ký tự điều khiển C0/C1 còn lại (NUL, BELL, ESC...).
-fn sanitize_unicode(text: &str) -> String {
-    text.chars().filter_map(|c: char| match c {
-        // Nháy cong (smart quotes bàn phím/Word) -> nháy thẳng ASCII để contraction
-        // tiếng Anh ("I’m" -> "I'm") khớp dict và các rule apostrophe phía sau.
-        '\u{2018}' | '\u{2019}' => Some('\''),
-        '\u{200B}' | '\u{200C}' | '\u{00AD}' => Some(' '),
-        '\u{200D}' | '\u{2060}' | '\u{FEFF}' | '\u{034F}' | '\u{180E}' => None,
-        '\n' | '\r' | '\t' => Some(c),
-        _ if c.is_whitespace() => Some(' '),
-        _ if c.is_control() => None,
-        _ => Some(c),
-    }).collect()
+/// Fold the invisible and look-alike Unicode that arrives with text pasted from
+/// Word, the web or a PDF into the plain forms the rest of the pipeline expects.
+///
+/// Without this step those characters reach the TTS tokenizer, become
+/// out-of-vocabulary tokens, and make the model emit noise before it reads the
+/// rest of the sentence (issue #177).
+///
+/// The mapping, and why each group is treated the way it is:
+///
+///  - **Zero-width characters that mark a word boundary** become a space, so
+///    two syllables do not fuse into one OOV token: ZWSP (a space by origin),
+///    ZWNJ ("non-joiner", i.e. keep apart) and the soft hyphen, which editors
+///    place exactly at Vietnamese syllable boundaries. Extra spaces collapse
+///    later anyway.
+///  - **Zero-width joiners and markers** are removed outright, since fusing is
+///    the correct result: ZWJ, word joiner, BOM/ZWNBSP, combining grapheme
+///    joiner, Mongolian vowel separator.
+///  - **Look-alike punctuation** is folded to its ASCII twin so the pattern
+///    rules match: curly quotes to `'` (so "I’m" hits the English dictionary),
+///    typographic hyphens to `-` (otherwise "text‐to‐speech" loses its word
+///    boundaries entirely), angle brackets to parentheses.
+///  - **Precomposed unit signs** expand to their two-character forms so the
+///    temperature pass sees them: `℃` to `°C`, `℉` to `°F`.
+///  - **Every other Unicode space** (NBSP, ogham, en/em space, narrow and
+///    medium NBSP, ideographic space, line and paragraph separator, NEL,
+///    vertical tab, form feed) becomes an ASCII space. `\n`, `\r` and `\t`
+///    survive because later passes rely on them.
+///  - **Remaining C0/C1 control characters** (NUL, BEL, ESC…) are dropped.
+///
+/// Characters folded here need no entry in the audit tables: by the time the
+/// pipeline runs they no longer exist.
+pub(crate) fn sanitize_unicode(text: &str) -> String {
+    let mut out = String::with_capacity(text.len());
+    for c in text.chars() {
+        match c {
+            '\u{2018}' | '\u{2019}' => out.push('\''),
+            // U+2010 HYPHEN and U+2011 NON-BREAKING HYPHEN look like ASCII '-'
+            // but matched no rule, so they were deleted and the words around
+            // them ran together.
+            '\u{2010}' | '\u{2011}' => out.push('-'),
+            '\u{27E8}' => out.push('('),
+            '\u{27E9}' => out.push(')'),
+            '\u{2103}' => out.push_str("°C"),
+            '\u{2109}' => out.push_str("°F"),
+            '\u{200B}' | '\u{200C}' | '\u{00AD}' => out.push(' '),
+            '\u{200D}' | '\u{2060}' | '\u{FEFF}' | '\u{034F}' | '\u{180E}' => {}
+            '\n' | '\r' | '\t' => out.push(c),
+            _ if c.is_whitespace() => out.push(' '),
+            _ if c.is_control() => {}
+            _ => out.push(c),
+        }
+    }
+    out
 }
 
 pub fn clean_vietnamese_text(text: &str) -> String {
@@ -434,31 +502,345 @@ static RE_EARLY_EXCEPTIONS: Lazy<Option<Regex>> = Lazy::new(|| {
     Some(Regex::new(&format!(r"\b(?:{})\b", keys.join("|"))).unwrap())
 });
 
+/// Language flags derived once per input and read by every later stage.
+///
+/// Both are computed from the raw input, never from partially normalized text,
+/// so a stage cannot accidentally change how a later stage classifies the
+/// sentence.
+#[derive(Clone, Copy)]
+struct Ctx {
+    /// The sentence contains diacritic Vietnamese letters. Paths, URLs and
+    /// emails are then read the Vietnamese way ("gạch chéo", "gạch nối", and
+    /// toneless syllable splitting: "thongbao" -> "thong bao").
+    vi_ctx: bool,
+    /// The sentence is treated as pure English: numbers and symbols are read
+    /// in English ("3" -> "three", "." -> "dot").
+    en_ctx: bool,
+}
+
+/// Stage 0 — classify the sentence.
+///
+/// English mode requires no Vietnamese diacritics **and** either three
+/// word-like tokens containing lowercase letters, or two tokens that are
+/// genuine dictionary English words. The two-word relaxation exists for inputs
+/// such as "print 3D technology", where the digit-bearing token does not count.
+/// Capitalized proper nouns never count, which keeps fragments like
+/// "Arsenal 3-0 Chelsea" — and bare snippets such as "50km" or "3 x 4" — on the
+/// Vietnamese path. `force_vi` (used for `<math>` content) disables English
+/// mode outright.
+fn stage_detect_context(text: &str, force_vi: bool) -> Ctx {
+    let vi_ctx = text.chars().any(|c: char| c.is_alphabetic() && !c.is_ascii());
+
+    let lowercase_wordish = RE_WORDISH.find_iter(text)
+        .filter(|m: &regex::Match| m.as_str().chars().any(|c: char| c.is_ascii_lowercase()))
+        .take(3).count();
+    let dictionary_words = RE_WORDISH.find_iter(text)
+        .filter(|m: &regex::Match| m.as_str().chars().all(|c: char| c.is_ascii_lowercase()))
+        .filter(|m: &regex::Match| crate::g2p::en_top_words::EN_TOP_WORDS.contains(m.as_str()))
+        .take(2).count();
+
+    let en_ctx = !force_vi
+        && !vi_ctx
+        && (lowercase_wordish >= 3 || dictionary_words >= 2);
+
+    Ctx { vi_ctx, en_ctx }
+}
+
+/// Stage 2 — lexical rewrites that must precede every letter-digit pass.
+///
+/// Weekday abbreviations first: once a generic pass sees "T2" it reads it as
+/// "tê hai" and the weekday is gone. English pre-normalization runs last here
+/// because it consumes all digits, turning the Vietnamese numeric passes into
+/// no-ops for English sentences.
+fn stage_early_lexical(text: &str, ctx: Ctx) -> String {
+    let mut out = expand_weekday_abbr(text);
+    // "text2text" / "sale4u": a 2 or 4 wedged between lowercase letters reads
+    // as "two" / "four" regardless of sentence language.
+    out = crate::vi_normalizer::num2en::expand_sandwich_digits(&out);
+    if ctx.en_ctx {
+        out = crate::vi_normalizer::num2en::english_prenormalize(&out);
+    }
+    out
+}
+
+/// Stage 3 — Unicode superscripts.
+///
+/// Runs before `expand_symbols`, which would otherwise read each exponent
+/// character on its own ("10²³" as "mười bình phương lập phương"). Order within
+/// the stage matters too: unit forms (`m²`) fold to ASCII first, then signed
+/// exponents (`10⁻³`), then bare runs (`10²³`) — a signed run must not be
+/// consumed by the unsigned rule, which would drop the minus.
+fn stage_superscripts(text: &str) -> String {
+    let mut out = RE_SUP_UNIT.replace_all(text, "${1}2").into_owned();
+    out = RE_SUP_UNIT3.replace_all(&out, "${1}3").into_owned();
+
+    out = RE_SUPERSCRIPT_SIGNED.replace_all(&out, |caps: &Captures| {
+        let sign = if caps.get(1).unwrap().as_str() == "\u{207b}" { "trừ " } else { "" };
+        let digits = sup_digits(caps.get(2).unwrap().as_str());
+        format!(" mũ {}{} ", sign, crate::vi_normalizer::num2vi::n2w(&digits))
+    }).into_owned();
+
+    RE_SUPERSCRIPT_RUN.replace_all(&out, |caps: &Captures| {
+        let digits = sup_digits(caps.get(0).unwrap().as_str());
+        format!(" mũ {} ", crate::vi_normalizer::num2vi::n2w(&digits))
+    }).into_owned()
+}
+
+/// Stage 4 — bare formulas, i.e. maths written without `<math>` tags.
+///
+/// Must precede term splitting, the multiplication pass and the range pass so
+/// that variable clusters ("mc²", "4ac"), factorials and binary minus signs are
+/// still whole tokens. Skipped for English sentences, whose own pre-pass has
+/// already rewritten the arithmetic.
+fn stage_math(text: &str, ctx: Ctx) -> String {
+    if ctx.en_ctx {
+        return text.to_string();
+    }
+    let mut out = expand_inline_math(text);
+    out = RE_FACTORIAL_INLINE.replace_all(&out, " giai thừa ").into_owned();
+    out = RE_NEG_FUNC.replace_all(&out, " âm ").into_owned();
+    // "x - a", "u - v": minus between two single lowercase variables. Ordinary
+    // hyphenated words are safe because both sides must be a lone letter.
+    RE_MINUS_SINGLE_VARS.replace_all(&out, "$1 trừ $2").into_owned()
+}
+
+/// Stage 6 — licence plates, identifiers and chemical coefficients.
+///
+/// Must precede the multiplication pass ("59X1" contains an X) and the clock
+/// pass ("51H" matches the hour pattern). English sentences are left alone for
+/// their own branch to handle.
+fn stage_codes(text: &str, ctx: Ctx) -> String {
+    if ctx.en_ctx {
+        return text.to_string();
+    }
+    let out = crate::vi_normalizer::misc::expand_codes_and_plates(text);
+    // Detach the coefficient in front of a chemical formula ("6CO2" -> "6 CO2")
+    // so the letters take the same acronym path they would when standing alone.
+    RE_CHEM_DIGIT_PREFIX.replace_all(&out, "$1 ").into_owned()
+}
+
+/// Stage 7 — arithmetic written inline.
+///
+/// Powers first, then multiplication, then the context-sensitive readings of a
+/// dash: "trừ" when flanked by an arithmetic cue, "đến" when it spans a range.
+/// Both dash rules need the operands intact, so they must follow the code stage
+/// and precede the generic range pass.
+fn stage_arithmetic(text: &str) -> String {
+    let mut out = expand_power_of_ten(text);
+    out = RE_MULTIPLY.replace_all(&out, |caps: &FCaps| {
+        expand_multiply_number(caps.get(0).unwrap().as_str())
+    }).to_string();
+
+    out = RE_CONTEXT_TRU.replace_all(&out, " $1 $2 trừ $3 ").into_owned();
+    out = RE_CONTEXT_TRU_POST.replace_all(&out, " $1 trừ $2 $3 ").into_owned();
+    out = RE_CONTEXT_DEN.replace_all(&out, " $1 $2 đến $3 ").into_owned();
+
+    out = RE_EQ_MINUS.replace_all(&out, |caps: &Captures| {
+        format!("{} trừ {} =", caps.get(1).unwrap().as_str(), caps.get(2).unwrap().as_str())
+    }).into_owned();
+
+    RE_EQ_NEG.replace_all(&out, |caps: &Captures| {
+        format!("= âm {}", caps.get(1).unwrap().as_str())
+    }).into_owned()
+}
+
+/// Stage 8 — abbreviations, address prefixes and colloquial money.
+///
+/// Runs before the date stage because some abbreviations embed digits that the
+/// date patterns would otherwise claim.
+fn stage_abbreviations(text: &str) -> String {
+    let mut out = crate::vi_normalizer::misc::expand_abbreviations(text);
+    out = RE_ADDR_ABBR.replace_all(&out, |caps: &FCaps| {
+        match caps.get(1).unwrap().as_str() {
+            "P" => " phường ",
+            "Q" => " quận ",
+            _ => " đường ",
+        }.to_string()
+    }).into_owned();
+    out = expand_money_slang(&out);
+    expand_scientific_notation(&out)
+}
+
+/// Stage 9 — percentages and sport scores.
+///
+/// Must precede the date stage: "3-1" is a score, not the third of January.
+/// The percent sign is what disambiguates a range from a fraction, so the range
+/// rule keys on it explicitly.
+fn stage_percent_scores(text: &str) -> String {
+    let mut out = RE_RANGE_PCT.replace_all(text, "$1 đến $2%").into_owned();
+    out = RE_PCT_NEG.replace_all(&out, " âm $1% ").into_owned();
+    expand_scores(&out)
+}
+
+/// Stage 11 — digit runs that are identifiers rather than quantities.
+///
+/// Phone numbers, hotlines and dash-separated groups are read figure by figure.
+/// Must run before the generic number passes, which would otherwise say
+/// "one million nine hundred thousand" for a service number.
+fn stage_phones(text: &str) -> String {
+    use crate::vi_normalizer::num2vi::n2w_single;
+
+    let mut out = RE_NUMERIC_DASH_GROUPS.replace_all(text, |caps: &Captures| {
+        caps.get(0).unwrap().as_str()
+            .split(&['-', '\u{2013}', '\u{2014}'][..])
+            .map(n2w_single)
+            .collect::<Vec<String>>()
+            .join(", ")
+    }).into_owned();
+
+    out = RE_LANDLINE.replace_all(&out, |caps: &FCaps| {
+        let matched = caps.get(0).unwrap().as_str();
+        let groups: Vec<String> = matched
+            .split(|c: char| !c.is_ascii_digit())
+            .filter(|s: &&str| !s.is_empty())
+            .map(n2w_single)
+            .collect();
+        let prefix = if matched.contains('+') { "cộng " } else { "" };
+        format!(" {}{} ", prefix, groups.join(", "))
+    }).into_owned();
+
+    out = RE_PHONE_SPACE.replace_all(&out, |caps: &Captures| {
+        caps.get(0).unwrap().as_str()
+            .split_whitespace()
+            .map(n2w_single)
+            .collect::<Vec<String>>()
+            .join(", ")
+    }).into_owned();
+
+    out = RE_PHONE_WITH_DASH.replace_all(&out, |caps: &Captures| {
+        format!(" {}, {}, {} ",
+            n2w_single(caps.get(1).unwrap().as_str()),
+            n2w_single(caps.get(2).unwrap().as_str()),
+            n2w_single(caps.get(3).unwrap().as_str()))
+    }).into_owned();
+
+    RE_HOTLINE.replace_all(&out, |caps: &Captures| {
+        format!(" {} {} ",
+            n2w_single(caps.get(1).unwrap().as_str()),
+            n2w_single(caps.get(2).unwrap().as_str()))
+    }).into_owned()
+}
+
+/// Stage 12 — numeric ranges and the remaining signs.
+///
+/// By this point dates, scores and phone numbers have consumed every dash that
+/// means something else, so a dash between two numbers can safely be read as a
+/// range. Digit-count similarity is the guard: "700-900" is a range, but
+/// "5-1000" is more likely two separate figures.
+fn stage_ranges_signs(text: &str) -> String {
+    let mut out = RE_POWER_OF_TEN_IMPLICIT.replace_all(text, |caps: &Captures| {
+        let exp = caps.get(1).unwrap().as_str();
+        if let Some(rest) = exp.strip_prefix('-') {
+            format!("mười mũ trừ {}", crate::vi_normalizer::num2vi::n2w(rest))
+        } else {
+            format!("mười mũ {}", crate::vi_normalizer::num2vi::n2w(&exp.replace('+', "")))
+        }
+    }).into_owned();
+
+    out = RE_RANGE.replace_all(&out, |caps: &FCaps| {
+        let n1_raw = caps.get(1).unwrap().as_str();
+        let space_before = caps.get(2).unwrap().as_str();
+        let space_after = caps.get(3).unwrap().as_str();
+        let n2_raw = caps.get(4).unwrap().as_str();
+        // Asymmetric spacing ("5 -3") reads as a sign, not a range.
+        if !space_before.is_empty() && space_after.is_empty() {
+            return caps.get(0).unwrap().as_str().to_string();
+        }
+        let digits = |s: &str| s.replace(',', "").replace('.', "").len() as i32;
+        if (digits(n1_raw) - digits(n2_raw)).abs() <= 1 {
+            format!(" {} đến {} ", n1_raw, n2_raw)
+        } else {
+            format!(" {} {} ", n1_raw, n2_raw)
+        }
+    }).to_string();
+
+    out = RE_NEG_VAR1.replace_all(&out, " âm $1 ").into_owned();
+    out = RE_NEG_VAR2.replace_all(&out, " âm $1 ").into_owned();
+    out = RE_MATH_MINUS_SUP.replace_all(&out, " trừ ").into_owned();
+    out = RE_MATH_MINUS_COEF.replace_all(&out, " trừ ").into_owned();
+    out = RE_MATH_MINUS_COEFL.replace_all(&out, " trừ ").into_owned();
+    out = RE_DASH_TO_COMMA.replace_all(&out, ",").into_owned();
+    RE_TO_SANG.replace_all(&out, " sang ").into_owned()
+}
+
+/// Stage 13 — measurement units and currencies.
+///
+/// Runs once every sign and numeric cluster is settled, because unit rules key
+/// on the number immediately to their left.
+fn stage_units(text: &str) -> String {
+    let mut out = expand_scientific_notation(text);
+    out = expand_height_weight(&out);
+    out = crate::vi_normalizer::misc::expand_size_labels(&out);
+    out = expand_compound_units(&out);
+    out = expand_units_and_currency(&out);
+    // Long digit runs left over (account numbers, IDs) are read figure by figure.
+    out = RE_LONG_NUM.replace_all(&out, |caps: &FCaps| {
+        let sign = if caps.get(1).unwrap().as_str().is_empty() { "" } else { "âm " };
+        format!(" {}{} ", sign,
+            crate::vi_normalizer::num2vi::n2w_single(caps.get(2).unwrap().as_str()))
+    }).to_string();
+    fix_english_style_numbers(&out)
+}
+
+/// Stage 14 — decimal marks and thousand separators, the last numeric step.
+fn stage_decimals(text: &str) -> String {
+    let mut out = RE_MULTI_COMMA.replace_all(text, |caps: &Captures| {
+        caps.get(1).unwrap().as_str()
+            .split(',')
+            .map(crate::vi_normalizer::num2vi::n2w_decimal)
+            .collect::<Vec<String>>()
+            .join(" phẩy ")
+    }).into_owned();
+
+    out = RE_FLOAT_WITH_COMMA.replace_all(&out, |caps: &FCaps| {
+        let int_part = crate::vi_normalizer::num2vi::n2w(
+            &caps.get(1).unwrap().as_str().replace('.', ""));
+        let dec_part = caps.get(2).unwrap().as_str().trim_end_matches('0');
+        let mut res = if dec_part.is_empty() {
+            int_part
+        } else {
+            format!("{} phẩy {}", int_part, crate::vi_normalizer::num2vi::n2w_decimal(dec_part))
+        };
+        if caps.get(3).is_some() {
+            res.push_str(" phần trăm");
+        }
+        format!(" {} ", res)
+    }).to_string();
+
+    RE_STRIP_DOT_SEP.replace_all(&out, |caps: &FCaps| {
+        caps.get(0).unwrap().as_str().replace('.', "")
+    }).to_string()
+}
+
+/// Stage 15 — whatever no earlier stage claimed.
+///
+/// `normalize_others` reads the remaining symbols and is also where
+/// `RE_CLEAN_OTHERS` deletes anything still unrecognised — see the module-level
+/// note on silent deletion and [`audit`].
+fn stage_residual(text: &str, ctx: Ctx) -> String {
+    let mut out = normalize_others(text, ctx.en_ctx);
+    out = normalize_number_vi(&out);
+
+    // The source already spelled "âm" while the number kept its minus sign
+    // ("nhiệt độ âm -5 độ"), so a numeric pass added a second "âm". Collapse
+    // the pair, but only when a number follows: "giá trị âm âm là dương" is a
+    // genuine double negative and must survive.
+    RE_DOUBLE_AM.replace_all(&out, |caps: &Captures| {
+        let next = caps.get(1).unwrap().as_str();
+        if crate::vi_normalizer::datestime::NUM_WORDS.contains(next.to_lowercase().as_str()) {
+            format!("âm {}", next)
+        } else {
+            caps.get(0).unwrap().as_str().to_string()
+        }
+    }).into_owned()
+}
+
 pub fn clean_vietnamese_text_ctx(text: &str, force_vi: bool) -> String {
     let mut mask_map: Vec<(String, String)> = Vec::new();
     let mut current_text = text.to_string();
 
-    // Câu chứa chữ tiếng Việt có dấu -> path/URL/email đọc kiểu Việt
-    // ("gạch chéo", "gạch nối", tách âm tiết không dấu "thongbao" -> "thong bao").
-    let vi_ctx = text.chars().any(|c: char| c.is_alphabetic() && !c.is_ascii());
-    // Câu KHÔNG có chữ Việt có dấu VÀ có ít nhất 3 từ tiếng Anh thực (có chữ
-    // thường, loại acronym USD/VND) -> coi là câu tiếng Anh: số/ký hiệu đọc
-    // kiểu Anh ("3" -> "three", "." -> "dot"). Ngưỡng này giữ các mẩu trơ
-    // ("50km", "3 x 4", "Arsenal 3-0 Chelsea", công thức toán) ở lại đường
-    // tiếng Việt. force_vi (nội dung <math>) tắt hẳn chế độ Anh.
-    // Nới ngưỡng: chỉ cần 2 từ nếu CẢ HAI thuần chữ thường VÀ là từ tiếng Anh
-    // thật trong wordlist ("print 3D technology" chỉ có 2 từ đếm được vì "3D"
-    // lẫn chữ số). Tên riêng viết Hoa không được tính nên "Arsenal 3-0 Chelsea"
-    // vẫn ở lại đường tiếng Việt.
-    let en_dict_words = RE_WORDISH.find_iter(text)
-        .filter(|m: &regex::Match| m.as_str().chars().all(|c: char| c.is_ascii_lowercase()))
-        .filter(|m: &regex::Match| crate::g2p::en_top_words::EN_TOP_WORDS.contains(m.as_str()))
-        .take(2).count();
-    let en_ctx = !force_vi && !vi_ctx
-        && (RE_WORDISH.find_iter(text)
-            .filter(|m: &regex::Match| m.as_str().chars().any(|c: char| c.is_ascii_lowercase()))
-            .take(3).count() >= 3
-            || en_dict_words >= 2);
+    let ctx = stage_detect_context(text, force_vi);
+    let Ctx { vi_ctx, en_ctx } = ctx;
 
     let protect = |original: String, map: &mut Vec<(String, String)>| -> String {
         let idx = map.len();
@@ -473,13 +855,18 @@ pub fn clean_vietnamese_text_ctx(text: &str, force_vi: bool) -> String {
         mask
     };
 
-    // Protect ENTOKEN placeholders (if any)
+    // ── Stage 1: protect_spans ────────────────────────────────────────────
+    // Normalize each technical span to its final wording immediately, then
+    // replace it with an opaque mask. Everything downstream sees a plain word,
+    // so no later pass can split or rewrite a URL, path or email.
+
+    // Placeholders left by the caller for pre-tagged English spans.
     current_text = RE_ENTOKEN.replace_all(&current_text, |caps: &Captures| {
         let orig = caps.get(0).unwrap().as_str();
         protect(orig.to_lowercase(), &mut mask_map)
     }).into_owned();
 
-    // Protect emails first (simple pattern, matches @)
+    // Emails before URLs: the email pattern is the more specific of the two.
     let temp_email = current_text.clone();
     current_text = RE_EMAIL.replace_all(&temp_email, |caps: &FCaps| {
         let orig = caps.get(0).unwrap().as_str();
@@ -487,14 +874,14 @@ pub fn clean_vietnamese_text_ctx(text: &str, force_vi: bool) -> String {
         protect(val, &mut mask_map)
     }).to_string();
 
-    // Protect technical strings (URLs, paths, etc.) separately
     let temp_tech = current_text.clone();
     current_text = RE_TECHNICAL.replace_all(&temp_tech, |caps: &FCaps| {
         let orig = caps.get(0).unwrap().as_str();
-        // Cụm từ tiếng Anh nối bằng gạch ngang (text-to-speech, state-of-the-art,
-        // plug-and-play): chỉ gồm chữ cái ASCII + '-' và có ít nhất một chữ thường
-        // -> KHÔNG phải định danh kỹ thuật. Tách thành các từ (gạch -> space) để
-        // G2P đọc như tiếng Anh, không đọc "gạch ngang" hay spell "to" -> "t o".
+        // Hyphenated English phrases ("text-to-speech", "state-of-the-art",
+        // "plug-and-play") match the technical pattern but are not identifiers:
+        // ASCII letters plus hyphens, with at least one lowercase letter. Turn
+        // the hyphens into spaces so G2P reads them as English words instead of
+        // announcing "gạch ngang" or spelling "to" out letter by letter.
         if orig.contains('-')
             && orig.chars().all(|c: char| c.is_ascii_alphabetic() || c == '-')
             && orig.chars().any(|c: char| c.is_ascii_lowercase())
@@ -509,10 +896,10 @@ pub fn clean_vietnamese_text_ctx(text: &str, force_vi: bool) -> String {
         protect(val, &mut mask_map)
     }).to_string();
 
-    // Áp SỚM và mask các exception dạng camelCase ("arXiv" -> "arxiv") để camel
-    // splitter không kịp xé thành "ar Xiv" ("xiv" dính entry số La Mã trong
-    // dict). Các exception khác (TS., GS., B2B...) vẫn xử ở normalize_others
-    // như cũ — mask sớm chúng sẽ phá rule chức danh "TS. Nguyễn".
+    // camelCase exceptions ("arXiv") are applied and masked early so the camel
+    // splitter cannot break them into "ar Xiv" — "xiv" would then hit a Roman
+    // numeral entry. Other exceptions (TS., GS., B2B) stay in `normalize_others`
+    // on purpose: masking them here would defeat the "TS. Nguyễn" title rule.
     if let Some(re) = RE_EARLY_EXCEPTIONS.as_ref() {
         let temp_exc = current_text.clone();
         current_text = re.replace_all(&temp_exc, |caps: &Captures| {
@@ -522,230 +909,34 @@ pub fn clean_vietnamese_text_ctx(text: &str, force_vi: bool) -> String {
         }).to_string();
     }
 
-    // T2..T7/CN có từ dẫn thời gian -> thứ trong tuần (trước khi các pass
-    // chữ-số kịp đọc "T2" thành "tê hai").
-    current_text = expand_weekday_abbr(&current_text);
-
-    // "text2text"/"sale4u": số 2/4 kẹp giữa chữ thường đọc "two"/"four" (mọi ngữ cảnh).
-    current_text = crate::vi_normalizer::num2en::expand_sandwich_digits(&current_text);
-
-    // Câu thuần Anh: đổi số/giờ/%/đơn vị/ký hiệu thành chữ Anh TRƯỚC các pass
-    // tiếng Việt — hết chữ số nên các pass sau tự thành no-op.
-    if en_ctx {
-        current_text = crate::vi_normalizer::num2en::english_prenormalize(&current_text);
-    }
-
-    // Đơn vị mũ Unicode -> ASCII trước mọi pass toán/đơn vị.
-    current_text = RE_SUP_UNIT.replace_all(&current_text, "${1}2").into_owned();
-    current_text = RE_SUP_UNIT3.replace_all(&current_text, "${1}3").into_owned();
-
-    // Số mũ mang dấu ("10⁻³" -> "mười mũ trừ ba") — trước cụm mũ không dấu.
-    current_text = RE_SUPERSCRIPT_SIGNED.replace_all(&current_text, |caps: &Captures| {
-        let sign = if caps.get(1).unwrap().as_str() == "⁻" { "trừ " } else { "" };
-        let digits = sup_digits(caps.get(2).unwrap().as_str());
-        format!(" mũ {}{} ", sign, crate::vi_normalizer::num2vi::n2w(&digits))
-    }).into_owned();
-
-    // Cụm mũ Unicode liên tiếp ("10²³" -> "mười mũ hai mươi ba") — phải chạy
-    // trước khi expand_symbols đọc rời từng ký tự "bình phương lập phương".
-    current_text = RE_SUPERSCRIPT_RUN.replace_all(&current_text, |caps: &Captures| {
-        let digits = sup_digits(caps.get(0).unwrap().as_str());
-        format!(" mũ {} ", crate::vi_normalizer::num2vi::n2w(&digits))
-    }).into_owned();
-
-    // Công thức trần trong câu Việt: xử lý TRƯỚC các pass tách từ/nhân/khoảng
-    // để cụm biến ("mc²", "4ac"), giai thừa, trừ nhị phân đọc như trong <math>.
-    if !en_ctx {
-        current_text = expand_inline_math(&current_text);
-        current_text = RE_FACTORIAL_INLINE.replace_all(&current_text, " giai thừa ").into_owned();
-        current_text = RE_NEG_FUNC.replace_all(&current_text, " âm ").into_owned();
-        // "x - a", "u - v": trừ giữa hai BIẾN chữ thường đơn lẻ (dấu gạch
-        // giữa hai từ thật không dính vì hai vế phải là chữ cái đơn).
-        current_text = RE_MINUS_SINGLE_VARS.replace_all(&current_text, "$1 trừ $2").into_owned();
-    }
-
+    current_text = stage_early_lexical(&current_text, ctx);
+    current_text = stage_superscripts(&current_text);
+    current_text = stage_math(&current_text, ctx);
     current_text = split_concatenated_terms(&current_text);
+    current_text = stage_codes(&current_text, ctx);
 
-    // Biển số xe / mã định danh: phải trước pass nhân ("59X1" có chữ X) và
-    // trước normalize_time ("51H" khớp mẫu giờ). Câu thuần Anh giữ nguyên
-    // cho nhánh Anh xử lý.
-    if !en_ctx {
-        current_text = crate::vi_normalizer::misc::expand_codes_and_plates(&current_text);
-        // Hệ số trước công thức hóa học: "6CO2" -> "6 CO2", "2HCl" -> "2 HCl"
-        // để phần chữ đi theo nhánh acronym như khi đứng một mình.
-        current_text = RE_CHEM_DIGIT_PREFIX.replace_all(&current_text, "$1 ").into_owned();
-    }
+    current_text = stage_arithmetic(&current_text);
+    current_text = stage_abbreviations(&current_text);
+    current_text = stage_percent_scores(&current_text);
 
-    // Core normalization passes
-    current_text = expand_power_of_ten(&current_text);
-    current_text = RE_MULTIPLY.replace_all(&current_text, |caps: &FCaps| {
-        expand_multiply_number(caps.get(0).unwrap().as_str())
-    }).to_string();
-
-    current_text = RE_CONTEXT_TRU.replace_all(&current_text, " $1 $2 trừ $3 ").into_owned();
-    current_text = RE_CONTEXT_TRU_POST.replace_all(&current_text, " $1 trừ $2 $3 ").into_owned();
-    current_text = RE_CONTEXT_DEN.replace_all(&current_text, " $1 $2 đến $3 ").into_owned();
-
-    current_text = RE_EQ_MINUS.replace_all(&current_text, |caps: &Captures| {
-        format!("{} trừ {} =", caps.get(1).unwrap().as_str(), caps.get(2).unwrap().as_str())
-    }).into_owned();
-
-    current_text = RE_EQ_NEG.replace_all(&current_text, |caps: &Captures| {
-        format!("= âm {}", caps.get(1).unwrap().as_str())
-    }).into_owned();
-
-    current_text = crate::vi_normalizer::misc::expand_abbreviations(&current_text);
-    current_text = RE_ADDR_ABBR.replace_all(&current_text, |caps: &FCaps| {
-        match caps.get(1).unwrap().as_str() {
-            "P" => " phường ",
-            "Q" => " quận ",
-            _ => " đường ",
-        }.to_string()
-    }).into_owned();
-    current_text = expand_money_slang(&current_text);
-    current_text = expand_scientific_notation(&current_text);
-
-    current_text = RE_RANGE_PCT.replace_all(&current_text, "$1 đến $2%").into_owned();
-    current_text = RE_PCT_NEG.replace_all(&current_text, " âm $1% ").into_owned();
-
-    current_text = expand_scores(&current_text);
-
+    // ── Stage 10: datetime ────────────────────────────────────────────────
     current_text = normalize_date(&current_text);
     current_text = normalize_time(&current_text);
 
-    current_text = RE_NUMERIC_DASH_GROUPS.replace_all(&current_text, |caps: &Captures| {
-        let matched = caps.get(0).unwrap().as_str();
-        let parts: Vec<&str> = matched.split(&['-', '\u{2013}', '\u{2014}'][..]).collect();
-        parts.iter()
-            .map(|&p| crate::vi_normalizer::num2vi::n2w_single(p))
-            .collect::<Vec<String>>()
-            .join(", ")
-    }).into_owned();
+    current_text = stage_phones(&current_text);
+    current_text = stage_ranges_signs(&current_text);
+    current_text = stage_units(&current_text);
+    current_text = stage_decimals(&current_text);
+    current_text = stage_residual(&current_text, ctx);
 
-    current_text = RE_LANDLINE.replace_all(&current_text, |caps: &FCaps| {
-        let matched = caps.get(0).unwrap().as_str();
-        let groups: Vec<String> = matched
-            .split(|c: char| !c.is_ascii_digit())
-            .filter(|s: &&str| !s.is_empty())
-            .map(|s: &str| crate::vi_normalizer::num2vi::n2w_single(s))
-            .collect();
-        let prefix = if matched.contains('+') { "cộng " } else { "" };
-        format!(" {}{} ", prefix, groups.join(", "))
-    }).into_owned();
-
-    current_text = RE_PHONE_SPACE.replace_all(&current_text, |caps: &Captures| {
-        let matched = caps.get(0).unwrap().as_str();
-        let parts: Vec<&str> = matched.split_whitespace().collect();
-        parts.iter()
-            .map(|&p| crate::vi_normalizer::num2vi::n2w_single(p))
-            .collect::<Vec<String>>()
-            .join(", ")
-    }).into_owned();
-
-    current_text = RE_PHONE_WITH_DASH.replace_all(&current_text, |caps: &Captures| {
-        let p1 = caps.get(1).unwrap().as_str();
-        let p2 = caps.get(2).unwrap().as_str();
-        let p3 = caps.get(3).unwrap().as_str();
-        format!(" {}, {}, {} ",
-            crate::vi_normalizer::num2vi::n2w_single(p1),
-            crate::vi_normalizer::num2vi::n2w_single(p2),
-            crate::vi_normalizer::num2vi::n2w_single(p3)
-        )
-    }).into_owned();
-
-    current_text = RE_HOTLINE.replace_all(&current_text, |caps: &Captures| {
-        format!(" {} {} ",
-            crate::vi_normalizer::num2vi::n2w_single(caps.get(1).unwrap().as_str()),
-            crate::vi_normalizer::num2vi::n2w_single(caps.get(2).unwrap().as_str())
-        )
-    }).into_owned();
-
-    current_text = RE_POWER_OF_TEN_IMPLICIT.replace_all(&current_text, |caps: &Captures| {
-        let exp = caps.get(1).unwrap().as_str();
-        if exp.starts_with('-') {
-            format!("mười mũ trừ {}", crate::vi_normalizer::num2vi::n2w(&exp[1..]))
-        } else {
-            format!("mười mũ {}", crate::vi_normalizer::num2vi::n2w(&exp.replace('+', "")))
-        }
-    }).into_owned();
-
-    current_text = RE_RANGE.replace_all(&current_text, |caps: &FCaps| {
-        let n1_raw = caps.get(1).unwrap().as_str();
-        let s1 = caps.get(2).unwrap().as_str();
-        let s2 = caps.get(3).unwrap().as_str();
-        let n2_raw = caps.get(4).unwrap().as_str();
-        if !s1.is_empty() && s2.is_empty() {
-            return caps.get(0).unwrap().as_str().to_string();
-        }
-        let n1 = n1_raw.replace(',', "").replace('.', "");
-        let n2 = n2_raw.replace(',', "").replace('.', "");
-        if (n1.len() as i32 - n2.len() as i32).abs() <= 1 {
-            format!(" {} đến {} ", n1_raw, n2_raw)
-        } else {
-            format!(" {} {} ", n1_raw, n2_raw)
-        }
-    }).to_string();
-
-    current_text = RE_NEG_VAR1.replace_all(&current_text, " âm $1 ").into_owned();
-    current_text = RE_NEG_VAR2.replace_all(&current_text, " âm $1 ").into_owned();
-    current_text = RE_MATH_MINUS_SUP.replace_all(&current_text, " trừ ").into_owned();
-    current_text = RE_MATH_MINUS_COEF.replace_all(&current_text, " trừ ").into_owned();
-    current_text = RE_MATH_MINUS_COEFL.replace_all(&current_text, " trừ ").into_owned();
-    current_text = RE_DASH_TO_COMMA.replace_all(&current_text, ",").into_owned();
-    current_text = RE_TO_SANG.replace_all(&current_text, " sang ").into_owned();
-
-    current_text = expand_scientific_notation(&current_text);
-    current_text = expand_height_weight(&current_text);
-    current_text = crate::vi_normalizer::misc::expand_size_labels(&current_text);
-    current_text = expand_compound_units(&current_text);
-    current_text = expand_units_and_currency(&current_text);
-    current_text = RE_LONG_NUM.replace_all(&current_text, |caps: &FCaps| {
-        let neg = caps.get(1).unwrap().as_str();
-        let num_str = caps.get(2).unwrap().as_str();
-        let neg_prefix = if !neg.is_empty() { "âm " } else { "" };
-        format!(" {}{} ", neg_prefix, crate::vi_normalizer::num2vi::n2w_single(num_str))
-    }).to_string();
-
-    current_text = fix_english_style_numbers(&current_text);
-
-    current_text = RE_MULTI_COMMA.replace_all(&current_text, |caps: &Captures| {
-        caps.get(1).unwrap().as_str().split(',').map(|s: &str| crate::vi_normalizer::num2vi::n2w_decimal(s)).collect::<Vec<String>>().join(" phẩy ")
-    }).into_owned();
-
-    current_text = RE_FLOAT_WITH_COMMA.replace_all(&current_text, |caps: &FCaps| {
-        let int_part = crate::vi_normalizer::num2vi::n2w(&caps.get(1).unwrap().as_str().replace('.', ""));
-        let dec_part = caps.get(2).unwrap().as_str().trim_end_matches('0');
-        let mut res = if dec_part.is_empty() { int_part } else { format!("{} phẩy {}", int_part, crate::vi_normalizer::num2vi::n2w_decimal(dec_part)) };
-        if caps.get(3).is_some() { res.push_str(" phần trăm"); }
-        format!(" {} ", res)
-    }).to_string();
-
-    current_text = RE_STRIP_DOT_SEP.replace_all(&current_text, |caps: &FCaps| {
-        caps.get(0).unwrap().as_str().replace('.', "")
-    }).to_string();
-
-    current_text = normalize_others(&current_text, en_ctx);
-    current_text = normalize_number_vi(&current_text);
-
-    // Văn bản đã viết sẵn "âm" mà số vẫn mang dấu trừ ("nhiệt độ âm -5 độ")
-    // -> các pass số chèn thêm "âm" nữa thành "âm âm năm". Gộp lại một, nhưng
-    // chỉ khi từ sau là CHỮ SỐ: "giá trị âm âm là dương" phải giữ nguyên.
-    current_text = RE_DOUBLE_AM.replace_all(&current_text, |caps: &Captures| {
-        let next = caps.get(1).unwrap().as_str();
-        if crate::vi_normalizer::datestime::NUM_WORDS.contains(next.to_lowercase().as_str()) {
-            format!("âm {}", next)
-        } else {
-            caps.get(0).unwrap().as_str().to_string()
-        }
-    }).into_owned();
-
+    // ── Stage 16: letters ─────────────────────────────────────────────────
     let temp_text3 = current_text.clone();
     current_text = RE_INTERNAL_EN_TAG.replace_all(&temp_text3, |caps: &Captures| {
         protect(caps.get(0).unwrap().as_str().to_string(), &mut mask_map)
     }).into_owned();
 
-    // Câu thuần Anh: KHÔNG đọc chữ cái đơn theo tên chữ Việt ("plan B" giữ "b"
-    // để G2P đọc "bi" theo ngữ cảnh Anh).
+    // English sentences keep bare letters as-is ("plan B" stays "b") so G2P can
+    // read them with an English voice; Vietnamese ones get letter names.
     if !en_ctx {
         current_text = expand_standalone_letters(&current_text);
     }
@@ -756,6 +947,9 @@ pub fn clean_vietnamese_text_ctx(text: &str, force_vi: bool) -> String {
         }).into_owned();
     }
 
+    // ── Stage 17: finalize ────────────────────────────────────────────────
+    // Restore the protected spans, convert internal markers back to tags, and
+    // normalize spacing. Nothing may rewrite text after this point.
     for (mask, original) in mask_map {
         current_text = current_text.replace(&mask, &original);
         current_text = current_text.replace(&mask.to_lowercase(), &original);
@@ -778,12 +972,27 @@ impl Normalizer {
     #[new]
     #[pyo3(signature = (lang="vi", dict_path=None))]
     pub fn new(lang: &str, dict_path: Option<&str>) -> Self {
-        // Nạp dict phoneme (nếu có) để tra từ khi đọc path/URL/email kiểu Việt;
-        // nạp hỏng thì bỏ qua, normalizer vẫn chạy với whitelist fallback.
+        // Load the phoneme dictionary, used to look words up when reading
+        // paths, URLs and emails the Vietnamese way. A failed load is ignored:
+        // the normalizer still runs off its built-in whitelist.
         if let Some(p) = dict_path {
             crate::vi_normalizer::technical::init_norm_dict(p);
         }
         Normalizer { lang: lang.to_string() }
+    }
+
+    /// Characters in `text` that normalization would drop without producing any
+    /// spoken word.
+    ///
+    /// Returns an empty list when the input is fully covered. A non-empty
+    /// result means those characters need either a reading or an explicit
+    /// entry in the audit module's `INTENTIONALLY_DROPPED` set — see
+    /// [`crate::vi_normalizer::audit`] for why this matters.
+    pub fn audit(&self, text: &str) -> Vec<String> {
+        crate::vi_normalizer::audit::audit_unmapped(text)
+            .into_iter()
+            .map(|c| c.to_string())
+            .collect()
     }
 
     #[pyo3(signature = (text, punc_norm=false))]

@@ -575,6 +575,19 @@ TEST_CASES = [
     ("trọng lượng P = mg", "trọng lượng phê bằng mờ gờ"),
     ("động năng bằng ½mv²", "động năng bằng một phần hai mờ vê bình phương"),
     ("khoảng 6,022 x 10²³ hạt", "khoảng sáu phẩy không hai hai nhân mười mũ hai mươi ba hạt"),
+    # ══ Ký tự từng bị XÓA IM LẶNG — phát hiện bởi test bất biến (audit) ══════
+    # Ký hiệu đồng ₫ (U+20AB): thiếu hẳn trong bảng tiền tệ.
+    ("giá niêm yết 250.000₫ một suất", "giá niêm yết hai trăm năm mươi nghìn đồng một suất"),
+    ("tổng cộng ₫1.200.000 phải trả", "tổng cộng một triệu hai trăm nghìn đồng phải trả"),
+    # Ký hiệu độ gộp một ký tự ℃ (U+2103) / ℉ (U+2109).
+    ("nhiệt độ ngoài trời 38℃", "nhiệt độ ngoài trời ba mươi tám độ xê"),
+    ("nước sôi ở 212℉", "nước sôi ở hai trăm mười hai độ ép"),
+    # Gạch nối kiểu chữ ‐ (U+2010) / ‑ (U+2011): trước bị xóa, các từ dính liền.
+    ("công nghệ text‐to‐speech", "công nghệ text to speech"),
+    # Mũi tên logic: chỉ "→" có trong bảng, các dạng còn lại bị xóa.
+    ("nếu a lớn hơn b ⇒ a bình phương lớn hơn", "nếu a lớn hơn bê suy ra a bình phương lớn hơn"),
+    ("quan hệ hai chiều a ⇔ b", "quan hệ hai chiều a tương đương bê"),
+    ("tồn tại ∃ x thuộc tập số thực", "tồn tại tồn tại ích thuộc tập số thực"),
     # Số mũ ÂM viết bằng ⁻ (U+207B): trước đây dấu bị nuốt -> "mười lập phương".
     ("nồng độ 10⁻³ mol trên lít", "nồng độ mười mũ trừ ba mol trên lít"),
     ("sai số cỡ 10⁻⁶", "sai số cỡ mười mũ trừ sáu"),

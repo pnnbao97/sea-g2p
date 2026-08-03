@@ -1,3 +1,34 @@
+//! Dates and clock times — pipeline stage 10.
+//!
+//! # The central ambiguity
+//!
+//! `d/m` and a fraction are written identically. "1/8" is the first of August
+//! or one eighth, and both readings are common, so the decision rests entirely
+//! on context. Three signals are used, in decreasing order of confidence:
+//!
+//!   1. **A leading zero** ("01/8") — only ever written for dates.
+//!   2. **A lead word immediately before** ("chiều 17/10", "trước 30/4"), via
+//!      [`DATE_LEAD_WORDS`]. Adjacency matters: "chiều dài 3/4 mét" must stay a
+//!      fraction, and it does because "dài" sits in between.
+//!   3. **A date keyword within three words** ("cuộc họp vào ngày 15/3"), via
+//!      [`DATE_KEYWORDS`]. Wider reach, so it accepts only well-formed dates.
+//!
+//! Mathematical context ([`MATH_KEYWORDS`], nearby operators) forces the
+//! fraction reading regardless.
+//!
+//! # Ranges
+//!
+//! In "từ 1/8 đến hết 31/8" the second date has no lead word of its own, so
+//! `RE_DATE_RANGE` matches the whole span and converts both halves together.
+//!
+//! # Duplicate lead words
+//!
+//! Expansion inserts "ngày", which collides with a "ngày" the author already
+//! wrote. The collapse rule fires **only when a number follows**, because
+//! reduplication is ordinary Vietnamese: "ngày ngày vẫn đông khách" must keep
+//! both words. Getting this wrong deletes a word from the sentence with nothing
+//! audible to signal the loss — see `tests/test_invariants.py`.
+
 use fancy_regex::{Regex, Captures};
 use once_cell::sync::Lazy;
 use crate::vi_normalizer::num2vi::{n2w, n2w_decimal};

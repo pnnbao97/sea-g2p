@@ -1,3 +1,10 @@
+//! Bare numbers left over once every specialized pass has taken its share.
+//!
+//! By the time this runs, dates, times, phone numbers, units, currencies and
+//! codes have all claimed their digits. What remains is plain quantities, so the
+//! rules can be simple — the hard part was deciding, upstream, that these digits
+//! really are quantities.
+
 use fancy_regex::{Regex as FRegex, Captures as FCaps};
 use regex::{Regex, Captures};
 use once_cell::sync::Lazy;
