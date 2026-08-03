@@ -122,6 +122,27 @@ pub static ACRONYMS_EXCEPTIONS_VI: Lazy<HashMap<&'static str, &'static str>> = L
     // Doanh nghiệp / văn bản.
     m.insert("CP", "cổ phần"); m.insert("NĐ-CP", "nờ đê xê phê");
     m.insert("TT-BTC", "tê tê bê tê xê"); m.insert("QĐ-TTg", "qui đê tê tê giê");
+    // Tư pháp / đất đai / ngân sách / lao động.
+    m.insert("VKSND", "viện kiểm sát nhân dân"); m.insert("GPMB", "giải phóng mặt bằng");
+    m.insert("NSNN", "ngân sách nhà nước"); m.insert("XKLĐ", "xuất khẩu lao động");
+    m.insert("UBMTTQ", "uỷ ban mặt trận tổ quốc"); m.insert("HĐLĐ", "hợp đồng lao động");
+    // Công nghệ / thương mại.
+    m.insert("CNTT", "công nghệ thông tin"); m.insert("TMĐT", "thương mại điện tử");
+    // Doanh nghiệp / tài chính.
+    m.insert("TNDN", "thu nhập doanh nghiệp"); m.insert("TNCN", "thu nhập cá nhân");
+    m.insert("GTGT", "giá trị gia tăng"); m.insert("BCTC", "báo cáo tài chính");
+    m.insert("ĐHĐCĐ", "đại hội đồng cổ đông"); m.insert("TGĐ", "tổng giám đốc");
+    m.insert("PTGĐ", "phó tổng giám đốc"); m.insert("Cty", "công ty");
+    m.insert("TNHH MTV", "trách nhiệm hữu hạn một thành viên");
+    // Bộ/sở dạng "&" (mask sớm vì chứa ký tự đặc biệt).
+    m.insert("GD&ĐT", "giáo dục đào tạo"); m.insert("TN&MT", "tài nguyên môi trường");
+    m.insert("KH&CN", "khoa học công nghệ"); m.insert("LĐ-TB&XH", "lao động thương binh xã hội");
+    // Số hiệu văn bản.
+    m.insert("TT-BYT", "tê tê bê y tê"); m.insert("CT-TTg", "xê tê tê tê giê");
+    m.insert("UBND-VP", "uỷ ban nhân dân vê phê");
+    m.insert("QH11", "quốc hội mười một"); m.insert("QH12", "quốc hội mười hai");
+    m.insert("QH13", "quốc hội mười ba"); m.insert("QH14", "quốc hội mười bốn");
+    m.insert("QH15", "quốc hội mười lăm"); m.insert("QH16", "quốc hội mười sáu");
     // Lưu ý: T2..T7/CN (thứ trong tuần) xử lý theo NGỮ CẢNH ở
     // expand_weekday_abbr (cần từ dẫn "sáng/chiều/từ/đến..."), không map cứng.
     m
@@ -134,6 +155,11 @@ pub static TECHNICAL_TERMS: Lazy<HashMap<&'static str, &'static str>> = Lazy::ne
     // "arXiv" viết hoa giữa từ: chặn camelCase tách "ar Xiv" ("xiv" trong dict
     // là entry "roman fourteen" rác) — ép đọc như dict "arxiv".
     m.insert("arXiv", "__start_en__arxiv__end_en__");
+    // Acronym quen đọc như TỪ (không đánh vần rời từng chữ).
+    m.insert("TOEIC", "__start_en__toeic__end_en__");
+    m.insert("UNICEF", "__start_en__unicef__end_en__");
+    m.insert("ASIAD", "a si át");
+    m.insert("SEA Games", "__start_en__sea games__end_en__");
     m.insert("NVIDIA", "__start_en__n v d a__end_en__");
     m.insert("VN-Index", "__start_en__v n__end_en__ index");
     m.insert("MS DOS", "__start_en__m s dos__end_en__");
