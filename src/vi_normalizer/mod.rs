@@ -240,6 +240,21 @@ pub fn clean_vietnamese_text(text: &str) -> String {
 // Token "trông như từ" (thuần chữ cái, >=2 ký tự) — dùng nhận diện câu tiếng Anh.
 static RE_WORDISH: Lazy<Regex> = Lazy::new(|| Regex::new(r"\b[a-zA-Z]{2,}\b").unwrap());
 
+// Exception dạng camelCase (có chữ thường liền trước chữ HOA, vd "arXiv") —
+// phải mask TRƯỚC split_concatenated_terms kẻo bị xé đôi.
+static RE_EARLY_EXCEPTIONS: Lazy<Option<Regex>> = Lazy::new(|| {
+    let keys: Vec<String> = COMBINED_EXCEPTIONS.keys()
+        .filter(|k: &&String| {
+            k.as_bytes().windows(2).any(|w: &[u8]| {
+                (w[0] as char).is_ascii_lowercase() && (w[1] as char).is_ascii_uppercase()
+            })
+        })
+        .map(|k: &String| regex::escape(k))
+        .collect();
+    if keys.is_empty() { return None; }
+    Some(Regex::new(&format!(r"\b(?:{})\b", keys.join("|"))).unwrap())
+});
+
 pub fn clean_vietnamese_text_ctx(text: &str, force_vi: bool) -> String {
     let mut mask_map: Vec<(String, String)> = Vec::new();
     let mut current_text = text.to_string();
@@ -305,6 +320,19 @@ pub fn clean_vietnamese_text_ctx(text: &str, force_vi: bool) -> String {
         };
         protect(val, &mut mask_map)
     }).to_string();
+
+    // Áp SỚM và mask các exception dạng camelCase ("arXiv" -> "arxiv") để camel
+    // splitter không kịp xé thành "ar Xiv" ("xiv" dính entry số La Mã trong
+    // dict). Các exception khác (TS., GS., B2B...) vẫn xử ở normalize_others
+    // như cũ — mask sớm chúng sẽ phá rule chức danh "TS. Nguyễn".
+    if let Some(re) = RE_EARLY_EXCEPTIONS.as_ref() {
+        let temp_exc = current_text.clone();
+        current_text = re.replace_all(&temp_exc, |caps: &Captures| {
+            let orig = caps.get(0).unwrap().as_str();
+            let val = COMBINED_EXCEPTIONS.get(orig).cloned().unwrap_or(orig.to_string());
+            protect(val, &mut mask_map)
+        }).to_string();
+    }
 
     // "text2text"/"sale4u": số 2/4 kẹp giữa chữ thường đọc "two"/"four" (mọi ngữ cảnh).
     current_text = crate::vi_normalizer::num2en::expand_sandwich_digits(&current_text);
