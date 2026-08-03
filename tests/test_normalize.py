@@ -575,6 +575,12 @@ TEST_CASES = [
     ("trọng lượng P = mg", "trọng lượng phê bằng mờ gờ"),
     ("động năng bằng ½mv²", "động năng bằng một phần hai mờ vê bình phương"),
     ("khoảng 6,022 x 10²³ hạt", "khoảng sáu phẩy không hai hai nhân mười mũ hai mươi ba hạt"),
+    # Số mũ ÂM viết bằng ⁻ (U+207B): trước đây dấu bị nuốt -> "mười lập phương".
+    ("nồng độ 10⁻³ mol trên lít", "nồng độ mười mũ trừ ba mol trên lít"),
+    ("sai số cỡ 10⁻⁶", "sai số cỡ mười mũ trừ sáu"),
+    ("hằng số 6,626 x 10⁻³⁴ jun giây", "hằng số sáu phẩy sáu hai sáu nhân mười mũ trừ ba mươi bốn jun giây"),
+    ("biểu thức 2⁻¹", "biểu thức hai mũ trừ một"),
+    ("sản lượng tăng 10⁺⁶ lần", "sản lượng tăng mười mũ sáu lần"),
     ("hàm f(x) = eˣ rất đẹp", "hàm ép, ích, bằng e mũ ích rất đẹp"),
     ("Ký hiệu Σ là tổng", "ký hiệu xích ma là tổng"),
     ("câu trả lời là 5! = 120 cách", "câu trả lời là năm giai thừa bằng một trăm hai mươi cách"),
