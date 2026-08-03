@@ -251,7 +251,19 @@ TEST_CASES = [
     ("sào 1m2", "sào một mét vuông"),       # m2 vẫn là mét vuông
     ("phòng 50m2", "phòng năm mươi mét vuông"),
     ("khối 20m3", "khối hai mươi mét khối"),
-    ("vốn 5M", "vốn năm triệu"),            # M hoa vẫn là triệu
+    # Chữ HOA đơn H/M/G dính sau SỐ NGUYÊN = mã hiệu -> đánh vần, không tự
+    # biên thành giờ/triệu/gam. Số thập phân + M vẫn là triệu (mã không có phẩy).
+    ("vốn 5M", "vốn năm mờ"),
+    ("mã 51H bị phạt", "mã năm mươi mốt hát bị phạt"),
+    ("căn hộ 51M", "căn hộ năm mươi mốt mờ"),
+    ("phục vụ 24H", "phục vụ hai mươi bốn hát"),
+    ("trực 24h liên tục", "trực hai mươi bốn giờ liên tục"),
+    ("gói 450g đường", "gói bốn trăm năm mươi gam đường"),
+    ("chuyến 14H30 hoãn", "chuyến mười bốn giờ ba mươi phút hoãn"),
+    # Đơn vị oát trần + chiều cao/cân nặng đứng cuối câu.
+    ("tấm pin 550 W", "tấm pin năm trăm năm mươi oát"),
+    ("cao 1m75.", "cao một mét bảy mươi lăm."),
+    ("nặng 3kg2.", "nặng ba ki lô gam hai."),
 
     # ══ 11. KHOẢNG / TỈ SỐ / PHÉP TRỪ (dấu gạch & gạch chéo) ══════════════════
     ("700-900", "bảy trăm đến chín trăm"),
@@ -309,8 +321,10 @@ TEST_CASES = [
     ("Tỷ lệ P/E là 28.7x.", "tỷ lệ phê trên e là hai mươi tám chấm bảy ích."),
     ("Tỉ số USD/EUR đang tăng.", "tỉ số <en>u s d</en> trên <en>euro</en> đang tăng."),
     ("AN/ASQ", "<en>a n</en> trên <en>a s q</en>"),
-    ("Kích thước lốp xe 225/45R17 91W.", "kích thước lốp xe hai trăm hai mươi lăm trên bốn mươi lăm rờ mười bảy chín mươi mốt vê kép."),
-    ("Kích thước lốp xe 45R17/22R5 91W.", "kích thước lốp xe bốn mươi lăm rờ mười bảy trên hai mươi hai rờ năm chín mươi mốt vê kép."),
+    # "91W": từ khi thêm đơn vị "w" -> "oát" (công suất "550 W"/"320W" phổ biến
+    # hơn nhiều), chỉ số tốc độ lốp chấp nhận đọc "oát".
+    ("Kích thước lốp xe 225/45R17 91W.", "kích thước lốp xe hai trăm hai mươi lăm trên bốn mươi lăm rờ mười bảy chín mươi mốt oát."),
+    ("Kích thước lốp xe 45R17/22R5 91W.", "kích thước lốp xe bốn mươi lăm rờ mười bảy trên hai mươi hai rờ năm chín mươi mốt oát."),
 
     # ══ 13. SỐ LA MÃ ═════════════════════════════════════════════════════════
     ("Thế kỷ XXI", "thế kỷ hai mươi mốt"),
