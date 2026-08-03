@@ -88,11 +88,18 @@ fn is_strong_math_char(c: char) -> bool {
         || crate::vi_normalizer::resources::SUBSCRIPTS_MAP.contains_key(&c)
 }
 
-// KHÔNG tính "/" là toán tử ngữ cảnh: phân số nằm trong token ("Σ(1/2ⁿ)")
-// đứng cạnh từ Việt không dấu ("khi") sẽ kéo nhầm từ đó vào cụm công thức.
+// KHÔNG tính "/" và √ ∫ là toán tử NGỮ CẢNH: phân số/căn nằm trong token
+// ("Σ(1/2ⁿ)", "1/√3,") đứng cạnh từ Việt không dấu ("khi", "ta") sẽ kéo nhầm
+// từ đó vào cụm công thức. (√ ∫ vẫn là bằng chứng toán BÊN TRONG token.)
 fn has_operator_char(tok: &str) -> bool {
-    tok.chars().any(|c| matches!(c, '=' | '+' | '-' | '–' | '—' | '±' | '*' | '×' | '÷' | '∫' | '√'))
+    tok.chars().any(|c| matches!(c, '=' | '+' | '-' | '–' | '—' | '±' | '*' | '×' | '÷'))
 }
+
+// Vi phân dx/dy/du/dv/dt: luôn coi là token toán (kể cả khi đứng cạnh token
+// không có toán tử: "∫sin x dx") nhưng vẫn TÁCH chữ khi đọc ("đê ích").
+static MATH_DIFFS: Lazy<std::collections::HashSet<&'static str>> = Lazy::new(|| {
+    ["dx", "dy", "dz", "du", "dv", "dt"].into_iter().collect()
+});
 
 /// (đạt chuẩn ký tự toán, là token thuần chữ ≥2 ký tự cần xét ngữ cảnh)
 fn classify_math_token(tok: &str) -> (bool, bool) {
@@ -117,12 +124,23 @@ fn classify_math_token(tok: &str) -> (bool, bool) {
             return (false, false);
         }
     }
-    // Thuần chữ (không số/toán tử đi kèm), nhiều ký tự, không phải tên hàm
-    // -> dễ trùng từ thật, cần toán tử đứng cạnh mới nhận.
+    // Thuần chữ (không có CHỮ SỐ/toán tử/ký hiệu toán trong token — dấu câu
+    // đuôi như "thi," không được tính là bằng chứng), nhiều ký tự, không phải
+    // tên hàm/vi phân -> dễ trùng từ thật, cần toán tử đứng cạnh mới nhận.
+    let has_math_evidence = tok.chars().any(|c| {
+        c.is_ascii_digit()
+            || "+-–—*/=±≤≥≠≈×÷√∫^'!½¼¾⅓⅔".contains(c)
+            || ('α'..='ω').contains(&c) || ('Α'..='Ω').contains(&c)
+            || crate::vi_normalizer::resources::SUPERSCRIPTS_MAP.contains_key(&c)
+            || crate::vi_normalizer::resources::SUBSCRIPTS_MAP.contains_key(&c)
+    });
     let pure_alpha_multi = runs.len() == 1
         && runs[0].chars().count() >= 2
-        && runs[0].chars().count() == tok.chars().count()
-        && !MATH_FUNCS.contains(runs[0].to_lowercase().as_str());
+        && !has_math_evidence
+        && {
+            let lower0 = runs[0].to_lowercase();
+            !MATH_FUNCS.contains(lower0.as_str()) && !MATH_DIFFS.contains(lower0.as_str())
+        };
     (true, pure_alpha_multi)
 }
 
@@ -278,6 +296,10 @@ static RE_SUP_UNIT3: Lazy<Regex> = Lazy::new(|| Regex::new(r"\b(km|cm|mm|m)\u00b
 //  - kh\u00f4ng ph\u1ea3i d\u1ea1ng gi\u1edd "4H30" (H + \u0111\u00fang hai ch\u1eef s\u1ed1 cu\u1ed1i t\u1eeb).
 static RE_CHEM_DIGIT_PREFIX: Lazy<FRegex> = Lazy::new(|| {
     FRegex::new(r"\b(\d)(?!H\d{2}\b)(?=[A-Z][a-z]|[A-Z][A-Z]?\d|[A-Z][A-Z][a-z])").unwrap()
+});
+// Trừ giữa hai biến chữ thường ĐƠN LẺ có khoảng trắng ("x - a", "u - v").
+static RE_MINUS_SINGLE_VARS: Lazy<Regex> = Lazy::new(|| {
+    Regex::new(r"\b([a-z])\s+[-–—]\s+([a-z])\b").unwrap()
 });
 static RE_FLOAT_WITH_COMMA: Lazy<FRegex> = Lazy::new(|| FRegex::new(r"(?<![\d.])(\d+(?:\.\d{3})*),(\d+)(%)?").unwrap());
 static RE_STRIP_DOT_SEP: Lazy<FRegex> = Lazy::new(|| FRegex::new(r"(?<![\d.])\d+(?:\.\d{3})+(?![\d.])").unwrap());
@@ -521,6 +543,9 @@ pub fn clean_vietnamese_text_ctx(text: &str, force_vi: bool) -> String {
         current_text = expand_inline_math(&current_text);
         current_text = RE_FACTORIAL_INLINE.replace_all(&current_text, " giai thừa ").into_owned();
         current_text = RE_NEG_FUNC.replace_all(&current_text, " âm ").into_owned();
+        // "x - a", "u - v": trừ giữa hai BIẾN chữ thường đơn lẻ (dấu gạch
+        // giữa hai từ thật không dính vì hai vế phải là chữ cái đơn).
+        current_text = RE_MINUS_SINGLE_VARS.replace_all(&current_text, "$1 trừ $2").into_owned();
     }
 
     current_text = split_concatenated_terms(&current_text);
