@@ -298,6 +298,12 @@ pub static WORD_LIKE_ACRONYMS: Lazy<HashSet<&'static str>> = Lazy::new(|| {
     let words = [
         "UNESCO", "NASA", "NATO", "ASEAN", "OPEC", "SARS", "FIFA", "UNIC", "RAM", "VRAM", "COVID", "IELTS", "STEM",
         "ISO",
+        // Thể thao / tổ chức / thi cử / đời sống — quen đọc như TỪ.
+        "UEFA", "EURO", "VAR", "ASIAD", "INTERPOL", "UNICEF",
+        "TOEFL", "PISA", "STEAM", "SAT", "GMAT",
+        "AIDS", "MERS", "ECMO", "LASIK",
+        "FED", "NASDAQ", "UPCOM", "FOMO", "YOLO", "ASAP",
+        "RADAR", "LASER", "LIDAR", "SONAR", "SCUBA", "GIF", "JPEG", "UNIX", "WIFI",
         "SWAT", "SEAL", "WASP", "COBOL", "BASIC", "OLED", "COVAX", "BRICS", "APEC", "VUCA", "PERMA", "DINK",
         "MENA", "EPIC", "OASIS", "BASE", "DART", "IDEA", "CHAOS", "SMART", "FANG", "BLEU", "REST", "ERROR",
         "SELECT", "FROM", "WHERE", "ORDER", "BY", "LIMIT", "OFFSET", "GROUP", "HAVING", "JOIN", "LEFT", "RIGHT", 

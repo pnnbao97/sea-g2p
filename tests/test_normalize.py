@@ -555,6 +555,10 @@ TEST_CASES = [
     ("TGĐ mới đổi quy trình, bà PTGĐ xuống xưởng.", "tổng giám đốc mới đổi quy trình, bà phó tổng giám đốc xuống xưởng."),
     ("Đọc BCTC trước kỳ ĐHĐCĐ nhé.", "đọc báo cáo tài chính trước kỳ đại hội đồng cổ đông nhé."),
     ("Thi TOEIC và dự SEA Games, xem ASIAD.", "thi <en>toeic</en> và dự <en>sea games</en>, xem a si át."),
+    # Acronym quen đọc như TỪ (WORD_LIKE_ACRONYMS).
+    ("Trọng tài xem VAR trận EURO do UEFA tổ chức.", "trọng tài xem <en>var</en> trận <en>euro</en> do <en>uefa</en> tổ chức."),
+    ("FED tăng lãi suất khiến NASDAQ đỏ lửa.", "<en>fed</en> tăng lãi suất khiến <en>nasdaq</en> đỏ lửa."),
+    ("Gửi ảnh GIF qua WIFI nhé.", "gửi ảnh <en>gif</en> qua <en>wifi</en> nhé."),
     ("Phiên tòa lừa đảo XKLĐ hôm qua.", "phiên tòa lừa đảo xuất khẩu lao động hôm qua."),
     ("Khoa CNTT và sàn TMĐT đang hot.", "khoa công nghệ thông tin và sàn thương mại điện tử đang hot."),
     # T2..T7/CN là thứ CHỈ KHI có từ dẫn thời gian; "Model T2" giữ nguyên.
