@@ -539,6 +539,7 @@ TEST_CASES = [
     ("Bản build ở buildserver.dev nhé.", "bản build ở buildserver chấm dev nhé."),
     # Câu thuần Anh KHÔNG Việt hóa viết tắt (VN giữ nguyên acronym chữ Anh).
     ("The VN team beat Thailand in the final match.", "the <en>v n</en> team beat thailand in the final match."),
+    ("Our new office is located in TP.HCM near the river.", "our new office is located in <en>t p</en> dot <en>h c m</en> near the river."),
     ("Đội tuyển VN thắng trận chung kết.", "đội tuyển việt nam thắng trận chung kết."),
     # Viết tắt hành chính/đời sống mở rộng.
     ("Tra cứu điểm GPLX trên cổng dịch vụ công.", "tra cứu điểm giấy phép lái xe trên cổng dịch vụ công."),

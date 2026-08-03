@@ -212,6 +212,20 @@ pub fn english_prenormalize(text: &str) -> String {
         n2w_en(caps.get(0).unwrap().as_str())
     }).into_owned();
 
+    // Dấu chấm KẸP GIỮA chữ cái (TP.HCM) -> "dot". Chấm cuối câu có khoảng
+    // trắng theo sau không bị đụng. Chạy lặp vì regex crate không có lookahead
+    // ("A.B.C" cần 2 lượt cho các cặp xen kẽ).
+    {
+        static RE_EN_INNER_DOT: Lazy<Regex> = Lazy::new(|| {
+            Regex::new(r"([A-Za-z])\.([A-Za-z])").unwrap()
+        });
+        for _ in 0..3 {
+            let next = RE_EN_INNER_DOT.replace_all(&t, "$1 dot $2").into_owned();
+            if next == t { break; }
+            t = next;
+        }
+    }
+
     // Ký hiệu rời phổ biến.
     t = t.replace(" & ", " and ").replace(" + ", " plus ").replace(" = ", " equals ");
     t
