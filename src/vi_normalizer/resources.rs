@@ -256,6 +256,9 @@ pub static SYMBOLS_MAP: Lazy<HashMap<char, &'static str>> = Lazy::new(|| {
     m.insert('∅', " tập rỗng "); m.insert('∉', " không thuộc ");
     m.insert('≡', " tương đương "); m.insert('≅', " đồng dạng "); m.insert('∼', " tương đương ");
     m.insert('∴', " suy ra "); m.insert('∵', " bởi vì ");
+    // Sigma hoa (cả chữ Hy Lạp U+03A3 lẫn ký hiệu tổng U+2211) — trước đây bị
+    // rơi khỏi mọi map nên biến mất khỏi output.
+    m.insert('Σ', " xích ma "); m.insert('∑', " xích ma ");
     m.insert('⋅', " nhân "); m.insert('·', " nhân "); m.insert('∓', " trừ cộng ");
     // Tập số kiểu blackboard-bold
     m.insert('ℝ', " tập số thực "); m.insert('ℕ', " tập số tự nhiên ");
@@ -279,6 +282,9 @@ pub static SUPERSCRIPTS_MAP: Lazy<HashMap<char, &'static str>> = Lazy::new(|| {
     m.insert('⁶', " mũ sáu "); m.insert('⁷', " mũ bảy "); m.insert('⁸', " mũ tám ");
     m.insert('⁹', " mũ chín ");
     m.insert('ⁿ', " mũ n "); m.insert('ⁱ', " mũ i ");
+    // Mũ chữ cái dạng modifier letter ("2ˣ = 32", "eˣ") — trước đây bị nuốt mất.
+    m.insert('ˣ', " mũ x "); m.insert('ʸ', " mũ y "); m.insert('ᵏ', " mũ k ");
+    m.insert('ᵗ', " mũ t ");
     m
 });
 

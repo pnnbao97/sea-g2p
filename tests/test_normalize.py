@@ -525,7 +525,32 @@ TEST_CASES = [
     ("aᵢ", "a i"),
     ("Giới hạn lim(x→0) sin(x)/x = 1.", "giới hạn lim, ích đến không, sin, ích, trên ích bằng một."),
     # Dấu trừ trong công thức (số mũ / hệ số dính) -> "trừ"; văn xuôi giữ phẩy.
-    ("b² - 4ac", "bê bình phương trừ bốn ac"),
+    # "4ac" trong cụm công thức được tách biến -> "bốn a xê".
+    ("b² - 4ac", "bê bình phương trừ bốn a xê"),
+    # ══ CÔNG THỨC TRẦN (không bọc <math>): cụm token dạng toán có dấu mạnh
+    # (= √ ∫ ± mũ/chỉ số) được tách biến + giai thừa + trừ nhị phân ═══════════
+    ("phương trình ax² + bx + c = 0", "phương trình a ích bình phương cộng bê ích cộng xê bằng không"),
+    ("biệt thức Δ = b² - 4ac", "biệt thức đen ta bằng bê bình phương trừ bốn a xê"),
+    ("công thức cos2x = 1 - 2sin²x", "công thức cos hai ích bằng một trừ hai sin bình phương ích"),
+    ("E = mc² nổi tiếng", "e bằng mờ xê bình phương nổi tiếng"),
+    ("trọng lượng P = mg", "trọng lượng phê bằng mờ gờ"),
+    ("động năng bằng ½mv²", "động năng bằng một phần hai mờ vê bình phương"),
+    ("khoảng 6,022 x 10²³ hạt", "khoảng sáu phẩy không hai hai nhân mười mũ hai mươi ba hạt"),
+    ("hàm f(x) = eˣ rất đẹp", "hàm ép, ích, bằng e mũ ích rất đẹp"),
+    ("Ký hiệu Σ là tổng", "ký hiệu xích ma là tổng"),
+    ("câu trả lời là 5! = 120 cách", "câu trả lời là năm giai thừa bằng một trăm hai mươi cách"),
+    ("độ phức tạp O(n!) bùng nổ", "độ phức tạp ô, nờ giai thừa, bùng nổ"),
+    ("công thức tổ hợp C(n,k) = n!/(k!(n-k)!)",
+     "công thức tổ hợp xê, nờ, ca, bằng nờ giai thừa trên, ca giai thừa nờ trừ ca, giai thừa"),
+    ("số phức z = 5 - 2i", "số phức dét bằng năm trừ hai i"),
+    ("giải log₃(x - 1) = 2", "giải log ba, ích trừ một, bằng hai"),
+    ("đạo hàm là -sin x, đổi dấu", "đạo hàm là âm sin ích, đổi dấu"),
+    # Từ Việt không dấu cạnh công thức KHÔNG bị hút vào cụm ("khi" giữ nguyên).
+    ("Tổng Σ(1/2ⁿ) khi n tiến ra vô cùng", "tổng xích ma, một trên hai mũ nờ, khi nờ tiến ra vô cùng"),
+    # Hệ số trước công thức hóa học tách rời; đơn vị mũ Unicode về vuông/khối.
+    ("phản ứng 6CO2 + 6H2O cần ánh sáng", "phản ứng sáu xê ô hai cộng sáu hát hai ô cần ánh sáng"),
+    ("phản ứng 2HCl sủi bọt", "phản ứng hai hát xê lờ sủi bọt"),
+    ("rộng 68 m² và chứa 1.200 m³", "rộng sáu mươi tám mét vuông và chứa một nghìn hai trăm mét khối"),
     ("2x - 3", "hai ích trừ ba"),
     ("8x - mà với lại", "tám ích, mà với lại"),
     # Tag <math>: tách cụm biến thành chữ rời, giữ tên hàm.
