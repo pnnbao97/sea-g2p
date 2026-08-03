@@ -92,6 +92,11 @@ TEST_CASES = [
     ("suốt năm năm trời anh vẫn đợi", "suốt năm năm trời anh vẫn đợi"),
     ("tháng tháng đóng tiền đều đặn", "tháng tháng đóng tiền đều đặn"),
     ("cuộc họp vào ngày 15/3", "cuộc họp vào ngày mười lăm tháng ba"),
+    # "hôm ngày"/"mùng ngày" cũng chỉ gộp khi sau là chữ số.
+    ("hôm ngày lễ đó cả nhà đi chơi", "hôm ngày lễ đó cả nhà đi chơi"),
+    ("cúng vào mùng ngày rằm", "cúng vào mùng ngày rằm"),
+    ("hôm 15/3 cả nhà đi chơi", "hôm mười lăm tháng ba cả nhà đi chơi"),
+    ("mùng 5/5 là Tết Đoan Ngọ", "mùng năm tháng năm là tết đoan ngọ"),
     # Từ dẫn ngày đứng NGAY TRƯỚC -> "d/m" là ngày tháng...
     ("triều cường chiều 17/10 tràn qua", "triều cường chiều ngày mười bảy tháng mười tràn qua"),
     ("nợ này phải trả trước 30/4", "nợ này phải trả trước ngày ba mươi tháng tư"),
