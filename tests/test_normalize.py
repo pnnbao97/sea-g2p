@@ -103,7 +103,7 @@ TEST_CASES = [
     ("mồng 3/3", "mồng ba tháng ba"),
     ("Ngày 3/5 tôi tính 1/2 + 1/2", "ngày ba tháng năm tôi tính một trên hai cộng một trên hai"),
     ("Vào ngày 20/10/2024, gia đình tôi đã quyết định tổ chức một buổi tiệc nhỏ", "vào ngày hai mươi tháng mười năm hai nghìn không trăm hai mươi bốn, gia đình tôi đã quyết định tổ chức một buổi tiệc nhỏ"),
-    ("khoản 3 điều 45 nghị định 12/2021/NĐ-CP . 45/8000", "khoản ba điều bốn mươi lăm nghị định tháng mười hai năm hai nghìn không trăm hai mươi mốt trên nờ đê <en>c p</en>. bốn mươi lăm trên tám nghìn"),
+    ("khoản 3 điều 45 nghị định 12/2021/NĐ-CP . 45/8000", "khoản ba điều bốn mươi lăm nghị định tháng mười hai năm hai nghìn không trăm hai mươi mốt trên nờ đê xê phê. bốn mươi lăm trên tám nghìn"),
     ("Log lỗi: ERROR[2025-03-11T14:22:03Z].", "log lỗi, <en>error</en>, ngày mười một tháng ba năm hai nghìn không trăm hai mươi lăm tê mười bốn giờ hai mươi hai phút ba giây dét."),
 
     # ══ 6. THỜI GIAN ═════════════════════════════════════════════════════════
@@ -429,7 +429,7 @@ TEST_CASES = [
     ("ăn BƯỞI ngọt", "ăn bưởi ngọt"),
     # Acronym có dấu nhưng KHÔNG phải âm tiết -> vẫn tách.
     ("giải ĐKVĐ này", "giải đê ca vê đê này"),
-    ("ông ĐBQH phát biểu", "ông đê bê qui hát phát biểu"),
+    ("ông ĐBQH phát biểu", "ông đại biểu quốc hội phát biểu"),
 
     # ══ 20. CÔNG THỨC HÓA HỌC ════════════════════════════════════════════════
     ("CO2", "xê ô hai"),
@@ -537,6 +537,16 @@ TEST_CASES = [
     ("Quy trình ở hr.tapdoanxyz.com nhé.", "quy trình ở hát rờ chấm tap doan ích y dét chấm com nhé."),
     ("Dịch vụ ở blogcongnghe.io nhé.", "dịch vụ ở blog cong nghe chấm i ô nhé."),
     ("Bản build ở buildserver.dev nhé.", "bản build ở buildserver chấm dev nhé."),
+    # Viết tắt hành chính/đời sống mở rộng.
+    ("Tra cứu điểm GPLX trên cổng dịch vụ công.", "tra cứu điểm giấy phép lái xe trên cổng dịch vụ công."),
+    ("Bộ TN-MT vừa ban hành thông tư mới.", "bộ tài nguyên môi trường vừa ban hành thông tư mới."),
+    ("Mang theo CMND hoặc CCCD.", "mang theo chứng minh nhân dân hoặc căn cước công dân."),
+    ("Đội PCCC và CSGT phối hợp.", "đội phòng cháy chữa cháy và cảnh sát giao thông phối hợp."),
+    ("BHYT chi trả 80%.", "bảo hiểm y tế chi trả tám mươi phần trăm."),
+    # T2..T7/CN là thứ CHỈ KHI có từ dẫn thời gian; "Model T2" giữ nguyên.
+    ("Hẹn gặp sáng T2 tuần sau nhé.", "hẹn gặp sáng thứ hai tuần sau nhé."),
+    ("Lịch học từ T2 đến T6, nghỉ T7 và CN.", "lịch học từ thứ hai đến thứ sáu, nghỉ thứ bảy và chủ nhật."),
+    ("Model T2 của hãng ra mắt.", "model tê hai của hãng ra mắt."),
     # Exception camelCase mask sớm: "arXiv" không bị xé "ar Xiv" (xiv = số La Mã).
     ("Bài báo mới đăng trên arXiv hôm qua.", "bài báo mới đăng trên <en>arxiv</en> hôm qua."),
     # Từ ghép toàn tiếng Anh ("ielts"+"zone") giữ khối, G2P tự cắt ở tầng phoneme.

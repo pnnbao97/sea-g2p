@@ -19,7 +19,7 @@ use unicode_normalization::UnicodeNormalization;
 use crate::vi_normalizer::numerical::{normalize_number_vi, RE_MULTIPLY, expand_multiply_number};
 use crate::vi_normalizer::datestime::{normalize_date, normalize_time};
 use crate::vi_normalizer::units::{expand_units_and_currency, expand_compound_units, expand_scientific_notation, fix_english_style_numbers, expand_power_of_ten, expand_height_weight};
-use crate::vi_normalizer::misc::{normalize_others, expand_standalone_letters, RE_ACRONYMS_EXCEPTIONS, RE_ACRONYM};
+use crate::vi_normalizer::misc::{normalize_others, expand_standalone_letters, expand_weekday_abbr, RE_ACRONYMS_EXCEPTIONS, RE_ACRONYM};
 use crate::vi_normalizer::technical::{normalize_technical, normalize_emails, RE_TECHNICAL, RE_EMAIL};
 use crate::vi_normalizer::resources::{COMBINED_EXCEPTIONS, MEASUREMENT_KEY_VI};
 
@@ -333,6 +333,10 @@ pub fn clean_vietnamese_text_ctx(text: &str, force_vi: bool) -> String {
             protect(val, &mut mask_map)
         }).to_string();
     }
+
+    // T2..T7/CN có từ dẫn thời gian -> thứ trong tuần (trước khi các pass
+    // chữ-số kịp đọc "T2" thành "tê hai").
+    current_text = expand_weekday_abbr(&current_text);
 
     // "text2text"/"sale4u": số 2/4 kẹp giữa chữ thường đọc "two"/"four" (mọi ngữ cảnh).
     current_text = crate::vi_normalizer::num2en::expand_sandwich_digits(&current_text);
