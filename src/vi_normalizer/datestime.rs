@@ -1,7 +1,7 @@
 use fancy_regex::{Regex, Captures};
 use once_cell::sync::Lazy;
 use crate::vi_normalizer::num2vi::{n2w, n2w_decimal};
-use crate::vi_normalizer::resources::{DATE_KEYWORDS, MATH_KEYWORDS};
+use crate::vi_normalizer::resources::{DATE_KEYWORDS, DATE_LEAD_WORDS, MATH_KEYWORDS};
 
 const DAY_IN_MONTH: [i32; 12] = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
 const DATE_SEP: &str = r"(\/|-|\.)";
@@ -60,16 +60,42 @@ static RE_LUC_HOUR: Lazy<Regex> = Lazy::new(|| {
     Regex::new(r"(?i)\blúc\s*(\d+)g\b").unwrap()
 });
 
+// Các pass ngày-tháng có thể sinh "ngày ngày ..." khi văn bản đã có sẵn từ dẫn
+// ("ngày 15/3" -> "ngày" + "ngày mười lăm..."). CHỈ gộp khi từ ngay sau là CHỮ SỐ
+// — nếu không thì đó là từ láy thật ("ngày ngày năn nỉ", "suốt năm năm trời",
+// "tháng tháng đóng tiền") và phải giữ nguyên.
+static NUM_WORDS: Lazy<std::collections::HashSet<&'static str>> = Lazy::new(|| {
+    ["không", "một", "hai", "ba", "bốn", "năm", "sáu", "bảy", "tám", "chín",
+     "mười", "mươi", "mốt", "lăm", "tư", "trăm", "nghìn", "ngàn", "triệu", "tỷ"]
+        .into_iter().collect()
+});
+
+fn dedup_lead(text: &str, re: &Regex, keep: &str) -> String {
+    re.replace_all(text, |caps: &Captures| {
+        let next = caps.get(1).unwrap().as_str();
+        if NUM_WORDS.contains(next.to_lowercase().as_str()) {
+            format!("{} {}", keep, next)
+        } else {
+            caps.get(0).unwrap().as_str().to_string()
+        }
+    }).into_owned()
+}
+
+// "từ 1/8 đến hết 31/8", "ngày 20/11 - 25/11": cả cụm là KHOẢNG NGÀY.
+static RE_DATE_RANGE: Lazy<Regex> = Lazy::new(|| {
+    Regex::new(r"(?i)\b(từ|ngày|hôm)\s+(\d{1,2})/(\d{1,2})\s*(đến hết|đến|tới|-|–)\s*(\d{1,2})/(\d{1,2})\b").unwrap()
+});
+
 static RE_REDUNDANT_NGAY: Lazy<Regex> = Lazy::new(|| {
-    Regex::new(r"(?i)\bngày\s+ngày\b").unwrap()
+    Regex::new(r"(?i)\bngày\s+ngày\s+(\S+)").unwrap()
 });
 
 static RE_REDUNDANT_THANG: Lazy<Regex> = Lazy::new(|| {
-    Regex::new(r"(?i)\btháng\s+tháng\b").unwrap()
+    Regex::new(r"(?i)\btháng\s+tháng\s+(\S+)").unwrap()
 });
 
 static RE_REDUNDANT_NAM: Lazy<Regex> = Lazy::new(|| {
-    Regex::new(r"(?i)\bnăm\s+năm\b").unwrap()
+    Regex::new(r"(?i)\bnăm\s+năm\s+(\S+)").unwrap()
 });
 
 static RE_REDUNDANT_HOM_NGAY: Lazy<Regex> = Lazy::new(|| {
@@ -197,6 +223,26 @@ pub fn normalize_date(text: &str) -> String {
         }
     }).to_string();
 
+    // Khoảng ngày "từ 1/8 đến 31/8", "ngày 20/11 - 25/11": xử cả cụm để vế SAU
+    // cũng thành ngày tháng (từ dẫn "đến" đứng một mình quá mơ hồ với phân số).
+    result = RE_DATE_RANGE.replace_all(&result, |caps: &Captures| {
+        let d1 = caps.get(2).unwrap().as_str();
+        let m1 = caps.get(3).unwrap().as_str();
+        let d2 = caps.get(5).unwrap().as_str();
+        let m2 = caps.get(6).unwrap().as_str();
+        if !is_valid_date(d1, m1) || !is_valid_date(d2, m2) {
+            return caps.get(0).unwrap().as_str().to_string();
+        }
+        let mon = |m: &str| {
+            let v = m.parse::<i32>().unwrap_or(0);
+            if v == 4 { "tư".to_string() } else { n2w(&v.to_string()) }
+        };
+        let day = |d: &str| n2w(&d.parse::<i32>().unwrap_or(0).to_string());
+        format!("{} ngày {} tháng {} {} ngày {} tháng {}",
+            caps.get(1).unwrap().as_str(), day(d1), mon(m1),
+            caps.get(4).unwrap().as_str(), day(d2), mon(m2))
+    }).to_string();
+
     let current_text = result.clone();
     result = RE_DAY_MONTH.replace_all(&current_text, |caps: &Captures| {
         let full_match = caps.get(0).unwrap();
@@ -216,6 +262,17 @@ pub fn normalize_date(text: &str) -> String {
         let month_has_leading_zero = month_str.starts_with('0') && month_str.len() > 1;
         let day_has_leading_zero = day_str.starts_with('0') && day_str.len() > 1;
         if is_valid && (month_has_leading_zero || day_has_leading_zero) {
+            let m_val = if b == 4 { "tư".to_string() } else { n2w(&b.to_string()) };
+            return format!("ngày {} tháng {}", n2w(&a.to_string()), m_val);
+        }
+
+        // Từ dẫn đứng NGAY TRƯỚC ("chiều 17/10", "từ 1/8", "trước 30/4").
+        let lead_word = current_text[..full_match.start()]
+            .split_whitespace()
+            .next_back()
+            .map(|w| w.trim_matches(|c: char| !c.is_alphanumeric()).to_lowercase())
+            .unwrap_or_default();
+        if is_valid && DATE_LEAD_WORDS.contains(lead_word.as_str()) {
             let m_val = if b == 4 { "tư".to_string() } else { n2w(&b.to_string()) };
             return format!("ngày {} tháng {}", n2w(&a.to_string()), m_val);
         }
@@ -240,9 +297,9 @@ pub fn normalize_date(text: &str) -> String {
         format!("{} {} {}", n2w(day_str), joiner, n2w(month_str))
     }).to_string();
 
-    result = RE_REDUNDANT_NGAY.replace_all(&result, "ngày").into_owned();
-    result = RE_REDUNDANT_THANG.replace_all(&result, "tháng").into_owned();
-    result = RE_REDUNDANT_NAM.replace_all(&result, "năm").into_owned();
+    result = dedup_lead(&result, &RE_REDUNDANT_NGAY, "ngày");
+    result = dedup_lead(&result, &RE_REDUNDANT_THANG, "tháng");
+    result = dedup_lead(&result, &RE_REDUNDANT_NAM, "năm");
     result = RE_REDUNDANT_HOM_NGAY.replace_all(&result, "hôm").into_owned();
     result = RE_REDUNDANT_MUNG_NGAY.replace_all(&result, "$1").into_owned();
 

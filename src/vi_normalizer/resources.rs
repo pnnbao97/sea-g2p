@@ -141,6 +141,10 @@ pub static ACRONYMS_EXCEPTIONS_VI: Lazy<HashMap<&'static str, &'static str>> = L
     // Bộ/sở dạng "&" (mask sớm vì chứa ký tự đặc biệt).
     m.insert("GD&ĐT", "giáo dục đào tạo"); m.insert("TN&MT", "tài nguyên môi trường");
     m.insert("KH&CN", "khoa học công nghệ"); m.insert("LĐ-TB&XH", "lao động thương binh xã hội");
+    m.insert("KH&ĐT", "kế hoạch đầu tư"); m.insert("KHĐT", "kế hoạch đầu tư");
+    m.insert("TT&TT", "thông tin truyền thông"); m.insert("TTTT", "thông tin truyền thông");
+    m.insert("VH-TT&DL", "văn hóa thể thao du lịch"); m.insert("VHTTDL", "văn hóa thể thao du lịch");
+    m.insert("CT&XH", "chính trị xã hội");
     // Số hiệu văn bản.
     m.insert("TT-BYT", "tê tê bê y tê"); m.insert("CT-TTg", "xê tê tê tê giê");
     m.insert("UBND-VP", "uỷ ban nhân dân vê phê");
@@ -242,6 +246,9 @@ pub static SYMBOLS_MAP: Lazy<HashMap<char, &'static str>> = Lazy::new(|| {
     m.insert('η', " ê ta "); m.insert('θ', " thê ta "); m.insert('ι', " i ô ta ");
     m.insert('κ', " cáp ba "); m.insert('λ', " lam đa "); m.insert('ᴧ', " và ");
     m.insert('μ', " muy "); m.insert('Δ', " đen ta "); m.insert('ν', " nu ");
+    // U+2206 INCREMENT: ký tự "delta toán học" mà trình soạn thảo hay chèn thay
+    // cho Δ Hy Lạp (vd "Q = mc∆t", "F = k∆l") — trước đây rơi khỏi mọi map.
+    m.insert('∆', " đen ta ");
     m.insert('ξ', " xi xi "); m.insert('ο', " o mi ron "); m.insert('π', " pi ");
     m.insert('ρ', " ro "); m.insert('σ', " xích ma "); m.insert('τ', " tao ");
     m.insert('υ', " úp si lon "); m.insert('φ', " phi "); m.insert('χ', " chi ");
@@ -369,6 +376,21 @@ pub static DATE_KEYWORDS: Lazy<HashSet<&'static str>> = Lazy::new(|| {
         "vào", "ngày", "hôm", "hôm nay", "hôm qua", "hôm kia", "mai", "ngày mai", "ngày kia",
         "sinh", "sinh nhật", "kỷ niệm", "lễ", "tết", "diễn ra", "tổ chức", "thứ", "tuần", "tháng", "năm",
         "phiên", "mùng", "mồng"
+    ];
+    for w in words { s.insert(w); }
+    s
+});
+
+/// Từ dẫn ngày-tháng CHỈ tính khi đứng NGAY TRƯỚC cụm "d/m" (khác DATE_KEYWORDS
+/// vốn quét cửa sổ 3 từ hai bên). Chặt như vậy để "chiều 17/10" ra ngày tháng
+/// còn "chiều dài 3/4 mét" vẫn là phân số.
+pub static DATE_LEAD_WORDS: Lazy<HashSet<&'static str>> = Lazy::new(|| {
+    let mut s = HashSet::new();
+    let words = [
+        // Buổi trong ngày: "chiều 17/10", "sáng 5/9", "đêm 30/4".
+        "sáng", "trưa", "chiều", "tối", "đêm", "khuya", "rạng",
+        // Mốc thời gian: "trước 30/4", "từ 1/8", "hết 31/8", "hạn 20/11".
+        "trước", "từ", "hết", "hạn", "đợt", "nghỉ", "lúc",
     ];
     for w in words { s.insert(w); }
     s
