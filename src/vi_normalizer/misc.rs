@@ -512,12 +512,18 @@ pub fn expand_temperatures(text: &str) -> String {
     RE_DEGREE.replace_all(&res, " độ ").into_owned()
 }
 
-pub fn normalize_others(text: &str) -> String {
+pub fn normalize_others(text: &str, en_ctx: bool) -> String {
     let text = RE_TITLE_DOT.replace_all(text, "$1 ").into_owned();
     let text = RE_ABS.replace_all(&text, " giá trị tuyệt đối của $1 ").into_owned();
-    let mut res = RE_ACRONYMS_EXCEPTIONS.replace_all(&text, |caps: &Captures| {
-        COMBINED_EXCEPTIONS.get(caps.get(0).unwrap().as_str()).cloned().unwrap_or(caps.get(0).unwrap().as_str().to_string())
-    }).into_owned();
+    // Câu thuần Anh: KHÔNG Việt hóa viết tắt ("VN" giữ nguyên -> acronym pass
+    // đánh vần chữ Anh, không thành "việt nam").
+    let mut res = if en_ctx {
+        text
+    } else {
+        RE_ACRONYMS_EXCEPTIONS.replace_all(&text, |caps: &Captures| {
+            COMBINED_EXCEPTIONS.get(caps.get(0).unwrap().as_str()).cloned().unwrap_or(caps.get(0).unwrap().as_str().to_string())
+        }).into_owned()
+    };
 
     res = normalize_slashes(&res);
     res = DOMAIN_SUFFIXES_RE.replace_all(&res, |caps: &Captures| {
