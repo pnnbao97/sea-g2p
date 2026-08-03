@@ -284,6 +284,16 @@ static RE_FACTORIAL_INLINE: Lazy<FRegex> = Lazy::new(|| FRegex::new(r"(?<=\b[0-9
 // C\u1ee5m m\u0169 Unicode li\u00ean ti\u1ebfp ("10\u00b2\u00b3") l\u00e0 M\u1ed8T s\u1ed1 m\u0169 ("m\u01b0\u1eddi m\u0169 hai m\u01b0\u01a1i ba"),
 // kh\u00f4ng ph\u1ea3i chu\u1ed7i "b\u00ecnh ph\u01b0\u01a1ng l\u1eadp ph\u01b0\u01a1ng".
 static RE_SUPERSCRIPT_RUN: Lazy<Regex> = Lazy::new(|| Regex::new(r"[\u2070\u00b9\u00b2\u00b3\u2074\u2075\u2076\u2077\u2078\u2079]{2,}").unwrap());
+// S\u1ed1 m\u0169 c\u00f3 D\u1ea4U ("10\u207b\u00b3", "2\u207b\u00b9", "10\u207a\u2076"): d\u1ea5u \u207b (U+207B) tr\u01b0\u1edbc \u0111\u00e2y b\u1ecb nu\u1ed1t n\u00ean
+// "10\u207b\u00b3" \u0111\u1ecdc th\u00e0nh "m\u01b0\u1eddi l\u1eadp ph\u01b0\u01a1ng". Ph\u1ea3i ch\u1ea1y TR\u01af\u1edaC RE_SUPERSCRIPT_RUN.
+static RE_SUPERSCRIPT_SIGNED: Lazy<Regex> = Lazy::new(|| Regex::new(r"([\u207b\u207a])([\u2070\u00b9\u00b2\u00b3\u2074\u2075\u2076\u2077\u2078\u2079]+)").unwrap());
+
+fn sup_digits(s: &str) -> String {
+    s.chars().map(|c| match c {
+        '\u{2070}' => '0', '\u{00b9}' => '1', '\u{00b2}' => '2', '\u{00b3}' => '3', '\u{2074}' => '4',
+        '\u{2075}' => '5', '\u{2076}' => '6', '\u{2077}' => '7', '\u{2078}' => '8', _ => '9',
+    }).collect()
+}
 // \u0110\u01a1n v\u1ecb di\u1ec7n t\u00edch/th\u1ec3 t\u00edch vi\u1ebft m\u0169 Unicode ("68 m\u00b2", "170 km\u00b3") quy v\u1ec1 d\u1ea1ng
 // ASCII ("m2", "km3") \u0111\u1ec3 kh\u1edbp b\u1ea3ng \u0111\u01a1n v\u1ecb -> "m\u00e9t vu\u00f4ng"/"m\u00e9t kh\u1ed1i" thay v\u00ec
 // "m\u00e9t b\u00ecnh ph\u01b0\u01a1ng". Ch\u1ec9 \u00e1p cho CH\u1eee \u0110\u01a0N V\u1eca th\u1eadt, kh\u00f4ng \u0111\u1ee5ng bi\u1ebfn c\u00f4ng th\u1ee9c
@@ -529,13 +539,17 @@ pub fn clean_vietnamese_text_ctx(text: &str, force_vi: bool) -> String {
     current_text = RE_SUP_UNIT.replace_all(&current_text, "${1}2").into_owned();
     current_text = RE_SUP_UNIT3.replace_all(&current_text, "${1}3").into_owned();
 
+    // Số mũ mang dấu ("10⁻³" -> "mười mũ trừ ba") — trước cụm mũ không dấu.
+    current_text = RE_SUPERSCRIPT_SIGNED.replace_all(&current_text, |caps: &Captures| {
+        let sign = if caps.get(1).unwrap().as_str() == "⁻" { "trừ " } else { "" };
+        let digits = sup_digits(caps.get(2).unwrap().as_str());
+        format!(" mũ {}{} ", sign, crate::vi_normalizer::num2vi::n2w(&digits))
+    }).into_owned();
+
     // Cụm mũ Unicode liên tiếp ("10²³" -> "mười mũ hai mươi ba") — phải chạy
     // trước khi expand_symbols đọc rời từng ký tự "bình phương lập phương".
     current_text = RE_SUPERSCRIPT_RUN.replace_all(&current_text, |caps: &Captures| {
-        let digits: String = caps.get(0).unwrap().as_str().chars().map(|c| match c {
-            '⁰' => '0', '¹' => '1', '²' => '2', '³' => '3', '⁴' => '4',
-            '⁵' => '5', '⁶' => '6', '⁷' => '7', '⁸' => '8', _ => '9',
-        }).collect();
+        let digits = sup_digits(caps.get(0).unwrap().as_str());
         format!(" mũ {} ", crate::vi_normalizer::num2vi::n2w(&digits))
     }).into_owned();
 

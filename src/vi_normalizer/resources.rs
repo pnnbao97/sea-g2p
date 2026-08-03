@@ -289,6 +289,8 @@ pub static SUPERSCRIPTS_MAP: Lazy<HashMap<char, &'static str>> = Lazy::new(|| {
     m.insert('⁶', " mũ sáu "); m.insert('⁷', " mũ bảy "); m.insert('⁸', " mũ tám ");
     m.insert('⁹', " mũ chín ");
     m.insert('ⁿ', " mũ n "); m.insert('ⁱ', " mũ i ");
+    // Dấu ở vị trí mũ đứng lẻ (cụm "⁻³" đã được pass số mũ có dấu xử trước).
+    m.insert('⁻', " trừ "); m.insert('⁺', " cộng ");
     // Mũ chữ cái dạng modifier letter ("2ˣ = 32", "eˣ") — trước đây bị nuốt mất.
     m.insert('ˣ', " mũ x "); m.insert('ʸ', " mũ y "); m.insert('ᵏ', " mũ k ");
     m.insert('ᵗ', " mũ t ");
