@@ -547,6 +547,18 @@ TEST_CASES = [
     ("đạo hàm là -sin x, đổi dấu", "đạo hàm là âm sin ích, đổi dấu"),
     # Từ Việt không dấu cạnh công thức KHÔNG bị hút vào cụm ("khi" giữ nguyên).
     ("Tổng Σ(1/2ⁿ) khi n tiến ra vô cùng", "tổng xích ma, một trên hai mũ nờ, khi nờ tiến ra vô cùng"),
+    # ...kể cả khi có dấu phẩy đuôi ("thi,") hoặc đứng cạnh token chứa √ ("ta").
+    ("trước khi thi, cos 60° = 1/2 nhé", "trước khi thi, cos sáu mươi độ bằng một trên hai nhé"),
+    ("mẫu của 1/√3, ta nhân cả tử và mẫu với √3",
+     "mẫu của một trên căn bậc hai ba, ta nhân cả tử và mẫu với căn bậc hai ba"),
+    # "2bc" tách biến xong không bị pass đơn vị đọc "2 b" thành tỷ.
+    ("a² = b² + c² - 2bc cos A", "a bình phương bằng bê bình phương cộng xê bình phương trừ hai bê xê cos a"),
+    # Vi phân dx/du/dv luôn thuộc cụm công thức.
+    ("tính ∫sin x dx trên đoạn", "tính tích phân sin ích đê ích trên đoạn"),
+    # Trừ giữa hai biến chữ thường đơn lẻ.
+    ("phép chia đa thức cho x - a", "phép chia đa thức cho ích trừ a"),
+    # Chữ HOA đơn + chấm ở CUỐI câu giữ dấu chấm (không phải viết tắt tên).
+    ("hệ thức U = IR.", "hệ thức u bằng i rờ."),
     # Hệ số trước công thức hóa học tách rời; đơn vị mũ Unicode về vuông/khối.
     ("phản ứng 6CO2 + 6H2O cần ánh sáng", "phản ứng sáu xê ô hai cộng sáu hát hai ô cần ánh sáng"),
     ("phản ứng 2HCl sủi bọt", "phản ứng hai hát xê lờ sủi bọt"),

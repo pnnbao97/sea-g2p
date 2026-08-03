@@ -376,12 +376,16 @@ pub fn expand_abbreviations(text: &str) -> String {
 }
 
 pub fn expand_standalone_letters(text: &str) -> String {
+    let end_pos = text.trim_end().len();
     RE_STANDALONE_LETTER.replace_all(text, |caps: &FCaps| {
         let char_raw = caps.get(1).unwrap().as_str();
         let char_lower = char_raw.to_lowercase();
         let dot = caps.get(2).unwrap().as_str();
         if let Some(name) = VI_LETTER_NAMES.get(char_lower.as_str()) {
-            if char_raw.chars().next().unwrap().is_uppercase() && dot == "." {
+            // Chấm sau chữ HOA giữa câu là dấu viết tắt tên ("R. Nguyễn") ->
+            // bỏ; nhưng ở CUỐI chuỗi là dấu chấm hết câu ("... = 2R.") -> giữ.
+            let at_end = caps.get(0).unwrap().end() >= end_pos;
+            if char_raw.chars().next().unwrap().is_uppercase() && dot == "." && !at_end {
                 format!(" {} ", name)
             } else {
                 format!(" {}{} ", name, dot)

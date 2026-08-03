@@ -285,6 +285,19 @@ pub fn expand_units_and_currency(text: &str) -> String {
             }
         }
 
+        // Đơn vị MỘT chữ cái mà NGAY SAU là một chữ cái đơn khác ("2 b c" do
+        // công thức "2bc" đã tách) -> chuỗi biến, không phải đơn vị. Chừa
+        // "x" đứng sau (phép nhân "5 m x 20 m" vẫn là mét).
+        if unit.chars().count() == 1 {
+            let after = first_word_after(&units_src, m0.end());
+            if after.chars().count() == 1
+                && after.chars().all(|c| c.is_ascii_alphabetic())
+                && after != "x"
+            {
+                return m0.as_str().to_string();
+            }
+        }
+
         let full = if unit == "M" {
             "triệu"
         } else if unit == "B" {
