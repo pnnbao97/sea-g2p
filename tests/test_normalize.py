@@ -96,6 +96,12 @@ TEST_CASES = [
     ("hôm ngày lễ đó cả nhà đi chơi", "hôm ngày lễ đó cả nhà đi chơi"),
     ("cúng vào mùng ngày rằm", "cúng vào mùng ngày rằm"),
     ("hôm 15/3 cả nhà đi chơi", "hôm mười lăm tháng ba cả nhà đi chơi"),
+    # "âm" viết sẵn + số mang dấu trừ -> chỉ đọc MỘT "âm"...
+    ("nhiệt độ âm -5 độ C", "nhiệt độ âm năm độ xê"),
+    ("kết quả là âm -2", "kết quả là âm hai"),
+    # ...nhưng "âm âm" thật (không phải số) giữ nguyên.
+    ("giá trị âm âm là dương", "giá trị âm âm là dương"),
+    ("điện tích âm và dương", "điện tích âm và dương"),
     ("mùng 5/5 là Tết Đoan Ngọ", "mùng năm tháng năm là tết đoan ngọ"),
     # Từ dẫn ngày đứng NGAY TRƯỚC -> "d/m" là ngày tháng...
     ("triều cường chiều 17/10 tràn qua", "triều cường chiều ngày mười bảy tháng mười tràn qua"),
