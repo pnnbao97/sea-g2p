@@ -258,8 +258,13 @@ pub fn expand_compound_units(text: &str) -> String {
                 let l1 = VI_LETTER_NAMES.get(u1_lower.as_str()).cloned().unwrap_or(u1_raw).to_string();
                 let l2 = VI_LETTER_NAMES.get(u2_lower.as_str()).cloned().unwrap_or(u2_raw).to_string();
                 format!(" {} trên {} ", l1, l2)
-            } else {
+            } else if u1_is_unit && u2_is_unit {
                 format!(" {} trên {} ", get_unit(u1_raw), get_unit(u2_raw))
+            } else {
+                // Không có số đứng trước và không phải CẶP đơn vị thật ("ML/AI",
+                // "TP/HCM"...): giữ nguyên cho pass acronym + SYMBOLS_MAP ("/" ->
+                // "trên") xử lý, tránh "ML" bị đọc nhầm "mi li lít".
+                caps.get(0).unwrap().as_str().to_string()
             }
         } else {
             let num = expand_number_with_sep(num_str);

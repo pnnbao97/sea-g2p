@@ -90,6 +90,17 @@ TEST_CASES = [
      "biển số năm mươi mốt hát một hai ba chấm bốn năm vượt đèn đỏ"),
     ("taxi biển 30K-567.89 trả lại ví",
      "taxi biển ba mươi ca năm sáu bảy chấm tám chín trả lại ví"),
+    # Biển số seri có chữ số + đuôi 4 số (xe máy) và seri chứa X (không thành "nhân").
+    ("xe máy biển 52N5-1234", "xe máy biển năm mươi hai nờ năm một hai ba bốn"),
+    ("biển 59X1-123.45", "biển năm mươi chín ích một một hai ba chấm bốn năm"),
+    # Biển số CỤT cần từ dẫn "biển/BKS"; "51h" trần vẫn là thời lượng.
+    ("xe biển số 51H đi qua trạm", "xe biển số năm mươi mốt hát đi qua trạm"),
+    ("làm việc 51h mỗi tuần", "làm việc năm mươi mốt giờ mỗi tuần"),
+    # "ML/AI" không phải cặp đơn vị -> đọc acronym, KHÔNG đọc "mi li lít".
+    ("kỹ sư AI/ML lương cao", "kỹ sư <en>a i</en> trên <en>m l</en> lương cao"),
+    ("nền tảng Core ML/AI", "nền tảng core <en>m l</en> trên <en>a i</en>"),
+    ("tốc độ 120 km/h", "tốc độ một trăm hai mươi ki lô mét trên giờ"),
+    ("chỉ số P/E cao", "chỉ số phê trên e cao"),
     # Mã chữ-số: phần số ≥3 chữ số đọc từng chữ số như đọc mã.
     ("mã vé ABC-1234", "mã vé <en>a b c</en> một hai ba bốn"),
     # ...nhưng ≤2 chữ số vẫn đọc số đếm (COVID-19, U-23).
