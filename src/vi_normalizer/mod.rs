@@ -313,7 +313,7 @@ pub fn clean_vietnamese_text_ctx(text: &str, force_vi: bool) -> String {
         {
             return orig.replace('-', " ");
         }
-        let val = if RE_ACRONYMS_EXCEPTIONS.is_match(orig) {
+        let val = if !en_ctx && RE_ACRONYMS_EXCEPTIONS.is_match(orig) {
             COMBINED_EXCEPTIONS.get(orig).cloned().unwrap_or(orig.to_string())
         } else {
             normalize_technical(orig, vi_ctx, en_ctx)
@@ -497,7 +497,7 @@ pub fn clean_vietnamese_text_ctx(text: &str, force_vi: bool) -> String {
         caps.get(0).unwrap().as_str().replace('.', "")
     }).to_string();
 
-    current_text = normalize_others(&current_text);
+    current_text = normalize_others(&current_text, en_ctx);
     current_text = normalize_number_vi(&current_text);
 
     let temp_text3 = current_text.clone();

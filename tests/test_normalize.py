@@ -537,6 +537,9 @@ TEST_CASES = [
     ("Quy trình ở hr.tapdoanxyz.com nhé.", "quy trình ở hát rờ chấm tap doan ích y dét chấm com nhé."),
     ("Dịch vụ ở blogcongnghe.io nhé.", "dịch vụ ở blog cong nghe chấm i ô nhé."),
     ("Bản build ở buildserver.dev nhé.", "bản build ở buildserver chấm dev nhé."),
+    # Câu thuần Anh KHÔNG Việt hóa viết tắt (VN giữ nguyên acronym chữ Anh).
+    ("The VN team beat Thailand in the final match.", "the <en>v n</en> team beat thailand in the final match."),
+    ("Đội tuyển VN thắng trận chung kết.", "đội tuyển việt nam thắng trận chung kết."),
     # Viết tắt hành chính/đời sống mở rộng.
     ("Tra cứu điểm GPLX trên cổng dịch vụ công.", "tra cứu điểm giấy phép lái xe trên cổng dịch vụ công."),
     ("Bộ TN-MT vừa ban hành thông tư mới.", "bộ tài nguyên môi trường vừa ban hành thông tư mới."),
