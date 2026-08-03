@@ -7,6 +7,11 @@ wheels/
 *.egg-info
 .pytest_cache/
 bak/
+# Dictionary backups written by scripts/clean_dict.py (~50 MB each).
+*.bin.bak
+
+# Corpus normalization dumps, regenerated on demand by the audit scripts.
+test_output_*.md
 
 # Compiled extensions
 *.pyd
