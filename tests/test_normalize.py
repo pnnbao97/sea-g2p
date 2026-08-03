@@ -298,6 +298,12 @@ TEST_CASES = [
     # Tỉ số thể thao -> đọc hai số rời.
     ("Việt Nam 2-1 Thái Lan", "việt nam hai một thái lan"),
     ("Arsenal 3-0 Chelsea", "arsenal ba không chelsea"),
+    # en_ctx nới ngưỡng: 2 từ Anh thật (thuần chữ thường, có trong wordlist)
+    # đủ kích hoạt câu Anh dù từ còn lại lẫn chữ số ("3D", "4K").
+    ("print 3D technology", "print three d technology"),
+    ("best 4K monitor", "best four k monitor"),
+    # ...nhưng trong câu Việt thì "3D" vẫn đọc kiểu Việt.
+    ("Công nghệ in 3D đang phát triển.", "công nghệ in ba đê đang phát triển."),
     ("thắng 2-0", "thắng hai không"),
     ("thua 0-2", "thua không hai"),
     ("hòa 1-1", "hòa một một"),
