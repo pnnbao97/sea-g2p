@@ -241,7 +241,12 @@ fn has_roman_context(preceding: &str) -> bool {
 // Biển số VN: "51H-123.45", "30K-567.89", "51K1-123.45". Phải chạy TRƯỚC pass
 // giờ vì "51H" khớp mẫu "<số>h" và bị đọc nhầm thành "năm mươi mốt giờ".
 static RE_PLATE: Lazy<Regex> = Lazy::new(|| {
-    Regex::new(r"\b(\d{2})([A-Z]{1,2}\d?)\s*[-–]\s*(\d{3})(\.?)(\d{2})\b").unwrap()
+    Regex::new(r"\b(\d{2})([A-Z]{1,2}\d?)\s*[-–]\s*(\d{3}\.?\d{2}|\d{4})\b").unwrap()
+});
+// Biển số CỤT (chỉ mã tỉnh + seri, không kèm dãy số): "biển số 51H", "BKS 30K".
+// Bắt buộc từ dẫn vì "51h" trần trụi là thời lượng hợp lệ ("làm 51h mỗi tuần").
+static RE_PLATE_LEAD: Lazy<Regex> = Lazy::new(|| {
+    Regex::new(r"\b([Bb]iển(?:\s+số|\s+kiểm\s+soát)?|BKS)\s+(\d{2})([A-Z]{1,2}\d?)\b").unwrap()
 });
 // Mã chữ-số kiểu "ABC-1234"/"XYZ-9876": phần số đọc từng chữ số như đọc mã.
 // Đòi ≥3 chữ số để không đụng "COVID-19", "U-17", "F-16" (đọc số đếm tự nhiên hơn).
@@ -272,15 +277,25 @@ fn spell_plate_serie(serie: &str) -> String {
         .join(" ")
 }
 
+fn spell_plate_tail(tail: &str) -> String {
+    tail.chars()
+        .map(|c| if c == '.' { "chấm".to_string() } else { n2w_single(&c.to_string()) })
+        .collect::<Vec<_>>()
+        .join(" ")
+}
+
 pub fn expand_codes_and_plates(text: &str) -> String {
     let mut res = RE_PLATE.replace_all(text, |caps: &Captures| {
-        let dot = if caps.get(4).unwrap().as_str().is_empty() { " " } else { " chấm " };
-        format!("{} {} {}{}{}",
+        format!("{} {} {}",
             n2w(caps.get(1).unwrap().as_str()),
             spell_plate_serie(caps.get(2).unwrap().as_str()),
-            n2w_single(caps.get(3).unwrap().as_str()),
-            dot,
-            n2w_single(caps.get(5).unwrap().as_str()))
+            spell_plate_tail(caps.get(3).unwrap().as_str()))
+    }).into_owned();
+    res = RE_PLATE_LEAD.replace_all(&res, |caps: &Captures| {
+        format!("{} {} {}",
+            caps.get(1).unwrap().as_str(),
+            n2w(caps.get(2).unwrap().as_str()),
+            spell_plate_serie(caps.get(3).unwrap().as_str()))
     }).into_owned();
     res = RE_CODE_DIGITS.replace_all(&res, |caps: &Captures| {
         format!("{} {}", caps.get(1).unwrap().as_str(), n2w_single(caps.get(2).unwrap().as_str()))
