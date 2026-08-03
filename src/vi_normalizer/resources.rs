@@ -106,6 +106,9 @@ pub static TECHNICAL_TERMS: Lazy<HashMap<&'static str, &'static str>> = Lazy::ne
     let mut m = HashMap::new();
     m.insert("JSON", "__start_en__j son__end_en__");
     m.insert("VRAM", "__start_en__v ram__end_en__");
+    // "arXiv" viết hoa giữa từ: chặn camelCase tách "ar Xiv" ("xiv" trong dict
+    // là entry "roman fourteen" rác) — ép đọc như dict "arxiv".
+    m.insert("arXiv", "__start_en__arxiv__end_en__");
     m.insert("NVIDIA", "__start_en__n v d a__end_en__");
     m.insert("VN-Index", "__start_en__v n__end_en__ index");
     m.insert("MS DOS", "__start_en__m s dos__end_en__");

@@ -537,6 +537,8 @@ TEST_CASES = [
     ("Quy trình ở hr.tapdoanxyz.com nhé.", "quy trình ở hát rờ chấm tap doan ích y dét chấm com nhé."),
     ("Dịch vụ ở blogcongnghe.io nhé.", "dịch vụ ở blog cong nghe chấm i ô nhé."),
     ("Bản build ở buildserver.dev nhé.", "bản build ở buildserver chấm dev nhé."),
+    # Exception camelCase mask sớm: "arXiv" không bị xé "ar Xiv" (xiv = số La Mã).
+    ("Bài báo mới đăng trên arXiv hôm qua.", "bài báo mới đăng trên <en>arxiv</en> hôm qua."),
     # Từ ghép toàn tiếng Anh ("ielts"+"zone") giữ khối, G2P tự cắt ở tầng phoneme.
     ("Trả kết quả qua ketqua.ieltszone.edu.vn?sbd=IZ0457 nhé.", "trả kết quả qua ket qua chấm ieltszone chấm ê đu chấm vê nờ hỏi chấm ét bê đê bằng i dét không bốn năm bảy nhé."),
     ("Gửi tới pnnbao@gmail.com nhé.", "gửi tới phê nờ nờ bao a còng gmail chấm com nhé."),
