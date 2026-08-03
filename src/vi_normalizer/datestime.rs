@@ -33,9 +33,10 @@ static RE_PERIOD_YEAR: Lazy<Regex> = Lazy::new(|| {
 });
 
 // "quý 1/2025" -> "quý một năm hai nghìn...". Chạy trước RE_MONTH_YEAR để không bị
-// đọc nhầm "1/2025" thành "tháng một năm...".
+// đọc nhầm "1/2025" thành "tháng một năm...". Nhận cả quý viết số La Mã ("quý III/2027",
+// "Quý I/2026") vì pass La Mã chung chạy sau pass ngày tháng nên không kịp đổi.
 static RE_QUY_YEAR: Lazy<Regex> = Lazy::new(|| {
-    Regex::new(r"(?i)\b(quý)\s+(\d{1,2})\s*/\s*(\d{4})\b").unwrap()
+    Regex::new(r"(?i)\b(quý)\s+(\d{1,2}|IV|III|II|I)\s*/\s*(\d{4})\b").unwrap()
 });
 
 // Full time like 10:30:15 or 10g30p15s
@@ -112,8 +113,14 @@ pub fn normalize_date(text: &str) -> String {
     let mut result = text.to_string();
 
     result = RE_QUY_YEAR.replace_all(&result, |caps: &Captures| {
+        let q = caps.get(2).unwrap().as_str();
+        let q_num = if q.chars().all(|c| c.is_ascii_digit()) {
+            q.to_string()
+        } else {
+            crate::vi_normalizer::misc::roman_to_int(&q.to_uppercase()).to_string()
+        };
         format!("quý {} năm {}",
-            n2w(caps.get(2).unwrap().as_str()),
+            n2w(&q_num),
             n2w(caps.get(3).unwrap().as_str()))
     }).to_string();
 

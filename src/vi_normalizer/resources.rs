@@ -53,6 +53,7 @@ pub static MEASUREMENT_KEY_VI: Lazy<HashMap<&'static str, &'static str>> = Lazy:
     m.insert("mbps", "__start_en__megabits per second__end_en__");
     m.insert("kbps", "__start_en__kilobits per second__end_en__");
     m.insert("gallon", "__start_en__gallon__end_en__"); m.insert("mol", "mol");
+    m.insert("mmol", "mi li mol");
     m.insert("ms", "mi li giây"); m.insert("M", "triệu");
     m.insert("B", "tỷ");
     // Đơn vị điện ghép viết camelCase (mAh/Ah). kWh/Wh/mWh đã có ở trên.
@@ -374,7 +375,7 @@ pub static ROMAN_KEYWORDS: Lazy<HashSet<&'static str>> = Lazy::new(|| {
     let words = [
         "kỷ", "kỉ", "chương", "phần", "hồi", "quyển", "tập", "kỳ", "kì",
         "khoản", "điều", "mục", "đời", "vua", "chiến", "hội", "khóa", "khoá",
-        "đệ", "triều", "quý", "lần", "vòng",
+        "đệ", "triều", "quý", "lần", "vòng", "thứ",
         // Tên vua/giáo hoàng thường đi kèm số La Mã (an toàn vì chỉ khớp số HOA đứng sau).
         "louis", "napoléon", "napoleon", "henry", "george", "charles",
         "elizabeth", "edward", "william", "james", "richard", "john",

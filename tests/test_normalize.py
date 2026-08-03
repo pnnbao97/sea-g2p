@@ -85,6 +85,22 @@ TEST_CASES = [
     ("tháng 3/2026", "tháng ba năm hai nghìn không trăm hai mươi sáu"),
     ("quý 1/2025 tăng", "quý một năm hai nghìn không trăm hai mươi lăm tăng"),
     ("quý 4/2024", "quý bốn năm hai nghìn không trăm hai mươi bốn"),
+    # Biển số xe: chạy trước pass giờ để "51H" không thành "năm mươi mốt giờ".
+    ("biển số 51H-123.45 vượt đèn đỏ",
+     "biển số năm mươi mốt hát một hai ba chấm bốn năm vượt đèn đỏ"),
+    ("taxi biển 30K-567.89 trả lại ví",
+     "taxi biển ba mươi ca năm sáu bảy chấm tám chín trả lại ví"),
+    # Mã chữ-số: phần số ≥3 chữ số đọc từng chữ số như đọc mã.
+    ("mã vé ABC-1234", "mã vé <en>a b c</en> một hai ba bốn"),
+    # ...nhưng ≤2 chữ số vẫn đọc số đếm (COVID-19, U-23).
+    ("bệnh nhân COVID-19", "bệnh nhân <en>covid</en> mười chín"),
+    ("đội U-23 Việt Nam", "đội u hai mươi ba việt nam"),
+    # "#" + mã số: bỏ "thăng", đọc từng chữ số.
+    ("đơn hàng #45021 đã rời kho", "đơn hàng bốn năm không hai một đã rời kho"),
+    # Số tổng đài đọc từng chữ số.
+    ("tổng đài 1900 thu phí", "tổng đài một chín không không thu phí"),
+    # Đơn vị y tế mmol/l.
+    ("đường huyết 6,2 mmol/l", "đường huyết sáu phẩy hai mi li mol trên lít"),
     # Ngày không hợp lệ -> đọc dãy số "trên", không vỡ cú pháp.
     ("32/01", "ba mươi hai trên không một"),
     ("01/13", "không một trên mười ba"),
@@ -302,6 +318,16 @@ TEST_CASES = [
     ("Edward II", "edward hai"),
     ("vua William III", "vua william ba"),
     ("giáo hoàng Benedict XVI", "giáo hoàng benedict mười sáu"),
+    # Từ dẫn "thứ" (xét TỪ CUỐI ngay trước cụm): "lần thứ IX" phải ra số.
+    ("tái bản lần thứ IX", "tái bản lần thứ chín"),
+    ("Đại chiến thế giới thứ II", "đại chiến thế giới thứ hai"),
+    # Số La Mã MỘT ký tự (I/V/X) chỉ đọc thành số khi có từ dẫn.
+    ("Chương V dài nhất", "chương năm dài nhất"),
+    ("Quốc hội khóa X", "quốc hội khóa mười"),
+    ("phần I", "phần một"),
+    # Quý viết số La Mã kèm năm ("quý III/2027") phải ra "năm ...", không phải "trên".
+    ("quý III/2027", "quý ba năm hai nghìn không trăm hai mươi bảy"),
+    ("Quý I/2026 tăng trưởng", "quý một năm hai nghìn không trăm hai mươi sáu tăng trưởng"),
     # CHỈ nhận số La Mã viết HOA; chữ thường dễ trùng âm tiết tiếng Việt nên để nguyên.
     ("chương iv", "chương iv"),
     ("thế kỷ xxi", "thế kỷ xxi"),
