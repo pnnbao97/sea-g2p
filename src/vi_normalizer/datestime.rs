@@ -98,12 +98,14 @@ static RE_REDUNDANT_NAM: Lazy<Regex> = Lazy::new(|| {
     Regex::new(r"(?i)\bnăm\s+năm\s+(\S+)").unwrap()
 });
 
+// Cùng nguyên tắc với dedup_lead: chỉ bỏ "ngày" khi nó là do pass ngày-tháng
+// chèn (tức ngay sau là chữ số). "Hôm ngày lễ", "mùng ngày rằm" phải giữ nguyên.
 static RE_REDUNDANT_HOM_NGAY: Lazy<Regex> = Lazy::new(|| {
-    Regex::new(r"(?i)\bhôm\s+ngày\b").unwrap()
+    Regex::new(r"(?i)\bhôm\s+ngày\s+(\S+)").unwrap()
 });
 
 static RE_REDUNDANT_MUNG_NGAY: Lazy<Regex> = Lazy::new(|| {
-    Regex::new(r"(?i)\b(mùng|mồng)\s+ngày\b").unwrap()
+    Regex::new(r"(?i)\b(mùng|mồng)\s+ngày\s+(\S+)").unwrap()
 });
 
 fn is_valid_date(day: &str, month: &str) -> bool {
@@ -300,8 +302,15 @@ pub fn normalize_date(text: &str) -> String {
     result = dedup_lead(&result, &RE_REDUNDANT_NGAY, "ngày");
     result = dedup_lead(&result, &RE_REDUNDANT_THANG, "tháng");
     result = dedup_lead(&result, &RE_REDUNDANT_NAM, "năm");
-    result = RE_REDUNDANT_HOM_NGAY.replace_all(&result, "hôm").into_owned();
-    result = RE_REDUNDANT_MUNG_NGAY.replace_all(&result, "$1").into_owned();
+    result = dedup_lead(&result, &RE_REDUNDANT_HOM_NGAY, "hôm");
+    result = RE_REDUNDANT_MUNG_NGAY.replace_all(&result, |caps: &Captures| {
+        let next = caps.get(2).unwrap().as_str();
+        if NUM_WORDS.contains(next.to_lowercase().as_str()) {
+            format!("{} {}", caps.get(1).unwrap().as_str(), next)
+        } else {
+            caps.get(0).unwrap().as_str().to_string()
+        }
+    }).into_owned();
 
     result
 }
