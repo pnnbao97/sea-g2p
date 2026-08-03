@@ -241,7 +241,9 @@ fn has_roman_context(preceding: &str) -> bool {
 // Biển số VN: "51H-123.45", "30K-567.89", "51K1-123.45". Phải chạy TRƯỚC pass
 // giờ vì "51H" khớp mẫu "<số>h" và bị đọc nhầm thành "năm mươi mốt giờ".
 static RE_PLATE: Lazy<Regex> = Lazy::new(|| {
-    Regex::new(r"\b(\d{2})([A-Z]{1,2}\d?)\s*[-–]\s*(\d{3}\.?\d{2}|\d{4})\b").unwrap()
+    // Đuôi: "123.45" (biển ô tô), hoặc 2-5 chữ số trần ("12345", "1234" xe máy,
+    // "234" mã lô/phòng kiểu "51M-234") — đều đọc từng chữ số.
+    Regex::new(r"\b(\d{2})([A-Z]{1,2}\d?)\s*[-–]\s*(\d{3}\.\d{2}|\d{2,5})\b").unwrap()
 });
 // Biển số CỤT (chỉ mã tỉnh + seri, không kèm dãy số): "biển số 51H", "BKS 30K".
 // Bắt buộc từ dẫn vì "51h" trần trụi là thời lượng hợp lệ ("làm 51h mỗi tuần").

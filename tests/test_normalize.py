@@ -251,9 +251,22 @@ TEST_CASES = [
     ("sào 1m2", "sào một mét vuông"),       # m2 vẫn là mét vuông
     ("phòng 50m2", "phòng năm mươi mét vuông"),
     ("khối 20m3", "khối hai mươi mét khối"),
-    # Chữ HOA đơn H/M/G dính sau SỐ NGUYÊN = mã hiệu -> đánh vần, không tự
-    # biên thành giờ/triệu/gam. Số thập phân + M vẫn là triệu (mã không có phẩy).
-    ("vốn 5M", "vốn năm mờ"),
+    # Chữ HOA đơn dính sau SỐ NGUYÊN mặc định là mã hiệu -> đánh vần; chỉ đọc
+    # đơn vị khi có ngữ cảnh: số thập phân, từ dẫn tiền (M/B/K), vật chứa (L).
+    ("vốn 5M", "vốn năm triệu"),          # "vốn" là từ dẫn tiền -> triệu
+    ("thương vụ 5M USD", "thương vụ năm triệu <en>u s d</en>"),
+    ("lương 20M một tháng", "lương hai mươi triệu một tháng"),
+    ("video đạt 5M lượt xem", "video đạt năm triệu lượt xem"),
+    ("quỹ đầu tư 2B đồng", "quỹ đầu tư hai tỷ đồng"),
+    ("giá 100K một ly", "giá một trăm nghìn một ly"),
+    ("chai 2L nước ngọt", "chai hai lít nước ngọt"),
+    # Không có ngữ cảnh -> mã hiệu, đánh vần chữ cái.
+    ("căn hộ 51M", "căn hộ năm mươi mốt mờ"),
+    ("mã lô 51M-234 đã xuất kho", "mã lô năm mươi mốt mờ hai ba bốn đã xuất kho"),
+    ("lô 12B nằm cuối dãy", "lô mười hai bê nằm cuối dãy"),
+    ("iPhone 5S vẫn chạy tốt", "i phone năm ét vẫn chạy tốt"),
+    ("mã 51K in trên tem", "mã năm mươi mốt ca in trên tem"),
+    ("khối 12L của trường", "khối mười hai lờ của trường"),
     ("mã 51H bị phạt", "mã năm mươi mốt hát bị phạt"),
     ("căn hộ 51M", "căn hộ năm mươi mốt mờ"),
     ("phục vụ 24H", "phục vụ hai mươi bốn hát"),
