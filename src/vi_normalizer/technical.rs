@@ -287,7 +287,7 @@ fn norm_letter_chunk(t: &str, vi_ctx: bool, after_dot: bool) -> String {
     lw
 }
 
-static RE_TECH_SPLIT: Lazy<regex::Regex> = Lazy::new(|| regex::Regex::new(r"([./:?&=/_ \-\\#])").unwrap());
+static RE_TECH_SPLIT: Lazy<regex::Regex> = Lazy::new(|| regex::Regex::new(r"([./:?&=/_ \-\\#@])").unwrap());
 static RE_EMAIL_SPLIT: Lazy<regex::Regex> = Lazy::new(|| regex::Regex::new(r"([._\-+])").unwrap());
 static RE_SUB_TOKENS: Lazy<regex::Regex> = Lazy::new(|| regex::Regex::new(r"[a-zA-Z]+|\d+").unwrap());
 
@@ -297,7 +297,7 @@ pub static RE_TECHNICAL: Lazy<Regex> = Lazy::new(|| {
     |
     \b(?:www\.)[\p{L}0-9.\-_~:/?#\[\]@!$&\'()*+,;=]+\b
     |
-    \b[A-Za-z0-9.\-]+(?:\.com|\.vn|\.net|\.org|\.gov|\.edu|\.io|\.biz|\.info|\.dev|\.shop|\.app|\.tech|\.studio|\.online|\.store|\.ai|\.ly|\.me)(?:[/?#][\p{L}0-9.\-_~:/?#\[\]@!$&\'()*+,;=]*)?\b
+    \b[A-Za-z0-9.\-]+(?:\.com|\.vn|\.net|\.org|\.gov|\.edu|\.io|\.biz|\.info|\.dev|\.shop|\.app|\.tech|\.studio|\.online|\.store|\.ai|\.ly|\.me|\.gle|\.cc|\.co|\.tv|\.xyz|\.site|\.link|\.page|\.blog|\.news|\.pro)(?:[/?#][\p{L}0-9.\-_~:/?#\[\]@!$&\'()*+,;=]*)?\b
     |
     (?<![\w\\])\\\\[a-zA-Z0-9._\-]+(?:\\[\p{L}0-9._\-]+)*\\?
     |
@@ -415,6 +415,7 @@ pub fn normalize_technical(text: &str, vi_ctx: bool, en_ctx: bool) -> String {
                 "&" => res.push(if en_ctx { "and" } else { "và" }.to_string()),
                 "=" => res.push(if en_ctx { "equals" } else { "bằng" }.to_string()),
                 "#" => res.push(if en_ctx { "hash" } else { "thăng" }.to_string()),
+                "@" => res.push(if en_ctx { "at" } else { "a còng" }.to_string()),
                 _ => {
                     // Đoạn path chứa chữ tiếng Việt (có dấu) -> đọc như TỪ tiếng Việt,
                     // không spell từng ký tự (vd ".../báo-cáo" -> "báo" "cáo").

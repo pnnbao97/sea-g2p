@@ -85,6 +85,34 @@ TEST_CASES = [
     ("tháng 3/2026", "tháng ba năm hai nghìn không trăm hai mươi sáu"),
     ("quý 1/2025 tăng", "quý một năm hai nghìn không trăm hai mươi lăm tăng"),
     ("quý 4/2024", "quý bốn năm hai nghìn không trăm hai mươi bốn"),
+    # Từ láy KHÔNG bị gộp: chỉ gộp "ngày ngày"/"năm năm"/"tháng tháng" khi từ
+    # ngay sau là chữ số (tức do pass ngày-tháng sinh ra).
+    ("ngày ngày vẫn đông khách", "ngày ngày vẫn đông khách"),
+    ("ngày ngày năn nỉ anh Nam", "ngày ngày năn nỉ anh nam"),
+    ("suốt năm năm trời anh vẫn đợi", "suốt năm năm trời anh vẫn đợi"),
+    ("tháng tháng đóng tiền đều đặn", "tháng tháng đóng tiền đều đặn"),
+    ("cuộc họp vào ngày 15/3", "cuộc họp vào ngày mười lăm tháng ba"),
+    # Từ dẫn ngày đứng NGAY TRƯỚC -> "d/m" là ngày tháng...
+    ("triều cường chiều 17/10 tràn qua", "triều cường chiều ngày mười bảy tháng mười tràn qua"),
+    ("nợ này phải trả trước 30/4", "nợ này phải trả trước ngày ba mươi tháng tư"),
+    # ...nhưng cách một từ thì vẫn là phân số ("chiều dài 3/4 mét").
+    ("chiều dài 3/4 mét là vừa", "chiều dài ba trên bốn mét là vừa"),
+    ("chị chỉ cần đổ 3/4 cốc nước", "chị chỉ cần đổ ba trên bốn cốc nước"),
+    ("phân số 7/8 lớn hơn 3/4", "phân số bảy trên tám lớn hơn ba trên bốn"),
+    # Khoảng ngày: vế SAU cũng thành ngày tháng.
+    ("hồ sơ nhận từ 1/8 đến hết 31/8",
+     "hồ sơ nhận từ ngày một tháng tám đến hết ngày ba mươi mốt tháng tám"),
+    ("chạy từ 20/11 đến 25/11",
+     "chạy từ ngày hai mươi tháng mười một đến ngày hai mươi lăm tháng mười một"),
+    # ∆ (U+2206) = delta toán học, khác Δ Hy Lạp.
+    ("nhiệt lượng Q = mc∆t", "nhiệt lượng qui bằng mờ xê đen ta tê"),
+    ("định luật Húc F = k∆l", "định luật húc ép bằng ca đen ta lờ"),
+    # Bộ/sở dạng "&" bổ sung.
+    ("nộp về phòng KH&ĐT", "nộp về phòng kế hoạch đầu tư"),
+    ("chuyên viên Sở TT&TT", "chuyên viên sở thông tin truyền thông"),
+    # TLD mới + "@" trong URL.
+    ("link forms.gle/xnk27 nhé", "link forms chấm gle gạch chéo ích nờ ca hai bảy nhé"),
+    ("kênh youtube.com/@toanthayvu", "kênh youtube chấm com gạch chéo a còng toan thay vu"),
     # Biển số xe: chạy trước pass giờ để "51H" không thành "năm mươi mốt giờ".
     ("biển số 51H-123.45 vượt đèn đỏ",
      "biển số năm mươi mốt hát một hai ba chấm bốn năm vượt đèn đỏ"),

@@ -106,7 +106,7 @@ fn classify_math_token(tok: &str) -> (bool, bool) {
     if tok.is_empty() { return (false, false); }
     let allowed = |c: char| {
         c.is_ascii_alphanumeric()
-            || "()[]{}+-–—*/=±≤≥≠≈×÷√∫|!'^.,;:°½¼¾⅓⅔".contains(c)
+            || "()[]{}+-–—*/=±≤≥≠≈×÷√∫|!'^.,;:°½¼¾⅓⅔∆∑".contains(c)
             || ('α'..='ω').contains(&c) || ('Α'..='Ω').contains(&c)
             || crate::vi_normalizer::resources::SUPERSCRIPTS_MAP.contains_key(&c)
             || crate::vi_normalizer::resources::SUBSCRIPTS_MAP.contains_key(&c)
@@ -129,7 +129,7 @@ fn classify_math_token(tok: &str) -> (bool, bool) {
     // tên hàm/vi phân -> dễ trùng từ thật, cần toán tử đứng cạnh mới nhận.
     let has_math_evidence = tok.chars().any(|c| {
         c.is_ascii_digit()
-            || "+-–—*/=±≤≥≠≈×÷√∫^'!½¼¾⅓⅔".contains(c)
+            || "+-–—*/=±≤≥≠≈×÷√∫^'!½¼¾⅓⅔∆∑".contains(c)
             || ('α'..='ω').contains(&c) || ('Α'..='Ω').contains(&c)
             || crate::vi_normalizer::resources::SUPERSCRIPTS_MAP.contains_key(&c)
             || crate::vi_normalizer::resources::SUBSCRIPTS_MAP.contains_key(&c)
