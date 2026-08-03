@@ -93,6 +93,12 @@ static RE_SANDWICH_24: Lazy<Regex> = Lazy::new(|| {
 pub fn expand_sandwich_digits(text: &str) -> String {
     if !text.chars().any(|c: char| c == '2' || c == '4') { return text.to_string(); }
     RE_SANDWICH_24.replace_all(text, |caps: &Captures| {
+        // Tên hàm toán + số + biến ("cos2x", "sin2a", "log2n") KHÔNG phải kiểu
+        // "text2text" -> giữ nguyên cho nhánh công thức đọc "cos hai ích".
+        let left = caps.get(1).unwrap().as_str();
+        if matches!(left, "sin" | "cos" | "tan" | "cot" | "log" | "lg" | "ln" | "lim") {
+            return caps.get(0).unwrap().as_str().to_string();
+        }
         let d = if caps.get(2).unwrap().as_str() == "2" { "two" } else { "four" };
         // Vế 1 chữ cái ("b2b") bọc <en> để không bị pass chữ-cái-đơn đọc tên
         // chữ Việt ("bê two bê"); vế nhiều chữ để trần cho G2P tra dict.
