@@ -38,6 +38,8 @@ static RE_SPACE_BEFORE_PUNCT: Lazy<Regex> = Lazy::new(|| Regex::new(r"\s+([,.!?;
 static RE_MISSING_SPACE_AFTER_PUNCT: Lazy<Regex> = Lazy::new(|| Regex::new(r"([.,!?;:])([^\s\d<])").unwrap());
 static RE_INTERNAL_EN_TAG: Lazy<Regex> = Lazy::new(|| Regex::new(r"(?i)(?s)(__start_en__.*?__end_en__|<en>.*?</en>)").unwrap());
 static RE_DOT_BETWEEN_DIGITS: Lazy<Regex> = Lazy::new(|| Regex::new(r"(\d+)\.(\d+)").unwrap());
+// "âm âm năm" (văn bản có sẵn "âm" + số mang dấu trừ) -> "âm năm".
+static RE_DOUBLE_AM: Lazy<Regex> = Lazy::new(|| Regex::new(r"(?i)\bâm\s+âm\s+(\S+)").unwrap());
 static RE_ENTOKEN: Lazy<Regex> = Lazy::new(|| Regex::new(r"(?i)ENTOKEN\d+").unwrap());
 static RE_EN_TAG: Lazy<Regex> = Lazy::new(|| Regex::new(r"(?si)<en>.*?</en>").unwrap());
 // Vùng công thức toán do người dùng khai báo: <math>...</math>. Bên trong, mọi cụm
@@ -710,6 +712,18 @@ pub fn clean_vietnamese_text_ctx(text: &str, force_vi: bool) -> String {
 
     current_text = normalize_others(&current_text, en_ctx);
     current_text = normalize_number_vi(&current_text);
+
+    // Văn bản đã viết sẵn "âm" mà số vẫn mang dấu trừ ("nhiệt độ âm -5 độ")
+    // -> các pass số chèn thêm "âm" nữa thành "âm âm năm". Gộp lại một, nhưng
+    // chỉ khi từ sau là CHỮ SỐ: "giá trị âm âm là dương" phải giữ nguyên.
+    current_text = RE_DOUBLE_AM.replace_all(&current_text, |caps: &Captures| {
+        let next = caps.get(1).unwrap().as_str();
+        if crate::vi_normalizer::datestime::NUM_WORDS.contains(next.to_lowercase().as_str()) {
+            format!("âm {}", next)
+        } else {
+            caps.get(0).unwrap().as_str().to_string()
+        }
+    }).into_owned();
 
     let temp_text3 = current_text.clone();
     current_text = RE_INTERNAL_EN_TAG.replace_all(&temp_text3, |caps: &Captures| {

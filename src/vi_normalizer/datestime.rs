@@ -64,7 +64,7 @@ static RE_LUC_HOUR: Lazy<Regex> = Lazy::new(|| {
 // ("ngày 15/3" -> "ngày" + "ngày mười lăm..."). CHỈ gộp khi từ ngay sau là CHỮ SỐ
 // — nếu không thì đó là từ láy thật ("ngày ngày năn nỉ", "suốt năm năm trời",
 // "tháng tháng đóng tiền") và phải giữ nguyên.
-static NUM_WORDS: Lazy<std::collections::HashSet<&'static str>> = Lazy::new(|| {
+pub static NUM_WORDS: Lazy<std::collections::HashSet<&'static str>> = Lazy::new(|| {
     ["không", "một", "hai", "ba", "bốn", "năm", "sáu", "bảy", "tám", "chín",
      "mười", "mươi", "mốt", "lăm", "tư", "trăm", "nghìn", "ngàn", "triệu", "tỷ"]
         .into_iter().collect()
