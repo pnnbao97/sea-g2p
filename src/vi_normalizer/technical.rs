@@ -1,3 +1,32 @@
+//! URLs, file paths and email addresses — used by pipeline stage 1.
+//!
+//! # Read in the language of the sentence
+//!
+//! Inside a Vietnamese sentence a path is spoken with Vietnamese names for its
+//! separators ("gạch chéo", "gạch nối", "a còng"); inside an English one it
+//! keeps English names. The `vi_ctx` and `en_ctx` flags carry that decision in.
+//!
+//! # Toneless syllable splitting
+//!
+//! Vietnamese identifiers are written without diacritics and often run together:
+//! `thongbao`, `giaohang`, `truongminhkhai`. Reading them letter by letter is
+//! unbearable, so `split_vi_syllables` searches for the best split using dynamic
+//! programming over three kinds of piece:
+//!
+//!   - **Vietnamese syllables**, scored by frequency (2 for a top-3000 skeleton,
+//!     1 for a dictionary hit, 0 otherwise) with a bonus when two adjacent
+//!     pieces form a known bigram — this is what picks "tin học" over "khí
+//!     tượng" for the same letters;
+//!   - **English words** from the top-10k list, unpenalized;
+//!   - **consonant runs** spelled out letter by letter, heavily penalized.
+//!
+//! The comparator prefers, in order: fewer spelled-out pieces, fewer spelled-out
+//! letters, fewer pieces overall, higher score, and finally the rightmost-longest
+//! split. A candidate with no Vietnamese piece at all is rejected outright.
+//!
+//! Dictionary lookup comes first throughout: a token already in the phoneme
+//! dictionary is never split.
+
 use fancy_regex::{Regex, Captures};
 use once_cell::sync::Lazy;
 use std::collections::HashSet;

@@ -1,8 +1,15 @@
-// Đọc số/ký hiệu kiểu TIẾNG ANH cho câu thuần Anh (en_ctx) và cụm "x2y"/"x4y".
-//
-// Khi câu không có chữ tiếng Việt có dấu, normalizer coi là câu tiếng Anh:
-// số, %, $, đơn vị, giờ phút... đổi thành chữ Anh ("3" -> "three", "." -> "dot")
-// TRƯỚC các pass tiếng Việt — các pass sau thành no-op vì không còn chữ số.
+//! English readings for numbers and symbols — pipeline stage 2.
+//!
+//! A sentence with no Vietnamese diacritics and enough English words is read as
+//! English: numbers, percentages, currency, units and clock times all become
+//! English words ("3" -> "three", "." -> "dot") **before** any Vietnamese pass
+//! runs. Since no digits remain afterwards, the later stages turn into no-ops
+//! for these sentences instead of needing an English branch of their own.
+//!
+//! The module also handles `text2text` / `sale4u`, where a 2 or 4 wedged between
+//! lowercase letters is read "two" / "four" regardless of sentence language.
+//! Mathematical function names are excluded, so "cos2x" stays Vietnamese maths
+//! rather than becoming "cos two x".
 
 use regex::{Regex, Captures};
 use once_cell::sync::Lazy;

@@ -1,34 +1,44 @@
-//! Chuẩn hóa dấu câu cuối ("punc_norm").
+//! Trailing punctuation normalization ("punc_norm").
 //!
-//! Khi được bật (`punc_norm = true`):
-//!   - Mọi câu "siêu ngắn" — dưới 3 từ (tức ≤ 2 từ) — nằm ở ĐẦU hoặc GIỮA chuỗi
-//!     mà kết thúc bằng `.` sẽ được đổi dấu `.` đó thành `,`, để TTS không đọc
-//!     ngắt cụt ngủn (vd list-marker "3." -> "ba." -> "ba,"). Câu cuối chuỗi
-//!     luôn được giữ dấu kết thật.
-//!   - Câu "ngắn" — dưới 5 từ (tức ≤ 4 từ) — ở CUỐI chuỗi luôn kết thúc bằng
-//!     đúng một dấu `.`, thay thế mọi dấu câu cuối đang có (`,` `!` `?` `…` …).
-//!   - Câu dài hơn chỉ được thêm `.` nếu chưa kết thúc bằng một trong `, . ! ?`.
+//! The goal is prosodic: give the TTS model a clean, predictable sentence
+//! ending so it neither clips a phrase short nor runs two phrases together.
+//! When enabled (`punc_norm = true`):
 //!
-//! Hàm này thuần thao tác chuỗi nên không phụ thuộc ngôn ngữ; được dùng chung
-//! bởi cả `Normalizer` và `G2P`.
+//!   - A **very short** fragment — under three words — that sits at the start
+//!     or in the middle of the string and ends in `.` has that `.` turned into
+//!     `,`. This stops list markers from being read as complete sentences
+//!     ("3." -> "ba." -> "ba,"). The final fragment always keeps a real
+//!     sentence ending.
+//!   - A **short** sentence — under five words — at the end of the string is
+//!     forced to end in exactly one `.`, replacing whatever trailing mark it
+//!     had (`,` `!` `?` `…`).
+//!   - Anything longer only gains a `.` when it does not already end in one of
+//!     `,` `.` `!` `?`.
+//!
+//! These are pure string operations with no language dependency, shared by both
+//! `Normalizer` and `G2P`.
 
 use once_cell::sync::Lazy;
 use regex::Regex;
 
-/// Câu có số từ <= ngưỡng này được coi là "ngắn" (yêu cầu: dưới 5 từ).
+/// Word count at or below which a sentence counts as "short" (under five).
 const SHORT_SENTENCE_MAX_WORDS: usize = 4;
 
-/// Câu có số từ <= ngưỡng này được coi là "siêu ngắn" (yêu cầu: dưới 3 từ).
+/// Word count at or below which a fragment counts as "very short" (under three).
 const SUPER_SHORT_MAX_WORDS: usize = 2;
 
-/// Dấu `.` kết thúc MỘT câu: theo sau là khoảng trắng (kể cả xuống dòng) hoặc hết
-/// chuỗi. Ràng buộc "theo sau là khoảng trắng/EOS" cố ý loại các dấu chấm dính liền
-/// trong viết tắt ("U.S.A.") hay số ("3.5" đã được normalizer tách trước đó) — những
-/// dấu này KHÔNG phải ranh giới câu nên không bị coi là điểm ngắt.
+/// A `.` that actually ends a sentence: followed by whitespace (newlines
+/// included) or by the end of the string.
+///
+/// Requiring whitespace or EOS deliberately excludes the dots inside
+/// abbreviations ("U.S.A.") and numbers ("3.5", already split by the
+/// normalizer). Those are not sentence boundaries and must not be treated as
+/// break points.
 static RE_SENTENCE_DOT: Lazy<Regex> = Lazy::new(|| Regex::new(r"\.(\s+|$)").unwrap());
 
-/// Dấu câu cuối có thể bị bỏ/thay khi ép câu ngắn về `.`.
-/// Bao gồm cả ellipsis một-ký-tự: `…` (U+2026), `‥` (U+2025), `․` (U+2024).
+/// Trailing marks that may be replaced when a short sentence is forced to `.`.
+/// Includes the single-character ellipses `…` (U+2026), `‥` (U+2025) and
+/// `․` (U+2024).
 fn is_trailing_punct(c: char) -> bool {
     matches!(
         c,

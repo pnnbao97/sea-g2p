@@ -1,3 +1,25 @@
+//! Measurement units and currencies — pipeline stage 13.
+//!
+//! # Single uppercase letters are identifiers by default
+//!
+//! A letter glued to a number carries two competing meanings: a unit or
+//! magnitude ("5M" = five million) versus a serial code ("căn hộ 51M"). Vietnamese
+//! writes both constantly, so the default is the safer one — **spell the letter
+//! out** — and a unit reading requires positive evidence:
+//!
+//!   - a **decimal point** ("3.2M"), since codes have no fractional part;
+//!   - a **money cue** before or after for M/B/K ("lương 20M", "5M USD");
+//!   - a **container word** before L ("chai 2L").
+//!
+//! Two exceptions: `W` is always watts, as no common serial uses it, and `G` is
+//! never grams, because "5G"/"4G" dominate real text. Lowercase always means the
+//! unit ("24h", "450g", "30m").
+//!
+//! # Ordering
+//!
+//! This stage runs after every sign and numeric cluster is settled, because each
+//! rule keys on the number immediately to its left.
+
 use fancy_regex::{Regex, Captures};
 use once_cell::sync::Lazy;
 use crate::vi_normalizer::num2vi::{n2w, n2w_decimal};
@@ -143,11 +165,11 @@ static RE_CURRENCY_PREFIX_SYMBOL: Lazy<Regex> = Lazy::new(|| {
     // Hậu tố tài chính kiểu Anh DÍNH LIỀN số: "$5M" -> triệu, "$1.5B" -> tỷ,
     // "$99K" -> nghìn. Bắt buộc dính liền + \b để không nuốt chữ đầu từ sau
     // ("₩1000 mỗi..." không được ăn "m").
-    Regex::new(&format!(r"(?i)([$€¥£₩])\s*{}{}(?:([MBK])\b)?", NUMERIC_P, MAGNITUDE_P)).unwrap()
+    Regex::new(&format!(r"(?i)([$€¥£₩₫])\s*{}{}(?:([MBK])\b)?", NUMERIC_P, MAGNITUDE_P)).unwrap()
 });
 
 static RE_CURRENCY_SUFFIX_SYMBOL: Lazy<Regex> = Lazy::new(|| {
-    Regex::new(&format!(r"(?i){}{}([$€¥£₩])", NUMERIC_P, MAGNITUDE_P)).unwrap()
+    Regex::new(&format!(r"(?i){}{}([$€¥£₩₫])", NUMERIC_P, MAGNITUDE_P)).unwrap()
 });
 
 static RE_PERCENTAGE: Lazy<Regex> = Lazy::new(|| {

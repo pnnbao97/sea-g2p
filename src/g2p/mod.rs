@@ -1,3 +1,23 @@
+//! Grapheme-to-phoneme conversion for mixed Vietnamese and English text.
+//!
+//! # Choosing a language per token
+//!
+//! Many tokens exist in both dictionaries, so the reading is decided by
+//! context. `propagate_language` walks the sentence and attaches each ambiguous
+//! token to its nearest unambiguous anchor — a word that can only be Vietnamese
+//! or only English. Punctuation does not count toward the distance, so a comma
+//! between a word and its anchor changes nothing. On a tie, real words go
+//! English while single letters follow the anchor on their right. A sentence
+//! made entirely of shared words defaults to English.
+//!
+//! # Out-of-vocabulary tokens
+//!
+//! `segment_oov` splits an unknown token by dynamic programming over dictionary
+//! pieces, minimizing a cost: 1 per dictionary word, 4 + length for a
+//! spelled-out fallback or a junk fragment. Ties are broken by preferring more
+//! genuine English words, then the rightmost-longest split, then fewer pieces —
+//! which is what makes "fine tune" win over "fin etune".
+
 use memmap2::Mmap;
 use std::fs::File;
 use std::io;

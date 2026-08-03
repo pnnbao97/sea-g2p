@@ -1,3 +1,27 @@
+//! Static lookup tables: letter names, units, currencies, symbols,
+//! abbreviations and the keyword sets that disambiguate context.
+//!
+//! Every table here is data, not logic. Adding an entry is the cheapest way to
+//! fix a reading — and forgetting one is how characters end up deleted in
+//! silence, so a new symbol belongs in a table *and* in
+//! [`crate::vi_normalizer::audit`].
+//!
+//! # Table groups
+//!
+//! - **Letters and units** — `VI_LETTER_NAMES`, `MEASUREMENT_KEY_VI`,
+//!   `CURRENCY_KEY`, `CURRENCY_SYMBOL_MAP`, `DOMAIN_SUFFIX_MAP`.
+//! - **Symbols** — `SYMBOLS_MAP`, `SUPERSCRIPTS_MAP`, `SUBSCRIPTS_MAP`. These
+//!   are what the audit module checks against.
+//! - **Abbreviations** — `ACRONYMS_EXCEPTIONS_VI` for Vietnamese expansions,
+//!   `TECHNICAL_TERMS` for names with a fixed pronunciation, and
+//!   `WORD_LIKE_ACRONYMS` for initialisms read as words (UEFA, SIM, LED)
+//!   rather than spelled out.
+//! - **Context keywords** — `DATE_KEYWORDS` and `DATE_LEAD_WORDS` separate
+//!   dates from fractions, `ROMAN_KEYWORDS` licenses Roman numerals, and
+//!   `MATH_KEYWORDS` forces mathematical readings. The date sets differ by
+//!   reach: lead words must sit immediately before the number, keywords may be
+//!   up to three words away.
+
 use std::collections::{HashMap, HashSet};
 use once_cell::sync::Lazy;
 
@@ -207,6 +231,10 @@ pub static CURRENCY_SYMBOL_MAP: Lazy<HashMap<&'static str, &'static str>> = Lazy
     m.insert("¥", "yên");
     m.insert("£", "__start_en__pound__end_en__");
     m.insert("₩", "won");
+    // The Vietnamese dong sign. Its absence meant "100.000₫" lost its currency
+    // entirely — the most consequential omission of the set, in the one currency
+    // this library is built for.
+    m.insert("₫", "đồng");
     m
 });
 
@@ -239,6 +267,12 @@ pub static SYMBOLS_MAP: Lazy<HashMap<char, &'static str>> = Lazy::new(|| {
     m.insert('₭', " kíp "); m.insert('₱', " bê xô "); m.insert('฿', " bạc ");
     m.insert('Ω', " ôm "); m.insert('@', " a còng "); m.insert('≠', " khác ");
     m.insert('∀', " với mọi "); m.insert('∏', " tích "); m.insert('∈', " thuộc ");
+    m.insert('∃', " tồn tại ");
+    // Arrow family. Only "→" was mapped before, so "⇒" (implication) and the
+    // bidirectional forms were deleted outright — silently changing the meaning
+    // of a logical statement.
+    m.insert('←', " ngược lại "); m.insert('↔', " tương đương ");
+    m.insert('⇒', " suy ra "); m.insert('⇐', " ngược lại "); m.insert('⇔', " tương đương ");
     m.insert('∑', " tổng "); m.insert('∩', " giao "); m.insert('∪', " hội ");
     m.insert('¬', " phủ định "); m.insert('∞', " vô cùng "); m.insert('α', " an pha ");
     m.insert('β', " bê ta "); m.insert('γ', " ga ma "); m.insert('δ', " đen ta ");
