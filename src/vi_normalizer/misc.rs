@@ -35,6 +35,14 @@ const ROMAN_MARKER_MAX: i32 = 30;
 static RE_TITLE_DOT: Lazy<FRegex> = Lazy::new(|| {
     FRegex::new(r"\b(TS|GS|BS|ThS|PGS|KS|ĐH)\.\s+(?=\p{Lu})").unwrap()
 });
+// "Q.1"/"P.7" và "Q.Bình Thạnh"/"P.Bến Nghé" -> "quận"/"phường". Tên riêng đòi
+// chữ HOA + chữ thường theo sau để không đụng "P.S." hay viết tắt khác.
+static RE_DISTRICT_DOT: Lazy<FRegex> = Lazy::new(|| {
+    FRegex::new(r"\bQ\.\s*(?=\d|\p{Lu}\p{Ll})").unwrap()
+});
+static RE_WARD_DOT: Lazy<FRegex> = Lazy::new(|| {
+    FRegex::new(r"\bP\.\s*(?=\d|\p{Lu}\p{Ll})").unwrap()
+});
 // Lookahead loại contraction tiếng Anh ("I'm", "I'll", "I'd"...): chữ cái + nháy + chữ
 // phải giữ nguyên vẹn để G2P tra dict tiếng Anh, không đọc rời "i" + "'m".
 static RE_STANDALONE_LETTER: Lazy<FRegex> = Lazy::new(|| {
@@ -514,6 +522,12 @@ pub fn expand_temperatures(text: &str) -> String {
 
 pub fn normalize_others(text: &str, en_ctx: bool) -> String {
     let text = RE_TITLE_DOT.replace_all(text, "$1 ").into_owned();
+    let text = if en_ctx {
+        text
+    } else {
+        let t = RE_DISTRICT_DOT.replace_all(&text, "quận ").into_owned();
+        RE_WARD_DOT.replace_all(&t, "phường ").into_owned()
+    };
     let text = RE_ABS.replace_all(&text, " giá trị tuyệt đối của $1 ").into_owned();
     // Câu thuần Anh: KHÔNG Việt hóa viết tắt ("VN" giữ nguyên -> acronym pass
     // đánh vần chữ Anh, không thành "việt nam").

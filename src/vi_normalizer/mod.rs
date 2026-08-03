@@ -240,14 +240,15 @@ pub fn clean_vietnamese_text(text: &str) -> String {
 // Token "trông như từ" (thuần chữ cái, >=2 ký tự) — dùng nhận diện câu tiếng Anh.
 static RE_WORDISH: Lazy<Regex> = Lazy::new(|| Regex::new(r"\b[a-zA-Z]{2,}\b").unwrap());
 
-// Exception dạng camelCase (có chữ thường liền trước chữ HOA, vd "arXiv") —
-// phải mask TRƯỚC split_concatenated_terms kẻo bị xé đôi.
+// Exception dạng camelCase ("arXiv") hoặc chứa "&" ("GD&ĐT") — phải mask
+// TRƯỚC các pass tách từ/ký hiệu kẻo bị xé đôi hoặc "&" bị đổi thành "và".
 static RE_EARLY_EXCEPTIONS: Lazy<Option<Regex>> = Lazy::new(|| {
     let keys: Vec<String> = COMBINED_EXCEPTIONS.keys()
         .filter(|k: &&String| {
-            k.as_bytes().windows(2).any(|w: &[u8]| {
-                (w[0] as char).is_ascii_lowercase() && (w[1] as char).is_ascii_uppercase()
-            })
+            k.contains('&')
+                || k.as_bytes().windows(2).any(|w: &[u8]| {
+                    (w[0] as char).is_ascii_lowercase() && (w[1] as char).is_ascii_uppercase()
+                })
         })
         .map(|k: &String| regex::escape(k))
         .collect();
