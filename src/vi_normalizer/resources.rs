@@ -34,6 +34,9 @@ pub static MEASUREMENT_KEY_VI: Lazy<HashMap<&'static str, &'static str>> = Lazy:
     m.insert("kw", "ki lô oát"); m.insert("mw", "mê ga oát");
     m.insert("gw", "gi ga oát"); m.insert("kwh", "ki lô oát giờ"); m.insert("kWh", "ki lô oát giờ");
     m.insert("mwh", "mê ga oát giờ"); m.insert("wh", "oát giờ");
+    // "w" trần chỉ khớp khi có SỐ đứng trước ("550 W", "320w") nên không đụng
+    // chữ w đứng một mình (đọc "vê kép").
+    m.insert("w", "oát");
     m.insert("hz", "héc"); m.insert("khz", "ki lô héc");
     m.insert("mhz", "mê ga héc"); m.insert("ghz", "gi ga héc");
     m.insert("pa", "__start_en__pascal__end_en__"); m.insert("kpa", "__start_en__kilopascal__end_en__");

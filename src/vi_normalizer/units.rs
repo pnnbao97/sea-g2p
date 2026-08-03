@@ -167,12 +167,14 @@ static RE_SCIENTIFIC_NOTATION: Lazy<Regex> = Lazy::new(|| {
 // Ch\u1eef 'm' TH\u01af\u1edcNG (kh\u00f4ng (?i)) \u0111\u1ec3 kh\u00f4ng nu\u1ed1t "1M" (1 tri\u1ec7u). \u0110u\u00f4i: 2 ch\u1eef s\u1ed1 b\u1ea5t k\u1ef3,
 // ho\u1eb7c 1 ch\u1eef s\u1ed1 KH\u00c1C 2/3 (ch\u1eeba "m2"/"m3" = m\u00e9t vu\u00f4ng/kh\u1ed1i).
 static RE_HEIGHT: Lazy<Regex> = Lazy::new(|| {
-    Regex::new(r"(?<![\d.,a-zA-Z])(\d{1,2})m(\d{2}|[01456789])(?![\d.,])").unwrap()
+    // Lookahead chỉ chặn [.,] khi theo sau là CHỮ SỐ (thập phân "1m75.5");
+    // dấu chấm hết câu "Cao 1m75." vẫn phải khớp.
+    Regex::new(r"(?<![\d.,a-zA-Z])(\d{1,2})m(\d{2}|[01456789])(?!\d|[.,]\d)").unwrap()
 });
 
 // C\u00e2n n\u1eb7ng ki\u1ec3u Vi\u1ec7t: "1kg2" -> "m\u1ed9t ki l\u00f4 gam hai" (2 = l\u1ea1ng/hectogram).
 static RE_WEIGHT: Lazy<Regex> = Lazy::new(|| {
-    Regex::new(r"(?<![\d.,a-zA-Z])(\d{1,2})kg(\d{1,2})(?![\d.,])").unwrap()
+    Regex::new(r"(?<![\d.,a-zA-Z])(\d{1,2})kg(\d{1,2})(?!\d|[.,]\d)").unwrap()
 });
 
 pub fn expand_height_weight(text: &str) -> String {
@@ -212,8 +214,15 @@ pub fn expand_units_and_currency(text: &str) -> String {
         let mag = caps.get(2).map_or("", |m: fancy_regex::Match| m.as_str());
         let unit = caps.get(3).unwrap().as_str();
         
-        // Skip uppercase 'G' so it is handled by letter expansion (e.g. 5G -> năm gờ)
-        if unit == "G" {
+        // Chữ đơn VIẾT HOA kiểu H/M/G dính sau số ("51H", "51M", "20G") thường là
+        // mã hiệu (biển số, căn hộ, seri, 5G/4G) -> để pass chữ-số đánh vần
+        // ("hát", "mờ", "gờ"), không tự biên thành giờ/triệu/gam. Viết thường
+        // ("24h", "30m", "450g") vẫn là đơn vị. Riêng H/M chỉ đánh vần khi số
+        // là SỐ NGUYÊN trơn: mã hiệu không có phần thập phân, còn "3.2M" gần
+        // như chắc chắn là triệu. Các chữ HOA khác (W, A...) giữ nghĩa đơn vị
+        // vì không trùng seri mã hiệu thông dụng.
+        let is_plain_int = !num.contains('.') && !num.contains(',');
+        if unit == "G" || ((unit == "H" || unit == "M") && is_plain_int) {
             return caps.get(0).unwrap().as_str().to_string();
         }
 
