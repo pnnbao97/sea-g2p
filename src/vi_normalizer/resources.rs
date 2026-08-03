@@ -58,7 +58,7 @@ pub static MEASUREMENT_KEY_VI: Lazy<HashMap<&'static str, &'static str>> = Lazy:
     m.insert("gallon", "__start_en__gallon__end_en__"); m.insert("mol", "mol");
     m.insert("mmol", "mi li mol");
     m.insert("ms", "mi li giây"); m.insert("M", "triệu");
-    m.insert("B", "tỷ");
+    m.insert("B", "tỷ"); m.insert("K", "nghìn");
     // Đơn vị điện ghép viết camelCase (mAh/Ah). kWh/Wh/mWh đã có ở trên.
     m.insert("mah", "mi li am pe giờ"); m.insert("ah", "am pe giờ");
     m
