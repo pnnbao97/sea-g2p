@@ -75,16 +75,20 @@ from sea_g2p import SEAPipeline
 id = SEAPipeline(lang="id")
 
 id.run("dia cukup cerdas untuk menyembunyikan kecerdasannya")
-# 'd i a t͡ʃ u k u p t͡ʃ ə r d a s u n t u ʔ m ə ɲ ə m b u ɲ i k a n ...'
+# 'di a t͡ʃu kup t͡ʃər das un tuʔ mə ɲəm bu ɲi kan kə t͡ʃər da san ɲa'
 
 id.run("Saya membeli buku seharga Rp1.250.000")
-# '... s a t u d͡ʒ u t a d u a r a t u s l i m a p u l u h r i b u r u p i a h'
+# '... sa tu d͡ʒu ta du a ra tus li ma pu luh ri bu ru pi ah'
 
 # chat contractions, which look like pronounceable words to a rule engine
 from sea_g2p import Normalizer
 Normalizer(lang="id").normalize("yg penting tdk lupa dgn tugasnya")
 # 'yang penting tidak lupa dengan tugasnya'
 ```
+
+Phonemes are grouped one **syllable** per space, the same convention the
+Vietnamese and Thai outputs use, so a downstream TTS sees one format for the
+whole library.
 
 Indonesian spelling is regular except for one thing: ⟨e⟩ writes both /ə/ and
 /e/ and nothing distinguishes them. The dictionary settles it from KBBI, the

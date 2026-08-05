@@ -4,6 +4,10 @@
 //! is: Latin with spaces, so no segmentation stage is needed.
 //!
 //!   raw text -> normalize (6 stages) -> per-token lookup -> rules for the rest
+//!            -> syllabify
+//!
+//! The last step is what keeps the output format the same across languages:
+//! one space per syllable boundary, as Vietnamese and Thai already emit.
 //!
 //! Pronunciation comes from the dictionary section in the phoneme binary
 //! (`SECTION_ID`, 172k words covering 86% of corpus tokens), built from the
@@ -25,6 +29,7 @@ pub mod normalizer;
 pub mod num2id;
 pub mod resources;
 pub mod rules;
+pub mod syllable;
 
 use crate::core::dict::{PhonemeDict, SECTION_ID};
 
@@ -65,7 +70,13 @@ impl Indonesian {
                 continue;
             }
             let phones = match dict.lookup_section(SECTION_ID, &word) {
-                Some(p) => p.to_string(),
+                // Dictionary entries are stored one phoneme per token; the
+                // output convention is one group per syllable, as it is for
+                // Vietnamese and Thai.
+                Some(p) => {
+                    let seq: Vec<String> = p.split_whitespace().map(str::to_string).collect();
+                    syllable::syllabify(&seq).join(" ")
+                }
                 // Not Indonesian vocabulary. Route to English only when the
                 // English DICTIONARY has the word — asking the engine instead
                 // always says yes, since it segments any unknown string, and
@@ -73,7 +84,7 @@ impl Indonesian {
                 None if dict.has_english(&word) => read_latin(&word),
                 // Otherwise the rules read it, which is what carries proper
                 // names — 77% of the words the dictionary does not cover.
-                None => rules::g2p_word(&word).join(" "),
+                None => syllable::syllabify(&rules::g2p_word(&word)).join(" "),
             };
             out.push(phones);
             if !trailing.is_empty() {

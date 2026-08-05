@@ -123,6 +123,13 @@ why compound splitting is in the build at all.
 | `build_id_dict.py` | the build pipeline |
 | `id_freq.tsv.gz` | corpus frequency table |
 
+## Output format
+
+Phonemes are grouped one syllable per space — `saya makan` is `sa ja ma kan`,
+not nine separate phonemes — matching what the Vietnamese and Thai front ends
+emit. The dictionary stores one phoneme per token, as WikiPron does, and
+`src/lang/id/syllable.rs` groups them at read time.
+
 ## Known limitations
 
 - The 42k classifier-derived entries are the least certain part of the

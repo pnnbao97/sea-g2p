@@ -61,7 +61,7 @@ fn schwa_is_the_default_and_the_dictionary_overrides_it() {
     assert_eq!(g2p_word("cerdas").join(" "), "t͡ʃ ə r d a s");
     // …and the dictionary knows where it is not. "sepeda" is /səpeda/: the
     // first ⟨e⟩ is schwa, the second is not, which no rule can predict.
-    assert_eq!(read(&eng, &id, "sepeda"), "s ə p e d a");
+    assert_eq!(read(&eng, &id, "sepeda"), "sə pe da");
 }
 
 #[test]
@@ -71,7 +71,7 @@ fn code_switching_goes_to_the_english_engine() {
     let out = read(&eng, &id, "saya pakai iPhone dan Facebook");
     assert!(!out.contains("iphone") && !out.contains("facebook"), "{out}");
     // the Indonesian around it still reads as Indonesian
-    assert!(out.starts_with("s a j a"), "{out}");
+    assert!(out.starts_with("sa ja"), "{out}");
 }
 
 #[test]
@@ -90,7 +90,7 @@ fn english_routing_is_a_dictionary_test_not_an_engine_test() {
     // The English engine segments any unknown string and always returns
     // something, so routing on "did it produce output" sent the Indonesian
     // name Gadjah to be read as the English "gad jah".
-    assert_eq!(read(&eng, &id, "gadjah"), "ɡ a d͡ʒ a h");
+    assert_eq!(read(&eng, &id, "gadjah"), "ɡa d͡ʒah");
     // a word the English dictionary really has still goes there
     let out = read(&eng, &id, "iphone");
     assert!(out.contains('ˈ'), "expected English stress marks, got {out}");
@@ -101,9 +101,9 @@ fn place_names_are_read_by_rule() {
     let eng = engine();
     let id = Indonesian::new();
     for (name, want) in [
-        ("cianjur", "t͡ʃ i a n d͡ʒ u r"),
-        ("purworejo", "p u r w o r ə d͡ʒ o"),
-        ("karanganyar", "k a r a ŋ a ɲ a r"),
+        ("cianjur", "t͡ʃi an d͡ʒur"),
+        ("purworejo", "pur wo rə d͡ʒo"),
+        ("karanganyar", "ka ra ŋa ɲar"),
     ] {
         assert_eq!(read(&eng, &id, name), want, "{name}");
     }
