@@ -251,3 +251,18 @@ fn the_audit_is_quiet_on_ordinary_thai() {
     // and a genuinely undeclared symbol is still caught
     assert_eq!(audit_unmapped("∮ ก"), vec!['∮']);
 }
+
+#[test]
+fn the_audit_reports_scripts_the_pipeline_deletes() {
+    // stage_residual keeps Thai, ASCII and kept punctuation — nothing else.
+    // `is_alphanumeric` accepts ā ṁ Ω and CJK, so the audit passed text the
+    // pipeline was busy dropping. Fixing the combining-mark false positives
+    // without this left the guard blind in the direction that hides losses.
+    assert_eq!(audit_unmapped("ก ā ก"), vec!['ā']);
+    assert_eq!(audit_unmapped("ก Ω ก"), vec!['Ω']);
+    assert_eq!(audit_unmapped("ก 日本 ก"), vec!['日', '本']);
+    // and ordinary Thai, including code-switched Latin, stays quiet
+    for s in ["เขาฉลาดพอที่จะซ่อนสติปัญญา", "ผมใช้ iPhone ราคา ฿1,250"] {
+        assert_eq!(audit_unmapped(s), Vec::<char>::new(), "{s}");
+    }
+}

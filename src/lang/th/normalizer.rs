@@ -539,7 +539,12 @@ pub fn audit_unmapped(text: &str) -> Vec<char> {
             || crate::core::numeric::handled_chars().contains(c)
             || crate::core::spans::handled_chars().contains(c)
             || crate::core::units::handled_chars().contains(c)
-            || c.is_alphanumeric()
+            // ASCII only, matching stage_residual's keep-list. `is_alphanumeric`
+            // accepts ā ṁ Ω and CJK — every one of which the stage deletes —
+            // so the audit passed text the pipeline was busy dropping. Fixing
+            // the combining-mark false positives above without this left the
+            // guard blind in the direction that actually hides losses.
+            || c.is_ascii_alphanumeric()
             || c.is_whitespace()
             || matches!(c, ',' | '.' | '!' | '?')
         {
