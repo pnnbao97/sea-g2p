@@ -71,5 +71,14 @@ class Normalizer:
         Returns the offending characters, de-duplicated and in order of first
         appearance; an empty list means the input is fully covered. Use it in
         tests over new corpora before shipping them.
+
+        The audit follows ``lang``. It used to always run the Vietnamese one,
+        which meant a symbol missing from the Thai or Indonesian tables was
+        checked against Vietnamese rules and cleared — the guard staying
+        silent in exactly the two pipelines that most needed it.
         """
+        if self.lang == "th":
+            return self._rs_lang.audit_th(text)
+        if self.lang == "id":
+            return self._rs_lang.audit_id(text)
         return self._rs_normalizer.audit(text)

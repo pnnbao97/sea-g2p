@@ -42,6 +42,7 @@ use super::num2th::{digit_word, n2w, n2w_decimal, n2w_single};
 use crate::core::numeric::{self, NumericWords};
 use crate::core::roman::{self, RomanCues};
 use crate::core::spans::{self, SpanWords};
+use crate::core::units::{self, UnitWords};
 
 /// Words that license a Roman numeral in Thai. Reign names dominate:
 /// รัชกาลที่ ๙ is written with a Latin numeral as often as a Thai one.
@@ -83,7 +84,22 @@ const NUMERIC: NumericWords = NumericWords {
     over: "ส่วน",
     score: "ต่อ",
 };
-use super::resources::{thai_digit_to_ascii, TH_ABBREV, TH_LATIN_LETTERS, TH_SYMBOLS, TH_UNITS};
+/// Thai words for units, prime marks and ratios. Thai builds "square metre"
+/// and "cubic metre" by prefixing, where Indonesian suffixes.
+const UNITS: UnitWords = UnitWords {
+    per: "ต่อ",
+    square: |base| format!("ตาราง{}", base),
+    cubic: |base| format!("ลูกบาศก์{}", base),
+    lookup: |name| TH_LATIN_UNITS.get(name).copied(),
+    feet: "ฟุต",
+    inches: "นิ้ว",
+    arcminute: "ลิปดา",
+    arcsecond: "ฟิลิปดา",
+    ratio: "ต่อ",
+};
+use super::resources::{
+    thai_digit_to_ascii, TH_ABBREV, TH_LATIN_LETTERS, TH_LATIN_UNITS, TH_SYMBOLS, TH_UNITS,
+};
 use crate::core::abbrev::Reading;
 use super::segment::normalize_spelling;
 
@@ -223,7 +239,10 @@ static RE_DEGREE: Lazy<Regex> = Lazy::new(|| {
 /// Currency, percentage and temperature, all of which put the unit **after**
 /// the quantity when spoken even when written before it (฿500 -> ห้าร้อยบาท).
 fn stage_units(text: &str) -> String {
-    let out = RE_CURRENCY_PREFIX.replace_all(text, |c: &Captures| {
+    // Measurements first: the degree pass below would otherwise consume the °
+    // of "13° 45'" and leave the arcminute stranded.
+    let text = units::expand(text, &UNITS);
+    let out = RE_CURRENCY_PREFIX.replace_all(&text, |c: &Captures| {
         let unit = TH_UNITS.get(&c[1]).copied().unwrap_or("");
         format!(" {} {} ", read_number(&c[2]), unit)
     });
@@ -402,6 +421,11 @@ pub fn audit_unmapped(text: &str) -> Vec<char> {
     if unhandled_numeric_hyphen(text) {
         out.push('-');
     }
+    // A prime after a digit is a measurement, not a quotation mark, so the
+    // blanket entry in INTENTIONALLY_DROPPED below must not cover it.
+    if let Some(c) = units::unhandled_prime(text, &UNITS) {
+        out.push(c);
+    }
     for c in text.chars() {
         // Hyphens are settled by digit_adjacent_hyphen above: a numeric one
         // is already reported, an ordinary one is genuinely droppable.
@@ -410,6 +434,7 @@ pub fn audit_unmapped(text: &str) -> Vec<char> {
         }
         if crate::core::numeric::handled_chars().contains(c)
             || crate::core::spans::handled_chars().contains(c)
+            || crate::core::units::handled_chars().contains(c)
             || c.is_alphanumeric()
             || c.is_whitespace()
             || matches!(c, ',' | '.' | '!' | '?')

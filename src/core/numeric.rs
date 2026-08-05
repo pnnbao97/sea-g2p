@@ -66,6 +66,12 @@ static RE_SUBTRACT: Lazy<Regex> = Lazy::new(|| Regex::new(r"(\S)\s+[-–—]\s+(
 /// are digit-dash-digit and nothing inside the pattern tells them apart.
 static RE_HAS_EQUALS: Lazy<Regex> = Lazy::new(|| Regex::new(r"=").unwrap());
 static RE_POWER: Lazy<Regex> = Lazy::new(|| Regex::new(r"\b(\d+)\s*\^\s*(-?\d+)").unwrap());
+/// E-notation: `1.5e10`, `6,02e23`, `1e-9`. The decimal mark is either a
+/// period or a comma because Indonesian writes 1,5 where Thai writes 1.5.
+/// Left alone the exponent read as a bare cardinal — "one point five e ten" —
+/// which is off by ten orders of magnitude with nothing audible to signal it.
+static RE_SCI: Lazy<Regex> =
+    Lazy::new(|| Regex::new(r"\b(\d+(?:[.,]\d+)?)[eE]([-+]?\d+)\b").unwrap());
 static RE_TIMES: Lazy<Regex> = Lazy::new(|| Regex::new(r"\b(\d+)\s*[x×*]\s*(\d+)\b").unwrap());
 static RE_FRACTION: Lazy<Regex> = Lazy::new(|| Regex::new(r"\b(\d+)\s*/\s*(\d+)\b").unwrap());
 
@@ -99,6 +105,26 @@ pub fn expand(
     // superscripts and subscripts first: they are single characters that the
     // digit patterns below cannot see
     let mut out = expand_scripts(text, w, digit);
+
+    // e-notation before the exponent patterns below, which would read its
+    // digits as an ordinary product. The mantissa is left as digits for the
+    // number stage; only the operator and the exponent become words here.
+    out = RE_SCI
+        .replace_all(&out, |c: &Captures| {
+            let exp = &c[2];
+            let exp = exp.strip_prefix('+').unwrap_or(exp);
+            match exp.strip_prefix('-') {
+                Some(rest) => format!(
+                    " {} {} {} {} {} {} ",
+                    &c[1], w.times, cardinal("10"), w.power, w.minus, cardinal(rest)
+                ),
+                None => format!(
+                    " {} {} {} {} {} ",
+                    &c[1], w.times, cardinal("10"), w.power, cardinal(exp)
+                ),
+            }
+        })
+        .into_owned();
 
     out = RE_POWER
         .replace_all(&out, |c: &Captures| {

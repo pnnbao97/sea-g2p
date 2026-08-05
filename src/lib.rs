@@ -109,6 +109,29 @@ impl G2P {
         })
     }
 
+    /// Report characters of `text` that Thai normalization would delete
+    /// without speaking them.
+    ///
+    /// The counterpart of the Vietnamese `Normalizer.audit`. Without it the
+    /// Python wrapper had no way to reach this pipeline's audit and fell back
+    /// to the Vietnamese one, so a symbol missing from the *Thai* tables was
+    /// checked against Vietnamese rules and reported as fine.
+    fn audit_th(&self, text: &str) -> Vec<String> {
+        lang::th::normalizer::audit_unmapped(text)
+            .into_iter()
+            .map(|c| c.to_string())
+            .collect()
+    }
+
+    /// Report characters of `text` that Indonesian normalization would delete
+    /// without speaking them.
+    fn audit_id(&self, text: &str) -> Vec<String> {
+        lang::id::normalizer::audit_unmapped(text)
+            .into_iter()
+            .map(|c| c.to_string())
+            .collect()
+    }
+
     /// Phonemize a batch of Thai texts in parallel.
     fn phonemize_th_batch(&self, py: Python<'_>, texts: Vec<String>) -> Vec<String> {
         let th = self.thai.get_or_init(|| lang::th::Thai::new(&self.engine.dict));

@@ -164,3 +164,42 @@ fn markup_tags_are_stripped_not_read() {
     assert!(!m.contains("math"), "{m}");
     assert!(m.contains("กำลังสอง") && m.contains("ลบ"), "{m}");
 }
+
+#[test]
+fn latin_unit_abbreviations_are_read_as_words() {
+    // "60 km/h" read as "km ทับ h": the abbreviation unread and the slash
+    // voiced as punctuation rather than as "per".
+    assert_eq!(normalize("60 km/h"), "หกสิบ กิโลเมตร ต่อ ชั่วโมง");
+    assert!(normalize("9.8 m/s²").contains("เมตร ต่อ วินาที กำลังสอง"));
+    // a trailing 2 or 3 on a unit is an exponent, not a count
+    assert_eq!(normalize("50 m2"), "ห้าสิบ ตารางเมตร");
+    assert_eq!(normalize("2 m3"), "สอง ลูกบาศก์เมตร");
+    // a letter run that is NOT a unit must be left alone
+    assert!(normalize("รุ่น 5 abc").contains("abc"));
+}
+
+#[test]
+fn prime_marks_next_to_a_digit_are_measurements() {
+    // '5\'6"' used to read "ห้า หก" — both marks deleted in silence
+    assert_eq!(normalize("5'6\""), "ห้า ฟุต หก นิ้ว");
+    let c = normalize("13° 45' 30\"");
+    assert!(c.contains("ลิปดา") && c.contains("ฟิลิปดา"), "{c}");
+    // a prime nothing reads IS reported, and a plain quotation mark is not
+    assert_eq!(audit_unmapped("5'"), vec!['\'']);
+    assert_eq!(audit_unmapped("\"คำ\""), Vec::<char>::new());
+}
+
+#[test]
+fn a_ratio_is_not_a_clock_time() {
+    assert!(normalize("อัตรา 3:1").contains("สาม ต่อ หนึ่ง"));
+    // the time pass still has the prior claim
+    assert!(normalize("14:30").contains("นาฬิกา"));
+}
+
+#[test]
+fn e_notation_keeps_its_order_of_magnitude() {
+    // "1.5e10" read as "…e สิบ": ten orders of magnitude lost inaudibly
+    let s = normalize("1.5e10");
+    assert!(s.contains("คูณ สิบ ยกกำลัง สิบ"), "{s}");
+    assert!(normalize("1e-9").contains("ยกกำลัง ลบ เก้า"));
+}

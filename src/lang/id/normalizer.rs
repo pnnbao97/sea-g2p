@@ -37,6 +37,21 @@ use super::num2id::{digit_word, n2w, n2w_decimal, n2w_single};
 use crate::core::numeric::{self, NumericWords};
 use crate::core::roman::{self, RomanCues};
 use crate::core::spans::{self, SpanWords};
+use crate::core::units::{self, UnitWords};
+
+/// Indonesian words for units, prime marks and ratios. Indonesian suffixes
+/// where Thai prefixes: meter persegi, not "persegi meter".
+const UNITS: UnitWords = UnitWords {
+    per: "per",
+    square: |base| format!("{} persegi", base),
+    cubic: |base| format!("{} kubik", base),
+    lookup: |name| ID_UNITS.get(name).copied(),
+    feet: "kaki",
+    inches: "inci",
+    arcminute: "menit",
+    arcsecond: "detik",
+    ratio: "banding",
+};
 
 /// Words that license a Roman numeral in Indonesian.
 const ROMAN: RomanCues = RomanCues {
@@ -76,7 +91,7 @@ const NUMERIC: NumericWords = NumericWords {
     over: "per",
     score: "lawan",
 };
-use super::resources::{ID_ABBREV, ID_LETTER_NAMES, ID_MONTHS, ID_SYMBOLS};
+use super::resources::{ID_ABBREV, ID_LETTER_NAMES, ID_MONTHS, ID_SYMBOLS, ID_UNITS};
 use crate::core::abbrev::Reading;
 
 // ── Stage 0: protected spans ────────────────────────────────────────────────
@@ -177,6 +192,32 @@ fn stage_identifiers(text: &str) -> String {
     spans::expand_identifiers(text, &SPANS, n2w_single, PLATE_CUES)
 }
 
+// ── Stage 3c: units ─────────────────────────────────────────────────────────
+
+/// Units, prime marks and ratios. After the clock-time pass, which has the
+/// prior claim on `14:30`; before the number pass, which would consume the
+/// digit this stage matches on.
+fn stage_units(text: &str) -> String {
+    units::expand(text, &UNITS)
+}
+
+// ── Stage 3d: ordinals ──────────────────────────────────────────────────────
+
+/// `ke-3`, and a `ke-` left stranded by the Roman pass ("abad ke- dua puluh").
+static RE_ORDINAL: Lazy<Regex> = Lazy::new(|| Regex::new(r"(?i)\bke-\s*(\d+)?").unwrap());
+
+/// Indonesian writes every ordinal with a hyphen — ke-3, abad ke-20 — and
+/// speaks it as one word: ketiga. Left alone the hyphen reached the G2P stage
+/// as a literal character, giving "ke- tiga".
+fn stage_ordinals(text: &str) -> String {
+    RE_ORDINAL
+        .replace_all(text, |c: &Captures| match c.get(1) {
+            Some(n) => format!(" ke{} ", n2w(n.as_str())),
+            None => " ke ".to_string(),
+        })
+        .into_owned()
+}
+
 // ── Stage 2b: Roman numerals ────────────────────────────────────────────────
 
 /// Only after a cue word: without one, "CD" and "MC" are ordinary letters.
@@ -247,12 +288,46 @@ fn stage_symbols(text: &str) -> String {
 
 static RE_PAUSE: Lazy<Regex> = Lazy::new(|| Regex::new(r"[;:]").unwrap());
 static RE_ELLIPSIS: Lazy<Regex> = Lazy::new(|| Regex::new(r"[…‥․]+|\.{2,}").unwrap());
-static RE_DROP: Lazy<Regex> = Lazy::new(|| Regex::new(r"[^A-Za-z0-9\s,.!?'-]").unwrap());
+/// An apostrophe between letters is older orthography — do'a, Jum'at — whose
+/// modern spelling simply closes up. Joining is therefore the right reading;
+/// replacing it with a space, as the general drop below would, splits one
+/// word into two.
+static RE_APOSTROPHE: Lazy<Regex> = Lazy::new(|| Regex::new(r"(?i)([a-z])['’]([a-z])").unwrap());
+static RE_DROP: Lazy<Regex> = Lazy::new(|| Regex::new(r"[^A-Za-z0-9\s,.!?-]").unwrap());
 static RE_SPACES: Lazy<Regex> = Lazy::new(|| Regex::new(r"\s+").unwrap());
+
+/// Keep the hyphen that means something and drop the one that does not.
+///
+/// Between letters it is reduplication — orang-orang, anak-anak — and the
+/// word is wrong without it. Anywhere else it is not a word at all, and
+/// leaving it in place is how `COVID-19` reached the G2P stage as
+/// "COVID- sembilan belas" with a literal dash in the middle.
+fn strip_non_word_hyphens(text: &str) -> String {
+    let chars: Vec<char> = text.chars().collect();
+    chars
+        .iter()
+        .enumerate()
+        .map(|(i, c)| {
+            if !matches!(c, '-' | '–' | '—') {
+                return *c;
+            }
+            let joins_words = i > 0
+                && chars[i - 1].is_alphabetic()
+                && chars.get(i + 1).is_some_and(|n| n.is_alphabetic());
+            if joins_words {
+                *c
+            } else {
+                ' '
+            }
+        })
+        .collect()
+}
 
 fn stage_residual(text: &str) -> String {
     let out = RE_PAUSE.replace_all(text, ",");
     let out = RE_ELLIPSIS.replace_all(&out, ".");
+    let out = RE_APOSTROPHE.replace_all(&out, "$1$2");
+    let out = strip_non_word_hyphens(&out);
     let out = RE_DROP.replace_all(&out, " ");
     RE_SPACES.replace_all(&out, " ").trim().to_string()
 }
@@ -264,7 +339,11 @@ pub fn normalize(text: &str) -> String {
     s = stage_datetime(&s);
     s = stage_identifiers(&s);
     s = stage_roman(&s);
+    // after the Roman pass, so "abad ke-XX" has become "abad ke- dua puluh"
+    // and this stage can clear the stranded hyphen along with "ke-3"
+    s = stage_ordinals(&s);
     s = stage_money(&s);
+    s = stage_units(&s);
     s = stage_math(&s);
     s = stage_numbers(&s);
     s = stage_symbols(&s);
@@ -302,9 +381,14 @@ pub fn audit_unmapped(text: &str) -> Vec<char> {
     if unhandled_numeric_hyphen(text) {
         out.push('-');
     }
+    // A prime after a digit is a measurement, not a quotation mark.
+    if let Some(c) = units::unhandled_prime(text, &UNITS) {
+        out.push(c);
+    }
     for c in text.chars() {
         if crate::core::numeric::handled_chars().contains(c)
             || crate::core::spans::handled_chars().contains(c)
+            || crate::core::units::handled_chars().contains(c)
             || c.is_alphanumeric()
             || c.is_whitespace()
             || matches!(c, ',' | '.' | '!' | '?' | '\'' | '-')

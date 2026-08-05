@@ -7,3 +7,4 @@ pub mod dict;
 pub mod numeric;
 pub mod roman;
 pub mod spans;
+pub mod units;

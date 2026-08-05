@@ -19,6 +19,26 @@ pub const ID_MONTHS: [&str; 12] = [
     "Juli", "Agustus", "September", "Oktober", "November", "Desember",
 ];
 
+/// Unit abbreviations, matched only after a digit. Most are spoken as the
+/// full Indonesian word, so the entry is a genuine expansion rather than a
+/// pass-through; `jam` and `menit` map to themselves because the written form
+/// is already the word and the table is what licenses a `/` to read "per".
+pub static ID_UNITS: Lazy<HashMap<&'static str, &'static str>> = Lazy::new(|| {
+    [
+        ("km", "kilometer"), ("m", "meter"), ("cm", "sentimeter"),
+        ("mm", "milimeter"), ("nm", "nanometer"), ("ha", "hektar"),
+        ("kg", "kilogram"), ("g", "gram"), ("mg", "miligram"),
+        ("l", "liter"), ("ml", "mililiter"),
+        ("jam", "jam"), ("j", "jam"), ("menit", "menit"), ("mnt", "menit"),
+        ("detik", "detik"), ("dtk", "detik"), ("s", "detik"),
+        ("w", "watt"), ("kw", "kilowatt"), ("mw", "megawatt"),
+        ("v", "volt"), ("kv", "kilovolt"),
+        ("hz", "hertz"), ("khz", "kilohertz"), ("mhz", "megahertz"),
+        ("ghz", "gigahertz"), ("kb", "kilobita"), ("mb", "megabita"),
+        ("gb", "gigabita"), ("tb", "terabita"), ("kkal", "kilokalori"),
+    ].into_iter().collect()
+});
+
 pub static ID_SYMBOLS: Lazy<HashMap<char, &'static str>> = Lazy::new(|| {
     [
         ('&', " dan "), ('+', " plus "), ('=', " sama dengan "),

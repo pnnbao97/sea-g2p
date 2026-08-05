@@ -126,3 +126,49 @@ fn reduplication_hyphens_survive_the_math_stage() {
     assert_eq!(normalize("orang-orang"), "orang-orang");
     assert_eq!(normalize("anak-anak"), "anak-anak");
 }
+
+#[test]
+fn latin_unit_abbreviations_are_read_as_words() {
+    assert_eq!(normalize("60 km/jam"), "enam puluh kilometer per jam");
+    assert!(normalize("9,8 m/s²").contains("meter per detik kuadrat"));
+    // Indonesian suffixes where Thai prefixes: meter persegi, not persegi meter
+    assert_eq!(normalize("50 m2"), "lima puluh meter persegi");
+    assert_eq!(normalize("2 m3"), "dua meter kubik");
+    assert!(normalize("tipe 5 abc").contains("abc"));
+}
+
+#[test]
+fn ordinals_are_one_word_and_leave_no_hyphen() {
+    // "ke-3" reached the G2P stage as "ke- tiga", dash and all
+    assert_eq!(normalize("ke-3"), "ketiga");
+    assert_eq!(normalize("abad ke-20"), "abad kedua puluh");
+    // a Roman ordinal loses its hyphen too
+    assert_eq!(normalize("abad ke-XX"), "abad ke dua puluh");
+}
+
+#[test]
+fn a_hyphen_survives_only_between_letters() {
+    // reduplication needs it; COVID-19 does not, and used to keep it
+    assert_eq!(normalize("COVID-19"), "COVID sembilan belas");
+    assert_eq!(normalize("orang-orang"), "orang-orang");
+}
+
+#[test]
+fn an_apostrophe_between_letters_closes_the_word_up() {
+    // older orthography: the modern spelling simply joins. Dropping it to a
+    // space, as the residual pass did, split one word into two.
+    assert_eq!(normalize("do'a Jum'at"), "doa Jumat");
+}
+
+#[test]
+fn prime_marks_and_ratios() {
+    assert_eq!(normalize("5'6\""), "lima kaki enam inci");
+    assert!(normalize("rasio 3:1").contains("tiga banding satu"));
+    assert_eq!(audit_unmapped("5'"), vec!['\'']);
+}
+
+#[test]
+fn e_notation_keeps_its_order_of_magnitude() {
+    assert!(normalize("6,02e23").contains("kali sepuluh pangkat dua puluh tiga"));
+    assert!(normalize("1e-9").contains("pangkat minus sembilan"));
+}

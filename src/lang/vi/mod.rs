@@ -98,6 +98,9 @@ static RE_MATH_FACTORIAL: Lazy<FRegex> = Lazy::new(|| FRegex::new(r"(?<=[0-9A-Za
 // After "(" or "=" it deliberately fails to match, leaving the unary branch to
 // read "âm".
 static RE_MATH_BIN_MINUS: Lazy<FRegex> = Lazy::new(|| FRegex::new(r"(?<=[0-9A-Za-z)])\s*[-–—]\s*(?=[0-9A-Za-z(∫√])").unwrap());
+// Natural logarithm. Lowercase only: "LN" in a run of capitals is an
+// initialism, not a function.
+static RE_LN: Lazy<Regex> = Lazy::new(|| Regex::new(r"\bln\b").unwrap());
 static MATH_FUNCS: Lazy<std::collections::HashSet<&'static str>> = Lazy::new(|| {
     [
         "sin", "cos", "tan", "cot", "sec", "csc", "sinh", "cosh", "tanh", "coth",
@@ -1035,6 +1038,14 @@ impl Normalizer {
         // as "...". Any later and an earlier pass would have swallowed "…" as a
         // separator.
         let mut current_text = RE_ELLIPSIS.replace_all(&nfc_text, ".").into_owned();
+
+        // "ln" is the natural logarithm, but nothing downstream knows that: it
+        // is a vowel-less pair of Latin letters, so the G2P stage spelled it as
+        // English initials, ˌɛlˈɛn. Rewriting it to "log" — which is how a
+        // Vietnamese speaker reads it aloud anyway — is done here, before the
+        // <math> pass, so it applies inside a formula and in running prose
+        // alike ("tính ln của x").
+        current_text = RE_LN.replace_all(&current_text, "log").into_owned();
 
         // <math> regions: split variable clusters into single letters, drop the
         // tags, and let the normal pipeline read the letters and symbols. Done

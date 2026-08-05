@@ -863,3 +863,23 @@ def test_normalize(normalizer, input_text, expected):
     actual_clean = " ".join(actual.split()).lower()
     expected_clean = " ".join(expected.split()).lower()
     assert actual_clean == expected_clean
+
+
+# ── Natural logarithm ────────────────────────────────────────────────────────
+# "ln" is a vowel-less pair of Latin letters, so the G2P stage spelled it as
+# English initials (ˌɛlˈɛn). It is rewritten to "log", which is how it is read
+# aloud in Vietnamese anyway.
+LN_CASES = [
+    ("ln x", "log ích"),
+    ("tính ln của x", "tính log của ích"),
+    ("ln(2)", "log, hai"),
+]
+
+
+@pytest.mark.parametrize("text,expected", LN_CASES)
+def test_natural_log_reads_as_log(normalizer, text, expected):
+    assert normalizer.normalize(text) == expected
+
+
+def test_log_itself_is_unchanged(normalizer):
+    assert normalizer.normalize("log x") == "log ích"

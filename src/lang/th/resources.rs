@@ -64,6 +64,31 @@ pub static TH_UNITS: Lazy<HashMap<&'static str, &'static str>> = Lazy::new(|| {
     ].into_iter().collect()
 });
 
+/// Latin unit abbreviations, which Thai writing uses as freely as the Thai
+/// ones above — `60 km/h`, `50 m2`, `9.8 m/s²`.
+///
+/// Kept apart from [`TH_UNITS`] because these are matched only after a digit
+/// and never carry a trailing period, so they must not join the abbreviation
+/// table: `m` and `g` are ordinary letters everywhere else.
+pub static TH_LATIN_UNITS: Lazy<HashMap<&'static str, &'static str>> = Lazy::new(|| {
+    [
+        ("km", "กิโลเมตร"), ("m", "เมตร"), ("cm", "เซนติเมตร"),
+        ("mm", "มิลลิเมตร"), ("nm", "นาโนเมตร"), ("ha", "เฮกตาร์"),
+        ("kg", "กิโลกรัม"), ("g", "กรัม"), ("mg", "มิลลิกรัม"),
+        ("l", "ลิตร"), ("ml", "มิลลิลิตร"),
+        ("h", "ชั่วโมง"), ("hr", "ชั่วโมง"), ("min", "นาที"),
+        ("s", "วินาที"), ("sec", "วินาที"), ("ms", "มิลลิวินาที"),
+        ("w", "วัตต์"), ("kw", "กิโลวัตต์"), ("mw", "เมกะวัตต์"),
+        // "a" and "t" are deliberately absent: ampere and tonne are rare in
+        // running text while the bare letters are common, so claiming them
+        // costs more than it earns.
+        ("v", "โวลต์"), ("kv", "กิโลโวลต์"),
+        ("hz", "เฮิรตซ์"), ("khz", "กิโลเฮิรตซ์"), ("mhz", "เมกะเฮิรตซ์"),
+        ("ghz", "กิกะเฮิรตซ์"), ("kb", "กิโลไบต์"), ("mb", "เมกะไบต์"),
+        ("gb", "กิกะไบต์"), ("tb", "เทระไบต์"), ("kcal", "กิโลแคลอรี"),
+    ].into_iter().collect()
+});
+
 /// Mathematical and typographic symbols that must become words rather than be
 /// deleted. Mirrors the Vietnamese `SYMBOLS_MAP`; the audit test keeps the two
 /// in step.
