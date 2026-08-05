@@ -152,11 +152,19 @@ For the Thai data pipeline and its measurements, see [thai/README.md](thai/READM
 
 To install for development purposes:
 
-1. Clone the repository:
+> **Note**: the phoneme dictionary (`python/sea_g2p/sea_g2p.bin`, ~53 MB) is
+> stored with [Git LFS](https://git-lfs.com). Installing from PyPI needs
+> nothing extra — the file ships inside the wheel. Cloning does: without
+> `git lfs` the checkout contains a small pointer file instead of the
+> dictionary, and the build produces a package that cannot look any word up.
+
+1. Install Git LFS once, then clone:
    ```bash
+   git lfs install
    git clone https://github.com/pnnbao97/sea-g2p
    cd sea-g2p
    ```
+   Already cloned without it? `git lfs install && git lfs pull`.
 
 2. Install in editable mode:
    ```bash
