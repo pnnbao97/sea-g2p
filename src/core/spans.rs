@@ -42,6 +42,25 @@ pub struct SpanWords {
     pub spell: fn(&str) -> String,
 }
 
+/// `<math>…</math>` and `<en>…</en>`: markup the caller wrote deliberately.
+/// Reading the tag itself turned `<math>b²</math>` into "less than math
+/// greater than b squared", so the delimiters are stripped and the content
+/// kept — the symbol stage inside it then voices the operators.
+static RE_TAG: Lazy<Regex> = Lazy::new(|| {
+    Regex::new(r"(?i)</?(?:math|en)>").unwrap()
+});
+
+/// Identifier-shaped runs: licence plates, model numbers, order codes. The
+/// digits in them are not quantities — a Thai plate `กก 1234` is four
+/// figures, not one thousand two hundred and thirty-four — so they are read
+/// out one by one.
+static RE_PLATE: Lazy<Regex> = Lazy::new(|| {
+    Regex::new(
+        r"(?i)([A-Za-z\u{0E01}-\u{0E4E}]{1,3})\s?(\d{2,5})(?:\s?([A-Za-z]{1,3}))?\b",
+    )
+    .unwrap()
+});
+
 static RE_EMAIL: Lazy<Regex> = Lazy::new(|| {
     Regex::new(r"(?i)\b[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}\b").unwrap()
 });
@@ -60,7 +79,8 @@ const WORD_SUFFIXES: &[&str] = &[
 /// letting a caller decide whether an unknown domain label is spelled or
 /// read; passing `None` leaves labels as they are for the G2P stage.
 pub fn expand(text: &str, w: &SpanWords) -> String {
-    let out = RE_EMAIL.replace_all(text, |c: &Captures| {
+    let text = RE_TAG.replace_all(text, " ");
+    let out = RE_EMAIL.replace_all(&text, |c: &Captures| {
         let span = &c[0];
         match span.split_once('@') {
             Some((user, host)) => {
@@ -137,6 +157,34 @@ fn read_label(label: &str, w: &SpanWords) -> String {
         }
     }
     out.trim().to_string()
+}
+
+/// Read an identifier-shaped run figure by figure: `B 1234 XYZ`, `กก 1234`.
+///
+/// `spell_digits` renders each figure separately and `spell` the letters, so
+/// the caller decides both. Returns `None` when nothing in `text` looks like
+/// an identifier, letting the caller skip the pass.
+pub fn expand_identifiers(
+    text: &str,
+    w: &SpanWords,
+    spell_digits: fn(&str) -> String,
+    cues: &[&str],
+) -> String {
+    RE_PLATE
+        .replace_all(text, |c: &Captures| {
+            let start = c.get(0).map(|m| m.start()).unwrap_or(0);
+            let before = text[..start].trim_end().to_lowercase();
+            if !cues.iter().any(|cue| before.ends_with(cue)) {
+                return c[0].to_string();
+            }
+            let head = (w.spell)(&c[1]);
+            let digits = spell_digits(&c[2]);
+            match c.get(3) {
+                Some(tail) => format!(" {} {} {} ", head, digits, (w.spell)(tail.as_str())),
+                None => format!(" {} {} ", head, digits),
+            }
+        })
+        .into_owned()
 }
 
 /// Characters this module consumes, for the silent-deletion audits.

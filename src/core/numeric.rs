@@ -56,6 +56,15 @@ pub type CardinalFn = fn(&str) -> String;
 // "10-20" a range, both handled below.
 static RE_MINUS: Lazy<Regex> = Lazy::new(|| Regex::new(r"(?:^|[\s(\[])-(\d)").unwrap());
 static RE_RANGE: Lazy<Regex> = Lazy::new(|| Regex::new(r"\b(\d+)\s*[-–—]\s*(\d+)\b").unwrap());
+/// Subtraction between non-numeric operands: `b² - 4ac`. Spaces on BOTH
+/// sides are required, which separates it from a compound hyphen — Indonesian
+/// reduplicates with one, orang-orang — and from the unary sign above.
+/// Without this the operator simply vanished.
+static RE_SUBTRACT: Lazy<Regex> = Lazy::new(|| Regex::new(r"(\S)\s+[-–—]\s+(\S)").unwrap());
+/// An equals sign anywhere means the dashes in the line are arithmetic, not
+/// ranges: "5 - 3 = 2" is a subtraction, "10-20 ปี" is a span of years. Both
+/// are digit-dash-digit and nothing inside the pattern tells them apart.
+static RE_HAS_EQUALS: Lazy<Regex> = Lazy::new(|| Regex::new(r"=").unwrap());
 static RE_POWER: Lazy<Regex> = Lazy::new(|| Regex::new(r"\b(\d+)\s*\^\s*(-?\d+)").unwrap());
 static RE_TIMES: Lazy<Regex> = Lazy::new(|| Regex::new(r"\b(\d+)\s*[x×*]\s*(\d+)\b").unwrap());
 static RE_FRACTION: Lazy<Regex> = Lazy::new(|| Regex::new(r"\b(\d+)\s*/\s*(\d+)\b").unwrap());
@@ -113,14 +122,22 @@ pub fn expand(
         })
         .into_owned();
 
+    // A dash between two numbers is a range in prose and a subtraction in an
+    // equation; nothing inside the pattern distinguishes them, so the
+    // presence of an equals sign decides.
+    let joiner = if RE_HAS_EQUALS.is_match(&out) { w.minus } else { w.to };
     out = RE_RANGE
         .replace_all(&out, |c: &Captures| {
-            format!(" {} {} {} ", cardinal(&c[1]), w.to, cardinal(&c[2]))
+            format!(" {} {} {} ", cardinal(&c[1]), joiner, cardinal(&c[2]))
         })
         .into_owned();
 
-    RE_MINUS
+    out = RE_MINUS
         .replace_all(&out, |c: &Captures| format!(" {} {}", w.minus, &c[1]))
+        .into_owned();
+
+    RE_SUBTRACT
+        .replace_all(&out, |c: &Captures| format!("{} {} {}", &c[1], w.minus, &c[2]))
         .into_owned()
 }
 

@@ -103,7 +103,10 @@ pub static TH_ABBREV: Lazy<AbbrevTable> = Lazy::new(|| {
         ("ส.ส.", "สมาชิกสภาผู้แทนราษฎร"),
         ("ส.ว.", "สมาชิกวุฒิสภา"),
         ("กทม.", "กรุงเทพมหานคร"),
-        ("จ.", "จังหวัด"),
+        // จ. is deliberately absent: it abbreviates จังหวัด (province) AND
+        // จันทร์ (Monday), and mapping it to either misreads half its
+        // occurrences. The Vietnamese table makes the same call for T2-T7,
+        // which need a time cue before they expand.
         ("ต.", "ตำบล"),
         ("ถ.", "ถนน"),
         ("ร.ร.", "โรงเรียน"),

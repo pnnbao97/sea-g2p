@@ -139,3 +139,28 @@ fn emails_and_urls_are_read_whole() {
     let e = normalize("ส่งไป admin@example.com");
     assert!(e.contains("แอท") && e.contains("จุด"), "{e}");
 }
+
+#[test]
+fn roman_numerals_need_a_cue() {
+    // Thai writes reign names this way constantly
+    assert!(normalize("รัชกาลที่ IX").contains("เก้า"), "reign IX");
+    // without a cue, letters stay letters: CD is a disc, not four hundred
+    assert_eq!(normalize("แผ่น CD"), "แผ่น CD");
+}
+
+#[test]
+fn identifiers_need_a_cue_too() {
+    // after a cue the digits are figures, not a quantity
+    let p = normalize("ทะเบียน กก 1234");
+    assert!(p.contains("หนึ่ง สอง สาม สี่"), "{p}");
+    // without one, 1234 is still one thousand two hundred and thirty-four
+    assert!(normalize("มี 1234 ตัว").contains("หนึ่งพัน"), "no cue");
+}
+
+#[test]
+fn markup_tags_are_stripped_not_read() {
+    // "<math>" was being read as "less than math greater than"
+    let m = normalize("<math>b² - 4ac</math>");
+    assert!(!m.contains("math"), "{m}");
+    assert!(m.contains("กำลังสอง") && m.contains("ลบ"), "{m}");
+}

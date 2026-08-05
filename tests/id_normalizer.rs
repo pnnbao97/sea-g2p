@@ -99,3 +99,30 @@ fn emails_and_urls_are_read_whole() {
     // a path is spoken with its separator
     assert!(normalize("www.abc.com/berita").contains("garis miring"));
 }
+
+#[test]
+fn roman_numerals_need_a_cue() {
+    assert!(normalize("Perang Dunia II").contains("dua"), "WWII");
+    assert_eq!(normalize("cakram CD"), "cakram CD");
+}
+
+#[test]
+fn identifiers_need_a_cue_too() {
+    let p = normalize("plat B 1234 XYZ");
+    assert!(p.contains("satu dua tiga empat"), "{p}");
+    assert!(normalize("ada 1234 ekor").contains("seribu"), "no cue");
+}
+
+#[test]
+fn markup_tags_are_stripped_not_read() {
+    let m = normalize("<math>b² - 4ac</math>");
+    assert!(!m.contains("math"), "{m}");
+    assert!(m.contains("kuadrat") && m.contains("minus"), "{m}");
+}
+
+#[test]
+fn reduplication_hyphens_survive_the_math_stage() {
+    // a compound hyphen is not a minus sign: both sides must have spaces
+    assert_eq!(normalize("orang-orang"), "orang-orang");
+    assert_eq!(normalize("anak-anak"), "anak-anak");
+}

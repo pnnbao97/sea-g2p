@@ -35,7 +35,14 @@ use regex::{Captures, Regex};
 
 use super::num2id::{digit_word, n2w, n2w_decimal, n2w_single};
 use crate::core::numeric::{self, NumericWords};
+use crate::core::roman::{self, RomanCues};
 use crate::core::spans::{self, SpanWords};
+
+/// Words that license a Roman numeral in Indonesian.
+const ROMAN: RomanCues = RomanCues {
+    words: &["perang dunia", "abad", "abad ke-", "bab", "jilid", "ke-",
+             "kelas", "periode", "seri", "bagian", "pasal"],
+};
 
 /// Indonesian words for the pieces of an email address or URL.
 const SPANS: SpanWords = SpanWords {
@@ -162,6 +169,21 @@ fn stage_money(text: &str) -> String {
         .into_owned()
 }
 
+/// Words that mark what follows as an identifier rather than a quantity.
+const PLATE_CUES: &[&str] = &["plat", "nomor polisi", "nopol", "nomor", "kode", "penerbangan"];
+
+/// Licence plates and codes, read figure by figure, gated on a cue.
+fn stage_identifiers(text: &str) -> String {
+    spans::expand_identifiers(text, &SPANS, n2w_single, PLATE_CUES)
+}
+
+// ── Stage 2b: Roman numerals ────────────────────────────────────────────────
+
+/// Only after a cue word: without one, "CD" and "MC" are ordinary letters.
+fn stage_roman(text: &str) -> String {
+    roman::expand(text, &ROMAN, n2w)
+}
+
 // ── Stage 3b: mathematical notation ─────────────────────────────────────────
 
 /// Runs before the generic number pass, which would otherwise eat the digits
@@ -240,6 +262,8 @@ pub fn normalize(text: &str) -> String {
     let mut s = stage_spans(text);
     s = stage_abbreviations(&s);
     s = stage_datetime(&s);
+    s = stage_identifiers(&s);
+    s = stage_roman(&s);
     s = stage_money(&s);
     s = stage_math(&s);
     s = stage_numbers(&s);

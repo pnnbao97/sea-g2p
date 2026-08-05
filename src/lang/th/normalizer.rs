@@ -40,7 +40,15 @@ use regex::{Captures, Regex};
 
 use super::num2th::{digit_word, n2w, n2w_decimal, n2w_single};
 use crate::core::numeric::{self, NumericWords};
+use crate::core::roman::{self, RomanCues};
 use crate::core::spans::{self, SpanWords};
+
+/// Words that license a Roman numeral in Thai. Reign names dominate:
+/// รัชกาลที่ ๙ is written with a Latin numeral as often as a Thai one.
+const ROMAN: RomanCues = RomanCues {
+    words: &["รัชกาลที่", "รัชกาล", "ที่", "เล่มที่", "บทที่", "ครั้งที่",
+             "ศตวรรษที่", "ลำดับที่", "ฉบับที่", "ภาคที่", "สมัยที่"],
+};
 
 /// Thai words for the pieces of an email address or URL.
 const SPANS: SpanWords = SpanWords {
@@ -234,6 +242,24 @@ fn stage_units(text: &str) -> String {
         .into_owned()
 }
 
+/// Words that mark what follows as an identifier rather than a quantity.
+const PLATE_CUES: &[&str] = &["ทะเบียน", "เลขที่", "รหัส", "หมายเลข", "เที่ยวบิน"];
+
+/// Licence plates and codes, read figure by figure. Gated on a cue because
+/// letters-then-digits is far too common a shape to claim on sight.
+fn stage_identifiers(text: &str) -> String {
+    spans::expand_identifiers(text, &SPANS, n2w_single, PLATE_CUES)
+}
+
+// ── Stage 5a: Roman numerals ────────────────────────────────────────────────
+
+/// Only after a cue word: without one, "CD" and "MC" are ordinary letters.
+/// Thai needs this more than Vietnamese does, since reign names are written
+/// this way constantly (รัชกาลที่ IX).
+fn stage_roman(text: &str) -> String {
+    roman::expand(text, &ROMAN, n2w)
+}
+
 // ── Stage 5b: mathematical notation ─────────────────────────────────────────
 
 /// Runs before the generic number pass, which would otherwise eat the digits
@@ -328,6 +354,8 @@ pub fn normalize(text: &str) -> String {
     s = stage_abbreviations(&s);
     s = stage_datetime(&s);
     s = stage_phones(&s);
+    s = stage_identifiers(&s);
+    s = stage_roman(&s);
     s = stage_units(&s);
     s = stage_math(&s);
     s = stage_numbers(&s);
