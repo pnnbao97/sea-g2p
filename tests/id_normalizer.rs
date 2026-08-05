@@ -60,3 +60,37 @@ fn nothing_is_deleted_in_silence() {
 fn plain_text_is_untouched() {
     assert_eq!(normalize("saya makan nasi goreng"), "saya makan nasi goreng");
 }
+
+#[test]
+fn mathematical_notation_is_not_deleted_in_silence() {
+    assert!(normalize("suhu -5 derajat").contains("minus"), "minus sign");
+    // "10^6" read as "sepuluh enam" before this: six orders of magnitude
+    let p = normalize("10^6 orang");
+    assert!(p.contains("pangkat"), "{p}");
+    assert!(normalize("10⁻³").contains("minus"), "negative exponent");
+    assert!(normalize("5 m²").contains("kuadrat"), "squared");
+    assert!(normalize("H₂O").contains("dua"), "subscript");
+    assert!(normalize("usia 10-20 tahun").contains("sampai"), "range");
+    assert!(normalize("3 x 4").contains("kali"), "multiplication");
+    assert!(normalize("1/2").contains("per"), "fraction");
+}
+
+#[test]
+fn the_audit_verifies_numeric_hyphens_rather_than_assuming() {
+    assert_eq!(audit_unmapped("-5"), Vec::<char>::new());
+    assert_eq!(audit_unmapped("10-20"), Vec::<char>::new());
+    // reduplication hyphens are ordinary and stay unreported
+    assert_eq!(audit_unmapped("orang-orang"), Vec::<char>::new());
+}
+
+#[test]
+fn emails_and_urls_are_read_whole() {
+    let u = normalize("lihat https://www.google.com");
+    assert!(u.contains("titik"), "{u}");
+    assert!(!u.contains("https"), "{u}");
+    assert!(!u.contains("//"), "{u}");
+    let e = normalize("kirim ke admin@example.com");
+    assert!(e.contains("at") && e.contains("titik"), "{e}");
+    // a path is spoken with its separator
+    assert!(normalize("www.abc.com/berita").contains("garis miring"));
+}

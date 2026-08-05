@@ -7,12 +7,14 @@
 //!
 //! | # | Stage | Does | Why it sits here |
 //! |---|-------|------|------------------|
-//! | 1 | `abbreviations` | yg, dgn, tdk, DPR, Rp | Before numbers and dates: the money and date forms embed digits these would claim |
-//! | 2 | `datetime` | 17/8/1945, 14:30 | After abbreviations supplied month names; before generic numbers |
-//! | 3 | `money` | Rp1.250.000 | Before numbers: Indonesian groups thousands with a PERIOD, so the generic pass would read it as a decimal |
-//! | 4 | `numbers` | decimals, thousands, cardinals | Once the specialised forms are consumed |
-//! | 5 | `symbols` | %, °, mathematical signs | Anything left |
-//! | 6 | `residual` | punctuation, whitespace | Must be last |
+//! | 1 | `spans` | Emails and URLs, read whole | FIRST: every later stage has a claim on the punctuation inside them |
+//! | 2 | `abbreviations` | yg, dgn, tdk, DPR, Rp | Before numbers and dates: the money and date forms embed digits these would claim |
+//! | 3 | `datetime` | 17/8/1945, 14:30 | After abbreviations supplied month names; before generic numbers |
+//! | 4 | `money` | Rp1.250.000 | Before numbers: Indonesian groups thousands with a PERIOD, so the generic pass would read it as a decimal |
+//! | 5 | `math` | Minus, ranges, powers, superscripts, fractions | Before the generic number pass, which would consume their digits |
+//! | 6 | `numbers` | decimals, thousands, cardinals | Once the specialised forms are consumed |
+//! | 7 | `symbols` | %, °, mathematical signs | Anything left |
+//! | 8 | `residual` | punctuation, whitespace | Must be last |
 //!
 //! # The separator trap
 //!
@@ -31,9 +33,40 @@
 use once_cell::sync::Lazy;
 use regex::{Captures, Regex};
 
-use super::num2id::{n2w, n2w_decimal, n2w_single};
+use super::num2id::{digit_word, n2w, n2w_decimal, n2w_single};
+use crate::core::numeric::{self, NumericWords};
+use crate::core::spans::{self, SpanWords};
+
+/// Indonesian words for the pieces of an email address or URL.
+const SPANS: SpanWords = SpanWords {
+    at: "at",
+    dot: "titik",
+    slash: "garis miring",
+    dash: "strip",
+    underscore: "garis bawah",
+};
+
+/// Indonesian words for the shared numeric notations.
+const NUMERIC: NumericWords = NumericWords {
+    minus: "minus",
+    to: "sampai",
+    power: "pangkat",
+    squared: "kuadrat",
+    cubed: "pangkat tiga",
+    times: "kali",
+    over: "per",
+    score: "lawan",
+};
 use super::resources::{ID_ABBREV, ID_LETTER_NAMES, ID_MONTHS, ID_SYMBOLS};
 use crate::core::abbrev::Reading;
+
+// ── Stage 0: protected spans ────────────────────────────────────────────────
+
+/// Email addresses and URLs, read before anything else can voice the
+/// punctuation inside them.
+fn stage_spans(text: &str) -> String {
+    spans::expand(text, &SPANS)
+}
 
 // ── Stage 1: abbreviations ──────────────────────────────────────────────────
 
@@ -117,6 +150,15 @@ fn stage_money(text: &str) -> String {
         .into_owned()
 }
 
+// ── Stage 3b: mathematical notation ─────────────────────────────────────────
+
+/// Runs before the generic number pass, which would otherwise eat the digits
+/// these patterns are built from. Before this stage "10^6" read as "sepuluh
+/// enam" — six orders of magnitude lost with no audible cue.
+fn stage_math(text: &str) -> String {
+    numeric::expand(text, &NUMERIC, digit_word, n2w)
+}
+
 // ── Stage 4: numbers ────────────────────────────────────────────────────────
 
 /// A period only groups thousands when exactly three digits follow it, and a
@@ -183,22 +225,51 @@ fn stage_residual(text: &str) -> String {
 
 /// Normalize Indonesian text into a form the G2P stage can read.
 pub fn normalize(text: &str) -> String {
-    let mut s = stage_abbreviations(text);
+    let mut s = stage_spans(text);
+    s = stage_abbreviations(&s);
     s = stage_datetime(&s);
     s = stage_money(&s);
+    s = stage_math(&s);
     s = stage_numbers(&s);
     s = stage_symbols(&s);
     stage_residual(&s)
 }
 
 /// Punctuation and formatting whose removal changes nothing audible.
-const INTENTIONALLY_DROPPED: &str = "\"“”‘’()[]{}«»–—_|\\*#…:;\u{200B}\u{FEFF}";
+///
+/// A hyphen between letters is kept by the pipeline anyway (Indonesian
+/// reduplicates with one: orang-orang), and a hyphen next to a DIGIT is a
+/// minus sign, a range or a score — see [`unhandled_numeric_hyphen`]. Neither
+/// case is a silent drop, which is why `-` is absent from this list.
+const INTENTIONALLY_DROPPED: &str = "\"“”‘’()[]{}«»_|\\*#…:;\u{200B}\u{FEFF}";
+
+/// Does a hyphen carrying numeric meaning survive [`stage_math`]?
+///
+/// A hyphen next to a digit is a minus sign, a range or a score, so dropping
+/// it changes what the sentence says. Rather than judge from the character
+/// alone — which either hides real losses or cries wolf on every minus the
+/// pipeline already reads — this runs the numeric pass and asks whether one
+/// is still there afterwards, so the check stays correct as that pass grows.
+fn unhandled_numeric_hyphen(text: &str) -> bool {
+    let text = stage_math(text);
+    let chars: Vec<char> = text.chars().collect();
+    chars.iter().enumerate().any(|(i, c)| {
+        matches!(c, '-' | '\u{2013}' | '\u{2014}')
+            && (chars.get(i + 1).is_some_and(char::is_ascii_digit)
+                || (i > 0 && chars[i - 1].is_ascii_digit()))
+    })
+}
 
 /// Characters of `text` that would be deleted without becoming a word.
 pub fn audit_unmapped(text: &str) -> Vec<char> {
     let mut out = Vec::new();
+    if unhandled_numeric_hyphen(text) {
+        out.push('-');
+    }
     for c in text.chars() {
-        if c.is_alphanumeric()
+        if crate::core::numeric::handled_chars().contains(c)
+            || crate::core::spans::handled_chars().contains(c)
+            || c.is_alphanumeric()
             || c.is_whitespace()
             || matches!(c, ',' | '.' | '!' | '?' | '\'' | '-')
             || ID_SYMBOLS.contains_key(&c)

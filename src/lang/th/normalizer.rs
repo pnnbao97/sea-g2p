@@ -10,13 +10,15 @@
 //! | # | Stage | Does | Why it sits here |
 //! |---|-------|------|------------------|
 //! | 1 | `spelling` | Fold Unicode quirks, Thai digits ๐-๙ -> ASCII | Everything downstream matches on canonical text and ASCII digits |
-//! | 2 | `abbreviations` | Table-driven expansion (รธน., ม.ค., ส.ส.) | Before dates and numbers: these contain periods and digits that later stages would claim |
-//! | 3 | `datetime` | Dates (6/1/2560) and clock times | After abbreviations supplied the month names; before generic numbers |
-//! | 4 | `phones` | Phone numbers, read figure by figure | Before units and numbers, which would read them as cardinals and drop the leading 0 |
-//! | 5 | `units` | Currency, percentage, temperature | Before generic numbers, so the quantity and its unit are read together |
-//! | 6 | `numbers` | Decimals, thousands separators, cardinals | Once every specialised numeric form is consumed |
-//! | 7 | `symbols` | Remaining mathematical / typographic symbols | Anything the passes above did not claim |
-//! | 8 | `residual` | Strip leftovers, collapse whitespace | Must be last |
+//! | 2 | `spans` | Emails and URLs, read whole | FIRST after folding: every later stage has a claim on the punctuation inside them |
+//! | 3 | `abbreviations` | Table-driven expansion (รธน., ม.ค., ส.ส.) | Before dates and numbers: these contain periods and digits that later stages would claim |
+//! | 4 | `datetime` | Dates (6/1/2560) and clock times | After abbreviations supplied the month names; before generic numbers |
+//! | 5 | `phones` | Phone numbers, read figure by figure | Before units and numbers, which would read them as cardinals and drop the leading 0 |
+//! | 6 | `units` | Currency, percentage, temperature | Before generic numbers, so the quantity and its unit are read together |
+//! | 7 | `math` | Minus, ranges, powers, superscripts, fractions | Before the generic number pass, which would consume their digits |
+//! | 8 | `numbers` | Decimals, thousands separators, cardinals | Once every specialised numeric form is consumed |
+//! | 9 | `symbols` | Remaining mathematical / typographic symbols | Anything the passes above did not claim |
+//! | 10 | `residual` | Strip leftovers, collapse whitespace | Must be last |
 //!
 //! `ๆ` (mai yamok) is deliberately NOT handled here. It repeats the preceding
 //! **word**, and in a script without spaces "the preceding word" only exists
@@ -36,7 +38,30 @@
 use once_cell::sync::Lazy;
 use regex::{Captures, Regex};
 
-use super::num2th::{n2w, n2w_decimal, n2w_single};
+use super::num2th::{digit_word, n2w, n2w_decimal, n2w_single};
+use crate::core::numeric::{self, NumericWords};
+use crate::core::spans::{self, SpanWords};
+
+/// Thai words for the pieces of an email address or URL.
+const SPANS: SpanWords = SpanWords {
+    at: "แอท",
+    dot: "จุด",
+    slash: "ทับ",
+    dash: "ขีด",
+    underscore: "ขีดล่าง",
+};
+
+/// Thai words for the shared numeric notations.
+const NUMERIC: NumericWords = NumericWords {
+    minus: "ลบ",
+    to: "ถึง",
+    power: "ยกกำลัง",
+    squared: "กำลังสอง",
+    cubed: "กำลังสาม",
+    times: "คูณ",
+    over: "ส่วน",
+    score: "ต่อ",
+};
 use super::resources::{thai_digit_to_ascii, TH_ABBREV, TH_SYMBOLS, TH_UNITS};
 use crate::core::abbrev::Reading;
 use super::segment::normalize_spelling;
@@ -53,6 +78,15 @@ fn stage_spelling(text: &str) -> String {
         .chars()
         .map(|c| thai_digit_to_ascii(c).unwrap_or(c))
         .collect()
+}
+
+// ── Stage 1b: protected spans ───────────────────────────────────────────────
+
+/// Email addresses and URLs, read before anything else can voice the
+/// punctuation inside them. Without this `https://www.google.com` came out as
+/// "https, ทับ ทับ www.google.com" — separators spoken, domain unread.
+fn stage_spans(text: &str) -> String {
+    spans::expand(text, &SPANS)
 }
 
 // ── Stage 2: abbreviations ──────────────────────────────────────────────────
@@ -187,6 +221,15 @@ fn stage_units(text: &str) -> String {
         .into_owned()
 }
 
+// ── Stage 5b: mathematical notation ─────────────────────────────────────────
+
+/// Runs before the generic number pass, which would otherwise eat the digits
+/// these patterns are built from. See [`crate::core::numeric`] for why each
+/// of these was a silent deletion before.
+fn stage_math(text: &str) -> String {
+    numeric::expand(text, &NUMERIC, digit_word, n2w)
+}
+
 // ── Stage 6: numbers ────────────────────────────────────────────────────────
 
 /// A comma only counts as a thousands separator when three digits follow it.
@@ -268,10 +311,12 @@ fn stage_residual(text: &str) -> String {
 /// Normalize Thai text into a form the segmenter and G2P can read.
 pub fn normalize(text: &str) -> String {
     let mut s = stage_spelling(text);
+    s = stage_spans(&s);
     s = stage_abbreviations(&s);
     s = stage_datetime(&s);
     s = stage_phones(&s);
     s = stage_units(&s);
+    s = stage_math(&s);
     s = stage_numbers(&s);
     s = stage_symbols(&s);
     stage_residual(&s)
@@ -281,7 +326,29 @@ pub fn normalize(text: &str) -> String {
 
 /// Characters intentionally removed: punctuation and formatting whose absence
 /// changes nothing a listener could hear.
-const INTENTIONALLY_DROPPED: &str = "\"'“”‘’()[]{}«»-–—_|\\*#…:;\u{200B}\u{FEFF}";
+///
+/// Hyphens are NOT on this list. A hyphen next to a digit is a minus sign, a
+/// range or a score, and blanket-dropping the character is precisely what let
+/// "-5 องศา" lose its sign with the audit reporting nothing — see
+/// [`unhandled_numeric_hyphen`].
+const INTENTIONALLY_DROPPED: &str = "\"'“”‘’()[]{}«»_|\\*#…:;\u{200B}\u{FEFF}";
+
+/// Does a hyphen carrying numeric meaning survive [`stage_math`]?
+///
+/// A hyphen next to a digit is a minus sign, a range or a score, so dropping
+/// it changes what the sentence says. Rather than judge from the character
+/// alone — which either hides real losses or cries wolf on every minus the
+/// pipeline already reads — this runs the numeric pass and asks whether one
+/// is still there afterwards, so the check stays correct as that pass grows.
+fn unhandled_numeric_hyphen(text: &str) -> bool {
+    let text = stage_math(text);
+    let chars: Vec<char> = text.chars().collect();
+    chars.iter().enumerate().any(|(i, c)| {
+        matches!(c, '-' | '\u{2013}' | '\u{2014}')
+            && (chars.get(i + 1).is_some_and(char::is_ascii_digit)
+                || (i > 0 && chars[i - 1].is_ascii_digit()))
+    })
+}
 
 /// Report characters of `text` that would reach [`stage_residual`] and be
 /// deleted **without becoming any word**.
@@ -291,8 +358,21 @@ const INTENTIONALLY_DROPPED: &str = "\"'“”‘’()[]{}«»-–—_|\\*#…:;
 /// caught by a test rather than by a listener noticing a hole in a sentence.
 pub fn audit_unmapped(text: &str) -> Vec<char> {
     let mut out = Vec::new();
+    if unhandled_numeric_hyphen(text) {
+        out.push('-');
+    }
     for c in text.chars() {
-        if c.is_alphanumeric() || c.is_whitespace() || matches!(c, ',' | '.' | '!' | '?') {
+        // Hyphens are settled by digit_adjacent_hyphen above: a numeric one
+        // is already reported, an ordinary one is genuinely droppable.
+        if matches!(c, '-' | '\u{2013}' | '\u{2014}') {
+            continue;
+        }
+        if crate::core::numeric::handled_chars().contains(c)
+            || crate::core::spans::handled_chars().contains(c)
+            || c.is_alphanumeric()
+            || c.is_whitespace()
+            || matches!(c, ',' | '.' | '!' | '?')
+        {
             continue;
         }
         if TH_SYMBOLS.contains_key(&c) {

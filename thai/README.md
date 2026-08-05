@@ -204,6 +204,23 @@ two can never drift apart. Measured at ~2.7M chars/s.
 The Rust segmenter was diffed against the Python reference on wiki text and
 agrees token for token.
 
+## Shared machinery
+
+Two classes of input are handled by modules in `src/core/`, one implementation
+with a per-language word table, so a fix reaches every language at once:
+
+- **`core::numeric`** — minus signs, ranges, powers, superscripts, subscripts,
+  multiplication and fractions. Each of these was a *silent deletion* before:
+  `-5 องศา` lost its sign and `5 m²` its exponent, with no audible cue.
+- **`core::spans`** — emails and URLs, read before any stage can voice the
+  punctuation inside them. `https://www.google.com` was coming out as
+  "https, ทับ ทับ www.google.com".
+
+The silent-deletion audit was itself broken until this: it declared `-`
+"intentionally dropped", which hid exactly the loss it exists to catch. It
+now runs the numeric stage and checks whether a numeric hyphen survives,
+so it stays correct as that stage grows.
+
 ## Known limitations / next steps
 
 - **Homographs** need context to disambiguate; the dict stores the citation

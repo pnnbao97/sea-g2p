@@ -130,6 +130,13 @@ not nine separate phonemes — matching what the Vietnamese and Thai front ends
 emit. The dictionary stores one phoneme per token, as WikiPron does, and
 `src/lang/id/syllable.rs` groups them at read time.
 
+## Shared machinery
+
+`src/core/numeric` and `src/core/spans` handle mathematical notation and
+address-like spans for every language from one implementation, with only the
+words supplied per language. Before them `10^6 orang` read as "sepuluh enam"
+— six orders of magnitude lost with nothing audible to signal it.
+
 ## Known limitations
 
 - The 42k classifier-derived entries are the least certain part of the

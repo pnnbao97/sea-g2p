@@ -4,3 +4,5 @@
 
 pub mod abbrev;
 pub mod dict;
+pub mod numeric;
+pub mod spans;

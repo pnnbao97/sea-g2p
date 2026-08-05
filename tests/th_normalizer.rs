@@ -98,3 +98,40 @@ fn markup_runs_are_not_operators() {
     // a single = is still an operator
     assert!(normalize("a = b").contains("เท่ากับ"));
 }
+
+#[test]
+fn mathematical_notation_is_not_deleted_in_silence() {
+    // each of these used to vanish, changing the meaning with no audible cue
+    assert!(normalize("อุณหภูมิ -5 องศา").contains("ลบ"), "minus sign");
+    assert!(normalize("10⁻³").contains("ลบ"), "negative exponent");
+    assert!(normalize("5 m²").contains("กำลังสอง"), "squared");
+    assert!(normalize("2 m³").contains("กำลังสาม"), "cubed");
+    assert!(normalize("H₂O").contains("สอง"), "subscript");
+    assert!(normalize("10-20 ปี").contains("ถึง"), "range");
+    assert!(normalize("3 x 4").contains("คูณ"), "multiplication");
+    assert!(normalize("1/2").contains("ส่วน"), "fraction");
+}
+
+#[test]
+fn the_audit_verifies_numeric_hyphens_rather_than_assuming() {
+    // Declaring '-' intentionally dropped is what let "-5" lose its sign
+    // while the audit stayed silent. Now that the math stage reads it, the
+    // audit must stay quiet — and speak up only if that stage ever stops
+    // handling it, which is why it verifies rather than assumes.
+    assert_eq!(audit_unmapped("-5"), Vec::<char>::new());
+    assert_eq!(audit_unmapped("10-20"), Vec::<char>::new());
+    // …and not when it is an ordinary hyphen between letters
+    assert_eq!(audit_unmapped("ก-ข"), Vec::<char>::new());
+}
+
+#[test]
+fn emails_and_urls_are_read_whole() {
+    // "https://www.google.com" came out as "https, ทับ ทับ www.google.com":
+    // the separators voiced, the domain never read.
+    let u = normalize("ดู https://www.google.com");
+    assert!(u.contains("จุด"), "{u}");          // the dots are spoken
+    assert!(!u.contains("https"), "{u}");        // the scheme is not
+    assert!(!u.contains("//"), "{u}");
+    let e = normalize("ส่งไป admin@example.com");
+    assert!(e.contains("แอท") && e.contains("จุด"), "{e}");
+}
