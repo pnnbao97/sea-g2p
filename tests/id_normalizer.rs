@@ -184,3 +184,32 @@ fn weekday_abbreviations_need_the_hari_cue() {
     // the abbreviation stage supplies the cue: hr -> hari
     assert_eq!(normalize("hr Sab"), "hari Sabtu");
 }
+
+#[test]
+fn a_diacritic_folds_onto_its_letter_instead_of_eating_it() {
+    // Indonesian is written in plain ASCII, so the residual stage dropped
+    // anything else — taking the letter with the accent. ārati lost its
+    // first sound and was then read by the English engine as "ɹˈæɾi".
+    assert_eq!(normalize("ārati"), "arati");
+    assert_eq!(normalize("voilà"), "voila");
+    assert_eq!(normalize("khemaṁ"), "khemam");
+    assert_eq!(normalize("café"), "cafe");
+    // ordinary text is untouched
+    assert_eq!(normalize("Saya makan nasi goreng"), "Saya makan nasi goreng");
+}
+
+#[test]
+fn the_audit_reports_what_the_residual_stage_actually_deletes() {
+    // `is_alphanumeric` accepts ā à ṁ and the Cyrillic г, but RE_DROP keeps
+    // ASCII only — so the audit passed words the pipeline was deleting. It
+    // must agree with the stage it is guarding.
+    assert_eq!(audit_unmapped("ārati"), vec!['ā']);
+    assert_eq!(audit_unmapped("voilà"), vec!['à']);
+    // a Cyrillic homoglyph cannot fold to Latin, so it is still dropped —
+    // but reported rather than silent
+    assert_eq!(audit_unmapped("pasaгan"), vec!['г']);
+    // and ordinary Indonesian stays quiet
+    for s in ["Saya makan nasi goreng di warung", "Harga BBM naik 10%", "do'a Jum'at"] {
+        assert_eq!(audit_unmapped(s), Vec::<char>::new(), "{s}");
+    }
+}

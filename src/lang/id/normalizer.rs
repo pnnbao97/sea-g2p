@@ -32,6 +32,7 @@
 
 use once_cell::sync::Lazy;
 use regex::{Captures, Regex};
+use unicode_normalization::UnicodeNormalization;
 
 use super::num2id::{digit_word, n2w, n2w_decimal, n2w_single};
 use crate::core::numeric::{self, NumericWords};
@@ -93,6 +94,27 @@ const NUMERIC: NumericWords = NumericWords {
 };
 use super::resources::{ID_ABBREV, ID_LETTER_NAMES, ID_MONTHS, ID_SYMBOLS, ID_UNITS};
 use crate::core::abbrev::Reading;
+
+// ── Stage 0: fold Latin diacritics ──────────────────────────────────────────
+
+/// Fold a diacritic onto its base letter: à -> a, ā -> a, ṁ -> m.
+///
+/// Indonesian is written in plain ASCII, so the residual stage drops
+/// everything else — which quietly ate the letter instead of the accent.
+/// `ārati` became `rati`, losing its first sound; `voilà` became `voil`.
+/// Decomposing and dropping only the combining mark keeps the word.
+///
+/// This cannot rescue a letter from another script: the `г` in `pasaгan` is
+/// Cyrillic ge, a homoglyph typo in the corpus, and does not decompose to
+/// anything Latin. It is still dropped — but [`audit_unmapped`] now reports
+/// it, which is the difference between a known gap and a silent one.
+fn stage_fold(text: &str) -> String {
+    text.nfd()
+        .filter(|c| !matches!(c, '\u{0300}'..='\u{036F}'))
+        .collect::<String>()
+        .nfc()
+        .collect()
+}
 
 // ── Stage 0: protected spans ────────────────────────────────────────────────
 
@@ -366,7 +388,8 @@ fn stage_residual(text: &str) -> String {
 
 /// Normalize Indonesian text into a form the G2P stage can read.
 pub fn normalize(text: &str) -> String {
-    let mut s = stage_spans(text);
+    let mut s = stage_fold(text);
+    s = stage_spans(&s);
     s = stage_abbreviations(&s);
     // after abbreviations, so "hr Sen" has become "hari Sen" and the cue is there
     s = stage_weekdays(&s);
@@ -423,7 +446,10 @@ pub fn audit_unmapped(text: &str) -> Vec<char> {
         if crate::core::numeric::handled_chars().contains(c)
             || crate::core::spans::handled_chars().contains(c)
             || crate::core::units::handled_chars().contains(c)
-            || c.is_alphanumeric()
+            // must match stage_residual's RE_DROP, which keeps ASCII only.
+            // `is_alphanumeric` accepts ā à ṁ and the Cyrillic г, so the
+            // audit passed words the pipeline was busy deleting.
+            || c.is_ascii_alphanumeric()
             || c.is_whitespace()
             || matches!(c, ',' | '.' | '!' | '?' | '\'' | '-')
             || ID_SYMBOLS.contains_key(&c)
