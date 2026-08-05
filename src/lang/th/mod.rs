@@ -55,6 +55,18 @@ impl Thai {
         if freqs.is_empty() {
             return Self { trie: WordTrie::from_words(dict.section_keys(SECTION_TH)) };
         }
+        // The 2,767 keys carrying an empty pronunciation stay in the
+        // segmenter's vocabulary on purpose. Dropping them looks right —
+        // a word the pipeline cannot pronounce is a poor segmentation
+        // target, and they are fragments of transliterated names (มปิก from
+        // โอลิมปิก, ทเทิล from Seattle) — but measured against PyThaiNLP
+        // newmm on 100 random wiki articles it made segmentation WORSE:
+        // F1 0.9854 -> 0.9850, identical runs 94.2% -> 93.9%, in exchange
+        // for 30 fewer dictionary words being split. They carry real corpus
+        // frequency, and removing that mass costs more than the fragments
+        // themselves do. Their pronunciation is supplied by the rules in
+        // `phonemize_with` instead, which fixes the silent deletion without
+        // touching segmentation at all.
         let pairs = freqs
             .into_iter()
             .map(|(w, n)| (w, n.parse::<u64>().unwrap_or(1)));
