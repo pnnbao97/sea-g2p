@@ -229,3 +229,25 @@ fn a_lone_latin_letter_is_spelled_in_thai() {
     assert!(normalize("ผมใช้ iPhone").contains("iPhone"));
     assert!(normalize("แผ่น CD").contains("CD"));
 }
+
+#[test]
+fn the_audit_is_quiet_on_ordinary_thai() {
+    // Tone marks and thanthakhat are combining marks, not letters, so an
+    // `is_alphanumeric` whitelist reported them as dropped — on text that
+    // keeps them. Thai marks tone on nearly every word, so the audit fired
+    // on essentially every real sentence and buried its own findings.
+    for s in [
+        "เขาฉลาดพอที่จะซ่อนสติปัญญา",
+        "น้ำท่วมหนักที่จังหวัดเชียงใหม่",
+        "ผมใช้ iPhone ราคา ฿1,250 ที่กรุงเทพฯ",
+    ] {
+        assert_eq!(audit_unmapped(s), Vec::<char>::new(), "{s}");
+    }
+    // every mark in the Thai block survives, so none may be reported
+    for c in '\u{0E01}'..='\u{0E4E}' {
+        let s: String = ['ก', c, 'ก'].iter().collect();
+        assert_eq!(audit_unmapped(&s), Vec::<char>::new(), "{c:?} U+{:04X}", c as u32);
+    }
+    // and a genuinely undeclared symbol is still caught
+    assert_eq!(audit_unmapped("∮ ก"), vec!['∮']);
+}

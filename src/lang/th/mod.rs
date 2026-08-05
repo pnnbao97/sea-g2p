@@ -126,6 +126,15 @@ impl Thai {
                 }
                 continue;
             }
+            // ฯ (paiyannoi) marks an elided remainder — กรุงเทพฯ stands for
+            // the full ceremonial name of Bangkok — and is itself silent. No
+            // rule reads it, so the "never give up" fallback below pushed the
+            // raw character into the phoneme string: กรุงเทพฯ came out as
+            // "kruŋ˧ tʰeːp̚˥˩ ฯ", handing a TTS a token no voice was trained
+            // on. ฯลฯ is not affected; the normalizer expands it earlier.
+            if tok.text.trim() == "ฯ" {
+                continue;
+            }
             prev_word = Some(tok.text.clone());
             match tok.known {
                 None => {

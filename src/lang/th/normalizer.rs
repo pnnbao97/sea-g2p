@@ -506,6 +506,12 @@ fn unhandled_numeric_hyphen(text: &str) -> bool {
 /// Like the Vietnamese [`crate::lang::vi::audit`], this does not run the
 /// pipeline; it inspects the character inventory so a missing table entry is
 /// caught by a test rather than by a listener noticing a hole in a sentence.
+/// The Thai block as [`stage_residual`] defines it — the same range its
+/// keep-list uses, so the audit and the stage cannot drift apart.
+fn is_thai(c: char) -> bool {
+    ('\u{0E01}'..='\u{0E4E}').contains(&c)
+}
+
 pub fn audit_unmapped(text: &str) -> Vec<char> {
     let mut out = Vec::new();
     if unhandled_numeric_hyphen(text) {
@@ -522,7 +528,15 @@ pub fn audit_unmapped(text: &str) -> Vec<char> {
         if matches!(c, '-' | '\u{2013}' | '\u{2014}') {
             continue;
         }
-        if crate::core::numeric::handled_chars().contains(c)
+        // Every character in the Thai block survives stage_residual, so none
+        // of them can be a silent deletion. `is_alphanumeric` is not enough to
+        // say so: the tone marks and thanthakhat are combining marks (Unicode
+        // Mn), not letters, so the audit reported ่ ้ ๊ ๋ ็ ์ ๎ as dropped —
+        // on text that keeps them. Thai marks tone on nearly every word, so
+        // that fired on essentially every real sentence and buried the
+        // findings the audit exists to surface.
+        if is_thai(c)
+            || crate::core::numeric::handled_chars().contains(c)
             || crate::core::spans::handled_chars().contains(c)
             || crate::core::units::handled_chars().contains(c)
             || c.is_alphanumeric()

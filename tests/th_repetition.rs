@@ -85,3 +85,19 @@ fn short_word_is_not_split_into_letters() {
     let plain = read(&th, &dict, "ต่าง");
     assert_eq!(read(&th, &dict, "ต่างๆ"), [plain.clone(), plain].concat());
 }
+
+#[test]
+fn paiyannoi_is_silent_and_never_leaks() {
+    let (dict, th) = thai();
+    // ฯ marks an elided remainder and is not pronounced. The rule fallback
+    // used to push the raw character into the phoneme string, so Bangkok
+    // came out as "kruŋ˧ tʰeːp̚˥˩ ฯ" — a token no voice was trained on.
+    for s in ["กรุงเทพฯ", "สหรัฐฯ", "โปรดเกล้าฯ", "ผมอยู่กรุงเทพฯ ครับ"] {
+        let out = th.phonemize(s, &dict);
+        assert!(!out.contains('ฯ'), "{s} -> {out}");
+        assert!(!out.trim().is_empty(), "{s}");
+    }
+    assert!(th.phonemize("กรุงเทพฯ", &dict).contains("kruŋ"));
+    // ฯลฯ is expanded by the normalizer and must still read
+    assert!(th.phonemize("ฯลฯ", &dict).contains("ʔɯːn"));
+}
