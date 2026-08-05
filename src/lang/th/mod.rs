@@ -56,17 +56,24 @@ impl Thai {
             return Self { trie: WordTrie::from_words(dict.section_keys(SECTION_TH)) };
         }
         // The 2,767 keys carrying an empty pronunciation stay in the
-        // segmenter's vocabulary on purpose. Dropping them looks right —
-        // a word the pipeline cannot pronounce is a poor segmentation
-        // target, and they are fragments of transliterated names (มปิก from
-        // โอลิมปิก, ทเทิล from Seattle) — but measured against PyThaiNLP
-        // newmm on 100 random wiki articles it made segmentation WORSE:
-        // F1 0.9854 -> 0.9850, identical runs 94.2% -> 93.9%, in exchange
-        // for 30 fewer dictionary words being split. They carry real corpus
-        // frequency, and removing that mass costs more than the fragments
-        // themselves do. Their pronunciation is supplied by the rules in
-        // `phonemize_with` instead, which fixes the silent deletion without
-        // touching segmentation at all.
+        // segmenter's vocabulary on purpose. Dropping them looks right — a
+        // word the pipeline cannot pronounce is a poor segmentation target,
+        // and 98.5% of them are absent from PyThaiNLP's human-compiled
+        // `thai_words()`, so they really are fragments of transliterated
+        // names (มปิก from โอลิมปิก, ทเทิล from Seattle). Two independent
+        // judges still say leave them:
+        //
+        //                    F1 vs newmm   curated words kept whole
+        //   keep (current)   0.9854        74.76%
+        //   drop from trie   0.9850        74.69%
+        //
+        // The first judge is compromised — `thai/build/freq_count.py` counts
+        // with newmm, so newmm produced these fragments and agreeing with it
+        // cannot penalise them — which is why the second one was run at all.
+        // Both reject the change: the fragments almost never win a
+        // segmentation, because the cost model already prefers a whole word
+        // wherever one exists. Their harm was in the pronunciation lookup,
+        // and that is fixed in `phonemize_with`, one layer down.
         let pairs = freqs
             .into_iter()
             .map(|(w, n)| (w, n.parse::<u64>().unwrap_or(1)));
