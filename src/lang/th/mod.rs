@@ -150,14 +150,29 @@ impl Thai {
                         out.push(trimmed.to_string());
                     }
                 }
-                Some(_) => match dict.lookup_section(SECTION_TH, &tok.text) {
-                    Some(p) => out.push(p.to_string()),
-                    // unknown word: read it by rule rather than give up
-                    None => {
+                Some(_) => {
+                    // An entry with an EMPTY pronunciation is not a
+                    // pronunciation. 2,767 words in the shipped Thai section
+                    // carry one — segmentation fragments of transliterated
+                    // names such as มปิก (from โอลิมปิก) or ทเทิล (Seattle) —
+                    // and taking the lookup at its word deleted every one of
+                    // them from the phoneme stream, 0.08% of corpus tokens
+                    // vanishing with nothing to hear. Treat it as a miss and
+                    // let the rules read the word, which they can.
+                    let listed = dict.lookup_section(SECTION_TH, &tok.text).unwrap_or("");
+                    if !listed.trim().is_empty() {
+                        out.push(listed.to_string());
+                    } else {
                         let syls = rules::g2p_word(&tok.text);
-                        if syls.is_empty() { out.push(tok.text) } else { out.push(syls.join(" ")) }
+                        if !syls.is_empty() {
+                            out.push(syls.join(" "));
+                        }
+                        // Nothing left to say: every consonant carries
+                        // thanthakhat, so the token really is silent (ร์, น์).
+                        // Emitting the raw characters here is what put ฯ into
+                        // the phonemes — a token no voice was trained on.
                     }
-                },
+                }
             }
         }
         join_phonemes(&out)

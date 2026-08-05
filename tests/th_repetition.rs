@@ -101,3 +101,28 @@ fn paiyannoi_is_silent_and_never_leaks() {
     // ฯลฯ is expanded by the normalizer and must still read
     assert!(th.phonemize("ฯลฯ", &dict).contains("ʔɯːn"));
 }
+
+#[test]
+fn an_empty_dictionary_entry_is_not_a_pronunciation() {
+    let (dict, th) = thai();
+    // 2,767 keys in the shipped Thai section carry an empty pronunciation —
+    // segmentation fragments of transliterated names. Taking the lookup at
+    // its word deleted every one of them from the phoneme stream. The rules
+    // can read them, so an empty entry must count as a miss.
+    for s in ["มปิก", "ดยุค", "ทเทิล", "รปภ.", "ปชช."] {
+        let out = th.phonemize(s, &dict);
+        assert!(
+            out.chars().any(|c| !c.is_whitespace() && !matches!(c, ',' | '.' | '!' | '?')),
+            "{s} read as {out:?}"
+        );
+        assert!(!out.chars().any(|c| ('\u{0E01}'..='\u{0E5B}').contains(&c)), "{s} -> {out}");
+    }
+    // A word whose every consonant carries thanthakhat really is silent, and
+    // must stay silent rather than fall back to the raw characters.
+    for s in ["ร์", "น์"] {
+        let out = th.phonemize(s, &dict);
+        assert!(out.trim().is_empty(), "{s} -> {out:?}");
+    }
+    // ordinary words are unaffected
+    assert!(th.phonemize("โอลิมปิก", &dict).contains("lim"));
+}
