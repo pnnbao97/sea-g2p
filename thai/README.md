@@ -214,7 +214,9 @@ with a per-language word table, so a fix reaches every language at once:
   `-5 องศา` lost its sign and `5 m²` its exponent, with no audible cue.
 - **`core::spans`** — emails and URLs, read before any stage can voice the
   punctuation inside them. `https://www.google.com` was coming out as
-  "https, ทับ ทับ www.google.com".
+  "https, ทับ ทับ www.google.com"; it now reads scheme and all, since text
+  that says "https://" means it and dropping the scheme is the same silent
+  deletion in a different costume.
 
 The silent-deletion audit was itself broken until this: it declared `-`
 "intentionally dropped", which hid exactly the loss it exists to catch. It

@@ -87,7 +87,12 @@ fn the_audit_verifies_numeric_hyphens_rather_than_assuming() {
 fn emails_and_urls_are_read_whole() {
     let u = normalize("lihat https://www.google.com");
     assert!(u.contains("titik"), "{u}");
-    assert!(!u.contains("https"), "{u}");
+    // The scheme is READ, not dropped — text that says https:// means it —
+    // and spelled with Indonesian letter names, as Vietnamese spells it
+    // "hát tê tê phê ét" rather than leaving it for the G2P stage.
+    assert!(u.contains("ha te te pe es"), "{u}");
+    assert!(u.contains("titik dua"), "{u}");
+    assert!(u.matches("garis miring").count() >= 2, "{u}");
     assert!(!u.contains("//"), "{u}");
     let e = normalize("kirim ke admin@example.com");
     assert!(e.contains("at") && e.contains("titik"), "{e}");

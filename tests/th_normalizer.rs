@@ -127,11 +127,15 @@ fn the_audit_verifies_numeric_hyphens_rather_than_assuming() {
 #[test]
 fn emails_and_urls_are_read_whole() {
     // "https://www.google.com" came out as "https, ทับ ทับ www.google.com":
-    // the separators voiced, the domain never read.
+    // the separators voiced, the domain never read. The scheme is READ, not
+    // dropped — text that says https:// means it — and spelled with Thai
+    // letter names, as Vietnamese spells it "hát tê tê phê ét".
     let u = normalize("ดู https://www.google.com");
-    assert!(u.contains("จุด"), "{u}");          // the dots are spoken
-    assert!(!u.contains("https"), "{u}");        // the scheme is not
-    assert!(!u.contains("//"), "{u}");
+    assert!(u.contains("จุด"), "{u}");              // the dots are spoken
+    assert!(u.contains("เอช ที ที พี เอส"), "{u}"); // h-t-t-p-s
+    assert!(u.contains("ทวิภาค"), "{u}");           // colon
+    assert!(u.matches("ทับ").count() >= 2, "{u}");  // slash slash
+    assert!(!u.contains("//"), "{u}");              // never as raw characters
     let e = normalize("ส่งไป admin@example.com");
     assert!(e.contains("แอท") && e.contains("จุด"), "{e}");
 }

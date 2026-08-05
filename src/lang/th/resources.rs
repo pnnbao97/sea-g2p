@@ -28,6 +28,19 @@ pub static TH_LETTER_NAMES: Lazy<HashMap<char, &'static str>> = Lazy::new(|| {
     ].into_iter().collect()
 });
 
+/// Latin letter names as Thai speakers say them, for initialisms and URL
+/// schemes: "https" is เอช-ที-ที-พี-เอส.
+pub static TH_LATIN_LETTERS: Lazy<HashMap<char, &'static str>> = Lazy::new(|| {
+    [
+        ('a', "เอ"), ('b', "บี"), ('c', "ซี"), ('d', "ดี"), ('e', "อี"),
+        ('f', "เอฟ"), ('g', "จี"), ('h', "เอช"), ('i', "ไอ"), ('j', "เจ"),
+        ('k', "เค"), ('l', "แอล"), ('m', "เอ็ม"), ('n', "เอ็น"), ('o', "โอ"),
+        ('p', "พี"), ('q', "คิว"), ('r', "อาร์"), ('s', "เอส"), ('t', "ที"),
+        ('u', "ยู"), ('v', "วี"), ('w', "ดับเบิลยู"), ('x', "เอ็กซ์"),
+        ('y', "วาย"), ('z', "แซด"),
+    ].into_iter().collect()
+});
+
 /// Month names by number, and the abbreviated spellings that appear in dates.
 pub static TH_MONTHS: Lazy<HashMap<&'static str, &'static str>> = Lazy::new(|| {
     [

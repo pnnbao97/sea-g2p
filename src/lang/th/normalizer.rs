@@ -49,7 +49,20 @@ const SPANS: SpanWords = SpanWords {
     slash: "ทับ",
     dash: "ขีด",
     underscore: "ขีดล่าง",
+    colon: "ทวิภาค",
+    spell: spell_latin,
 };
+
+/// Latin letters spelled with the names Thai speakers use: "https" reads
+/// เอช-ที-ที-พี-เอส, matching how Vietnamese reads it "hát tê tê phê ét"
+/// rather than leaving the scheme for the G2P stage to guess at.
+fn spell_latin(s: &str) -> String {
+    s.to_lowercase()
+        .chars()
+        .filter_map(|c| TH_LATIN_LETTERS.get(&c).copied())
+        .collect::<Vec<_>>()
+        .join(" ")
+}
 
 /// Thai words for the shared numeric notations.
 const NUMERIC: NumericWords = NumericWords {
@@ -62,7 +75,7 @@ const NUMERIC: NumericWords = NumericWords {
     over: "ส่วน",
     score: "ต่อ",
 };
-use super::resources::{thai_digit_to_ascii, TH_ABBREV, TH_SYMBOLS, TH_UNITS};
+use super::resources::{thai_digit_to_ascii, TH_ABBREV, TH_LATIN_LETTERS, TH_SYMBOLS, TH_UNITS};
 use crate::core::abbrev::Reading;
 use super::segment::normalize_spelling;
 

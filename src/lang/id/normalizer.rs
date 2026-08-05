@@ -44,7 +44,19 @@ const SPANS: SpanWords = SpanWords {
     slash: "garis miring",
     dash: "strip",
     underscore: "garis bawah",
+    colon: "titik dua",
+    spell: spell_latin,
 };
+
+/// Latin letters spelled with Indonesian letter names: "https" reads
+/// ha-te-te-pe-es.
+fn spell_latin(s: &str) -> String {
+    s.to_lowercase()
+        .chars()
+        .filter_map(|c| ID_LETTER_NAMES.get(&c).copied())
+        .collect::<Vec<_>>()
+        .join(" ")
+}
 
 /// Indonesian words for the shared numeric notations.
 const NUMERIC: NumericWords = NumericWords {

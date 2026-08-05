@@ -33,6 +33,13 @@ pub struct SpanWords {
     pub dash: &'static str,
     /// `_` — "gạch dưới", "ขีดล่าง", "garis bawah".
     pub underscore: &'static str,
+    /// `:` — "hai chấm", "ทวิภาค", "titik dua".
+    pub colon: &'static str,
+    /// Spell a run of Latin letters with this language's letter names.
+    /// Vietnamese reads "https" as "hát tê tê phê ét", not as an English
+    /// word, and the other languages should match rather than leave the
+    /// scheme for the G2P stage to guess at.
+    pub spell: fn(&str) -> String,
 }
 
 static RE_EMAIL: Lazy<Regex> = Lazy::new(|| {
@@ -65,16 +72,26 @@ pub fn expand(text: &str, w: &SpanWords) -> String {
     RE_URL
         .replace_all(&out, |c: &Captures| {
             let span = c[0].trim_end_matches(|ch: char| matches!(ch, '.' | ',' | ')' | '!' | '?'));
-            // The scheme is noise in speech: nobody dictates "h t t p s colon
-            // slash slash" when reading an address aloud.
-            let rest = span
-                .trim_start_matches("https://")
-                .trim_start_matches("http://");
+            // The scheme is READ, not dropped. Text that says "https://"
+            // means it, and silently removing it is the same defect class
+            // this module was written to fix — the listener has no way to
+            // know an address was a secure one, or that a scheme was there
+            // at all.
+            let mut prefix = String::new();
+            let rest = if let Some(r) = span.strip_prefix("https://") {
+                prefix = format!("{} {} {} {} ", (w.spell)("https"), w.colon, w.slash, w.slash);
+                r
+            } else if let Some(r) = span.strip_prefix("http://") {
+                prefix = format!("{} {} {} {} ", (w.spell)("http"), w.colon, w.slash, w.slash);
+                r
+            } else {
+                span
+            };
             let (host, path) = match rest.split_once('/') {
                 Some((h, p)) => (h, Some(p)),
                 None => (rest, None),
             };
-            let mut out = format!(" {} ", read_host(host, w));
+            let mut out = format!(" {}{} ", prefix, read_host(host, w));
             if let Some(p) = path.filter(|p| !p.is_empty()) {
                 for piece in p.split('/') {
                     if !piece.is_empty() {
@@ -99,8 +116,14 @@ fn read_host(host: &str, w: &SpanWords) -> String {
 /// One label, with its internal separators voiced. A known domain suffix is
 /// left as a word; anything else is handed on for the G2P stage to read.
 fn read_label(label: &str, w: &SpanWords) -> String {
-    if WORD_SUFFIXES.contains(&label.to_lowercase().as_str()) {
-        return label.to_lowercase();
+    let lower = label.to_lowercase();
+    if WORD_SUFFIXES.contains(&lower.as_str()) {
+        return lower;
+    }
+    // www is an initialism, not a word: Vietnamese reads it "vê kép" three
+    // times over, and the other languages spell it too.
+    if lower == "www" {
+        return (w.spell)("www");
     }
     let mut out = String::with_capacity(label.len());
     for c in label.chars() {
