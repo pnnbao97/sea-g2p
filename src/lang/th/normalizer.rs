@@ -126,6 +126,37 @@ fn stage_spans(text: &str) -> String {
     spans::expand(text, &SPANS)
 }
 
+// ── Stage 1c: weekdays ──────────────────────────────────────────────────────
+
+/// Weekday abbreviations, licensed by the วัน that precedes them.
+///
+/// Every one of these letters abbreviates something else as well — ศ. is
+/// ศาสตราจารย์ (professor), ส. is สมาชิก, อ. is อาจารย์ or อำเภอ, จ. is
+/// จังหวัด — and the abbreviation table gets there first, so `วันศ.` was
+/// being read as "วัน ศาสตราจารย์". Requiring the วัน cue is what makes the
+/// weekday reading safe, the same policy Vietnamese uses for T2–T7.
+///
+/// Longest alternatives first: อา and พฤ must win over อ and พ.
+static RE_WEEKDAY: Lazy<Regex> =
+    Lazy::new(|| Regex::new(r"วัน\s*(อา|พฤ|จ|อ|พ|ศ|ส)\.").unwrap());
+
+fn stage_weekdays(text: &str) -> String {
+    RE_WEEKDAY
+        .replace_all(text, |c: &Captures| {
+            let day = match &c[1] {
+                "จ" => "จันทร์",
+                "อ" => "อังคาร",
+                "พ" => "พุธ",
+                "พฤ" => "พฤหัสบดี",
+                "ศ" => "ศุกร์",
+                "ส" => "เสาร์",
+                _ => "อาทิตย์",
+            };
+            format!("วัน{}", day)
+        })
+        .into_owned()
+}
+
 // ── Stage 2: abbreviations ──────────────────────────────────────────────────
 
 static RE_ABBREV: Lazy<Regex> = Lazy::new(|| {
@@ -325,6 +356,61 @@ fn stage_numbers(text: &str) -> String {
         .into_owned()
 }
 
+// ── Stage 6b: lone Latin letters ────────────────────────────────────────────
+
+/// A Latin letter standing on its own is a letter NAME, not a word.
+///
+/// Left alone it reached the English engine, which put English phonemes in
+/// the middle of a Thai sentence: `วิตามิน C` ended in `sˈiː` — English
+/// stress, no tone, a token outside the Thai inventory a Thai voice was
+/// trained on — and `A4` came out as the bare vowel `ɐ`. These are the same
+/// letter names the URL pass already speaks.
+///
+/// Only a letter that stands alone qualifies. Inside an English phrase it
+/// belongs to that phrase: the A of "Grade A student" is read by the English
+/// engine together with its neighbours, which is the code-switching this
+/// pipeline exists to support.
+fn stage_letters(text: &str) -> String {
+    let chars: Vec<char> = text.chars().collect();
+    let mut out = String::with_capacity(text.len());
+    for (i, c) in chars.iter().enumerate() {
+        let lone = c.is_ascii_alphabetic()
+            && !(i > 0 && chars[i - 1].is_ascii_alphabetic())
+            && !chars.get(i + 1).is_some_and(char::is_ascii_alphabetic);
+        match TH_LATIN_LETTERS
+            .get(&c.to_ascii_lowercase())
+            .filter(|_| lone && !english_word_beside(&chars, i))
+        {
+            Some(name) => {
+                out.push(' ');
+                out.push_str(name);
+                out.push(' ');
+            }
+            None => out.push(*c),
+        }
+    }
+    out
+}
+
+/// Is the nearest word on either side an English one?
+fn english_word_beside(chars: &[char], i: usize) -> bool {
+    let run = |start: isize, step: isize| {
+        let mut j = start;
+        let at = |j: isize| (j >= 0 && (j as usize) < chars.len()).then(|| chars[j as usize]);
+        // one run of spaces separates a neighbouring word from this letter
+        while at(j) == Some(' ') {
+            j += step;
+        }
+        let mut n = 0;
+        while at(j).is_some_and(|c| c.is_ascii_alphabetic()) {
+            n += 1;
+            j += step;
+        }
+        n
+    };
+    run(i as isize - 1, -1) >= 2 || run(i as isize + 1, 1) >= 2
+}
+
 // ── Stage 7: symbols ────────────────────────────────────────────────────────
 
 /// Runs of two or more `=` `-` `*` `_` `#` are markup or a decorative rule,
@@ -370,6 +456,8 @@ fn stage_residual(text: &str) -> String {
 pub fn normalize(text: &str) -> String {
     let mut s = stage_spelling(text);
     s = stage_spans(&s);
+    // before the abbreviation table, which claims ศ. อ. ส. for other readings
+    s = stage_weekdays(&s);
     s = stage_abbreviations(&s);
     s = stage_datetime(&s);
     s = stage_phones(&s);
@@ -378,6 +466,8 @@ pub fn normalize(text: &str) -> String {
     s = stage_units(&s);
     s = stage_math(&s);
     s = stage_numbers(&s);
+    // after numbers, so "A4" has already become "A" + สี่ and the letter stands alone
+    s = stage_letters(&s);
     s = stage_symbols(&s);
     stage_residual(&s)
 }

@@ -116,3 +116,29 @@ def test_batch_matches_single(th, idn):
     assert th.normalize(texts) == [th.normalize(t) for t in texts]
     texts = ["50%", "ke-3", "COVID-19"]
     assert idn.normalize(texts) == [idn.normalize(t) for t in texts]
+
+
+# ── weekdays and lone letters ───────────────────────────────────────────────
+
+def test_weekday_abbreviations_need_a_cue(th, idn):
+    assert th.normalize("วันจ.") == "วันจันทร์"
+    assert idn.normalize("hari Sen") == "hari Senin"
+    # uncued, the same letters mean something else entirely
+    assert "ศาสตราจารย์" in th.normalize("ศ.ดร.สมชาย")
+    assert idn.normalize("Sen depan") == "Sen depan"
+
+
+def test_lone_latin_letter_is_spelled_in_thai(th):
+    assert th.normalize("วิตามิน C") == "วิตามิน ซี"
+    assert th.normalize("กระดาษ A4") == "กระดาษ เอ สี่"
+    assert "iPhone" in th.normalize("ผมใช้ iPhone")
+
+
+def test_thai_letter_names_keep_the_phonemes_thai():
+    """The point of spelling the letter: staying inside the Thai inventory."""
+    from sea_g2p import G2P
+
+    out = G2P(lang="th").convert("วิตามิน C")
+    # a Thai tone letter on the spelled name, not the English primary stress
+    assert "ˈ" not in out, out
+    assert "siː" in out, out

@@ -172,3 +172,15 @@ fn e_notation_keeps_its_order_of_magnitude() {
     assert!(normalize("6,02e23").contains("kali sepuluh pangkat dua puluh tiga"));
     assert!(normalize("1e-9").contains("pangkat minus sembilan"));
 }
+
+#[test]
+fn weekday_abbreviations_need_the_hari_cue() {
+    assert_eq!(normalize("hari Sen"), "hari Senin");
+    assert_eq!(normalize("hari Min"), "hari Minggu");
+    // the full spelling is not re-expanded
+    assert_eq!(normalize("hari Senin"), "hari Senin");
+    // without the cue, Sen is a name or an ordinary word
+    assert_eq!(normalize("Sen depan"), "Sen depan");
+    // the abbreviation stage supplies the cue: hr -> hari
+    assert_eq!(normalize("hr Sab"), "hari Sabtu");
+}

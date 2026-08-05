@@ -136,6 +136,38 @@ fn stage_abbreviations(text: &str) -> String {
         .into_owned()
 }
 
+// ── Stage 1b: weekdays ──────────────────────────────────────────────────────
+
+/// Weekday abbreviations, licensed by the `hari` in front of them.
+///
+/// Every one of these is also an ordinary word or a name — Sen, Sel, Min,
+/// Sab — so claiming them on sight would misread far more than it fixed. The
+/// cue is what makes the reading safe, and it comes after the abbreviation
+/// stage so that `hr Sen` has already become `hari Sen`.
+///
+/// The word boundary is what keeps the full spellings out: `hari Senin` does
+/// not match `sen`.
+static RE_WEEKDAY: Lazy<Regex> = Lazy::new(|| {
+    Regex::new(r"(?i)\b(hari)\s+(sen|sel|rab|kam|jum|sab|min)\b\.?").unwrap()
+});
+
+fn stage_weekdays(text: &str) -> String {
+    RE_WEEKDAY
+        .replace_all(text, |c: &Captures| {
+            let day = match c[2].to_lowercase().as_str() {
+                "sen" => "Senin",
+                "sel" => "Selasa",
+                "rab" => "Rabu",
+                "kam" => "Kamis",
+                "jum" => "Jumat",
+                "sab" => "Sabtu",
+                _ => "Minggu",
+            };
+            format!("{} {}", &c[1], day)
+        })
+        .into_owned()
+}
+
 // ── Stage 2: datetime ───────────────────────────────────────────────────────
 
 static RE_DATE: Lazy<Regex> = Lazy::new(|| {
@@ -336,6 +368,8 @@ fn stage_residual(text: &str) -> String {
 pub fn normalize(text: &str) -> String {
     let mut s = stage_spans(text);
     s = stage_abbreviations(&s);
+    // after abbreviations, so "hr Sen" has become "hari Sen" and the cue is there
+    s = stage_weekdays(&s);
     s = stage_datetime(&s);
     s = stage_identifiers(&s);
     s = stage_roman(&s);

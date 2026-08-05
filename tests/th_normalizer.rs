@@ -203,3 +203,29 @@ fn e_notation_keeps_its_order_of_magnitude() {
     assert!(s.contains("คูณ สิบ ยกกำลัง สิบ"), "{s}");
     assert!(normalize("1e-9").contains("ยกกำลัง ลบ เก้า"));
 }
+
+#[test]
+fn weekday_abbreviations_need_the_day_cue() {
+    assert_eq!(normalize("วันจ."), "วันจันทร์");
+    assert_eq!(normalize("วันอา."), "วันอาทิตย์");
+    assert_eq!(normalize("วันพฤ."), "วันพฤหัสบดี");
+    // ศ. after วัน is Friday; on its own it is still professor, which is why
+    // the cue exists — "วันศ." used to read "วัน ศาสตราจารย์"
+    assert!(normalize("วันศ. ที่ 5").contains("วันศุกร์"));
+    assert!(normalize("ศ.ดร.สมชาย").contains("ศาสตราจารย์"));
+}
+
+#[test]
+fn a_lone_latin_letter_is_spelled_in_thai() {
+    // "วิตามิน C" phonemised through the English engine, putting an
+    // out-of-inventory token in the middle of a Thai sentence
+    assert_eq!(normalize("วิตามิน C"), "วิตามิน ซี");
+    assert_eq!(normalize("กระดาษ A4"), "กระดาษ เอ สี่");
+    // Thai runs on without spaces, so the letter need not be space-separated
+    assert_eq!(normalize("กระดาษA4"), "กระดาษ เอ สี่");
+    // but a letter inside an English phrase belongs to that phrase
+    assert_eq!(normalize("Grade A student"), "Grade A student");
+    // and English words are still left for the code-switching path
+    assert!(normalize("ผมใช้ iPhone").contains("iPhone"));
+    assert!(normalize("แผ่น CD").contains("CD"));
+}
