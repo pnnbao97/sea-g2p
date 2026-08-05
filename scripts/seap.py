@@ -9,7 +9,8 @@ v2 (48-byte header): identical first 32 bytes except version=2, then
 section_count and sections_pos; strings live at 48 + offset. Sections are
 extra per-language word->phoneme tables as (kind, count, pos) triples with
 8-byte rows, binary-searched exactly like `merged`. Kinds mirror
-src/core/dict.rs: 3 = Thai pronunciations, 4 = Thai word frequencies.
+src/core/dict.rs: 3 = Thai pronunciations, 4 = Thai word frequencies,
+5 = Indonesian pronunciations.
 
 All tables are sorted by the word's UTF-8 bytes, which matches Rust's
 `&str` ordering in the binary search.
@@ -18,6 +19,7 @@ import struct
 
 SECTION_TH = 3
 SECTION_TH_FREQ = 4
+SECTION_ID = 5
 
 HEADER_V1 = 32
 HEADER_V2 = 48

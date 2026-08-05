@@ -19,6 +19,7 @@ ROOT = Path(__file__).resolve().parent.parent
 BIN = ROOT / "python" / "sea_g2p" / "sea_g2p.bin"
 THAI_TSV = ROOT / "thai" / "thai_dict.tsv"
 FREQ_TSV = ROOT / "thai" / "word_freq.tsv.gz"
+INDO_TSV = ROOT / "indo" / "id_dict.tsv"
 
 
 def main():
@@ -51,6 +52,16 @@ def main():
     sections[seap.SECTION_TH_FREQ] = {w: counts.get(w, "1") for w in thai}
     print(f"thai frequencies: {len(sections[seap.SECTION_TH_FREQ])}")
 
+    indo = {}
+    for line in INDO_TSV.open(encoding="utf-8"):
+        line = line.rstrip("\n")
+        if "\t" not in line:
+            continue
+        w, p = line.split("\t")
+        indo[w] = p
+    sections[seap.SECTION_ID] = indo
+    print(f"indonesian entries: {len(indo)}")
+
     tmp = BIN.with_suffix(".bin.new")
     seap.write_bin_v2(tmp, merged, common, sections)
 
@@ -59,6 +70,7 @@ def main():
     assert c2 == common, "common round-trip mismatch"
     assert s2[seap.SECTION_TH] == thai, "thai round-trip mismatch"
     assert s2[seap.SECTION_TH_FREQ] == sections[seap.SECTION_TH_FREQ], "freq round-trip mismatch"
+    assert s2[seap.SECTION_ID] == indo, "indonesian round-trip mismatch"
     print(f"round-trip OK, size {tmp.stat().st_size/1e6:.1f} MB")
 
     bak = BIN.with_suffix(".bin.bak")

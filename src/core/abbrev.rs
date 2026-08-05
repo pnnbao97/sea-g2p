@@ -22,8 +22,9 @@ pub enum Reading {
     Fixed(&'static str),
     /// Read as one English word: "NASA" -> tagged lowercase form.
     WordEn,
-    /// Spell out with Vietnamese letter names ("xê mờ nờ đê").
-    LettersVi,
+    /// Spell out with THIS language's own letter names: "xê mờ nờ đê"
+    /// for Vietnamese, "de pe er" for Indonesian.
+    LettersNative,
     /// Spell out with English letter names, tagged English.
     LettersEn,
 }
@@ -49,8 +50,15 @@ impl AbbrevTable {
         self.map.contains_key(key)
     }
 
-    /// Keys whose reading replaces the token with plain text (Expand/Fixed) —
-    /// the set the normalizer builds its boundary-matching regex from.
+    /// Every key in the table, whatever its reading mode. A normalizer that
+    /// handles the spelled modes as well as the replacement ones must build
+    /// its matching regex from this, not from [`Self::replacement_keys`] —
+    /// otherwise a `Letters*` entry is never even matched.
+    pub fn keys(&self) -> impl Iterator<Item = &'static str> + '_ {
+        self.map.keys().copied()
+    }
+
+    /// Keys whose reading replaces the token with plain text (Expand/Fixed).
     pub fn replacement_keys(&self) -> impl Iterator<Item = &'static str> + '_ {
         self.map.iter().filter_map(|(k, r)| match r {
             Reading::Expand(_) | Reading::Fixed(_) => Some(*k),

@@ -539,7 +539,7 @@ pub fn normalize_acronyms(text: &str) -> String {
                     Some(Reading::WordEn) => {
                         return format!("__start_en__{}__end_en__", word.to_lowercase());
                     }
-                    Some(Reading::LettersVi) => {
+                    Some(Reading::LettersNative) => {
                         let parts: Vec<String> = word.chars()
                             .filter_map(|c: char| {
                                 let cl = c.to_lowercase().to_string();

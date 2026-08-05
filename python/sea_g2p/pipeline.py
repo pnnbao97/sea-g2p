@@ -2,7 +2,7 @@ from .normalizer import Normalizer
 from .g2p import G2P
 
 class SEAPipeline:
-    """Normalization followed by phonemization, for ``lang`` in ("vi", "th")."""
+    """Normalization followed by phonemization, for ``lang`` in ("vi", "th", "id")."""
 
     def __init__(self, lang="vi"):
         self.lang = lang
@@ -21,11 +21,12 @@ class SEAPipeline:
         """
         if not text:
             return "" if isinstance(text, str) else []
-        if self.lang == "th":
-            # The Thai front end must normalize and segment together: word
-            # boundaries only exist after segmentation, and passes such as the
-            # ๆ repetition mark depend on them. Normalizing here as well would
-            # run the numeric and abbreviation stages twice.
+        if self.lang in ("th", "id"):
+            # The Thai and Indonesian front ends normalize internally, so
+            # calling the normalizer here as well would run the numeric and
+            # abbreviation stages twice. For Thai it would also break the ๆ
+            # repetition mark, which needs boundaries that only exist after
+            # segmentation.
             return self.g2p.convert(text)
         normalized_text = self.normalizer.normalize(text, punc_norm=punc_norm)
         phonemes = self.g2p.convert(normalized_text)

@@ -456,7 +456,7 @@ pub static VI_ABBREV: Lazy<AbbrevTable> = Lazy::new(|| {
         if !t.contains(k) { t.insert(k, Reading::LettersEn); }
     }
     for k in ACRONYMS_SPELL_VI {
-        if !t.contains(k) { t.insert(k, Reading::LettersVi); }
+        if !t.contains(k) { t.insert(k, Reading::LettersNative); }
     }
     t
 });

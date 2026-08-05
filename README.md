@@ -3,7 +3,7 @@
 <img width="1221" height="656" alt="image" src="https://github.com/user-attachments/assets/01220177-815b-4012-8f65-8a2a86beddf9" />
 
 Fast multilingual text-to-phoneme converter for South East Asian languages.  
-Vietnamese and Thai, both with English code-switching.  
+Vietnamese, Thai and Indonesian, all with English code-switching.  
 >**Author**: [Pham Nguyen Ngoc Bao](https://github.com/pnnbao97)
 
 ## 🚀 Used By
@@ -67,6 +67,31 @@ falling, `˦˥` high, `˩˩˦` rising), deliberately distinct from the digit
 convention used for Vietnamese tones so the two can share one inventory
 without ambiguity. Details in [thai/README.md](thai/README.md).
 
+### Indonesian
+
+```python
+from sea_g2p import SEAPipeline
+
+id = SEAPipeline(lang="id")
+
+id.run("dia cukup cerdas untuk menyembunyikan kecerdasannya")
+# 'd i a t͡ʃ u k u p t͡ʃ ə r d a s u n t u ʔ m ə ɲ ə m b u ɲ i k a n ...'
+
+id.run("Saya membeli buku seharga Rp1.250.000")
+# '... s a t u d͡ʒ u t a d u a r a t u s l i m a p u l u h r i b u r u p i a h'
+
+# chat contractions, which look like pronounceable words to a rule engine
+from sea_g2p import Normalizer
+Normalizer(lang="id").normalize("yg penting tdk lupa dgn tugasnya")
+# 'yang penting tidak lupa dengan tugasnya'
+```
+
+Indonesian spelling is regular except for one thing: ⟨e⟩ writes both /ə/ and
+/e/ and nothing distinguishes them. The dictionary settles it from KBBI, the
+official Indonesian dictionary, whose pronunciation field marks the schwa —
+see [indo/README.md](indo/README.md) for how the sources were chosen and
+which approaches were measured and rejected.
+
 ### Individual Modules
 
 ```python
@@ -96,6 +121,9 @@ print(phonemes)
 - **Thai word segmentation**: no-space script handled with a 91,865-word
   dictionary and a unigram-cost dynamic program; boundary F1 0.987 against
   PyThaiNLP `newmm`.
+- **Indonesian morphology**: 172,557-word dictionary built from WikiPron and
+  KBBI, extended by affix derivation, compounding and reduplication rather
+  than by machine-generated guesses.
 - **Never gives up on a word**: Thai text outside the dictionary is read by
   orthographic rule, so new names and transliterations still get phonemes.
 - **Bilingual Support**: Handles mixed Vietnamese/English and Thai/English
@@ -119,6 +147,7 @@ The following benchmarks were conducted on a dataset of **1,000,000 sentences**:
 | Vietnamese | **Full pipeline** | **~37,000 sentences/s** |
 | Thai | Normalizer | **~1,000,000 sentences/s** |
 | Thai | **Full pipeline** (normalize + segment + G2P) | **~180,000 sentences/s** |
+| Indonesian | **Full pipeline** | **~500,000 sentences/s** |
 
 *(Tested on CPython 3.12, Windows 11, Multithreaded)*
 
@@ -142,11 +171,13 @@ SEA-G2P is designed for maximum performance in production environments:
 | `src/lang/vi/` | Vietnamese normalizer, number-to-words, syllable data |
 | `src/lang/en/` | English frequency wordlist used to settle ambiguous splits |
 | `src/lang/th/` | Thai normalizer, segmenter, rule-based G2P, number-to-words |
+| `src/lang/id/` | Indonesian normalizer, rule-based G2P, number-to-words |
 | `src/g2p/` | the shared engine for Latin-script text |
 | `tests/` | `*.rs` integration tests and `python/` end-to-end tests |
 
 For the binary format specification, see [src/core/dict.rs](src/core/dict.rs).
-For the Thai data pipeline and its measurements, see [thai/README.md](thai/README.md).
+For the Thai and Indonesian data pipelines and their measurements, see
+[thai/README.md](thai/README.md) and [indo/README.md](indo/README.md).
 
 ## Development
 

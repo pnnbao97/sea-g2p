@@ -2,7 +2,7 @@ import os
 from .sea_g2p_rs import Normalizer as NormalizerRS
 from .sea_g2p_rs import G2P as _RustG2P
 
-SUPPORTED_LANGS = ("vi", "th")
+SUPPORTED_LANGS = ("vi", "th", "id")
 
 
 class Normalizer:
@@ -12,7 +12,8 @@ class Normalizer:
 
     ``lang`` selects the pipeline: ``"vi"`` for Vietnamese (17 stages, with
     English code-switching), ``"th"`` for Thai (8 stages, Thai digits,
-    Buddhist-era dates, Thai abbreviation table).
+    Buddhist-era dates), ``"id"`` for Indonesian (6 stages, rupiah, the
+    period-for-thousands convention, chat contractions).
     """
 
     def __init__(self, lang: str = "vi") -> None:
@@ -25,7 +26,9 @@ class Normalizer:
         self._rs_normalizer = NormalizerRS(lang=lang, dict_path=db_path)
         # The Thai normalizer lives on the G2P object, which owns the
         # dictionary section its abbreviation and segmentation passes need.
-        self._rs_th = _RustG2P(db_path) if lang == "th" else None
+        # Thai and Indonesian normalization lives on the G2P object, which
+        # owns the dictionary sections those pipelines need.
+        self._rs_lang = _RustG2P(db_path) if lang in ("th", "id") else None
     
     def normalize(self, text: str | list[str], punc_norm: bool = False) -> str | list[str]:
         """
@@ -41,7 +44,9 @@ class Normalizer:
         if isinstance(text, list):
             return self.normalize_batch(text, punc_norm=punc_norm)
         if self.lang == "th":
-            return self._rs_th.normalize_th(text)
+            return self._rs_lang.normalize_th(text)
+        if self.lang == "id":
+            return self._rs_lang.normalize_id(text)
         return self._rs_normalizer.normalize(text, punc_norm)
 
     def normalize_batch(self, texts: list[str], punc_norm: bool = False) -> list[str]:
@@ -49,7 +54,9 @@ class Normalizer:
         if not texts:
             return []
         if self.lang == "th":
-            return self._rs_th.normalize_th_batch(texts)
+            return self._rs_lang.normalize_th_batch(texts)
+        if self.lang == "id":
+            return self._rs_lang.normalize_id_batch(texts)
         return self._rs_normalizer.normalize_batch(texts, punc_norm)
 
     def audit(self, text: str) -> list[str]:

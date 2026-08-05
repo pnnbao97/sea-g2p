@@ -58,6 +58,38 @@ impl G2P {
         Ok(G2P { engine, thai: std::sync::OnceLock::new() })
     }
 
+    /// Phonemize Indonesian text: normalize, then read each token from the
+    /// Indonesian dictionary, the English engine, or the rules.
+    fn phonemize_id(&self, text: &str) -> String {
+        let id = lang::id::Indonesian::new();
+        id.phonemize_with(text, &self.engine.dict, |latin| self.engine.phonemize(latin))
+    }
+
+    /// Normalize Indonesian text without phonemizing.
+    fn normalize_id(&self, text: &str) -> String {
+        lang::id::normalizer::normalize(text)
+    }
+
+    /// Phonemize a batch of Indonesian texts in parallel.
+    fn phonemize_id_batch(&self, py: Python<'_>, texts: Vec<String>) -> Vec<String> {
+        let id = lang::id::Indonesian::new();
+        py.allow_threads(|| {
+            use rayon::prelude::*;
+            texts
+                .into_par_iter()
+                .map(|t| id.phonemize_with(&t, &self.engine.dict, |l| self.engine.phonemize(l)))
+                .collect()
+        })
+    }
+
+    /// Normalize a batch of Indonesian texts in parallel.
+    fn normalize_id_batch(&self, py: Python<'_>, texts: Vec<String>) -> Vec<String> {
+        py.allow_threads(|| {
+            use rayon::prelude::*;
+            texts.into_par_iter().map(|t| lang::id::normalizer::normalize(&t)).collect()
+        })
+    }
+
     /// Normalize Thai text without phonemizing: numbers, dates, abbreviations
     /// and symbols become Thai words. The `ๆ` repetition mark is intentionally
     /// left in place — it repeats the previous *word*, which only exists after

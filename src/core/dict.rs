@@ -26,6 +26,10 @@ pub const SECTION_TH: u32 = 3;
 /// segmenter's unigram cost model; stored beside the pronunciations so the
 /// two are always built from the same wordlist.
 pub const SECTION_TH_FREQ: u32 = 4;
+/// Indonesian word -> phonemes. Latin script like English, but looked up by
+/// language rather than by keyspace: "air", "dia" and "media" are words in
+/// both languages with different readings, so the two cannot share a table.
+pub const SECTION_ID: u32 = 5;
 
 pub struct PhonemeDict {
     mmap: Mmap,
@@ -158,6 +162,18 @@ impl PhonemeDict {
             }
         }
         None
+    }
+
+    /// Does the English side of the dictionary actually contain `word`?
+    ///
+    /// This is a membership test, not a lookup through the G2P engine: the
+    /// engine segments any unknown string into pieces and always returns
+    /// something, so asking it "is this English?" answers yes for every
+    /// input. A non-English pipeline routing on that reads the Indonesian
+    /// name Gadjah as the English "gad jah".
+    pub fn has_english(&self, word: &str) -> bool {
+        self.lookup_merged(word).is_some_and(|p| p.starts_with("<en>"))
+            || self.lookup_common(word).is_some()
     }
 
     pub fn lookup_merged(&self, word: &str) -> Option<&str> {

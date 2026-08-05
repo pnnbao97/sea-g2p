@@ -5,7 +5,7 @@ from .sea_g2p_rs import G2P as _RustG2P
 logger = logging.getLogger("sea_g2p.G2P")
 
 
-SUPPORTED_LANGS = ("vi", "th")
+SUPPORTED_LANGS = ("vi", "th", "id")
 
 
 class G2P:
@@ -20,6 +20,10 @@ class G2P:
       normalizes and segments the text before looking words up, and reads
       Latin runs with the same English engine, so mixed Thai/English input
       comes out as one phoneme string.
+    - ``"id"`` — Indonesian. Latin script with spaces, so no segmentation;
+      words not in the Indonesian dictionary go to the English engine when
+      it knows them (code-switching) and to the Indonesian rules otherwise,
+      which is what carries proper names.
     """
     def __init__(self, lang: str = "vi", db_path: str = None):
         if lang not in SUPPORTED_LANGS:
@@ -43,6 +47,8 @@ class G2P:
             return self.phonemize_batch(text, punc_norm=punc_norm, **kwargs)
         if self.lang == "th":
             return self._rust_engine.phonemize_th(text)
+        if self.lang == "id":
+            return self._rust_engine.phonemize_id(text)
         return self._rust_engine.phonemize(text, punc_norm)
 
     def phonemize_batch(self, texts: list[str], punc_norm: bool = False, **kwargs) -> list[str]:
@@ -51,4 +57,6 @@ class G2P:
             return []
         if self.lang == "th":
             return self._rust_engine.phonemize_th_batch(texts)
+        if self.lang == "id":
+            return self._rust_engine.phonemize_id_batch(texts)
         return self._rust_engine.phonemize_batch(texts, punc_norm)
