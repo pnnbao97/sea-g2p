@@ -1,0 +1,5 @@
+gold: 14839 words (881 variant conflicts resolved), skipped entries: {'no_tone': 150}
+tltk OOV: +29231 words, rejected 332, tone-rule flags 81
+final dict: 44070 words
+corpus token coverage: 0.9905
+reject kinds: {'truncated': 309, 'inventory': 23}

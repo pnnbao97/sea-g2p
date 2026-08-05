@@ -8,7 +8,7 @@
 use fancy_regex::{Regex as FRegex, Captures as FCaps};
 use regex::{Regex, Captures};
 use once_cell::sync::Lazy;
-use crate::vi_normalizer::num2vi::{n2w, n2w_single, n2w_decimal};
+use crate::lang::vi::num2vi::{n2w, n2w_single, n2w_decimal};
 
 static RE_NUMBER: Lazy<FRegex> = Lazy::new(|| {
     FRegex::new(r"(?<!\d)(?P<neg>[-–—])?(\d+(?:,\d+|(?:\.\d{3})+(?!\d)|\.\d+|(?:\s\d{3})+(?!\d))?)(?!\d)").unwrap()

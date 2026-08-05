@@ -4,7 +4,7 @@
 //! Every table here is data, not logic. Adding an entry is the cheapest way to
 //! fix a reading — and forgetting one is how characters end up deleted in
 //! silence, so a new symbol belongs in a table *and* in
-//! [`crate::vi_normalizer::audit`].
+//! [`crate::lang::vi::audit`].
 //!
 //! # Table groups
 //!
@@ -24,6 +24,7 @@
 
 use std::collections::{HashMap, HashSet};
 use once_cell::sync::Lazy;
+use crate::core::abbrev::{AbbrevTable, Reading};
 
 pub static VI_LETTER_NAMES: Lazy<HashMap<&'static str, &'static str>> = Lazy::new(|| {
     let mut m = HashMap::new();
@@ -408,15 +409,63 @@ pub static COMMON_EMAIL_DOMAINS: Lazy<HashMap<&'static str, &'static str>> = Laz
     m
 });
 
-pub static COMBINED_EXCEPTIONS: Lazy<HashMap<String, String>> = Lazy::new(|| {
-    let mut m = HashMap::new();
+/// Acronyms spelled with ENGLISH letter names. Doubles as the veto list for
+/// the dictionary-arbiter fallback: several of these are valid Vietnamese
+/// syllables whose lowercase form is a dictionary word (LA, CA, IT, AM, PM),
+/// and without an entry here they would be read as words.
+pub static ACRONYMS_SPELL_EN: &[&str] = &[
+    "LA", "CA", "IT", "US", "UK", "AI", "ID", "IP", "PC", "TV", "CD", "DVD",
+    "USB", "GPS", "SUV", "CEO", "CFO", "CTO", "GDP", "FBI", "CIA", "NBA",
+    "DJ", "PR", "HR", "IQ", "EQ", "MV", "EP", "URL", "SEO", "AM", "PM",
+    "NY", "HP", "SEA", "AN",
+    // Foreign universities, organisations and brands. Unlike BA/CO/MA (which
+    // compete with real Vietnamese words), these have no Vietnamese reading
+    // to lose, so pinning them costs nothing. Listed even when the fallback
+    // already spells them correctly: several are one dictionary change away
+    // from breaking — "MIT" sat in the common table and was read "mít".
+    "MIT", "UCLA", "NYU", "USC", "RMIT", "NUS", "NTU", "ANU", "LSE",
+    "UN", "WHO", "WTO", "IMF", "ADB", "OECD", "UNDP", "UNHCR", "ILO", "IAEA",
+    "IBM", "BMW", "LG", "MSI", "AMD", "TSMC", "VW", "GM",
+    "BBC", "CNN", "HBO", "MTV", "ESPN", "NFL", "MLB", "UFC", "PSG",
+    "HSBC", "ANZ", "UOB", "DBS", "KFC",
+];
+
+/// Acronyms conventionally spelled with VIETNAMESE letter names.
+pub static ACRONYMS_SPELL_VI: &[&str] = &["VTV", "VTC", "HTV", "EU", "QĐ"];
+
+/// The Vietnamese abbreviation table: one lookup façade with an explicit
+/// reading mode per entry, assembled from the data groups above
+/// (`ACRONYMS_EXCEPTIONS_VI` = Expand, `TECHNICAL_TERMS` = Fixed,
+/// `WORD_LIKE_ACRONYMS` = WordEn, the two spell lists = Letters*). Thai and
+/// Indonesian instantiate the same [`AbbrevTable`] type with their own data.
+pub static VI_ABBREV: Lazy<AbbrevTable> = Lazy::new(|| {
+    // First insert wins: Expand and Fixed carry hand-written replacements and
+    // outrank the mode-only groups — ASIAD and VRAM sit in WORD_LIKE_ACRONYMS
+    // too, and must keep their Fixed readings ("a si át", "v ram").
+    let mut t = AbbrevTable::new();
     for (k, v) in ACRONYMS_EXCEPTIONS_VI.iter() {
-        m.insert(k.to_string(), v.to_string());
+        t.insert(k, Reading::Expand(v));
     }
     for (k, v) in TECHNICAL_TERMS.iter() {
-        m.insert(k.to_string(), v.to_string());
+        if !t.contains(k) { t.insert(k, Reading::Fixed(v)); }
     }
-    m
+    for k in WORD_LIKE_ACRONYMS.iter() {
+        if !t.contains(k) { t.insert(*k, Reading::WordEn); }
+    }
+    for k in ACRONYMS_SPELL_EN {
+        if !t.contains(k) { t.insert(k, Reading::LettersEn); }
+    }
+    for k in ACRONYMS_SPELL_VI {
+        if !t.contains(k) { t.insert(k, Reading::LettersVi); }
+    }
+    t
+});
+
+pub static COMBINED_EXCEPTIONS: Lazy<HashMap<String, String>> = Lazy::new(|| {
+    VI_ABBREV
+        .replacement_keys()
+        .map(|k| (k.to_string(), VI_ABBREV.replacement(k).unwrap().to_string()))
+        .collect()
 });
 
 pub static DATE_KEYWORDS: Lazy<HashSet<&'static str>> = Lazy::new(|| {

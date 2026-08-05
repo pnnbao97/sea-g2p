@@ -1,0 +1,137 @@
+//! Thai lookup tables: abbreviations, symbols, units, calendar names.
+//!
+//! The abbreviation table is an instance of [`crate::core::abbrev::AbbrevTable`],
+//! the same type the Vietnamese module uses, so both languages express "how is
+//! this read" as data rather than as branches in the code.
+//!
+//! Thai abbreviations are written with periods inside them (ม.ค. = January,
+//! รธน. = constitution), which is why they must be expanded **before** any
+//! sentence-splitting or number pass — otherwise the periods read as sentence
+//! boundaries and the letters get spelled out one by one.
+
+use crate::core::abbrev::{AbbrevTable, Reading};
+use once_cell::sync::Lazy;
+use std::collections::HashMap;
+
+/// Thai letter names, used when an isolated Latin or Thai letter has to be
+/// spelled out. Thai spells its own letters as "CV + ชื่อ" (ก = กอ ไก่); the
+/// short form is what a reader actually says in an initialism.
+pub static TH_LETTER_NAMES: Lazy<HashMap<char, &'static str>> = Lazy::new(|| {
+    [
+        ('ก', "กอ"), ('ข', "ขอ"), ('ค', "คอ"), ('ง', "งอ"), ('จ', "จอ"),
+        ('ฉ', "ฉอ"), ('ช', "ชอ"), ('ซ', "ซอ"), ('ญ', "ยอ"), ('ด', "ดอ"),
+        ('ต', "ตอ"), ('ถ', "ถอ"), ('ท', "ทอ"), ('ธ', "ทอ"), ('น', "นอ"),
+        ('บ', "บอ"), ('ป', "ปอ"), ('ผ', "ผอ"), ('ฝ', "ฝอ"), ('พ', "พอ"),
+        ('ฟ', "ฟอ"), ('ภ', "พอ"), ('ม', "มอ"), ('ย', "ยอ"), ('ร', "รอ"),
+        ('ล', "ลอ"), ('ว', "วอ"), ('ศ', "สอ"), ('ษ', "สอ"), ('ส', "สอ"),
+        ('ห', "หอ"), ('ฬ', "ลอ"), ('อ', "ออ"), ('ฮ', "ฮอ"),
+    ].into_iter().collect()
+});
+
+/// Month names by number, and the abbreviated spellings that appear in dates.
+pub static TH_MONTHS: Lazy<HashMap<&'static str, &'static str>> = Lazy::new(|| {
+    [
+        ("ม.ค.", "มกราคม"), ("ก.พ.", "กุมภาพันธ์"), ("มี.ค.", "มีนาคม"),
+        ("เม.ย.", "เมษายน"), ("พ.ค.", "พฤษภาคม"), ("มิ.ย.", "มิถุนายน"),
+        ("ก.ค.", "กรกฎาคม"), ("ส.ค.", "สิงหาคม"), ("ก.ย.", "กันยายน"),
+        ("ต.ค.", "ตุลาคม"), ("พ.ย.", "พฤศจิกายน"), ("ธ.ค.", "ธันวาคม"),
+    ].into_iter().collect()
+});
+
+/// Units and currency symbols, keyed by the written form.
+pub static TH_UNITS: Lazy<HashMap<&'static str, &'static str>> = Lazy::new(|| {
+    [
+        ("กม.", "กิโลเมตร"), ("ซม.", "เซนติเมตร"), ("มม.", "มิลลิเมตร"),
+        ("กก.", "กิโลกรัม"), ("ก.ก.", "กิโลกรัม"), ("ล.", "ลิตร"),
+        ("บ.", "บาท"), ("ตร.ม.", "ตารางเมตร"), ("ตร.กม.", "ตารางกิโลเมตร"),
+        ("ชม.", "ชั่วโมง"), ("นาที", "นาที"), ("วิ.", "วินาที"),
+        ("%", "เปอร์เซ็นต์"), ("฿", "บาท"), ("$", "ดอลลาร์"),
+        ("€", "ยูโร"), ("£", "ปอนด์"), ("¥", "เยน"), ("₩", "วอน"),
+        ("°", "องศา"), ("°C", "องศาเซลเซียส"), ("°F", "องศาฟาเรนไฮต์"),
+    ].into_iter().collect()
+});
+
+/// Mathematical and typographic symbols that must become words rather than be
+/// deleted. Mirrors the Vietnamese `SYMBOLS_MAP`; the audit test keeps the two
+/// in step.
+pub static TH_SYMBOLS: Lazy<HashMap<char, &'static str>> = Lazy::new(|| {
+    [
+        ('&', " และ "), ('+', " บวก "), ('=', " เท่ากับ "), ('<', " น้อยกว่า "),
+        ('>', " มากกว่า "), ('≤', " น้อยกว่าหรือเท่ากับ "), ('≥', " มากกว่าหรือเท่ากับ "),
+        ('±', " บวกลบ "), ('≈', " ประมาณ "), ('≠', " ไม่เท่ากับ "),
+        ('×', " คูณ "), ('÷', " หาร "), ('/', " ทับ "), ('^', " ยกกำลัง "),
+        ('√', " รากที่สอง "), ('∞', " อนันต์ "), ('π', " พาย "),
+        ('@', " แอท "), ('©', " ลิขสิทธิ์ "), ('→', " ถึง "), ('~', " ประมาณ "),
+    ].into_iter().collect()
+});
+
+/// The Thai digits ๐–๙ map onto ASCII before any numeric pass runs.
+pub fn thai_digit_to_ascii(c: char) -> Option<char> {
+    match c {
+        '๐'..='๙' => Some((b'0' + (c as u32 - '๐' as u32) as u8) as char),
+        _ => None,
+    }
+}
+
+/// Abbreviations, each carrying how it is read.
+///
+/// `Expand` entries are replaced by their full Thai words; the surrounding
+/// pipeline then segments and looks those words up like any other text.
+/// Initialisms with no accepted expansion are spelled with Thai letter names
+/// via `LettersVi` (the enum variant is named for its first user, Vietnamese;
+/// it means "spell using this language's letter names").
+pub static TH_ABBREV: Lazy<AbbrevTable> = Lazy::new(|| {
+    let mut t = AbbrevTable::new();
+    let expand: &[(&'static str, &'static str)] = &[
+        // government, law, administration
+        ("รธน.", "รัฐธรรมนูญ"),
+        ("ครม.", "คณะรัฐมนตรี"),
+        ("สนช.", "สภานิติบัญญัติแห่งชาติ"),
+        ("ส.ส.", "สมาชิกสภาผู้แทนราษฎร"),
+        ("ส.ว.", "สมาชิกวุฒิสภา"),
+        ("กทม.", "กรุงเทพมหานคร"),
+        ("จ.", "จังหวัด"),
+        ("ต.", "ตำบล"),
+        ("ถ.", "ถนน"),
+        ("ร.ร.", "โรงเรียน"),
+        ("รพ.", "โรงพยาบาล"),
+        // Deliberately absent: ม. (มหาวิทยาลัย / หมู่ / มัธยม) and อ.
+        // (อำเภอ / อาจารย์). Both readings of each are common, and a hard
+        // mapping would misread half the occurrences — the same call the
+        // Vietnamese table makes for weekday abbreviations, which need a
+        // context cue before they expand.
+        ("บจก.", "บริษัทจำกัด"),
+        ("บมจ.", "บริษัทมหาชนจำกัด"),
+        ("หจก.", "ห้างหุ้นส่วนจำกัด"),
+        // titles
+        ("ดร.", "ดอกเตอร์"),
+        ("ศ.", "ศาสตราจารย์"),
+        ("รศ.", "รองศาสตราจารย์"),
+        ("ผศ.", "ผู้ช่วยศาสตราจารย์"),
+        ("นพ.", "นายแพทย์"),
+        ("พญ.", "แพทย์หญิง"),
+        ("พล.อ.", "พลเอก"),
+        ("พ.ต.ท.", "พันตำรวจโท"),
+        // calendar and time
+        ("พ.ศ.", "พุทธศักราช"),
+        ("ค.ศ.", "คริสต์ศักราช"),
+        ("น.", "นาฬิกา"),
+        // everyday
+        ("ฯลฯ", "และอื่นๆ"),
+        ("ฯพณฯ", "ฯพณฯ"),
+        ("โทร.", "โทรศัพท์"),
+        ("เลขที่", "เลขที่"),
+    ];
+    for (k, v) in expand {
+        t.insert(k, Reading::Expand(v));
+    }
+    for (k, v) in TH_MONTHS.iter() {
+        t.insert(k, Reading::Expand(v));
+    }
+    for (k, v) in TH_UNITS.iter() {
+        if k.chars().all(|c| !c.is_ascii_punctuation() || c == '.') && k.ends_with('.') {
+            t.insert(k, Reading::Expand(v));
+        }
+    }
+    t
+});

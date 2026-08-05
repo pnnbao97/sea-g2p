@@ -36,7 +36,7 @@
 use std::collections::HashSet;
 use once_cell::sync::Lazy;
 
-use crate::vi_normalizer::resources::{
+use crate::lang::vi::resources::{
     SYMBOLS_MAP, SUPERSCRIPTS_MAP, SUBSCRIPTS_MAP, CURRENCY_SYMBOL_MAP,
 };
 
@@ -93,7 +93,7 @@ pub fn audit_unmapped(text: &str) -> Vec<char> {
     // Mirror the pipeline: `sanitize_unicode` runs first and folds look-alike
     // characters (`℃` -> `°C`, `‐` -> `-`) into forms the rules recognise, so
     // auditing the raw input would report characters that never reach a pass.
-    let sanitized = crate::vi_normalizer::sanitize_unicode(text);
+    let sanitized = crate::lang::vi::sanitize_unicode(text);
     let mut seen: HashSet<char> = HashSet::new();
     let mut out: Vec<char> = Vec::new();
     for c in sanitized.chars() {
@@ -130,32 +130,4 @@ fn is_combining_mark(c: char) -> bool {
         | 0x20D0..=0x20FF // for symbols
         | 0xFE20..=0xFE2F // half marks
     )
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn letters_and_digits_are_always_safe() {
-        assert!(audit_unmapped("Xin chào 123 abc").is_empty());
-    }
-
-    #[test]
-    fn previously_lost_symbols_are_now_declared() {
-        // Every character here once vanished silently, or belongs to the same
-        // family as one that did.
-        assert!(audit_unmapped("10⁻³ Σ ∑ ∆ Δ ± ≈ ° √ ∫ µ ¥ % @ / :").is_empty());
-    }
-
-    #[test]
-    fn unknown_symbol_is_reported() {
-        // U+2318 PLACE OF INTEREST SIGN has no reading and must be flagged.
-        assert_eq!(audit_unmapped("phím ⌘ trên máy Mac"), vec!['⌘']);
-    }
-
-    #[test]
-    fn report_is_deduplicated_and_ordered() {
-        assert_eq!(audit_unmapped("⌘ ⌥ ⌘ ⌥"), vec!['⌘', '⌥']);
-    }
 }

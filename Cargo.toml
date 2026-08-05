@@ -1,11 +1,11 @@
 [package]
 name = "sea-g2p-rs"
-version = "0.7.33"
+version = "0.8.0"
 edition = "2021"
 
 [lib]
 name = "sea_g2p_rs"
-crate-type = ["cdylib"]
+crate-type = ["cdylib", "rlib"]
 
 [dependencies]
 pyo3 = { version = "0.23", features = ["extension-module", "abi3-py310", "generate-import-lib"] }

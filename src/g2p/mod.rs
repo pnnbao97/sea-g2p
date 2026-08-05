@@ -18,111 +18,13 @@
 //! genuine English words, then the rightmost-longest split, then fewer pieces —
 //! which is what makes "fine tune" win over "fin etune".
 
-use memmap2::Mmap;
-use std::fs::File;
 use std::io;
 use regex::Regex;
 use once_cell::sync::Lazy;
 
-pub mod en_top_words;
-use en_top_words::EN_TOP_WORDS;
+use crate::lang::en::top_words::EN_TOP_WORDS;
 
-pub struct PhonemeDict {
-    mmap: Mmap,
-    string_count: u32,
-    merged_count: u32,
-    common_count: u32,
-    string_offsets_pos: usize,
-    merged_pos: usize,
-    common_pos: usize,
-}
-
-impl PhonemeDict {
-    pub fn new(path: &str) -> io::Result<Self> {
-        let file = File::open(path)?;
-        let mmap = unsafe { Mmap::map(&file)? };
-
-        if mmap.len() < 32 || &mmap[0..4] != b"SEAP" {
-            return Err(io::Error::new(io::ErrorKind::InvalidData, "Invalid dictionary format"));
-        }
-
-        let string_count = u32::from_le_bytes(mmap[8..12].try_into().unwrap());
-        let merged_count = u32::from_le_bytes(mmap[12..16].try_into().unwrap());
-        let common_count = u32::from_le_bytes(mmap[16..20].try_into().unwrap());
-
-        let string_offsets_pos = u32::from_le_bytes(mmap[20..24].try_into().unwrap()) as usize;
-        let merged_pos = u32::from_le_bytes(mmap[24..28].try_into().unwrap()) as usize;
-        let common_pos = u32::from_le_bytes(mmap[28..32].try_into().unwrap()) as usize;
-
-        Ok(Self {
-            mmap,
-            string_count,
-            merged_count,
-            common_count,
-            string_offsets_pos,
-            merged_pos,
-            common_pos,
-        })
-    }
-
-    fn get_string(&self, id: u32) -> &str {
-        if id >= self.string_count { return ""; }
-        let off_ptr = self.string_offsets_pos + (id as usize * 4);
-        let offset = u32::from_le_bytes(self.mmap[off_ptr..off_ptr + 4].try_into().unwrap()) as usize;
-
-        let start = 32 + offset;
-        let mut end = start;
-        while end < self.mmap.len() && self.mmap[end] != 0 {
-            end += 1;
-        }
-        std::str::from_utf8(&self.mmap[start..end]).unwrap_or("")
-    }
-
-    pub fn lookup_merged(&self, word: &str) -> Option<&str> {
-        let mut low = 0;
-        let mut high = self.merged_count as i32 - 1;
-
-        while low <= high {
-            let mid = (low + high) / 2;
-            let ptr = self.merged_pos + (mid as usize * 8);
-            let w_id = u32::from_le_bytes(self.mmap[ptr..ptr + 4].try_into().unwrap());
-            let current_word = self.get_string(w_id);
-
-            if current_word == word {
-                let p_id = u32::from_le_bytes(self.mmap[ptr + 4..ptr + 8].try_into().unwrap());
-                return Some(self.get_string(p_id));
-            } else if current_word < word {
-                low = mid + 1;
-            } else {
-                high = mid - 1;
-            }
-        }
-        None
-    }
-
-    pub fn lookup_common(&self, word: &str) -> Option<(&str, &str)> {
-        let mut low = 0;
-        let mut high = self.common_count as i32 - 1;
-
-        while low <= high {
-            let mid = (low + high) / 2;
-            let ptr = self.common_pos + (mid as usize * 12);
-            let w_id = u32::from_le_bytes(self.mmap[ptr..ptr + 4].try_into().unwrap());
-            let current_word = self.get_string(w_id);
-
-            if current_word == word {
-                let vi_id = u32::from_le_bytes(self.mmap[ptr + 4..ptr + 8].try_into().unwrap());
-                let en_id = u32::from_le_bytes(self.mmap[ptr + 8..ptr + 12].try_into().unwrap());
-                return Some((self.get_string(vi_id), self.get_string(en_id)));
-            } else if current_word < word {
-                low = mid + 1;
-            } else {
-                high = mid - 1;
-            }
-        }
-        None
-    }
-}
+pub use crate::core::dict::PhonemeDict;
 
 static RE_TOKEN: Lazy<Regex> = Lazy::new(|| {
     Regex::new(r"(?i)(<en>.*?</en>)|(\w+(?:['’]\w+)*)|([^\w\s])").unwrap()

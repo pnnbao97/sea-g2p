@@ -22,8 +22,8 @@
 
 use fancy_regex::{Regex, Captures};
 use once_cell::sync::Lazy;
-use crate::vi_normalizer::num2vi::{n2w, n2w_decimal};
-use crate::vi_normalizer::resources::{MEASUREMENT_KEY_VI, CURRENCY_KEY, CURRENCY_SYMBOL_MAP, VI_LETTER_NAMES};
+use crate::lang::vi::num2vi::{n2w, n2w_decimal};
+use crate::lang::vi::resources::{MEASUREMENT_KEY_VI, CURRENCY_KEY, CURRENCY_SYMBOL_MAP, VI_LETTER_NAMES};
 
 // ── Number helpers ──────────────────────────────────────────────────────────
 

@@ -10,7 +10,7 @@
 //! TTS tokenizer — and also the exact point where an undeclared symbol vanishes
 //! without a sound. `∆`, `⁻` and `Σ` were all lost here. Before adding a symbol
 //! anywhere in the codebase, give it a reading or declare it in
-//! [`crate::vi_normalizer::audit`]; `tests/test_invariants.py` enforces this.
+//! [`crate::lang::vi::audit`]; `tests/test_invariants.py` enforces this.
 //!
 //! # Context-dependent readings
 //!
@@ -28,13 +28,14 @@
 use fancy_regex::{Regex as FRegex, Captures as FCaps};
 use regex::{Regex, Captures};
 use once_cell::sync::Lazy;
-use crate::vi_normalizer::num2vi::{n2w, n2w_single};
-use crate::vi_normalizer::resources::{
+use crate::lang::vi::num2vi::{n2w, n2w_single};
+use crate::core::abbrev::Reading;
+use crate::lang::vi::resources::{
     VI_LETTER_NAMES, DOMAIN_SUFFIX_MAP,
-    ROMAN_NUMERALS, ROMAN_KEYWORDS, ABBRS, SYMBOLS_MAP, WORD_LIKE_ACRONYMS, MEASUREMENT_KEY_VI,
+    ROMAN_NUMERALS, ROMAN_KEYWORDS, ABBRS, SYMBOLS_MAP, VI_ABBREV, MEASUREMENT_KEY_VI,
     CURRENCY_KEY, COMBINED_EXCEPTIONS, SUPERSCRIPTS_MAP, SUBSCRIPTS_MAP, ENGLISH_AMPERSAND
 };
-use crate::vi_normalizer::technical::normalize_slashes;
+use crate::lang::vi::technical::normalize_slashes;
 
 const VI_UPPER: &str = "ĐĂÂÊÔƠƯ";
 
@@ -530,8 +531,33 @@ pub fn normalize_acronyms(text: &str) -> String {
             processed_s = RE_ACRONYM.replace_all(&processed_s, |caps: &FCaps| {
                 let word = caps.get(0).unwrap().as_str();
                 if word.chars().all(|c: char| c.is_ascii_digit()) { return word.to_string(); }
-                if WORD_LIKE_ACRONYMS.contains(word) {
-                    return format!("__start_en__{}__end_en__", word.to_lowercase());
+                // Table first: an entry's reading mode always wins over any
+                // heuristic below. Expand/Fixed normally fire in an earlier
+                // stage; matching them here too keeps the table authoritative
+                // regardless of stage order.
+                match VI_ABBREV.get(word) {
+                    Some(Reading::WordEn) => {
+                        return format!("__start_en__{}__end_en__", word.to_lowercase());
+                    }
+                    Some(Reading::LettersVi) => {
+                        let parts: Vec<String> = word.chars()
+                            .filter_map(|c: char| {
+                                let cl = c.to_lowercase().to_string();
+                                VI_LETTER_NAMES.get(cl.as_str()).map(|n: &&str| n.to_string())
+                            })
+                            .collect();
+                        return parts.join(" ");
+                    }
+                    Some(Reading::LettersEn) => {
+                        let spaced = word.chars()
+                            .map(|c: char| c.to_lowercase().to_string())
+                            .collect::<Vec<String>>().join(" ");
+                        return format!("__start_en__{}__end_en__", spaced);
+                    }
+                    // Expand/Fixed are NOT handled here: they belong to the
+                    // exceptions stage, which is gated on sentence language
+                    // ("The VN team" spells v-n; "đội VN" expands việt nam).
+                    Some(Reading::Expand(_)) | Some(Reading::Fixed(_)) | None => {}
                 }
 
                 let has_vi_letter = word.chars().any(|c: char| !c.is_ascii() && c.is_alphabetic());
@@ -543,6 +569,21 @@ pub fn normalize_acronyms(text: &str) -> String {
                 // "CHƯƠNG" -> "chương" inside lowercase prose, while "ĐKVĐ" is
                 // still spelled out.
                 if has_vi_letter && is_vietnamese_syllable(word) {
+                    return word.to_lowercase();
+                }
+
+                // ASCII all-caps token, table-first policy: the abbreviation
+                // table decides known acronyms (checked above); for the rest
+                // the DICTIONARY is the arbiter of wordhood — an all-caps
+                // token whose lowercase form is both a valid Vietnamese
+                // syllable AND a dictionary word is a shouted word, not an
+                // acronym ("tôi HO một cái" -> "ho"). Both conditions are
+                // required: the dictionary alone still contains English
+                // entries ("it", "us") that the syllable test rejects.
+                if !has_vi_letter && !is_mixed_case
+                    && !word.chars().any(|c: char| c.is_numeric())
+                    && is_vietnamese_syllable(word)
+                    && crate::lang::vi::technical::dict_has_vi(&word.to_lowercase()) {
                     return word.to_lowercase();
                 }
 

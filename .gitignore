@@ -23,3 +23,8 @@ target/
 
 # Virtual environments
 .venv
+
+# dictionary backups produced by scripts/build_bin_v2.py
+python/sea_g2p/sea_g2p.bin.bak
+python/sea_g2p/sea_g2p.bin.prejunk
+python/sea_g2p/sea_g2p.bin.filtered

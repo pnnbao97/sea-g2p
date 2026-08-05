@@ -79,69 +79,20 @@ def quality_skeleton(word):
     return unicodedata.normalize("NFC", "".join(out)).lower()
 
 
-# ── Đọc bin ──────────────────────────────────────────────────────────────────
+# ── Đọc/ghi bin (qua scripts/seap.py, hỗ trợ v1 lẫn v2) ─────────────────────
+import seap as _seap
+
+
 def load_bin(path):
-    data = path.read_bytes()
-    assert data[0:4] == b"SEAP", "bad magic"
-    head_4_8 = data[4:8]
-    sc, mc, cc = struct.unpack_from("<III", data, 8)
-    sop, mp, cp = struct.unpack_from("<III", data, 20)
-
-    def gs(sid):
-        off = struct.unpack_from("<I", data, sop + sid * 4)[0]
-        st = 32 + off
-        en = data.index(b"\x00", st)
-        return data[st:en].decode("utf-8")
-
-    merged = {}
-    for i in range(mc):
-        w_id, p_id = struct.unpack_from("<II", data, mp + i * 8)
-        merged[gs(w_id)] = gs(p_id)
-    common = {}
-    for i in range(cc):
-        w_id, v_id, e_id = struct.unpack_from("<III", data, cp + i * 12)
-        common[gs(w_id)] = (gs(v_id), gs(e_id))
-    return head_4_8, merged, common
+    """Trả về (sections, merged, common); sections là {kind: {word: phon}}
+    (bin v1 cho sections rỗng)."""
+    merged, common, sections = _seap.load_bin(path)
+    return sections, merged, common
 
 
-def write_bin(path, head_4_8, merged, common):
-    """Ghi lại bin đúng format PhonemeDict::new đọc (sort theo byte UTF-8)."""
-    strings = {}
-
-    def sid(s):
-        if s not in strings:
-            strings[s] = len(strings)
-        return strings[s]
-
-    merged_rows = [(sid(w), sid(p)) for w, p in
-                   sorted(merged.items(), key=lambda kv: kv[0].encode("utf-8"))]
-    common_rows = [(sid(w), sid(v), sid(e)) for w, (v, e) in
-                   sorted(common.items(), key=lambda kv: kv[0].encode("utf-8"))]
-
-    blob = bytearray()
-    offsets = []
-    for s in strings:  # dict giữ thứ tự chèn = thứ tự id
-        offsets.append(len(blob))
-        blob += s.encode("utf-8") + b"\x00"
-
-    string_data_pos = 32
-    sop = string_data_pos + len(blob)
-    mp = sop + 4 * len(offsets)
-    cp = mp + 8 * len(merged_rows)
-
-    out = bytearray()
-    out += b"SEAP" + head_4_8
-    out += struct.pack("<III", len(strings), len(merged_rows), len(common_rows))
-    out += struct.pack("<III", sop, mp, cp)
-    assert len(out) == 32
-    out += blob
-    for off in offsets:
-        out += struct.pack("<I", off)
-    for w, p in merged_rows:
-        out += struct.pack("<II", w, p)
-    for w, v, e in common_rows:
-        out += struct.pack("<III", w, v, e)
-    path.write_bytes(out)
+def write_bin(path, sections, merged, common):
+    """Luôn ghi ra v2, giữ nguyên các section ngôn ngữ khác (vd. tiếng Thái)."""
+    _seap.write_bin_v2(path, merged, common, sections)
 
 
 # ── Chính ────────────────────────────────────────────────────────────────────
@@ -156,7 +107,7 @@ def main():
                     help="file tần suất tiếng Việt (mỗi dòng 'từ tần_suất') để chọn sibling khi không có thanh ngang")
     args = ap.parse_args()
 
-    head, merged, common = load_bin(BIN)
+    sections, merged, common = load_bin(BIN)
     print(f"dict: {len(merged)} merged, {len(common)} common")
 
     # Wordlist tiếng Anh: từ file + danh sách bổ sung thủ công (từ phổ biến
@@ -300,7 +251,7 @@ def main():
     if not backup.exists():
         backup.write_bytes(BIN.read_bytes())
         print(f"backup: {backup}")
-    write_bin(BIN, head, merged, common)
+    write_bin(BIN, sections, merged, common)
     print(f"đã ghi {BIN}: {len(merged)} merged, {len(common)} common")
 
 

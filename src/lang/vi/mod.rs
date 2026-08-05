@@ -56,12 +56,12 @@ use fancy_regex::{Regex as FRegex, Captures as FCaps};
 use regex::{Regex, Captures};
 use once_cell::sync::Lazy;
 use unicode_normalization::UnicodeNormalization;
-use crate::vi_normalizer::numerical::{normalize_number_vi, RE_MULTIPLY, expand_multiply_number};
-use crate::vi_normalizer::datestime::{normalize_date, normalize_time};
-use crate::vi_normalizer::units::{expand_units_and_currency, expand_compound_units, expand_scientific_notation, fix_english_style_numbers, expand_power_of_ten, expand_height_weight};
-use crate::vi_normalizer::misc::{normalize_others, expand_standalone_letters, expand_weekday_abbr, RE_ACRONYMS_EXCEPTIONS, RE_ACRONYM};
-use crate::vi_normalizer::technical::{normalize_technical, normalize_emails, RE_TECHNICAL, RE_EMAIL};
-use crate::vi_normalizer::resources::{COMBINED_EXCEPTIONS, MEASUREMENT_KEY_VI};
+use crate::lang::vi::numerical::{normalize_number_vi, RE_MULTIPLY, expand_multiply_number};
+use crate::lang::vi::datestime::{normalize_date, normalize_time};
+use crate::lang::vi::units::{expand_units_and_currency, expand_compound_units, expand_scientific_notation, fix_english_style_numbers, expand_power_of_ten, expand_height_weight};
+use crate::lang::vi::misc::{normalize_others, expand_standalone_letters, expand_weekday_abbr, RE_ACRONYMS_EXCEPTIONS, RE_ACRONYM};
+use crate::lang::vi::technical::{normalize_technical, normalize_emails, RE_TECHNICAL, RE_EMAIL};
+use crate::lang::vi::resources::{COMBINED_EXCEPTIONS, MEASUREMENT_KEY_VI};
 
 // ── Tier 1: regex crate (Thompson NFA, much faster for simple patterns) ────
 static RE_EXTRA_SPACES: Lazy<Regex> = Lazy::new(|| Regex::new(r"[ \t\xA0]+").unwrap());
@@ -135,8 +135,8 @@ fn split_math_letters(content: &str) -> String {
 //    super/subscript.
 fn is_strong_math_char(c: char) -> bool {
     matches!(c, '=' | '√' | '∫' | '±' | '≤' | '≥' | '≠')
-        || crate::vi_normalizer::resources::SUPERSCRIPTS_MAP.contains_key(&c)
-        || crate::vi_normalizer::resources::SUBSCRIPTS_MAP.contains_key(&c)
+        || crate::lang::vi::resources::SUPERSCRIPTS_MAP.contains_key(&c)
+        || crate::lang::vi::resources::SUBSCRIPTS_MAP.contains_key(&c)
 }
 
 // "/", √ and ∫ do NOT count as *contextual* operators. A fraction or radical
@@ -161,8 +161,8 @@ fn classify_math_token(tok: &str) -> (bool, bool) {
         c.is_ascii_alphanumeric()
             || "()[]{}+-–—*/=±≤≥≠≈×÷√∫|!'^.,;:°½¼¾⅓⅔∆∑".contains(c)
             || ('α'..='ω').contains(&c) || ('Α'..='Ω').contains(&c)
-            || crate::vi_normalizer::resources::SUPERSCRIPTS_MAP.contains_key(&c)
-            || crate::vi_normalizer::resources::SUBSCRIPTS_MAP.contains_key(&c)
+            || crate::lang::vi::resources::SUPERSCRIPTS_MAP.contains_key(&c)
+            || crate::lang::vi::resources::SUBSCRIPTS_MAP.contains_key(&c)
     };
     if !tok.chars().all(allowed) { return (false, false); }
     let mut run = String::new();
@@ -186,8 +186,8 @@ fn classify_math_token(tok: &str) -> (bool, bool) {
         c.is_ascii_digit()
             || "+-–—*/=±≤≥≠≈×÷√∫^'!½¼¾⅓⅔∆∑".contains(c)
             || ('α'..='ω').contains(&c) || ('Α'..='Ω').contains(&c)
-            || crate::vi_normalizer::resources::SUPERSCRIPTS_MAP.contains_key(&c)
-            || crate::vi_normalizer::resources::SUBSCRIPTS_MAP.contains_key(&c)
+            || crate::lang::vi::resources::SUPERSCRIPTS_MAP.contains_key(&c)
+            || crate::lang::vi::resources::SUBSCRIPTS_MAP.contains_key(&c)
     });
     let pure_alpha_multi = runs.len() == 1
         && runs[0].chars().count() >= 2
@@ -401,7 +401,7 @@ fn cleanup_whitespace(text: &str) -> String {
 }
 
 fn expand_scores(text: &str) -> String {
-    use crate::vi_normalizer::num2vi::n2w;
+    use crate::lang::vi::num2vi::n2w;
     let res = RE_SCORE_KW.replace_all(text, |caps: &Captures| {
         format!("{} {} {}",
             caps.get(1).unwrap().as_str(),
@@ -423,14 +423,14 @@ fn expand_scores(text: &str) -> String {
 
 fn expand_money_slang(text: &str) -> String {
     let res = RE_MONEY_TR.replace_all(text, |caps: &FCaps| {
-        let x = crate::vi_normalizer::num2vi::n2w(caps.get(1).unwrap().as_str());
+        let x = crate::lang::vi::num2vi::n2w(caps.get(1).unwrap().as_str());
         match caps.get(2) {
-            Some(y) => format!(" {} triệu {} trăm nghìn ", x, crate::vi_normalizer::num2vi::n2w(y.as_str())),
+            Some(y) => format!(" {} triệu {} trăm nghìn ", x, crate::lang::vi::num2vi::n2w(y.as_str())),
             None => format!(" {} triệu ", x),
         }
     }).into_owned();
     RE_MONEY_K.replace_all(&res, |caps: &FCaps| {
-        format!(" {} nghìn ", crate::vi_normalizer::num2vi::n2w(caps.get(1).unwrap().as_str()))
+        format!(" {} nghìn ", crate::lang::vi::num2vi::n2w(caps.get(1).unwrap().as_str()))
     }).into_owned()
 }
 
@@ -567,7 +567,7 @@ fn stage_detect_context(text: &str, force_vi: bool) -> Ctx {
         .take(3).count();
     let dictionary_words = RE_WORDISH.find_iter(text)
         .filter(|m: &regex::Match| m.as_str().chars().all(|c: char| c.is_ascii_lowercase()))
-        .filter(|m: &regex::Match| crate::g2p::en_top_words::EN_TOP_WORDS.contains(m.as_str()))
+        .filter(|m: &regex::Match| crate::lang::en::top_words::EN_TOP_WORDS.contains(m.as_str()))
         .take(2).count();
 
     let en_ctx = !force_vi
@@ -587,9 +587,9 @@ fn stage_early_lexical(text: &str, ctx: Ctx) -> String {
     let mut out = expand_weekday_abbr(text);
     // "text2text" / "sale4u": a 2 or 4 wedged between lowercase letters reads
     // as "two" / "four" regardless of sentence language.
-    out = crate::vi_normalizer::num2en::expand_sandwich_digits(&out);
+    out = crate::lang::vi::num2en::expand_sandwich_digits(&out);
     if ctx.en_ctx {
-        out = crate::vi_normalizer::num2en::english_prenormalize(&out);
+        out = crate::lang::vi::num2en::english_prenormalize(&out);
     }
     out
 }
@@ -608,12 +608,12 @@ fn stage_superscripts(text: &str) -> String {
     out = RE_SUPERSCRIPT_SIGNED.replace_all(&out, |caps: &Captures| {
         let sign = if caps.get(1).unwrap().as_str() == "\u{207b}" { "trừ " } else { "" };
         let digits = sup_digits(caps.get(2).unwrap().as_str());
-        format!(" mũ {}{} ", sign, crate::vi_normalizer::num2vi::n2w(&digits))
+        format!(" mũ {}{} ", sign, crate::lang::vi::num2vi::n2w(&digits))
     }).into_owned();
 
     RE_SUPERSCRIPT_RUN.replace_all(&out, |caps: &Captures| {
         let digits = sup_digits(caps.get(0).unwrap().as_str());
-        format!(" mũ {} ", crate::vi_normalizer::num2vi::n2w(&digits))
+        format!(" mũ {} ", crate::lang::vi::num2vi::n2w(&digits))
     }).into_owned()
 }
 
@@ -644,7 +644,7 @@ fn stage_codes(text: &str, ctx: Ctx) -> String {
     if ctx.en_ctx {
         return text.to_string();
     }
-    let out = crate::vi_normalizer::misc::expand_codes_and_plates(text);
+    let out = crate::lang::vi::misc::expand_codes_and_plates(text);
     // Detach the coefficient in front of a chemical formula ("6CO2" -> "6 CO2")
     // so the letters take the same acronym path they would when standing alone.
     RE_CHEM_DIGIT_PREFIX.replace_all(&out, "$1 ").into_owned()
@@ -680,7 +680,7 @@ fn stage_arithmetic(text: &str) -> String {
 /// Runs before the date stage because some abbreviations embed digits that the
 /// date patterns would otherwise claim.
 fn stage_abbreviations(text: &str) -> String {
-    let mut out = crate::vi_normalizer::misc::expand_abbreviations(text);
+    let mut out = crate::lang::vi::misc::expand_abbreviations(text);
     out = RE_ADDR_ABBR.replace_all(&out, |caps: &FCaps| {
         match caps.get(1).unwrap().as_str() {
             "P" => " phường ",
@@ -709,7 +709,7 @@ fn stage_percent_scores(text: &str) -> String {
 /// Must run before the generic number passes, which would otherwise say
 /// "one million nine hundred thousand" for a service number.
 fn stage_phones(text: &str) -> String {
-    use crate::vi_normalizer::num2vi::n2w_single;
+    use crate::lang::vi::num2vi::n2w_single;
 
     let mut out = RE_NUMERIC_DASH_GROUPS.replace_all(text, |caps: &Captures| {
         caps.get(0).unwrap().as_str()
@@ -762,9 +762,9 @@ fn stage_ranges_signs(text: &str) -> String {
     let mut out = RE_POWER_OF_TEN_IMPLICIT.replace_all(text, |caps: &Captures| {
         let exp = caps.get(1).unwrap().as_str();
         if let Some(rest) = exp.strip_prefix('-') {
-            format!("mười mũ trừ {}", crate::vi_normalizer::num2vi::n2w(rest))
+            format!("mười mũ trừ {}", crate::lang::vi::num2vi::n2w(rest))
         } else {
-            format!("mười mũ {}", crate::vi_normalizer::num2vi::n2w(&exp.replace('+', "")))
+            format!("mười mũ {}", crate::lang::vi::num2vi::n2w(&exp.replace('+', "")))
         }
     }).into_owned();
 
@@ -801,14 +801,14 @@ fn stage_ranges_signs(text: &str) -> String {
 fn stage_units(text: &str) -> String {
     let mut out = expand_scientific_notation(text);
     out = expand_height_weight(&out);
-    out = crate::vi_normalizer::misc::expand_size_labels(&out);
+    out = crate::lang::vi::misc::expand_size_labels(&out);
     out = expand_compound_units(&out);
     out = expand_units_and_currency(&out);
     // Long digit runs left over (account numbers, IDs) are read figure by figure.
     out = RE_LONG_NUM.replace_all(&out, |caps: &FCaps| {
         let sign = if caps.get(1).unwrap().as_str().is_empty() { "" } else { "âm " };
         format!(" {}{} ", sign,
-            crate::vi_normalizer::num2vi::n2w_single(caps.get(2).unwrap().as_str()))
+            crate::lang::vi::num2vi::n2w_single(caps.get(2).unwrap().as_str()))
     }).to_string();
     fix_english_style_numbers(&out)
 }
@@ -818,19 +818,19 @@ fn stage_decimals(text: &str) -> String {
     let mut out = RE_MULTI_COMMA.replace_all(text, |caps: &Captures| {
         caps.get(1).unwrap().as_str()
             .split(',')
-            .map(crate::vi_normalizer::num2vi::n2w_decimal)
+            .map(crate::lang::vi::num2vi::n2w_decimal)
             .collect::<Vec<String>>()
             .join(" phẩy ")
     }).into_owned();
 
     out = RE_FLOAT_WITH_COMMA.replace_all(&out, |caps: &FCaps| {
-        let int_part = crate::vi_normalizer::num2vi::n2w(
+        let int_part = crate::lang::vi::num2vi::n2w(
             &caps.get(1).unwrap().as_str().replace('.', ""));
         let dec_part = caps.get(2).unwrap().as_str().trim_end_matches('0');
         let mut res = if dec_part.is_empty() {
             int_part
         } else {
-            format!("{} phẩy {}", int_part, crate::vi_normalizer::num2vi::n2w_decimal(dec_part))
+            format!("{} phẩy {}", int_part, crate::lang::vi::num2vi::n2w_decimal(dec_part))
         };
         if caps.get(3).is_some() {
             res.push_str(" phần trăm");
@@ -858,7 +858,7 @@ fn stage_residual(text: &str, ctx: Ctx) -> String {
     // genuine double negative and must survive.
     RE_DOUBLE_AM.replace_all(&out, |caps: &Captures| {
         let next = caps.get(1).unwrap().as_str();
-        if crate::vi_normalizer::datestime::NUM_WORDS.contains(next.to_lowercase().as_str()) {
+        if crate::lang::vi::datestime::NUM_WORDS.contains(next.to_lowercase().as_str()) {
             format!("âm {}", next)
         } else {
             caps.get(0).unwrap().as_str().to_string()
@@ -1007,7 +1007,7 @@ impl Normalizer {
         // paths, URLs and emails the Vietnamese way. A failed load is ignored:
         // the normalizer still runs off its built-in whitelist.
         if let Some(p) = dict_path {
-            crate::vi_normalizer::technical::init_norm_dict(p);
+            crate::lang::vi::technical::init_norm_dict(p);
         }
         Normalizer { lang: lang.to_string() }
     }
@@ -1018,9 +1018,9 @@ impl Normalizer {
     /// Returns an empty list when the input is fully covered. A non-empty
     /// result means those characters need either a reading or an explicit
     /// entry in the audit module's `INTENTIONALLY_DROPPED` set — see
-    /// [`crate::vi_normalizer::audit`] for why this matters.
+    /// [`crate::lang::vi::audit`] for why this matters.
     pub fn audit(&self, text: &str) -> Vec<String> {
-        crate::vi_normalizer::audit::audit_unmapped(text)
+        crate::lang::vi::audit::audit_unmapped(text)
             .into_iter()
             .map(|c| c.to_string())
             .collect()

@@ -32,8 +32,8 @@ use once_cell::sync::Lazy;
 use std::collections::HashSet;
 use std::sync::OnceLock;
 use crate::g2p::PhonemeDict;
-use crate::vi_normalizer::num2vi::{n2w, n2w_single};
-use crate::vi_normalizer::resources::{VI_LETTER_NAMES, COMMON_EMAIL_DOMAINS, DOMAIN_SUFFIX_MAP};
+use crate::lang::vi::num2vi::{n2w, n2w_single};
+use crate::lang::vi::resources::{VI_LETTER_NAMES, COMMON_EMAIL_DOMAINS, DOMAIN_SUFFIX_MAP};
 
 // The phoneme dictionary shared with G2P, memory-mapped so the lookup is cheap.
 // The normalizer only asks "is this word known?" when deciding whether to keep
@@ -47,9 +47,23 @@ pub fn init_norm_dict(path: &str) {
     }
 }
 
-fn dict_has(word: &str) -> bool {
+pub fn dict_has(word: &str) -> bool {
     NORM_DICT.get()
         .map(|d| d.lookup_merged(word).is_some() || d.lookup_common(word).is_some())
+        .unwrap_or(false)
+}
+
+/// Is `word` in the dictionary *as Vietnamese* — a merged entry whose
+/// phonemes are not tagged `<en>`, or a common entry (which always carries a
+/// Vietnamese side)? The acronym arbiter uses this instead of [`dict_has`]:
+/// English entries ("vye", "us") must not license reading an all-caps token
+/// as a Vietnamese word.
+pub fn dict_has_vi(word: &str) -> bool {
+    NORM_DICT.get()
+        .map(|d| {
+            d.lookup_merged(word).map(|p: &str| !p.starts_with("<en>")).unwrap_or(false)
+                || d.lookup_common(word).is_some()
+        })
         .unwrap_or(false)
 }
 
@@ -112,7 +126,7 @@ fn is_vi_syllable(s: &str) -> bool {
 /// This scoring is what makes "tin|hoc" (2+2) beat "ti|nhoc" (2+1), and
 /// "khi|tuong" beat "khit|uong".
 fn syllable_vi_score(w: &str) -> u32 {
-    if crate::vi_normalizer::vi_top_syllables::VI_TOP_SYLLABLES.contains(w) {
+    if crate::lang::vi::vi_top_syllables::VI_TOP_SYLLABLES.contains(w) {
         return 2;
     }
     if let Some(d) = NORM_DICT.get() {
@@ -178,7 +192,7 @@ fn split_vi_syllables(s: &str) -> Option<Vec<(String, bool)>> {
             if let Some((prev, prev_is_vi)) = base.parts.last() {
                 if *prev_is_vi {
                     let key = format!("{} {}", prev, seg);
-                    if crate::vi_normalizer::vi_bigrams::VI_BIGRAMS.contains(key.as_str()) {
+                    if crate::lang::vi::vi_bigrams::VI_BIGRAMS.contains(key.as_str()) {
                         sc += 3;
                     }
                 }
@@ -195,7 +209,7 @@ fn split_vi_syllables(s: &str) -> Option<Vec<(String, bool)>> {
         // "blog|cong|nghe" survives intact.
         for j in (i + 3)..=n {
             let seg = &s[i..j];
-            if !crate::g2p::en_top_words::EN_TOP_WORDS.contains(seg) { continue; }
+            if !crate::lang::en::top_words::EN_TOP_WORDS.contains(seg) { continue; }
             let mut cand = base.clone();
             cand.lens.push((j - i).min(255) as u8);
             cand.parts.push((seg.to_string(), false));
@@ -485,7 +499,7 @@ pub fn normalize_technical(text: &str, vi_ctx: bool, en_ctx: bool) -> String {
                         // English ("127" -> "one two seven").
                         let digits = |d: &str| -> String {
                             if en_ctx {
-                                crate::vi_normalizer::num2en::n2w_en_digits(d)
+                                crate::lang::vi::num2en::n2w_en_digits(d)
                             } else {
                                 d.chars().map(|c: char| n2w_single(&c.to_string())).collect::<Vec<String>>().join(" ")
                             }
@@ -544,7 +558,7 @@ pub fn normalize_emails(text: &str, vi_ctx: bool, en_ctx: bool) -> String {
         let norm_segment = |s: &str| {
             if s.is_empty() { return String::new(); }
             if s.chars().all(|c: char| c.is_ascii_digit()) {
-                return if en_ctx { crate::vi_normalizer::num2en::n2w_en(s) } else { n2w(s) };
+                return if en_ctx { crate::lang::vi::num2en::n2w_en(s) } else { n2w(s) };
             }
             if s.chars().all(|c: char| c.is_alphanumeric() && c.is_ascii()) {
                 let re_sub = &*RE_SUB_TOKENS;
@@ -553,7 +567,7 @@ pub fn normalize_emails(text: &str, vi_ctx: bool, en_ctx: bool) -> String {
                     let mut res_parts = Vec::new();
                     for t in sub_tokens {
                         if t.chars().all(|c: char| c.is_ascii_digit()) {
-                            res_parts.push(if en_ctx { crate::vi_normalizer::num2en::n2w_en(t) } else { n2w(t) });
+                            res_parts.push(if en_ctx { crate::lang::vi::num2en::n2w_en(t) } else { n2w(t) });
                         } else {
                             res_parts.push(norm_letter_chunk_email(t, vi_ctx, en_ctx));
                         }
@@ -664,7 +678,7 @@ pub fn normalize_slashes(text: &str) -> String {
                 n2w(t)
             } else {
                 t.chars().map(|c: char| {
-                    crate::vi_normalizer::resources::VI_LETTER_NAMES
+                    crate::lang::vi::resources::VI_LETTER_NAMES
                         .get(c.to_lowercase().to_string().as_str())
                         .map(|s| s.to_string())
                         .unwrap_or_else(|| c.to_lowercase().to_string())

@@ -31,8 +31,8 @@
 
 use fancy_regex::{Regex, Captures};
 use once_cell::sync::Lazy;
-use crate::vi_normalizer::num2vi::{n2w, n2w_decimal};
-use crate::vi_normalizer::resources::{DATE_KEYWORDS, DATE_LEAD_WORDS, MATH_KEYWORDS};
+use crate::lang::vi::num2vi::{n2w, n2w_decimal};
+use crate::lang::vi::resources::{DATE_KEYWORDS, DATE_LEAD_WORDS, MATH_KEYWORDS};
 
 const DAY_IN_MONTH: [i32; 12] = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
 const DATE_SEP: &str = r"(\/|-|\.)";
@@ -178,7 +178,7 @@ pub fn normalize_date(text: &str) -> String {
         let q_num = if q.chars().all(|c| c.is_ascii_digit()) {
             q.to_string()
         } else {
-            crate::vi_normalizer::misc::roman_to_int(&q.to_uppercase()).to_string()
+            crate::lang::vi::misc::roman_to_int(&q.to_uppercase()).to_string()
         };
         format!("quý {} năm {}",
             n2w(&q_num),
@@ -219,7 +219,7 @@ pub fn normalize_date(text: &str) -> String {
                 let cl = c.to_lowercase().to_string();
                 if c.is_ascii_digit() {
                     parts.push(n2w(&c.to_string()));
-                } else if let Some(name) = crate::vi_normalizer::resources::VI_LETTER_NAMES.get(cl.as_str()) {
+                } else if let Some(name) = crate::lang::vi::resources::VI_LETTER_NAMES.get(cl.as_str()) {
                     parts.push(name.to_string());
                 } else {
                     parts.push(cl);

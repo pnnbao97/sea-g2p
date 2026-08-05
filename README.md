@@ -3,6 +3,7 @@
 <img width="1221" height="656" alt="image" src="https://github.com/user-attachments/assets/01220177-815b-4012-8f65-8a2a86beddf9" />
 
 Fast multilingual text-to-phoneme converter for South East Asian languages.  
+Vietnamese and Thai, both with English code-switching.  
 >**Author**: [Pham Nguyen Ngoc Bao](https://github.com/pnnbao97)
 
 ## 🚀 Used By
@@ -38,6 +39,34 @@ texts = ["Giá cổ phiếu tăng từ $0.000045 lên $1,234.5678 trong 3.5×10^
 results = pipeline.run(texts)
 ```
 
+### Thai
+
+Thai is written without spaces, so the Thai front end normalizes, **segments**,
+and looks words up in one pass. Latin runs go through the same English engine
+used elsewhere, so code-switched text comes out as a single phoneme string.
+
+```python
+from sea_g2p import SEAPipeline
+
+th = SEAPipeline(lang="th")
+
+th.run("เขาฉลาดพอที่จะซ่อนสติปัญญา")
+# 'kʰaw˩˩˦ tɕʰa˨˩ laːt̚˨˩ pʰɔː˧ tʰiː˥˩ tɕaʔ˨˩ sɔːn˥˩ sa˨˩ ti˨˩ pan˧ jaː˧'
+
+th.run("ผมใช้ iPhone ราคา ฿1,250")
+# 'pʰom˩˩˦ tɕʰaj˦˥ ˈaɪfoʊn raː˧ kʰaː˧ nɯŋ˨˩ pʰan˧ sɔːŋ˩˩˦ rɔːj˦˥ haː˥˩ sip̚˨˩ baːt̚˨˩'
+
+# Normalization alone: numbers, Thai digits, dates, abbreviations
+from sea_g2p import Normalizer
+Normalizer(lang="th").normalize("วันที่ 6 ม.ค. ๒๕๖๐")
+# 'วันที่ หก มกราคม สองพันห้าร้อยหกสิบ'
+```
+
+Thai phonemes use IPA with **Chao tone letters** (`˧` mid, `˨˩` low, `˥˩`
+falling, `˦˥` high, `˩˩˦` rising), deliberately distinct from the digit
+convention used for Vietnamese tones so the two can share one inventory
+without ambiguity. Details in [thai/README.md](thai/README.md).
+
 ### Individual Modules
 
 ```python
@@ -61,8 +90,16 @@ print(phonemes)
 - **Blazing Fast**: Core engine rewritten in Rust with binary mmap lookup.
 - **Multithreading**: Automatic parallel processing using Rayon/Rust for batch inputs.
 - **Zero Dependency**: Pre-compiled wheels for Windows, Linux, and macOS.
-- **Smart Normalization**: Specialized for Vietnamese (numbers, dates, technical terms).
-- **Bilingual Support**: Handles mixed Vietnamese/English text seamlessly.
+- **Smart Normalization**: Staged pipelines per language — 17 stages for
+  Vietnamese (numbers, dates, units, formulas, technical terms), 8 for Thai
+  (Thai digits ๐-๙, Buddhist-era dates, `ๆ` repetition, abbreviation table).
+- **Thai word segmentation**: no-space script handled with a 91,865-word
+  dictionary and a unigram-cost dynamic program; boundary F1 0.987 against
+  PyThaiNLP `newmm`.
+- **Never gives up on a word**: Thai text outside the dictionary is read by
+  orthographic rule, so new names and transliterations still get phonemes.
+- **Bilingual Support**: Handles mixed Vietnamese/English and Thai/English
+  text seamlessly.
 - **Markup tags**: Wrap a span to control reading:
   - `<en>...</en>` — keep the content for the English phonemizer (e.g. `<en>hello</en>`).
   - `<math>...</math>` — read as a math formula: variable clusters are spelled
@@ -75,12 +112,14 @@ print(phonemes)
 
 The following benchmarks were conducted on a dataset of **1,000,000 sentences**:
 
-| Module | Implementation | Throughput | 
-| :--- | :--- | :--- | 
-| **Normalizer** | Rust Core (Parallel) | **~41,000 sentences/s** |
-| **G2P** | Rust Core (Parallel) | **~415,000 sentences/s** |
+| Language | Module | Throughput |
+| :--- | :--- | :--- |
+| Vietnamese | Normalizer | **~41,000 sentences/s** |
+| Vietnamese | G2P | **~415,000 sentences/s** |
+| Vietnamese | **Full pipeline** | **~37,000 sentences/s** |
+| Thai | Normalizer | **~1,000,000 sentences/s** |
+| Thai | **Full pipeline** (normalize + segment + G2P) | **~180,000 sentences/s** |
 
-**Total Pipeline Throughput**: **~37,000 sentences/s**
 *(Tested on CPython 3.12, Windows 11, Multithreaded)*
 
 ## Technical Architecture
@@ -90,8 +129,24 @@ SEA-G2P is designed for maximum performance in production environments:
 - **Memory Mapping (mmap)**: Instead of loading a huge JSON/SQLite into RAM, we use a custom binary format (`.bin`) mapped directly into memory. This allows near-instant startup and extremely low memory overhead.
 - **String Pooling**: To minimize file size, all unique strings (words and phonemes) are stored once in a global string pool and referenced by 4-byte IDs.
 - **Binary Search**: Words are pre-sorted during the build process, allowing `O(log n)` lookup speeds directly on the memory-mapped data.
+- **Per-language sections**: one binary holds every language. Scripts that
+  cannot collide with the Latin keyspace get their own namespace, so the Thai
+  dictionary and its word frequencies ship beside the Vietnamese/English
+  tables and can never fall out of sync with them.
 
-For full details on the specification, see [src/g2p/mod.rs](src/g2p/mod.rs).
+### Source layout
+
+| path | contents |
+| :--- | :--- |
+| `src/core/` | language-agnostic: the mmap dictionary loader, the generic abbreviation table |
+| `src/lang/vi/` | Vietnamese normalizer, number-to-words, syllable data |
+| `src/lang/en/` | English frequency wordlist used to settle ambiguous splits |
+| `src/lang/th/` | Thai normalizer, segmenter, rule-based G2P, number-to-words |
+| `src/g2p/` | the shared engine for Latin-script text |
+| `tests/` | `*.rs` integration tests and `python/` end-to-end tests |
+
+For the binary format specification, see [src/core/dict.rs](src/core/dict.rs).
+For the Thai data pipeline and its measurements, see [thai/README.md](thai/README.md).
 
 ## Development
 
@@ -106,4 +161,10 @@ To install for development purposes:
 2. Install in editable mode:
    ```bash
    pip install -e .
+   ```
+
+3. Run the tests:
+   ```bash
+   cargo test --release      # Rust integration tests
+   python -m pytest tests/   # Python end-to-end tests
    ```
