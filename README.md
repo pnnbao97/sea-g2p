@@ -50,16 +50,20 @@ from sea_g2p import SEAPipeline
 
 th = SEAPipeline(lang="th")
 
-th.run("เขาฉลาดพอที่จะซ่อนสติปัญญา")
-# 'kʰaw˩˩˦ tɕʰa˨˩ laːt̚˨˩ pʰɔː˧ tʰiː˥˩ tɕaʔ˨˩ sɔːn˥˩ sa˨˩ ti˨˩ pan˧ jaː˧'
+result = th.run("เขาฉลาดพอที่จะซ่อนสติปัญญา")
+print(result)
+#kʰaw˩˩˦ tɕʰa˨˩ laːt̚˨˩ pʰɔː˧ tʰiː˥˩ tɕaʔ˨˩ sɔːn˥˩ sa˨˩ ti˨˩ pan˧ jaː˧
 
-th.run("ผมใช้ iPhone ราคา ฿1,250")
-# 'pʰom˩˩˦ tɕʰaj˦˥ ˈaɪfoʊn raː˧ kʰaː˧ nɯŋ˨˩ pʰan˧ sɔːŋ˩˩˦ rɔːj˦˥ haː˥˩ sip̚˨˩ baːt̚˨˩'
+result = th.run("ผมใช้ iPhone ราคา ฿1,250")
+print(result)
+#pʰom˩˩˦ tɕʰaj˦˥ ˈaɪfoʊn raː˧ kʰaː˧ nɯŋ˨˩ pʰan˧ sɔːŋ˩˩˦ rɔːj˦˥ haː˥˩ sip̚˨˩ baːt̚˨˩
 
 # Normalization alone: numbers, Thai digits, dates, abbreviations
 from sea_g2p import Normalizer
-Normalizer(lang="th").normalize("วันที่ 6 ม.ค. ๒๕๖๐")
-# 'วันที่ หก มกราคม สองพันห้าร้อยหกสิบ'
+
+normalized = Normalizer(lang="th").normalize("วันที่ 6 ม.ค. ๒๕๖๐")
+print(normalized)
+#วันที่ หก มกราคม สองพันห้าร้อยหกสิบ
 ```
 
 Thai phonemes use IPA with **Chao tone letters** (`˧` mid, `˨˩` low, `˥˩`
@@ -72,18 +76,23 @@ without ambiguity. Details in [thai/README.md](thai/README.md).
 ```python
 from sea_g2p import SEAPipeline
 
-id = SEAPipeline(lang="id")
+# not `id`: that shadows the built-in id()
+idn = SEAPipeline(lang="id")
 
-id.run("dia cukup cerdas untuk menyembunyikan kecerdasannya")
-# 'di a t͡ʃu kup t͡ʃər das un tuʔ mə ɲəm bu ɲi kan kə t͡ʃər da san ɲa'
+result = idn.run("dia cukup cerdas untuk menyembunyikan kecerdasannya")
+print(result)
+#di a t͡ʃu kup t͡ʃər das un tuʔ mə ɲəm bu ɲi kan kə t͡ʃər da san ɲa
 
-id.run("Saya membeli buku seharga Rp1.250.000")
-# '... sa tu d͡ʒu ta du a ra tus li ma pu luh ri bu ru pi ah'
+result = idn.run("Saya membeli buku seharga Rp1.250.000")
+print(result)
+#sa ja məm bə li bu ku sə har ɡa sa tu d͡ʒu ta du a ra tus li ma pu luh ri bu ru pi ah
 
 # chat contractions, which look like pronounceable words to a rule engine
 from sea_g2p import Normalizer
-Normalizer(lang="id").normalize("yg penting tdk lupa dgn tugasnya")
-# 'yang penting tidak lupa dengan tugasnya'
+
+normalized = Normalizer(lang="id").normalize("yg penting tdk lupa dgn tugasnya")
+print(normalized)
+#yang penting tidak lupa dengan tugasnya
 ```
 
 Phonemes are grouped one **syllable** per space, the same convention the
