@@ -1,1 +1,0 @@
-python/sea_g2p/*.bin filter=lfs diff=lfs merge=lfs -text
