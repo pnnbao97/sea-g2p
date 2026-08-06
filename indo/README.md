@@ -32,6 +32,34 @@ same ground is not covered twice.
 | Compounds | 28,042 | inherited from the parts |
 | Reduplication | 9,078 | inherited from the parts |
 
+## What is settled, and what is not
+
+Settled:
+
+| | Status |
+|---|---|
+| **Segmentation** | **Not a problem at all.** Indonesian is written with spaces. What Thai spends most of its machinery on does not exist here. |
+| **Orthography** | Regular, and the rules cover it: digraphs, pre-1972 spellings, ⟨ai⟩/⟨au⟩. The one genuine ambiguity is ⟨e⟩, below. |
+| **Silent deletion** | Zero across all 172,557 entries — no empty pronunciations, no orthography surviving into the output. A diacritic used to take its base letter with it (`ārati` read as "rati") while the audit approved; both are fixed. |
+| **Morphology** | Affixed forms are derived from roots rather than guessed, at 97.3% on the schwa decision — measured by deriving gold words from other gold roots. |
+
+Not settled:
+
+| | Status |
+|---|---|
+| **⟨e⟩ = /ə/ or /e/** | The whole problem, and it is lexical: spelling carries no signal, so it needs an oracle rather than a rule. 70.2% of running text is covered by human transcription, 9.4% has no ⟨e⟩ to get wrong, 7.7% is derivable from a gold root — and **6.6% is verified by nothing**. |
+| **51,320 entries** | Unverified. They are rare, but `schwa_review.tsv` ships the 2,000 that carry weight; the first 500 rows cover 77% of the group's exposure and are an evening's work for a native speaker. |
+| **Pronunciation accuracy** | Not measured end to end. Every number here is intrinsic — coverage, agreement between sources, cross-validated derivation. |
+| **Whether it sounds right** | **No native speaker has heard any output.** |
+
+The contrast with Thai is worth stating, because it decides where effort
+goes. Thai's hard problem was structural — no spaces, so word boundaries
+had to be recovered, and the judge for that was itself compromised. That
+is now settled: boundary error costs 0.50% of output syllables.
+Indonesian's hard problem is lexical, and no amount of engineering
+resolves it — a vowel that spelling does not write can only come from a
+dictionary or from a speaker.
+
 ## How much of this is actually verified
 
 The table above says where each entry came from. This one says how much

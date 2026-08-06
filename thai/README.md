@@ -15,6 +15,35 @@ Why not espeak-ng: tested empirically, its Thai voice reads character-by-charact
 with no word segmentation, no preposed-vowel reordering (เขา → "e-kha"), no
 silent-ห handling and broken tones. Unusable even as a fallback.
 
+## What is settled, and what is not
+
+Settled, with the measurement that settles it:
+
+| | Status |
+|---|---|
+| **Word segmentation** | **No longer the bottleneck.** F1 0.906 against human annotation, and — the number that matters — **99.50% of output syllables are identical to what perfect segmentation would produce.** All remaining boundary error costs half a percent. |
+| **Silent deletion** | Zero. Every one of the 91,865 dictionary keys produces phonemes; no raw Thai character survives into the output. |
+| **The audit** | Reports exactly what the pipeline deletes. It used to fire on every ordinary sentence (tone marks are combining marks, not letters) while staying blind to whole scripts it was dropping. |
+| **Dictionary coverage** | 99.4–100% of tokens on edited text, across 25 datasets. |
+
+Not settled:
+
+| | Status |
+|---|---|
+| **Pronunciation accuracy** | **Not measured, and not measurable from inside.** It needs gold phonemes for running text, which do not exist for Thai. Composing the layers gives ≈97–98% at syllable level, but that is an estimate assembled from parts, not a measurement — do not quote it as one. |
+| **17.3% of tokens** | Read from tltk, a tool, not a human. QA'd by an independent tone checker at 97.3%, which is not the same as verified. |
+| **Colloquial text** | Dictionary coverage falls to 94.0% on social media, and the segmenter drops to F1 0.877 there against newmm's 0.917. The misses are chat spellings and loanwords a Wikipedia-built lexicon never saw. |
+| **Whether it sounds right** | **No native speaker has heard any output.** No measurement in this document addresses this, and no further measurement will. |
+
+A note on why segmentation stopped mattering. It was the headline concern
+for Thai — no spaces, so a wrong cut looks up a different word entirely.
+That intuition is right about the mechanism and wrong about the scale:
+87% of the places this segmenter disagrees with human annotation produce
+**identical phonemes**, because Thai compounds are read as the sum of
+their parts. `ควรจะเป็น` and `ควร|จะ|เป็น` sound the same. Effort spent
+pushing 0.906 toward a neural model's 0.97 would buy roughly one percent
+of pronunciation, at two orders of magnitude in speed.
+
 ## Measuring segmentation honestly
 
 The segmenter was benchmarked against PyThaiNLP `newmm` and scored F1 0.987.
