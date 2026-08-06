@@ -131,6 +131,58 @@ submission. Evaluation here uses held-out records from the train split.
   of judgeable monosyllables; every inspected disagreement is a loanword
   or an irregular function word (details below).
 
+## คำพ้องรูป: one spelling, two readings
+
+Thai heteronyms are a different axis from word boundaries, and the
+segmentation work above is orthogonal to them. เพลา is one token whether it
+means /pʰeː laː/ "time" or /pʰlaw/ "axle" — a perfect segmenter still reads
+เพลาเช้า as "axle morning". The blocker was structural: the dictionary is one
+key to one string, and `build_dict.py` resolves gold variant conflicts by
+discarding the loser, so there was nowhere to put the second reading.
+
+The frequent reading stays in the dictionary; alternates live in
+`TH_HETERONYMS` with the words that select them, and a token takes an
+alternate when a cue sits within two tokens either side.
+
+### The class is far smaller than it first looks
+
+1,109 words carry more than one recorded reading — 7.33% of corpus tokens.
+Classified (`heteronym_review.tsv`):
+
+| class | words | tokens | needs a decision? |
+|---|---:|---:|---|
+| sandhi — linking form inside a Pali/Sanskrit compound | 293 | 4.19% | No. Positional, and the dictionary carries it on the compound: ราชการ and รัฐบาล are already right |
+| tone-only | 147 | 1.03% | No. Two accepted transcriptions of one word |
+| vowel-length | 158 | 0.51% | No. Transcription convention (ท่าน as tʰan or tʰaːn) |
+| letter-names | 12 | 0.07% | No. The second reading is the word spelled out (กบ as ก-บ) |
+| **REVIEW** | **499** | **1.53%** | **Maybe** |
+
+And the REVIEW column is still mostly not semantic: its top rows are ก็
+(two accepted forms), ฟุตบอล and ซิงเกิล (loanword coda transcribed l or n),
+กรกฎาคม and มกราคม (two correct readings of a month), ปกติ and ศตวรรษ
+(careful versus casual reading of a Pali compound). Where picking wrong
+actually says a different word, the list is short and rare: เพลา at 27
+occurrences per million, ปรัก 1.26, เสลา 1.38, แหน 1.75.
+
+### Why the cues are written by hand
+
+Mining them automatically was tried. For each candidate, compounds in the
+dictionary that contain it were checked against each reading, and the other
+morpheme taken as a cue — which does find real evidence: วน is /won/ in
+วนเวียน and /wa na/ in วนอุทยาน. But it yielded 10 usable entries, all of
+them *sandhi*, and the cues it derived were often fragments rather than
+words (มิสกวัน minus สก gives มิวัน, which is not a word). A positional
+alternation is the wrong thing to drive from a cue list, so none were
+added.
+
+No corpus of running Thai carries pronunciation labels, so there is nothing
+to train on either. For a head this short, a hand-written cue list wins:
+inspectable, and correctable one line at a time.
+
+`heteronym_review.tsv` ships all 1,109 with their classification. Only the
+499 REVIEW rows need a human, and the question per row is narrow — do the
+two readings mean different things, and if so what words signal the second.
+
 ## Files
 
 | file | content |
@@ -141,6 +193,7 @@ submission. Evaluation here uses held-out records from the train split.
 | `segment.py` | TCC + maximal-matching word segmenter (Python reference; the shipping implementation is `src/lang/th/segment.rs`) |
 | `rule_g2p.py` | rule-based G2P (Python reference for `src/lang/th/rules.rs`) |
 | `blackboard_freq.tsv.gz` | word frequencies from human annotation (Blackboard Treebank, CC BY 3.0) — the segmenter's cost model |
+| `heteronym_review.tsv` | 1,109 words with more than one reading, classified; 499 need a human |
 | `word_freq.tsv.gz` | full corpus frequency table (143,676 types) |
 | `build_report.txt` | build statistics |
 | `build_rejects.tsv` | 332 words rejected by QA and why |

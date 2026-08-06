@@ -1,0 +1,1118 @@
+# Thai words with more than one recorded reading (WikiPron), most frequent first.
+# class: sandhi = linking form inside a Pali/Sanskrit compound (positional, the
+#   dictionary already carries it on the compound); tone-only / vowel-length =
+#   two accepted transcriptions of one word; letter-names = the spelling-out
+#   reading; REVIEW = none of those, so possibly a true heteronym.
+# Only REVIEW rows need a human. For each, say whether the two readings mean
+#   DIFFERENT things (write y) or are both acceptable for the same word (n),
+#   and if y, list words that signal the second reading.
+freq	word	class	ours	readings	different_meaning	cue_words
+441119	โดย	sandhi	doːj˧	doːj˧ | doː˧ja˦˥		
+212462	ก็	REVIEW	kɔː˥˩	kɔʔ˥˩ | kɔː˥˩		
+202194	เขา	tone-only	kʰaw˩˩˦	kʰaw˦˥ | kʰaw˩˩˦		
+135261	ประเทศ	sandhi	pra˨˩tʰeːt̚˥˩	pra˨˩tʰeːt̚˥˩ | pra˨˩tʰeːt̚˥˩sa˨˩		
+109194	ไทย	sandhi	tʰaj˧	tʰaj˧ | tʰaj˧ja˦˥		
+108266	หนึ่ง	tone-only	nɯŋ˨˩	nɯŋ˧ | nɯŋ˨˩		
+101455	ส	sandhi	sɔː˩˩˦	sɔː˩˩˦ | sɔː˩˩˦sɯa̯˩˩˦		
+70560	ปัจจุบัน	sandhi	pat̚˨˩tɕu˨˩ban˧	pat̚˨˩tɕu˨˩ban˧ | pat̚˨˩tɕu˨˩ban˧na˦˥		
+70434	ล	sandhi	lɔː˧	lɔː˧ | lɔː˧liŋ˧		
+69706	น	sandhi	nɔː˧	nɔː˧ | nɔː˧nuː˩˩˦		
+52992	รัฐ	sandhi	rat̚˦˥	rat̚˦˥ | rat̚˦˥tʰa˨˩		
+49038	ราช	sandhi	raːt̚˥˩	raːt̚˥˩ | raːt̚˥˩tɕʰa˦˥		
+45238	บริษัท	tone-only	bɔː˧ri˦˥sat̚˨˩	bɔː˧ri˦˥sat̚˨˩ | bɔː˧ri˧sat̚˨˩		
+42215	ได้แก่	vowel-length	daːj˥˩kɛː˨˩	daj˥˩kɛː˨˩ | daːj˥˩kɛː˨˩		
+41412	ลักษณะ	tone-only	lak̚˦˥sa˨˩naʔ˨˩	lak̚˦˥sa˧naʔ˨˩ | lak̚˦˥sa˨˩naʔ˨˩		
+40948	ณ	sandhi	naʔ˦˥	naʔ˦˥ | nɔː˧ | nɔː˧neːn˧		
+40052	ท่าน	vowel-length	tʰan˥˩	tʰan˥˩ | tʰaːn˥˩		
+39401	อ	sandhi	ʔɔː˧	ʔa˨˩ | ʔɔː˧ | ʔɔː˧ʔaːŋ˨˩		
+37132	เจ้า	vowel-length	tɕaːw˥˩	tɕaw˥˩ | tɕaːw˥˩		
+34416	อดีต	sandhi	ʔa˨˩diːt̚˨˩	ʔa˨˩diːt̚˨˩ | ʔa˨˩diːt̚˨˩ta˨˩		
+32109	ฟุตบอล	REVIEW	fut̚˦˥bɔn˧	fut̚˦˥bɔl˧ | fut̚˦˥bɔn˧		
+31795	พรรค	sandhi	pʰak̚˦˥	pʰak̚˦˥ | pʰak̚˦˥kʰa˦˥		
+31646	ภาค	sandhi	pʰaːk̚˥˩	pʰaːk̚˥˩ | pʰaːk̚˥˩kʰa˦˥		
+31251	น้ำ	vowel-length	naːm˦˥	nam˦˥ | naːm˦˥		
+31094	ชาติ	sandhi	tɕʰaːt̚˥˩	tɕʰaːt̚˥˩ | tɕʰaːt̚˥˩ti˨˩ | tɕʰaː˧ti˨˩		
+30949	ประวัติ	sandhi	pra˨˩wat̚˨˩	pra˨˩wat̚˨˩ | pra˨˩wat̚˨˩ti˨˩		
+30558	อัลบั้ม	REVIEW	ʔa˨˩la˦˥bam˥˩	ʔal˧bam˥˩ | ʔaː˧la˦˥bam˥˩		
+29302	รูป	sandhi	ruːp̚˥˩	ruːp̚˥˩ | ruːp̚˥˩pa˨˩		
+29212	ผล	sandhi	pʰon˩˩˦	pʰon˩˩˦ | pʰon˩˩˦la˦˥		
+28636	ค	sandhi	kʰɔː˧	kʰɔː˧ | kʰɔː˧kʰwaːj˧		
+27805	ปรากฏ	sandhi	praː˧kot̚˨˩	praː˧kot̚˨˩ | praː˧kot̚˨˩ta˨˩		
+27482	ก	sandhi	kɔː˧	kɔː˧ | kɔː˧kaj˨˩		
+27370	บาท	sandhi	baːt̚˨˩	baːt̚˨˩ | baːt̚˨˩tʰa˦˥		
+27152	กรกฎาคม	REVIEW	ka˨˩ra˦˥ka˨˩daː˧kʰom˧	ka˨˩rak̚˦˥ka˨˩daː˧kʰom˧ | ka˨˩ra˦˥ka˨˩daː˧kʰom˧		
+27046	มหา	tone-only	ma˦˥haː˩˩˦	ma˦˥haː˩˩˦ | ma˧haː˩˩˦		
+26774	มกราคม	REVIEW	mok̚˦˥ka˨˩raː˧kʰom˧	ma˦˥ka˨˩raː˧kʰom˧ | mok̚˦˥ka˨˩raː˧kʰom˧		
+26739	ต	sandhi	tɔː˧	tɔː˧ | tɔː˧taw˨˩		
+26538	ภาพ	sandhi	pʰaːp̚˥˩	pʰaːp̚˥˩ | pʰaːp̚˥˩pʰa˦˥		
+26496	สมาชิก	sandhi	sa˨˩maː˧tɕʰik̚˦˥	sa˨˩maː˧tɕʰik̚˦˥ | sa˨˩maː˧tɕʰik̚˦˥ka˨˩		
+26118	ง	sandhi	ŋɔː˧	ŋɔː˧ | ŋɔː˧ŋuː˧		
+24912	โด	tone-only	doː˧	doː˧ | doː˨˩		
+24651	ด	sandhi	dɔː˧	dɔː˧ | dɔː˧dek̚˨˩		
+23541	บุคคล	sandhi	buk̚˨˩kʰon˧	buk̚˨˩kʰa˦˥la˦˥ | buk̚˨˩kʰon˧ | buk̚˨˩kʰon˧la˦˥		
+23153	ช	sandhi	tɕʰɔː˧	tɕʰɔː˧ | tɕʰɔː˧tɕʰaːŋ˦˥		
+22538	นคร	REVIEW	na˦˥kʰɔːn˧	na˦˥kʰa˦˥ra˦˥ | na˦˥kʰɔːn˧		
+22199	ร	sandhi	rɔː˧	rɔː˧ | rɔː˧rɯa̯˧		
+21652	ท	sandhi	tʰɔː˧	tʰɔː˧ | tʰɔː˧tʰa˦˥haːn˩˩˦		
+21511	ฟ	sandhi	fɔː˧	fɔː˧ | fɔː˧fan˧		
+20482	ผลิต	sandhi	pʰa˨˩lit̚˨˩	pʰa˨˩lit̚˨˩ | pʰa˨˩lit̚˨˩ta˨˩		
+20289	ม	sandhi	mɔː˧	mɔː˧ | mɔː˧maː˦˥		
+19803	ว	sandhi	wɔː˧	wɔː˧ | wɔː˧wɛːn˩˩˦		
+19651	ประวัติศาสตร์	REVIEW	pra˨˩wat̚˨˩ti˨˩saːt̚˨˩	pra˨˩wat̚˨˩saːt̚˨˩ | pra˨˩wat̚˨˩ti˨˩saːt̚˨˩		
+19563	จบ	letter-names	tɕop̚˨˩	tɕop̚˨˩ | tɕɔː˧bɔː˧		
+17356	เอส	vowel-length	ʔeːs˦˥	ʔes˦˥ | ʔeːs˦˥		
+17267	อาการ	sandhi	ʔaː˧kaːn˧	ʔaː˧kaːn˧ | ʔaː˧kaː˧ra˦˥		
+16664	ซ	sandhi	sɔː˧	sɔː˧ | sɔː˧soː˥˩		
+16289	สังคม	sandhi	saŋ˩˩˦kʰom˧	saŋ˩˩˦kʰom˧ | saŋ˩˩˦kʰom˧ma˦˥		
+15716	อักษร	sandhi	ʔak̚˨˩sɔːn˩˩˦	ʔak̚˨˩sɔːn˩˩˦ | ʔak̚˨˩sɔː˩˩˦ra˦˥		
+15373	เจ้าชาย	vowel-length	tɕaːw˥˩tɕʰaːj˧	tɕaw˥˩tɕʰaːj˧ | tɕaːw˥˩tɕʰaːj˧		
+15230	สาร	sandhi	saːn˩˩˦	saːn˩˩˦ | saː˩˩˦ra˦˥		
+15022	ป	sandhi	pɔː˧	pɔː˧ | pɔː˧plaː˧		
+15007	รัฐมนตรี	tone-only	rat̚˦˥tʰa˨˩mon˧triː˧	rat̚˦˥tʰa˧mon˧triː˧ | rat̚˦˥tʰa˨˩mon˧triː˧		
+14628	กรม	sandhi	krom˧	krom˧ | krom˧ma˦˥		
+14464	ฐาน	sandhi	tʰaːn˩˩˦	tʰaːn˩˩˦ | tʰaː˩˩˦na˦˥		
+14364	สาธารณรัฐ	tone-only	saː˩˩˦tʰaː˧ra˦˥na˦˥rat̚˦˥	saː˩˩˦tʰaː˧ra˦˥na˦˥rat̚˦˥ | saː˩˩˦tʰaː˧ra˧na˦˥rat̚˦˥		
+14356	เทพ	sandhi	tʰeːp̚˥˩	tʰeːp̚˥˩ | tʰeːp̚˥˩pʰa˦˥		
+14221	รถ	REVIEW	rot̚˦˥	ra˦˥tʰa˨˩ | rot̚˦˥		
+13547	เยอรมนี	REVIEW	jɤː˧ra˦˥ma˦˥niː˧	jɤː˧ma˦˥niː˧ | jɤː˧ra˦˥ma˦˥niː˧		
+13518	ย	sandhi	jɔː˧	jɔː˧ | jɔː˧jak̚˦˥		
+13477	ชัย	sandhi	tɕʰaj˧	tɕʰaj˧ | tɕʰaj˧ja˦˥		
+13301	เจ้าหญิง	vowel-length	tɕaːw˥˩jiŋ˩˩˦	tɕaw˥˩jiŋ˩˩˦ | tɕaːw˥˩jiŋ˩˩˦		
+13271	ซิงเกิล	REVIEW	siŋ˧kɤn˥˩	siŋ˧kɤl˥˩ | siŋ˧kɤn˥˩		
+13041	ภูมิภาค	REVIEW	pʰuː˧mi˦˥pʰaːk̚˥˩	pʰuːm˧mi˦˥pʰaːk̚˥˩ | pʰuː˧mi˦˥pʰaːk̚˥˩		
+12843	บ	sandhi	bɔː˧	bɔː˧ | bɔː˧baj˧maj˦˥		
+12765	สยาม	sandhi	sa˨˩jaːm˩˩˦	sa˨˩jaːm˩˩˦ | sa˨˩jaːm˩˩˦ma˦˥		
+12737	โบราณ	sandhi	boː˧raːn˧	boː˧raːn˧ | boː˧raːn˧na˦˥		
+12668	ธรรม	sandhi	tʰam˧	tʰam˧ | tʰam˧ma˦˥		
+12564	ไท	tone-only	tʰaj˧	tʰaj˦˥ | tʰaj˧		
+12413	เทคโนโลยี	tone-only	tʰek̚˦˥noː˧loː˧jiː˧	tʰek̚˦˥noː˧loː˧jiː˥˩ | tʰek̚˦˥noː˧loː˧jiː˧		
+12335	ประธานาธิบดี	REVIEW	pra˨˩tʰaː˧naː˧tʰi˦˥bɔː˧diː˧	pra˨˩tʰaː˧naː˧tʰip̚˦˥bɔː˧diː˧ | pra˨˩tʰaː˧naː˧tʰi˦˥bɔː˧diː˧		
+12307	วิหาร	sandhi	wi˦˥haːn˩˩˦	wi˦˥haːn˩˩˦ | wi˦˥haː˩˩˦ra˦˥		
+12272	พล	sandhi	pʰon˧	pʰa˦˥la˦˥ | pʰon˧ | pʰon˧la˦˥ | pʰɔː˧lɔː˧		
+12229	เซอร์	tone-only	sɤː˥˩	sɤː˥˩ | sɤː˧		
+12167	บรม	sandhi	bɔː˧rom˧	bɔː˧rom˧ | bɔː˧rom˧ma˦˥		
+12087	นาม	sandhi	naːm˧	naːm˧ | naːm˧ma˦˥		
+12005	ทัพ	sandhi	tʰap̚˦˥	tʰap̚˦˥ | tʰap̚˦˥pʰa˦˥		
+11970	ห	sandhi	hɔː˩˩˦	hɔː˩˩˦ | hɔː˩˩˦hiːp̚˨˩		
+11140	กรณี	REVIEW	kɔː˧ra˦˥niː˧	ka˨˩ra˦˥niː˧ | kɔː˧ra˦˥niː˧		
+10929	เศรษฐกิจ	tone-only	seːt̚˨˩tʰa˨˩kit̚˨˩	seːt̚˨˩tʰa˧kit̚˨˩ | seːt̚˨˩tʰa˨˩kit̚˨˩		
+10837	คุณ	sandhi	kʰun˧	kʰun˧ | kʰun˧na˦˥		
+10624	อุปกรณ์	REVIEW	ʔu˨˩pa˨˩kɔːn˧	ʔup̚˨˩pa˨˩kɔːn˧ | ʔu˨˩pa˨˩kɔːn˧		
+10515	พืช	sandhi	pʰɯːt̚˥˩	pʰɯːt̚˥˩ | pʰɯːt̚˥˩tɕʰa˦˥		
+10471	พ	sandhi	pʰɔː˧	pʰɔː˧ | pʰɔː˧pʰaːn˧		
+10374	ปกติ	REVIEW	pok̚˨˩ka˨˩tiʔ˨˩	pa˨˩ka˨˩tiʔ˨˩ | pok̚˨˩ka˨˩tiʔ˨˩		
+10100	ศตวรรษ	REVIEW	sa˨˩ta˨˩wat̚˦˥	sat̚˨˩ta˨˩wat̚˦˥ | sa˨˩ta˨˩wat̚˦˥		
+9934	สัปดาห์	REVIEW	sap̚˨˩daː˧	sap̚˨˩daː˧ | sap̚˨˩pa˨˩daː˧		
+9780	สวน	REVIEW	suan˩˩˦	sa˨˩wa˦˥na˦˥ | sua̯n˩˩˦		
+9682	รัฐธรรมนูญ	REVIEW	rat̚˦˥tʰa˨˩tʰam˧ma˦˥nuːn˧	rat̚˦˥tʰam˧ma˦˥nuːn˧ | rat̚˦˥tʰa˨˩tʰam˧ma˦˥nuːn˧		
+9682	ชน	sandhi	tɕʰon˧	tɕʰon˧ | tɕʰon˧na˦˥		
+9584	สม	sandhi	som˩˩˦	sa˨˩ma˦˥ | som˩˩˦ | som˩˩˦ma˦˥		
+9335	โอรส	REVIEW	ʔoː˧rot̚˦˥	ʔoː˧ra˦˥sa˨˩ | ʔoː˧rot̚˦˥		
+8821	บุญ	sandhi	bun˧	bun˧ | bun˧ja˦˥		
+8628	อุตสาหกรรม	sandhi	ʔut̚˨˩saː˩˩˦ha˨˩kam˧	ʔut̚˨˩saː˩˩˦ha˨˩kam˧ | ʔut̚˨˩saː˩˩˦ha˨˩kam˧ma˦˥		
+8553	ฉัน	tone-only	tɕʰan˩˩˦	tɕʰan˦˥ | tɕʰan˩˩˦		
+8409	อากาศ	sandhi	ʔaː˧kaːt̚˨˩	ʔaː˧kaːt̚˨˩ | ʔaː˧kaːt̚˨˩sa˨˩		
+8347	คริสต์	REVIEW	kʰrit̚˦˥	kʰris˦˥ | kʰrit̚˦˥		
+8202	ประการ	sandhi	pra˨˩kaːn˧	pra˨˩kaːn˧ | pra˨˩kaː˧ra˦˥		
+8164	ธ	sandhi	tʰɔː˧	tʰaʔ˦˥ | tʰɔː˧ | tʰɔː˧tʰoŋ˧		
+8058	เอฟ	REVIEW	ʔeːf˨˩	ʔef˦˥ | ʔep̚˦˥ | ʔeːf˦˥ | ʔeːp̚˦˥		
+7977	คอมมิวนิสต์	REVIEW	kʰɔm˧miw˧nit̚˦˥	kʰɔm˧miw˧nis˦˥ | kʰɔm˧miw˧nit̚˦˥		
+7665	ภรรยา	REVIEW	pʰan˧jaː˧	pʰan˧jaː˧ | pʰan˧ra˦˥jaː˧		
+7419	คอมพิวเตอร์	tone-only	kʰɔm˧pʰiw˧tɤː˥˩	kʰɔm˧pʰiw˦˥tɤː˥˩ | kʰɔm˧pʰiw˧tɤː˥˩		
+7378	ประชาธิปไตย	REVIEW	pra˨˩tɕʰaː˧tʰip̚˦˥pa˨˩taj˧	pra˨˩tɕʰaː˧tʰip̚˦˥pa˨˩taj˧ | pra˨˩tɕʰaː˧tʰi˦˥pa˨˩taj˧		
+7004	สถาน	sandhi	sa˨˩tʰaːn˩˩˦	sa˨˩tʰaːn˩˩˦ | sa˨˩tʰaːn˩˩˦na˦˥ | sa˨˩tʰaː˩˩˦na˦˥		
+6852	รัฐสภา	REVIEW	rat̚˦˥tʰa˨˩sa˨˩pʰaː˧	rat̚˦˥sa˨˩pʰaː˧ | rat̚˦˥tʰa˨˩sa˨˩pʰaː˧		
+6721	ราม	sandhi	raːm˧	raːm˧ | raːm˧ma˦˥ | raː˧ma˦˥		
+6583	ประสาท	REVIEW	pra˨˩saːt̚˨˩	pra˨˩saːt̚˨˩ | pra˨˩saː˩˩˦tʰa˦˥		
+6560	เอช	vowel-length	ʔeːtɕʰ˦˥	ʔetɕʰ˦˥ | ʔeːtɕʰ˦˥		
+6465	อ่อน	vowel-length	ʔɔːn˨˩	ʔɔn˨˩ | ʔɔːn˨˩		
+6445	ศ	sandhi	sɔː˩˩˦	sɔː˩˩˦ | sɔː˩˩˦saː˩˩˦laː˧		
+6371	เจ้าของ	vowel-length	tɕaːw˥˩kʰɔːŋ˩˩˦	tɕaw˥˩kʰɔːŋ˩˩˦ | tɕaːw˥˩kʰɔːŋ˩˩˦		
+6340	มอน	vowel-length	mɔːn˧	mɔn˧ | mɔːn˧		
+6319	สถานการณ์	REVIEW	sa˨˩tʰaː˩˩˦na˦˥kaːn˧	sa˨˩tʰaːn˩˩˦na˦˥kaːn˧ | sa˨˩tʰaː˩˩˦na˦˥kaːn˧		
+6256	ประสูติ	REVIEW	pra˨˩suːt̚˨˩	pra˨˩suːt̚˨˩ | pra˨˩suː˩˩˦ti˨˩		
+6255	คอนเสิร์ต	vowel-length	kʰɔːn˧sɤːt̚˨˩	kʰɔn˧sɤːt̚˨˩ | kʰɔːn˧sɤːt̚˨˩		
+6201	คุณสมบัติ	REVIEW	kʰun˧na˦˥som˩˩˦bat̚˨˩	kʰun˧na˦˥som˩˩˦bat̚˨˩ | kʰun˧som˩˩˦bat̚˨˩		
+6143	จิต	sandhi	tɕit̚˨˩	tɕit̚˨˩ | tɕit̚˨˩ta˨˩		
+6129	สตรี	REVIEW	sa˨˩triː˧	sat̚˨˩triː˧ | sa˨˩triː˧		
+6125	เอก	sandhi	ʔeːk̚˨˩	ʔeːk̚˨˩ | ʔeːk̚˨˩ka˨˩ | ʔeː˧ka˨˩		
+6049	แอล	vowel-length	ʔɛːl˧	ʔɛl˧ | ʔɛːl˧		
+6033	เซนติเมตร	tone-only	sen˧ti˨˩meːt̚˦˥	sen˧ti˧meːt̚˦˥ | sen˧ti˨˩meːt̚˦˥		
+5967	สากล	sandhi	saː˩˩˦kon˧	saː˩˩˦kon˧ | saː˩˩˦kon˧la˦˥		
+5901	เพชร	sandhi	pʰet̚˦˥	pʰet̚˦˥ | pʰet̚˦˥tɕʰa˦˥		
+5864	จ	sandhi	tɕɔː˧	tɕaʔ˨˩ | tɕɔː˧ | tɕɔː˧tɕaːn˧		
+5855	รส	sandhi	rot̚˦˥	rot̚˦˥ | rot̚˦˥sa˨˩		
+5658	มงคล	sandhi	moŋ˧kʰon˧	moŋ˧kʰon˧ | moŋ˧kʰon˧la˦˥		
+5641	ชม	letter-names	tɕʰom˧	tɕʰom˧ | tɕʰɔː˧mɔː˧		
+5624	การปฏิวัติ	tone-only	kaːn˧pa˨˩ti˨˩wat̚˦˥	kaːn˧pa˧ti˧wat̚˦˥ | kaːn˧pa˨˩ti˧wat̚˦˥ | kaːn˧pa˨˩ti˨˩wat̚˦˥		
+5577	อุโบสถ	sandhi	ʔu˨˩boː˧sot̚˨˩	ʔu˨˩boː˧sot̚˨˩ | ʔu˨˩boː˧sot̚˨˩tʰa˨˩		
+5506	วอลเลย์บอล	REVIEW	wɔl˧leː˥˩bɔl˧	wɔl˧leː˥˩bɔl˧ | wɔn˧leː˥˩bɔn˧		
+5462	คณะรัฐมนตรี	tone-only	kʰa˦˥na˦˥rat̚˦˥tʰa˨˩mon˧triː˧	kʰa˦˥na˦˥rat̚˦˥tʰa˨˩mon˧triː˧ | kʰa˧na˦˥rat̚˦˥tʰa˧mon˧triː˧		
+5388	ปารีส	REVIEW	paː˧riːt̚˥˩	paː˧riːs˥˩ | paː˧riːt̚˥˩		
+5375	นิวยอร์ก	tone-only	niw˧jɔːk̚˦˥	niw˧jɔːk̚˦˥ | niw˧jɔːk̚˨˩		
+5321	บอล	REVIEW	bɔn˧	bɔl˧ | bɔn˧		
+5266	ไวรัส	REVIEW	waj˧rat̚˦˥	waj˧ras˦˥ | waj˧rat̚˦˥		
+5240	อวกาศ	sandhi	ʔa˨˩wa˦˥kaːt̚˨˩	ʔa˨˩wa˦˥kaːt̚˨˩ | ʔa˨˩wa˦˥kaːt̚˨˩sa˨˩		
+5212	ภูมิ	sandhi	pʰuː˧mi˦˥	pʰuːm˧ | pʰuːm˧mi˦˥ | pʰuː˧mi˦˥		
+5189	อิสราเอล	REVIEW	ʔis˨˩raː˧ʔeːl˧	ʔis˨˩raː˧ʔeːl˧ | ʔit̚˨˩sa˨˩raː˧ʔew˧ | ʔit̚˨˩sa˨˩raː˧ʔeːl˧ | ʔit̚˨˩sa˨˩raː˧ʔeːw˧		
+4805	โฆษณา	REVIEW	kʰoː˧sa˨˩naː˧	kʰoːt̚˥˩sa˨˩naː˧ | kʰoːt̚˥˩sa˨˩naː˩˩˦ | kʰoː˧sa˨˩naː˧ | kʰoː˧sa˨˩naː˩˩˦		
+4803	ข้าว	vowel-length	kʰaːw˥˩	kʰaw˥˩ | kʰaːw˥˩		
+4758	บราซิล	REVIEW	braː˧sil˧	braː˧sil˧ | braː˧siw˧		
+4739	ผิว	REVIEW	pʰiw˩˩˦	pʰiw˩˩˦ | pʰi˨˩waʔ˦˥		
+4738	คณิตศาสตร์	REVIEW	kʰa˦˥nit̚˦˥ta˨˩saːt̚˨˩	kʰa˦˥nit̚˦˥saːt̚˨˩ | kʰa˦˥nit̚˦˥ta˨˩saːt̚˨˩		
+4689	ช่าง	vowel-length	tɕʰaŋ˥˩	tɕʰaŋ˥˩ | tɕʰaːŋ˥˩		
+4674	มัธยมศึกษา	REVIEW	mat̚˦˥tʰa˦˥jom˧sɯk̚˨˩saː˩˩˦	mat̚˦˥tʰa˦˥jom˧ma˦˥sɯk̚˨˩saː˩˩˦ | mat̚˦˥tʰa˦˥jom˧sɯk̚˨˩saː˩˩˦		
+4627	แหลม	vowel-length	lɛːm˩˩˦	lɛm˩˩˦ | lɛːm˩˩˦		
+4622	สระ	REVIEW	saʔ˨˩	saʔ˨˩ | sa˨˩raʔ˦˥ | sa˨˩raʔ˨˩		
+4604	สุข	sandhi	suk̚˨˩	suk̚˨˩ | suk̚˨˩kʰa˨˩		
+4589	พุทธ	sandhi	pʰut̚˦˥	pʰut̚˦˥ | pʰut̚˦˥tʰa˦˥		
+4571	การ์ด	tone-only	kaːt̚˦˥	kaːt̚˦˥ | kaːt̚˨˩		
+4445	เจรจา	REVIEW	tɕeː˧ra˦˥tɕaː˧	tɕeːn˧ra˦˥tɕaː˧ | tɕeː˧ra˦˥tɕaː˧		
+4426	ศาสตราจารย์	REVIEW	saːt̚˨˩traː˧tɕaːn˧	saːt̚˨˩sa˨˩traː˧tɕaːn˧ | saːt̚˨˩traː˧tɕaːn˧		
+4416	กาย	sandhi	kaːj˧	kaːj˧ | kaːj˧ja˦˥		
+4397	สุวรรณ	sandhi	su˨˩wan˧	su˨˩wan˧ | su˨˩wan˧na˦˥		
+4320	ตรัส	sandhi	trat̚˨˩	trat̚˨˩ | trat̚˨˩sa˨˩		
+4313	กรรม	sandhi	kam˧	kam˧ | kam˧ma˦˥		
+4284	ถาวร	sandhi	tʰaː˩˩˦wɔːn˧	tʰaː˩˩˦wɔːn˧ | tʰaː˩˩˦wɔː˧ra˦˥		
+4276	มูลนิธิ	REVIEW	muːn˧ni˦˥tʰiʔ˦˥	muːn˧la˦˥ni˦˥tʰiʔ˦˥ | muːn˧ni˦˥tʰiʔ˦˥		
+4254	เวท	REVIEW	weːt̚˥˩	weːt̚˥˩ | weː˧tʰa˦˥		
+4253	ปรัชญา	REVIEW	prat̚˨˩jaː˧	prat̚˨˩jaː˧ | prat̚˨˩tɕʰa˦˥jaː˧		
+4236	ประถมศึกษา	REVIEW	pra˨˩tʰom˩˩˦sɯk̚˨˩saː˩˩˦	pra˨˩tʰom˩˩˦ma˦˥sɯk̚˨˩saː˩˩˦ | pra˨˩tʰom˩˩˦sɯk̚˨˩saː˩˩˦		
+4151	สุโขทัย	REVIEW	su˨˩kʰoː˩˩˦tʰaj˧	suk̚˨˩kʰoː˩˩˦tʰaj˧ | su˨˩kʰoː˩˩˦tʰaj˧		
+4146	เทศ	sandhi	tʰeːt̚˥˩	tʰeːt̚˥˩ | tʰeːt̚˥˩sa˨˩		
+4135	นาค	sandhi	naːk̚˥˩	naːk̚˥˩ | naːk̚˥˩kʰa˦˥		
+4086	ปัจจัย	sandhi	pat̚˨˩tɕaj˧	pat̚˨˩tɕaj˧ | pat̚˨˩tɕaj˧ja˦˥		
+4028	เกียรติ	sandhi	kiat̚˨˩	kia̯t̚˨˩ | kia̯t̚˨˩ti˨˩		
+4015	วิญญาณ	sandhi	win˧jaːn˧	win˧jaːn˧ | win˧jaːn˧na˦˥ | win˧jaː˧na˦˥		
+4006	ปรากฏการณ์	REVIEW	praː˧kot̚˨˩kaːn˧	praː˧kot̚˨˩kaːn˧ | praː˧kot̚˨˩ta˨˩kaːn˧		
+3931	จักรวาล	sandhi	tɕak̚˨˩kra˨˩waːn˧	tɕak̚˨˩kra˨˩waːn˧ | tɕak̚˨˩kra˨˩waː˧la˦˥		
+3891	แบน	vowel-length	bɛːn˧	bɛn˧ | bɛːn˧		
+3873	ฮ	sandhi	hɔː˧	hɔː˧ | hɔː˧nok̚˦˥huːk̚˥˩		
+3838	สามัญ	sandhi	saː˩˩˦man˧	saː˩˩˦man˧ | saː˩˩˦man˧ja˦˥		
+3837	ฯลฯ	REVIEW		laʔ˦˥ | la˦˥tʰɯŋ˩˩˦ | lɛʔ˦˥ʔɯːn˨˩ʔɯːn˨˩		
+3834	ญ	sandhi	jɔː˧	jɔː˧ | jɔː˧jiŋ˩˩˦		
+3830	มิตร	sandhi	mit̚˦˥	mit̚˦˥ | mit̚˦˥tra˨˩		
+3808	ประมุข	sandhi	pra˨˩muk̚˦˥	pra˨˩muk̚˦˥ | pra˨˩muk̚˦˥kʰa˨˩		
+3798	จักร	sandhi	tɕak̚˨˩	tɕak̚˨˩ | tɕak̚˨˩kra˨˩		
+3769	ดิจิทัล	tone-only	di˦˥tɕi˨˩tʰal˥˩	di˦˥tɕi˨˩tʰal˥˩ | di˨˩tɕi˨˩tʰal˥˩		
+3736	แก๊ส	REVIEW	kɛːt̚˦˥	kɛːs˦˥ | kɛːt̚˦˥		
+3720	มุข	sandhi	muk̚˦˥	muk̚˦˥ | muk̚˦˥kʰa˨˩		
+3644	ยาม	sandhi	jaːm˧	jaːm˧ | jaː˧ma˦˥		
+3624	พรหม	sandhi	pʰrom˧	pʰrom˧ | pʰrom˧ma˦˥		
+3546	น้ำตาล	vowel-length	naːm˦˥taːn˧	nam˦˥taːn˧ | naːm˦˥taːn˧		
+3525	ไมล์	vowel-length	maj˧	maj˧ | maːj˧		
+3488	กาล	sandhi	kaːn˧	kaːn˧ | kaː˧la˦˥		
+3459	เอ็กซ์	REVIEW	ʔek̚˦˥	ʔek̚s˦˥ | ʔek̚˦˥		
+3420	สปีชีส์	REVIEW	sa˨˩piː˧tɕʰiː˥˩	sa˨˩piː˧tɕʰiːs˥˩ | sa˨˩piː˧tɕʰiː˥˩		
+3416	โซล	REVIEW	soːl˧	soːl˧ | soːn˧		
+3385	บวร	letter-names	bɔː˧wɔːn˧	bɔː˧wɔːn˧ | bɔː˧wɔː˧ra˦˥		
+3360	สังคมนิยม	REVIEW	saŋ˩˩˦kʰom˧ni˦˥jom˧	saŋ˩˩˦kʰom˧ma˦˥ni˦˥jom˧ | saŋ˩˩˦kʰom˧ni˦˥jom˧		
+3331	เน็ต	tone-only	net̚˨˩	net̚˦˥ | net̚˨˩		
+3277	ชวน	REVIEW	tɕʰuan˧	tɕʰa˦˥wa˦˥na˦˥ | tɕʰua̯n˧		
+3226	เช้า	vowel-length	tɕʰaw˦˥	tɕʰaw˦˥ | tɕʰaːw˦˥		
+3225	ซอฟต์แวร์	REVIEW	sɔːp̚˦˥wɛː˧	sɔːf˦˥wɛː˧ | sɔːp̚˦˥wɛː˧		
+3194	เลก	vowel-length	leːk̚˥˩	lek̚˦˥ | leːk̚˥˩		
+3183	ทาส	sandhi	tʰaːt̚˥˩	tʰaːt̚˥˩ | tʰaːt̚˥˩sa˨˩		
+3168	แรม	vowel-length	rɛːm˧	rɛm˧ | rɛːm˧		
+3159	บริโภค	sandhi	bɔː˧ri˦˥pʰoːk̚˥˩	bɔː˧ri˦˥pʰoːk̚˥˩ | bɔː˧ri˦˥pʰoːk̚˥˩kʰa˦˥		
+3155	ทุน	sandhi	tʰun˧	tʰun˧ | tʰun˧na˦˥		
+3143	เบลเยียม	REVIEW	beːl˧jiam˥˩	bew˧jia̯m˥˩ | beːl˧jia̯m˥˩		
+3129	อธิบดี	REVIEW	ʔa˨˩tʰi˦˥bɔː˧diː˧	ʔa˨˩tʰip̚˦˥bɔː˧diː˧ | ʔa˨˩tʰi˦˥bɔː˧diː˧		
+3081	บรรยาย	REVIEW	ban˧jaːj˧	ban˧jaːj˧ | ban˧ra˦˥jaːj˧		
+3076	อุบัติเหตุ	REVIEW	ʔu˨˩bat̚˨˩ti˨˩heːt̚˨˩	ʔu˨˩bat̚˨˩heːt̚˨˩ | ʔu˨˩bat̚˨˩ti˨˩heːt̚˨˩		
+3073	วรรณ	sandhi	wan˧	wan˧ | wan˧na˦˥		
+3034	เฮนรี	tone-only	heː˧na˦˥riː˧	heːn˧riː˥˩ | heːn˧riː˧		
+3027	ไม้ตาย	vowel-length	maːj˦˥taːj˧	maj˦˥taːj˧ | maːj˦˥taːj˧		
+2913	นักประวัติศาสตร์	REVIEW	nak̚˦˥pra˨˩wat̚˨˩ti˨˩saːt̚˨˩	nak̚˦˥pra˨˩wat̚˨˩saːt̚˨˩ | nak̚˦˥pra˨˩wat̚˨˩ti˨˩saːt̚˨˩		
+2900	ยืม	tone-only	jɯːm˧	jɯːm˦˥ | jɯːm˧		
+2895	สมการ	REVIEW	sa˨˩ma˦˥kaːn˧	sa˨˩ma˦˥kaːn˧ | som˩˩˦ma˦˥kaːn˧		
+2889	กรีซ	tone-only	kriːs˨˩	kriːs˦˥ | kriːs˨˩		
+2872	พิชิต	sandhi	pʰi˦˥tɕʰit̚˦˥	pʰi˦˥tɕʰit̚˦˥ | pʰi˦˥tɕʰit̚˦˥ta˨˩		
+2862	ญาติ	sandhi	jaːt̚˥˩	jaːt̚˥˩ | jaːt̚˥˩ti˨˩ | jaː˧ti˨˩		
+2860	โทร	sandhi	tʰoː˧	tʰoː˧ | tʰoː˧ra˦˥		
+2844	เอกซ์	REVIEW	ʔek̚˦˥	ʔek̚s˦˥ | ʔek̚˦˥		
+2823	อาน	sandhi	ʔaːn˧	ʔaːn˧ | ʔaː˧na˦˥		
+2785	ตง	letter-names	toŋ˧	toŋ˧ | tɔː˧ŋɔː˧		
+2779	เวช	sandhi	weːt̚˥˩	weːt̚˥˩ | weːt̚˥˩tɕʰa˦˥		
+2777	ข	sandhi	kʰɔː˩˩˦	kʰɔː˩˩˦ | kʰɔː˩˩˦kʰaj˨˩		
+2774	ษ	sandhi	sɔː˩˩˦	sɔː˩˩˦ | sɔː˩˩˦rɯː˧siː˩˩˦		
+2772	กล	sandhi	kon˧	kon˧ | kon˧la˦˥		
+2766	ฏ	sandhi	tɔː˧	tɔː˧ | tɔː˧pa˨˩tak̚˨˩		
+2753	ทาน	sandhi	tʰaːn˧	tʰaːn˧ | tʰaːn˧na˦˥ | tʰaː˧na˦˥		
+2751	ปฐม	sandhi	pa˨˩tʰom˩˩˦	pa˨˩tʰom˩˩˦ | pa˨˩tʰom˩˩˦ma˦˥		
+2741	เกษตร	sandhi	ka˨˩seːt̚˨˩	ka˨˩seːt̚˨˩ | ka˨˩seːt̚˨˩tra˨˩		
+2705	อาสน	REVIEW	ʔaːt̚˨˩sa˨˩na˦˥	ʔaːt̚˨˩sa˨˩na˦˥ | ʔaː˧son˩˩˦		
+2699	ญาณ	sandhi	jaːn˧	jaːn˧ | jaːn˧na˦˥ | jaː˧na˦˥		
+2679	อุดม	sandhi	ʔu˨˩dom˧	ʔu˨˩dom˧ | ʔu˨˩dom˧ma˦˥		
+2669	บริติช	tone-only	bɔː˧ri˦˥tit̚˨˩	bri˦˥tit̚˦˥ | bri˨˩tit̚˦˥		
+2638	พิษ	sandhi	pʰit̚˦˥	pʰit̚˦˥ | pʰit̚˦˥sa˨˩		
+2628	โทษ	sandhi	tʰoːt̚˥˩	tʰoːt̚˥˩ | tʰoːt̚˥˩sa˨˩		
+2599	มาร	sandhi	maːn˧	maːn˧ | maːn˧ra˦˥ | maː˧ra˦˥		
+2588	แพทยศาสตร์	REVIEW	pʰɛːt̚˥˩tʰa˦˥ja˦˥saːt̚˨˩	pʰɛːt̚˥˩saːt̚˨˩ | pʰɛːt̚˥˩tʰa˦˥ja˦˥saːt̚˨˩		
+2557	ขอนแก่น	vowel-length	kʰɔːn˩˩˦kɛn˨˩	kʰɔn˩˩˦kɛn˨˩ | kʰɔːn˩˩˦kɛn˨˩		
+2549	บาน	sandhi	baːn˧	baːn˧ | baːn˧na˦˥		
+2543	อาชญากรรม	REVIEW	ʔaːt̚˨˩jaː˧kam˧	ʔaːt̚˨˩jaː˧kam˧ | ʔaːt̚˨˩tɕʰa˦˥jaː˧kam˧		
+2518	กระดาษ	tone-only	kra˨˩daːt̚˨˩	kra˧daːt̚˨˩ | kra˨˩daːt̚˨˩		
+2504	วน	REVIEW	won˧	wa˦˥na˦˥ | won˧		
+2494	อนาคต	sandhi	ʔa˨˩naː˧kʰot̚˦˥	ʔa˨˩naː˧kʰot̚˦˥ | ʔa˨˩naː˧kʰot̚˦˥ta˨˩		
+2477	กุมาร	sandhi	ku˨˩maːn˧	ku˨˩maːn˧ | ku˨˩maː˧ra˦˥		
+2467	ทักษิณ	sandhi	tʰak̚˦˥sin˩˩˦	tʰak̚˦˥sin˩˩˦ | tʰak̚˦˥si˨˩na˦˥		
+2456	มณี	tone-only	ma˦˥niː˧	ma˦˥niː˧ | ma˧niː˧		
+2420	โบราณสถาน	REVIEW	boː˧raːn˧sa˨˩tʰaːn˩˩˦	boː˧raːn˧na˦˥sa˨˩tʰaːn˩˩˦ | boː˧raːn˧sa˨˩tʰaːn˩˩˦		
+2414	อุดมศึกษา	REVIEW	ʔu˨˩dom˧sɯk̚˨˩saː˩˩˦	ʔu˨˩dom˧ma˦˥sɯk̚˨˩saː˩˩˦ | ʔu˨˩dom˧sɯk̚˨˩saː˩˩˦		
+2397	มัสยิด	REVIEW	mat̚˦˥sa˨˩jit̚˦˥	mas˦˥jit̚˦˥ | mat̚˦˥sa˨˩jit̚˦˥		
+2380	วิศวกรรม	sandhi	wit̚˦˥sa˨˩wa˦˥kam˧	wit̚˦˥sa˨˩wa˦˥kam˧ | wit̚˦˥sa˨˩wa˦˥kam˧ma˦˥		
+2379	รัฐประหาร	REVIEW	rat̚˦˥tʰa˨˩pra˨˩haːn˩˩˦	rat̚˦˥pra˨˩haːn˩˩˦ | rat̚˦˥tʰa˨˩pra˨˩haːn˩˩˦		
+2369	ฟิล์ม	vowel-length	fiːm˧	fim˧ | fiːm˧		
+2338	นนทบุรี	REVIEW	non˧tʰa˦˥bu˨˩riː˧	non˧bu˨˩riː˧ | non˧tʰa˦˥bu˨˩riː˧		
+2336	ปฏิวัติ	tone-only	pa˨˩ti˨˩wat̚˦˥	pa˧ti˧wat̚˦˥ | pa˨˩ti˧wat̚˦˥ | pa˨˩ti˨˩wat̚˦˥		
+2332	กุฏิ	sandhi	ku˨˩tiʔ˨˩	kut̚˨˩ | kut̚˨˩tiʔ˨˩ | ku˨˩tiʔ˨˩		
+2321	สก	letter-names	sok̚˨˩	sa˨˩ka˨˩ | sok̚˨˩ | sɔː˩˩˦kɔː˧		
+2302	ออกซิเจน	vowel-length	ʔɔk̚˦˥si˦˥tɕeːn˧	ʔɔk̚˦˥si˦˥tɕen˥˩ | ʔɔk̚˦˥si˦˥tɕeːn˧		
+2302	พยาบาล	tone-only	pʰa˦˥jaː˧baːn˧	pʰa˦˥jaː˧baːn˧ | pʰa˧jaː˧baːn˧		
+2292	นว	letter-names	na˦˥waʔ˦˥	na˦˥wa˦˥ | nɔː˧wɔː˧		
+2224	เพชรบุรี	REVIEW	pʰet̚˦˥tɕʰa˦˥bu˨˩riː˧	pʰet̚˦˥bu˨˩riː˧ | pʰet̚˦˥tɕʰa˦˥bu˨˩riː˧		
+2197	ไอดอล	REVIEW	ʔaj˧dɔl˥˩	ʔaj˧dɔl˥˩ | ʔaj˧dɔn˥˩		
+2186	ราชบุรี	REVIEW	raːt̚˥˩tɕʰa˦˥bu˨˩riː˧	raːt̚˥˩bu˨˩riː˧ | raːt̚˥˩tɕʰa˦˥bu˨˩riː˧		
+2180	นม	letter-names	nom˧	na˦˥ma˦˥ | nom˧ | nɔː˧mɔː˧		
+2162	ฝรั่ง	tone-only	fa˨˩raŋ˨˩	fa˦˥raŋ˨˩ | fa˨˩raŋ˨˩		
+2157	ปฏิรูป	REVIEW	pa˨˩ti˨˩ruːp̚˥˩	pa˨˩ti˨˩ruːp̚˥˩ | pa˨˩ti˨˩ruː˧pa˨˩		
+2157	บัส	REVIEW	bas˦˥	bas˦˥ | bat̚˦˥		
+2154	โบราณคดี	REVIEW	boː˧raːn˧kʰa˦˥diː˧	boː˧raːn˧kʰa˦˥diː˧ | boː˧raːn˧na˦˥kʰa˦˥diː˧		
+2145	ผิดปกติ	REVIEW	pʰit̚˨˩pok̚˨˩ka˨˩tiʔ˨˩	pʰit̚˨˩pa˨˩ka˨˩tiʔ˨˩ | pʰit̚˨˩pok̚˨˩ka˨˩tiʔ˨˩		
+2132	อุปสรรค	REVIEW	ʔu˨˩pa˨˩sak̚˨˩	ʔup̚˨˩pa˨˩sak̚˨˩ | ʔu˨˩pa˨˩sak̚˨˩		
+2129	ฉัตร	sandhi	tɕʰat̚˨˩	tɕʰat̚˨˩ | tɕʰat̚˨˩tra˨˩		
+2103	ประทาน	sandhi	pra˨˩tʰaːn˧	pra˨˩tʰaːn˧ | pra˨˩tʰaːn˧na˦˥		
+2097	จันทบุรี	REVIEW	tɕan˧tʰa˦˥bu˨˩riː˧	tɕan˧bu˨˩riː˧ | tɕan˧tʰa˦˥bu˨˩riː˧		
+2076	ปทุม	sandhi	pa˨˩tʰum˧	pa˨˩tʰum˧ | pa˨˩tʰum˧ma˦˥		
+2050	ดุสิต	sandhi	du˨˩sit̚˨˩	du˨˩sit̚˨˩ | du˨˩sit̚˨˩ta˨˩ | du˨˩si˨˩ta˨˩		
+2033	สุก	sandhi	suk̚˨˩	suk̚˨˩ | suk̚˨˩ka˨˩		
+2025	สมดุล	REVIEW	som˩˩˦dun˧	sa˨˩ma˦˥dun˧ | som˩˩˦dun˧		
+2020	ฎ	sandhi	dɔː˧	dɔː˧ | dɔː˧tɕʰa˦˥daː˧		
+2012	อดุลยเดช	REVIEW	ʔa˨˩dun˧ja˦˥deːt̚˨˩	ʔa˨˩dun˧ja˦˥deːt̚˨˩ | ʔa˨˩dun˧la˦˥ja˦˥deːt̚˨˩		
+1998	ธน	sandhi	tʰon˧	tʰa˦˥na˦˥ | tʰon˧ | tʰon˧na˦˥		
+1990	สาธารณสุข	sandhi	saː˩˩˦tʰaː˧ra˦˥na˦˥suk̚˨˩	saː˩˩˦tʰaː˧ra˦˥na˦˥suk̚˨˩ | saː˩˩˦tʰaː˧ra˦˥na˦˥suk̚˨˩kʰa˨˩		
+1982	บก	letter-names	bok̚˨˩	bok̚˨˩ | bɔː˧kɔː˧		
+1981	อังคาร	sandhi	ʔaŋ˧kʰaːn˧	ʔaŋ˧kʰaːn˧ | ʔaŋ˧kʰaː˧ra˦˥		
+1981	ภูมิอากาศ	REVIEW	pʰuː˧mi˦˥ʔaː˧kaːt̚˨˩	pʰuːm˧mi˦˥ʔaː˧kaːt̚˨˩ | pʰuː˧mi˦˥ʔaː˧kaːt̚˨˩		
+1972	อัฟกานิสถาน	REVIEW	ʔaf˦˥kaː˧nis˦˥tʰaːn˩˩˦	ʔaf˦˥kaː˧nis˦˥tʰaːn˩˩˦ | ʔaf˦˥kaː˧nit̚˦˥sa˨˩tʰaːn˩˩˦		
+1965	วิกฤต	sandhi	wi˦˥krit̚˨˩	wi˦˥krit̚˨˩ | wi˦˥krit̚˨˩ta˨˩		
+1953	ดุล	sandhi	dun˧	dun˧ | dun˧la˦˥		
+1946	พฤหัสบดี	REVIEW	pʰa˦˥rɯ˦˥hat̚˨˩sa˨˩bɔː˧diː˧	pʰa˦˥rɯ˦˥hat̚˨˩sa˨˩bɔː˧diː˧ | pʰrɯ˦˥hat̚˨˩sa˨˩bɔː˧diː˧		
+1935	มน	REVIEW	mon˧	ma˦˥na˦˥ | mon˧		
+1932	ฮีบรู	REVIEW	hiː˧bruː˧	hiːp̚˦˥bruː˧ | hiː˧bruː˧		
+1928	อุป	REVIEW	ʔup̚˨˩	ʔup̚˨˩pa˨˩ | ʔu˨˩pa˨˩		
+1915	มอสโก	REVIEW	mɔːs˦˥koː˧	mɔːs˦˥koː˧ | mɔːt̚˦˥koː˧		
+1911	อภัย	sandhi	ʔa˨˩pʰaj˧	ʔa˨˩pʰaj˧ | ʔa˨˩pʰaj˧ja˦˥		
+1908	มาดริด	REVIEW	maː˧drit̚˨˩	maːt̚˦˥drit̚˨˩ | maː˧drit̚˨˩		
+1893	พุธ	sandhi	pʰut̚˦˥	pʰut̚˦˥ | pʰut̚˦˥tʰa˦˥		
+1889	ก๊าซ	REVIEW	kaːt̚˦˥	kaːs˦˥ | kaːt̚˦˥		
+1884	เมรุ	REVIEW	meːn˧	meːn˧ | meː˧ru˦˥		
+1882	กราฟ	REVIEW	kraːp̚˦˥	kraːf˦˥ | kraːp̚˦˥		
+1879	ไหม	tone-only	maj˩˩˦	maj˦˥ | maj˩˩˦		
+1876	ครึ่งหนึ่ง	tone-only	kʰrɯŋ˥˩nɯŋ˨˩	kʰrɯŋ˥˩nɯŋ˧ | kʰrɯŋ˥˩nɯŋ˨˩		
+1856	เชฟ	REVIEW	tɕʰeːp̚˦˥	tɕʰeːf˦˥ | tɕʰeːp̚˦˥		
+1850	น้ำตก	vowel-length	naːm˦˥tok̚˨˩	nam˦˥tok̚˨˩ | naːm˦˥tok̚˨˩		
+1825	มุฮัมมัด	tone-only	mu˦˥ham˧mat̚˦˥	mu˦˥ham˧mat̚˦˥ | mu˦˥ham˧mat̚˨˩		
+1825	ชล	sandhi	tɕʰon˧	tɕʰon˧ | tɕʰon˧la˦˥		
+1817	โพสต์	REVIEW	pʰoːt̚˥˩	pʰoːs˦˥ | pʰoːt̚˦˥		
+1806	นรก	sandhi	na˦˥rok̚˦˥	na˦˥rok̚˦˥ | na˦˥rok̚˦˥ka˨˩		
+1798	เสถียร	sandhi	sa˨˩tʰian˩˩˦	sa˨˩tʰia̯n˩˩˦ | sa˨˩tʰia̯n˩˩˦ra˦˥		
+1770	สมุทร	sandhi	sa˨˩mut̚˨˩	sa˨˩mut̚˨˩ | sa˨˩mut̚˨˩tʰra˦˥		
+1749	อุดมการณ์	REVIEW	ʔu˨˩dom˧kaːn˧	ʔu˨˩dom˧kaːn˧ | ʔu˨˩dom˧ma˦˥kaːn˧		
+1727	กบ	letter-names	kop̚˨˩	kop̚˨˩ | kɔː˧bɔː˧		
+1717	โคจร	REVIEW	kʰoː˧tɕɔːn˧	kʰoː˧tɕa˨˩ra˦˥ | kʰoː˧tɕɔːn˧		
+1687	บัลแกเรีย	REVIEW	ban˧kɛː˧ria˧	bal˧kɛː˧ria̯˧ | ban˧kɛː˧ria̯˧		
+1685	ปาน	sandhi	paːn˧	paːn˧ | paː˧na˦˥		
+1683	สารสนเทศ	REVIEW	saː˩˩˦ra˦˥son˩˩˦tʰeːt̚˥˩	saːn˩˩˦son˩˩˦tʰeːt̚˥˩ | saː˩˩˦ra˦˥son˩˩˦tʰeːt̚˥˩		
+1681	โกศ	sandhi	koːt̚˨˩	koːt̚˨˩ | koːt̚˨˩sa˨˩		
+1664	สุริยุปราคา	REVIEW	su˨˩ri˦˥jup̚˦˥pa˨˩raː˧kʰaː˧	su˨˩ri˦˥jup̚˦˥pa˨˩raː˧kʰaː˧ | su˨˩ri˦˥ju˦˥pa˨˩raː˧kʰaː˧		
+1660	อุปสมบท	REVIEW	ʔu˨˩pa˨˩som˩˩˦bot̚˨˩	ʔup̚˨˩pa˨˩som˩˩˦bot̚˨˩ | ʔu˨˩pa˨˩som˩˩˦bot̚˨˩		
+1656	บุคลิก	sandhi	buk̚˨˩kʰa˦˥lik̚˦˥	buk̚˨˩kʰa˦˥lik̚˦˥ | buk̚˨˩kʰa˦˥lik̚˦˥ka˨˩		
+1632	นัย	sandhi	naj˧	naj˧ | naj˧jaʔ˦˥		
+1621	เพลา	REVIEW	pʰlaw˧	pʰeː˧laː˧ | pʰlaw˧		
+1617	ไฮโดรเจน	vowel-length	haj˧droː˧tɕeːn˧	haj˧droː˧tɕen˥˩ | haj˧droː˧tɕeːn˧		
+1617	เซฟ	REVIEW	seːp̚˦˥	seːf˦˥ | seːp̚˦˥		
+1612	ประกาศนียบัตร	REVIEW	pra˨˩kaːt̚˨˩sa˨˩niː˧ja˦˥bat̚˨˩	pra˨˩kaːt̚˨˩sa˨˩niː˧ja˦˥bat̚˨˩ | pra˨˩kaː˧sa˨˩niː˧ja˦˥bat̚˨˩		
+1611	ฉ	sandhi	tɕʰɔː˩˩˦	tɕʰaʔ˨˩ | tɕʰɔː˥˩ | tɕʰɔː˩˩˦ | tɕʰɔː˩˩˦tɕʰiŋ˨˩		
+1609	กาญจนบุรี	REVIEW	kaːn˧tɕa˨˩na˦˥bu˨˩riː˧	kaːn˧bu˨˩riː˧ | kaːn˧tɕa˨˩na˦˥bu˨˩riː˧		
+1606	นพ	sandhi	nop̚˦˥	nop̚˦˥ | nop̚˦˥pʰa˦˥ | nɔː˧pʰɔː˧		
+1599	ภัทร	sandhi	pʰat̚˦˥	pʰat̚˦˥ | pʰat̚˦˥tʰa˦˥ra˦˥ | pʰat̚˦˥tʰra˦˥		
+1588	บุรุษ	sandhi	bu˨˩rut̚˨˩	bu˨˩rut̚˨˩ | bu˨˩rut̚˨˩sa˨˩		
+1585	ปัสสาวะ	vowel-length	pat̚˨˩saː˩˩˦waʔ˦˥	pat̚˨˩saː˩˩˦waʔ˦˥ | pat̚˨˩sa˨˩waʔ˦˥		
+1572	กุศล	sandhi	ku˨˩son˩˩˦	ku˨˩son˩˩˦ | ku˨˩son˩˩˦la˦˥		
+1569	ปริ	REVIEW	priʔ˨˩	pa˨˩riʔ˦˥ | priʔ˨˩		
+1559	มีน	sandhi	miːn˧	miːn˧ | miː˧na˦˥		
+1557	รณ	sandhi	ron˧	ron˧ | ron˧na˦˥		
+1556	โบราณวัตถุ	REVIEW	boː˧raːn˧wat̚˦˥tʰuʔ˨˩	boː˧raːn˧na˦˥wat̚˦˥tʰuʔ˨˩ | boː˧raːn˧wat̚˦˥tʰuʔ˨˩		
+1556	ศาลรัฐธรรมนูญ	REVIEW	saːn˩˩˦rat̚˦˥tʰa˨˩tʰam˧ma˦˥nuːn˧	saːn˩˩˦rat̚˦˥tʰam˧ma˦˥nuːn˧ | saːn˩˩˦rat̚˦˥tʰa˨˩tʰam˧ma˦˥nuːn˧		
+1526	วอชิงตัน	tone-only	wɔː˧tɕʰiŋ˧tan˧	wɔː˧tɕʰiŋ˧tan˥˩ | wɔː˧tɕʰiŋ˧tan˧		
+1499	แทง	vowel-length	tʰɛːŋ˧	tʰɛŋ˧ | tʰɛːŋ˧		
+1493	เฟส	REVIEW	feːt̚˥˩	feːs˨˩ | feːt̚˨˩		
+1464	สบาย	tone-only	sa˨˩baːj˧	sa˧baːj˧ | sa˨˩baːj˧		
+1453	บ่	REVIEW	bɔː˨˩	bɔʔ˨˩ | bɔː˨˩		
+1453	ฆ	sandhi	kʰɔː˧	kʰɔː˧ | kʰɔː˧ra˦˥kʰaŋ˧		
+1441	สุขาภิบาล	REVIEW	su˨˩kʰaː˩˩˦pʰi˦˥baːn˧	suk̚˨˩kʰaː˩˩˦pʰi˦˥baːn˧ | su˨˩kʰaː˩˩˦pʰi˦˥baːn˧		
+1431	สรรเสริญ	REVIEW	san˩˩˦sɤːn˩˩˦	san˩˩˦ra˦˥sɤːn˩˩˦ | san˩˩˦sɤːn˩˩˦		
+1426	บาสเกตบอล	REVIEW	baːs˦˥ket̚˦˥bɔl˧	baːs˦˥ket̚˦˥bɔl˧ | baːt̚˦˥sa˨˩ket̚˦˥bɔn˧		
+1415	โลหิต	sandhi	loː˧hit̚˨˩	loː˧hit̚˨˩ | loː˧hit̚˨˩ta˨˩		
+1414	ศีล	sandhi	siːn˩˩˦	siːn˩˩˦ | siːn˩˩˦la˦˥ | siː˩˩˦la˦˥		
+1412	กรี	REVIEW	kriː˧	ka˨˩riː˧ | kriː˧		
+1407	น้ำจืด	vowel-length	naːm˦˥tɕɯːt̚˨˩	nam˦˥tɕɯːt̚˨˩ | naːm˦˥tɕɯːt̚˨˩		
+1394	พลาสติก	REVIEW	pʰlaːs˦˥tik̚˨˩	pʰlaːs˦˥tik̚˨˩ | pʰlaːt̚˦˥sa˨˩tik̚˨˩		
+1374	เทนนิส	REVIEW	tʰen˧nis˦˥	tʰen˧nis˦˥ | tʰen˧nit̚˦˥		
+1374	ตาล	sandhi	taːn˧	taːn˧ | taː˧la˦˥		
+1370	สสาร	sandhi	sa˨˩saːn˩˩˦	sa˨˩saːn˩˩˦ | sa˨˩saːn˩˩˦ra˦˥		
+1358	สาวก	REVIEW	saː˩˩˦wok̚˦˥	saː˩˩˦wa˦˥ka˨˩ | saː˩˩˦wok̚˦˥		
+1339	ชีพ	sandhi	tɕʰiːp̚˥˩	tɕʰiːp̚˥˩ | tɕʰiːp̚˥˩pʰa˦˥		
+1324	นร	letter-names	nɔː˧ra˦˥	na˦˥ra˦˥ | nɔː˧ra˦˥		
+1322	นิล	sandhi	nin˧	nin˧ | nin˧la˦˥		
+1310	อุปราช	REVIEW	ʔu˨˩pa˨˩raːt̚˨˩	ʔup̚˨˩pa˨˩raːt̚˨˩ | ʔu˨˩pa˨˩raːt̚˨˩		
+1306	อธิปไตย	REVIEW	ʔa˨˩tʰip̚˦˥pa˨˩taj˧	ʔa˨˩tʰip̚˦˥pa˨˩taj˧ | ʔa˨˩tʰi˦˥pa˨˩taj˧		
+1300	บอส	REVIEW	bɔːt̚˦˥	bɔːs˦˥ | bɔːt̚˦˥		
+1291	ซอส	REVIEW	sɔːt̚˦˥	sɔːs˦˥ | sɔːt̚˦˥		
+1280	สมาธิ	tone-only	sa˨˩maː˧tʰiʔ˦˥	sa˧maː˧tʰiʔ˦˥ | sa˨˩maː˧tʰiʔ˦˥		
+1280	กูเกิล	REVIEW	kuː˧kɤn˥˩	kuː˧kɤl˥˩ | kuː˧kɤn˥˩		
+1276	ซาอุดีอาระเบีย	tone-only	saː˧ʔu˨˩diː˧ʔaː˧ra˦˥bia˧	saː˧ʔu˨˩diː˧ʔaː˧ra˦˥bia̯˧ | saː˧ʔu˨˩diː˧ʔaː˧ra˦˥bia̯˨˩		
+1275	ดัชเชส	tone-only	dat̚˦˥tɕʰes˦˥	dat̚˦˥tɕʰes˥˩ | dat̚˦˥tɕʰes˦˥		
+1273	บาป	sandhi	baːp̚˨˩	baːp̚˨˩ | baːp̚˨˩pa˨˩		
+1273	จิตร	sandhi	tɕit̚˨˩	tɕit̚˨˩ | tɕit̚˨˩traʔ˨˩		
+1271	โทรคมนาคม	REVIEW	tʰoː˧ra˦˥kʰa˦˥ma˦˥naː˧kʰom˧	tʰoː˧ra˦˥kʰa˦˥ma˦˥naː˧kʰom˧ | tʰoː˧ra˦˥kʰom˧ma˦˥naː˧kʰom˧		
+1268	อสังหาริมทรัพย์	REVIEW	ʔa˨˩saŋ˩˩˦haː˩˩˦ri˦˥ma˦˥sap̚˦˥	ʔa˨˩saŋ˩˩˦haː˩˩˦rim˧ma˦˥sap̚˦˥ | ʔa˨˩saŋ˩˩˦haː˩˩˦ri˦˥ma˦˥sap̚˦˥		
+1245	จุล	sandhi	tɕun˧	tɕun˧ | tɕun˧la˦˥		
+1244	อุปถัมภ์	REVIEW	ʔu˨˩pa˨˩tʰam˩˩˦	ʔup̚˨˩pa˨˩tʰam˩˩˦ | ʔu˨˩pa˨˩tʰam˩˩˦		
+1241	สมมติ	sandhi	som˩˩˦mot̚˦˥	som˩˩˦mot̚˦˥ | som˩˩˦mot̚˦˥ti˨˩		
+1237	ศาสนสถาน	REVIEW	saːt̚˨˩sa˨˩na˦˥sa˨˩tʰaːn˩˩˦	saːt̚˨˩sa˨˩na˦˥sa˨˩tʰaːn˩˩˦ | saː˩˩˦sa˨˩na˦˥sa˨˩tʰaːn˩˩˦		
+1191	ยม	sandhi	jom˧	jom˧ | jom˧ma˦˥		
+1181	แอปพลิเคชัน	tone-only	ʔɛp̚˦˥pʰli˨˩kʰeː˧tɕʰan˥˩	ʔɛp̚˦˥pʰli˦˥kʰeː˧tɕʰan˥˩ | ʔɛp̚˦˥pʰli˨˩kʰeː˧tɕʰan˥˩		
+1180	คริสต์มาส	REVIEW	kʰris˦˥maːs˥˩	kʰris˦˥maːs˥˩ | kʰrit̚˦˥sa˨˩maːt̚˥˩		
+1165	กอล์ฟ	REVIEW	kɔːp̚˦˥	kɔf˦˥ | kɔp̚˦˥ | kɔːf˦˥ | kɔːp̚˦˥		
+1162	สมรภูมิ	REVIEW	sa˨˩mɔː˩˩˦ra˦˥pʰuːm˧	sa˨˩mɔːn˩˩˦ra˦˥pʰuːm˧ | sa˨˩mɔː˩˩˦ra˦˥pʰuːm˧		
+1150	เถร	sandhi	tʰeːn˩˩˦	tʰeːn˩˩˦ | tʰeː˩˩˦ra˦˥		
+1149	มารวิชัย	REVIEW	maːn˧wi˦˥tɕʰaj˧	maːn˧wi˦˥tɕʰaj˧ | maː˧ra˦˥wi˦˥tɕʰaj˧		
+1147	ยุติธรรม	sandhi	jut̚˦˥ti˨˩tʰam˧	jut̚˦˥ti˨˩tʰam˧ | jut̚˦˥ti˨˩tʰam˧ma˦˥		
+1136	ทิว	sandhi	tʰiw˧	tʰiw˧ | tʰi˦˥wa˦˥		
+1133	สรรพ	sandhi	sap̚˨˩	san˩˩˦pʰa˦˥ | sap̚˨˩ | sap̚˨˩pʰa˦˥		
+1133	ทาย	sandhi	tʰaːj˧	tʰaːj˧ | tʰaː˧ja˦˥		
+1128	เบงกอล	REVIEW	beːŋ˧kɔːn˧	beŋ˧kɔːl˧ | beŋ˧kɔːn˧		
+1118	พรม	sandhi	pʰrom˧	pʰrom˧ | pʰrom˧ma˦˥		
+1116	สวิส	REVIEW	sa˨˩wis˦˥	sa˨˩wis˦˥ | sa˨˩wit̚˦˥		
+1111	เอกอัครราชทูต	REVIEW	ʔeːk̚˨˩ʔak̚˨˩kʰra˦˥raːt̚˥˩tɕʰa˦˥tʰuːt̚˥˩	ʔeːk̚˨˩ʔak̚˨˩kʰa˦˥raːt̚˥˩tɕʰa˦˥tʰuːt̚˥˩ | ʔeːk̚˨˩ʔak̚˨˩kʰra˦˥raːt̚˥˩tɕʰa˦˥tʰuːt̚˥˩		
+1100	รัฐวิสาหกิจ	REVIEW	rat̚˦˥wi˦˥saː˩˩˦ha˨˩kit̚˨˩	rat̚˦˥tʰa˨˩wi˦˥saː˩˩˦ha˨˩kit̚˨˩ | rat̚˦˥wi˦˥saː˩˩˦ha˨˩kit̚˨˩		
+1086	กลาโหม	tone-only	ka˨˩laː˧hoːm˩˩˦	ka˧laː˧hoːm˩˩˦ | ka˨˩laː˧hoːm˩˩˦		
+1064	แคม	vowel-length	kʰɛːm˧	kʰɛm˧ | kʰɛːm˧		
+1062	อัลลอฮ์	REVIEW	ʔan˧lɔː˧	ʔan˧lɔʔ˦˥ | ʔan˧lɔː˧		
+1061	สามัญชน	REVIEW	saː˩˩˦man˧tɕʰon˧	saː˩˩˦man˧ja˦˥tɕʰon˧ | saː˩˩˦man˧tɕʰon˧		
+1047	ภาชนะ	REVIEW	pʰaː˧tɕʰa˦˥naʔ˦˥	pʰaːt̚˥˩tɕʰa˦˥naʔ˦˥ | pʰaː˧tɕʰa˦˥naʔ˦˥		
+1045	ประพฤติ	sandhi	pra˨˩pʰrɯt̚˦˥	pra˨˩pʰrɯt̚˦˥ | pra˨˩pʰrɯt̚˦˥ti˨˩		
+1042	ประณาม	sandhi	pra˨˩naːm˧	pra˨˩naːm˧ | pra˨˩naːm˧ma˦˥		
+1034	วาฬ	sandhi	waːn˧	waːn˧ | waː˧la˦˥		
+1026	พลี	REVIEW	pʰliː˧	pʰa˦˥liː˧ | pʰliː˧		
+1019	สุพรรณ	sandhi	su˨˩pʰan˧	su˨˩pʰan˧ | su˨˩pʰan˧na˦˥		
+1016	ประวัติการ	REVIEW	pra˨˩wat̚˨˩ti˨˩kaːn˧	pra˨˩wat̚˨˩kaːn˧ | pra˨˩wat̚˨˩ti˨˩kaːn˧		
+1013	พิพิธ	sandhi	pʰi˦˥pʰit̚˦˥	pʰi˦˥pʰit̚˦˥ | pʰi˦˥pʰit̚˦˥tʰa˦˥		
+1006	ประมวล	tone-only	pra˨˩muan˧	pra˧mua̯n˧ | pra˨˩mua̯n˧		
+1006	คองโก	tone-only	kʰɔŋ˧koː˧	kʰɔŋ˧koː˥˩ | kʰɔŋ˧koː˧		
+1001	ถ	sandhi	tʰɔː˩˩˦	tʰɔː˩˩˦ | tʰɔː˩˩˦tʰuŋ˩˩˦		
+990	เจล	vowel-length	tɕeːl˧	tɕel˧ | tɕeːl˧		
+988	เคเบิล	REVIEW	kʰeː˧bɤn˥˩	kʰeː˧bɤl˥˩ | kʰeː˧bɤn˥˩		
+982	สมมุติ	sandhi	som˩˩˦mut̚˦˥	som˩˩˦mut̚˦˥ | som˩˩˦mut̚˦˥ti˨˩		
+982	ยโสธร	REVIEW	ja˦˥soː˩˩˦tʰɔːn˧	ja˦˥soː˩˩˦tʰa˦˥ra˦˥ | ja˦˥soː˩˩˦tʰɔːn˧		
+967	เกตุ	REVIEW	keːt̚˨˩	keːt̚˨˩ | keː˧tu˨˩		
+958	เบสบอล	REVIEW	beːs˦˥bɔn˧	beːs˦˥bɔn˧ | beːs˦˥bɔːl˧		
+958	เซิร์ฟเวอร์	REVIEW	sɤːp̚˦˥wɤː˥˩	sɤːf˦˥wɤː˥˩ | sɤːp̚˦˥wɤː˥˩		
+957	แรด	vowel-length	rɛt̚˥˩	rɛt̚˥˩ | rɛːt̚˥˩		
+955	รามาธิบดี	REVIEW	raː˧maː˧tʰi˦˥bɔː˧diː˧	raː˧maː˧tʰip̚˦˥bɔː˧diː˧ | raː˧maː˧tʰi˦˥bɔː˧diː˧		
+954	ทศ	sandhi	tʰot̚˦˥	tʰa˦˥saʔ˨˩ | tʰot̚˦˥ | tʰot̚˦˥sa˨˩		
+951	เจ้าจอม	vowel-length	tɕaːw˥˩tɕɔːm˧	tɕaw˥˩tɕɔːm˧ | tɕaːw˥˩tɕɔːm˧		
+945	ศาสตร	REVIEW	saːt̚˨˩	saːt̚˨˩sa˨˩tra˨˩ | saːt̚˨˩tra˨˩		
+940	เบลารุส	REVIEW	beː˧laː˧rut̚˦˥	beː˧laː˧rus˦˥ | beː˧laː˧rut̚˦˥		
+938	ธนบัตร	REVIEW	tʰa˦˥na˦˥bat̚˨˩	tʰa˦˥na˦˥bat̚˨˩ | tʰon˧na˦˥bat̚˨˩		
+937	ฮอลลีวูด	tone-only	hɔːn˧liː˧wuːt̚˥˩	hɔn˧liː˧wuːt̚˦˥ | hɔn˧liː˧wuːt̚˨˩		
+935	แย่ง	vowel-length	jɛːŋ˥˩	jɛŋ˥˩ | jɛːŋ˥˩		
+930	แสตมป์	vowel-length	sa˨˩tɛːm˧	sa˨˩tɛm˧ | sa˨˩tɛːm˧		
+926	มนุษยศาสตร์	REVIEW	ma˦˥nut̚˦˥saːt̚˨˩	ma˦˥nut̚˦˥saːt̚˨˩ | ma˦˥nut̚˦˥sa˨˩ja˦˥saːt̚˨˩		
+921	แคลเซียม	vowel-length	kʰɛːl˧siam˥˩	kʰɛl˧sia̯m˥˩ | kʰɛːl˧sia̯m˥˩		
+919	อนุรักษนิยม	REVIEW	ʔa˨˩nu˦˥rak̚˦˥sa˨˩ni˦˥jom˧	ʔa˨˩nu˦˥rak̚˦˥ni˦˥jom˧ | ʔa˨˩nu˦˥rak̚˦˥sa˨˩ni˦˥jom˧		
+911	ครุ	REVIEW	kʰa˦˥ruʔ˦˥	kʰa˦˥ruʔ˦˥ | kʰruʔ˦˥		
+907	อุดมคติ	REVIEW	ʔu˨˩dom˧kʰa˦˥tiʔ˨˩	ʔu˨˩dom˧kʰa˦˥tiʔ˨˩ | ʔu˨˩dom˧ma˦˥kʰa˦˥tiʔ˨˩		
+885	น้ำตา	vowel-length	naːm˦˥taː˧	nam˦˥taː˧ | naːm˦˥taː˧		
+868	สุริยะ	REVIEW	su˨˩ri˦˥jaʔ˦˥	su˨˩ri˦˥jaʔ˦˥ | su˨˩ri˦˥ja˦˥		
+845	มอนเตเนโกร	vowel-length	mɔːn˧teː˧neː˧kroː˧	mɔn˧teː˧neː˧kroː˧ | mɔːn˧teː˧neː˧kroː˧		
+834	พยาธิ	REVIEW	pʰa˦˥jaːt̚˥˩	pʰa˦˥jaːt̚˥˩ | pʰa˦˥jaː˧tʰi˦˥		
+829	เวนิส	REVIEW	wa˦˥nɤːt̚˥˩	weː˧nis˦˥ | weː˧nit̚˦˥		
+824	ราชาธิปไตย	REVIEW	raː˧tɕʰaː˧tʰip̚˦˥pa˨˩taj˧	raː˧tɕʰaː˧tʰip̚˦˥pa˨˩taj˧ | raː˧tɕʰaː˧tʰi˦˥pa˨˩taj˧		
+819	มาตร	sandhi	maːt̚˥˩	maːt̚˥˩ | maːt̚˥˩tra˨˩		
+800	ธรรมนูญ	REVIEW	tʰam˧ma˦˥nuːn˧	tʰam˧ma˦˥nuːn˧ | tʰam˧nuːn˧		
+797	กริยา	REVIEW	kri˨˩jaː˧	ka˨˩ri˦˥jaː˧ | kri˨˩jaː˧		
+786	โสม	sandhi	soːm˩˩˦	soːm˩˩˦ | soːm˩˩˦ma˦˥		
+779	ภ	sandhi	pʰɔː˧	pʰɔː˧ | pʰɔː˧sam˩˩˦pʰaw˧		
+776	ออฟฟิศ	REVIEW	ʔɔːp̚˦˥fit̚˦˥	ʔɔːp̚˦˥fis˦˥ | ʔɔːp̚˦˥fit̚˦˥		
+775	อาชญากร	REVIEW	ʔaːt̚˨˩jaː˧kɔːn˧	ʔaːt̚˨˩jaː˧kɔːn˧ | ʔaːt̚˨˩tɕʰa˦˥jaː˧kɔːn˧		
+772	อุปนิสัย	REVIEW	ʔu˨˩pa˨˩ni˦˥saj˩˩˦	ʔup̚˨˩pa˨˩ni˦˥saj˩˩˦ | ʔu˨˩pa˨˩ni˦˥saj˩˩˦		
+772	นาฏ	sandhi	naːt̚˥˩ta˨˩	naːt̚˥˩ | naːt̚˥˩ta˨˩ | naː˧ta˨˩		
+771	เอว	vowel-length	ʔeːw˧	ʔew˧ | ʔeːw˧		
+758	แจ๊ส	REVIEW	tɕɛːt̚˦˥	tɕɛːs˦˥ | tɕɛːt̚˦˥		
+756	ศีลธรรม	REVIEW	siːn˩˩˦la˦˥tʰam˧	siːn˩˩˦la˦˥tʰam˧ | siːn˩˩˦tʰam˧		
+755	ฟอสซิล	vowel-length	fɔːt̚˦˥sin˥˩	fɔt̚˦˥sil˥˩ | fɔːt̚˦˥sil˥˩		
+754	เทศนา	REVIEW	tʰeːt̚˥˩sa˨˩naː˩˩˦	tʰeːt̚˥˩sa˨˩naː˩˩˦ | tʰeː˧sa˨˩naː˧		
+753	อุปรากร	REVIEW	ʔu˨˩pa˨˩raː˧kɔːn˧	ʔup̚˨˩pa˨˩raː˧kɔːn˧ | ʔu˨˩pa˨˩raː˧kɔːn˧		
+752	พอง	vowel-length	pʰɔːŋ˧	pʰɔŋ˧ | pʰɔːŋ˧		
+738	ไรเฟิล	REVIEW	raj˧fɤl˥˩	raj˧fɤl˥˩ | raj˧fɤn˥˩		
+738	ศักดิ	sandhi	sak̚˨˩di˨˩	sak̚˨˩ | sak̚˨˩di˨˩		
+737	ปิโตรเลียม	tone-only	pi˨˩troː˧liam˧	pi˨˩troː˧lia̯m˥˩ | pi˨˩troː˧lia̯m˧		
+734	อนาธิปไตย	REVIEW	ʔa˨˩naː˧tʰip̚˦˥pa˨˩taj˧	ʔa˨˩naː˧tʰip̚˦˥pa˨˩taj˧ | ʔa˨˩naː˧tʰi˦˥pa˨˩taj˧		
+734	ประถม	sandhi	pra˨˩tʰom˩˩˦	pra˨˩tʰom˩˩˦ | pra˨˩tʰom˩˩˦ma˦˥		
+729	ภูฏาน	REVIEW	pʰuː˧taːn˧	pʰuː˧taːn˧ | pʰuː˧tʰaːn˩˩˦		
+717	ทิพ	sandhi	tʰip̚˦˥	tʰip̚˦˥ | tʰip̚˦˥pʰa˦˥		
+688	ทะเลาะ	tone-only	tʰa˦˥lɔʔ˦˥	tʰa˦˥lɔʔ˦˥ | tʰa˧lɔʔ˦˥		
+684	มอลตา	REVIEW	mɔl˧taː˥˩	mɔl˧taː˥˩ | mɔn˧taː˥˩		
+683	มิค	sandhi	mik̚˦˥	mik̚˦˥ | mik̚˦˥kʰa˦˥ | mi˦˥kʰa˦˥		
+678	โฆษณาชวนเชื่อ	REVIEW	kʰoː˧sa˨˩naː˧tɕʰuan˧tɕʰɯa˥˩	kʰoːt̚˥˩sa˨˩naː˧tɕʰua̯n˧tɕʰɯa̯˥˩ | kʰoː˧sa˨˩naː˧tɕʰua̯n˧tɕʰɯa̯˥˩		
+666	ฆราวาส	sandhi	kʰa˦˥raː˧waːt̚˥˩	kʰa˦˥raː˧waːt̚˥˩ | kʰa˦˥raː˧waːt̚˥˩sa˨˩		
+665	บรรพ	sandhi	bap̚˨˩	ban˧pʰa˦˥ | bap̚˨˩ | bap̚˨˩pʰa˦˥		
+658	ไซปรัส	REVIEW	saj˧pras˦˥	saj˧pras˦˥ | saj˧prat̚˦˥		
+658	มูลฐาน	REVIEW	muːn˧tʰaːn˩˩˦	muːn˧la˦˥tʰaːn˩˩˦ | muːn˧tʰaːn˩˩˦		
+656	พุทธศาสนิกชน	REVIEW	pʰut̚˦˥tʰa˦˥saː˩˩˦sa˨˩nik̚˦˥ka˨˩tɕʰon˧	pʰut̚˦˥tʰa˦˥saːt̚˨˩sa˨˩nik̚˦˥ka˨˩tɕʰon˧ | pʰut̚˦˥tʰa˦˥saː˩˩˦sa˨˩nik̚˦˥ka˨˩tɕʰon˧		
+656	ธัญ	sandhi	tʰan˧	tʰan˧ | tʰan˧ja˦˥		
+653	แอลจีเรีย	REVIEW	ʔɛl˧tɕiː˧ria˧	ʔɛl˧tɕiː˧ria̯˧ | ʔɛn˧tɕiː˧ria̯˧ | ʔɛw˧tɕiː˧ria̯˧		
+653	เจ้าของที่ดิน	vowel-length	tɕaːw˥˩kʰɔːŋ˩˩˦tʰiː˥˩din˧	tɕaw˥˩kʰɔːŋ˩˩˦tʰiː˥˩din˧ | tɕaːw˥˩kʰɔːŋ˩˩˦tʰiː˥˩din˧		
+651	อุซเบกิสถาน	REVIEW	ʔus˦˥beː˧kis˦˥tʰaːn˩˩˦	ʔus˦˥beː˧kis˦˥tʰaːn˩˩˦ | ʔus˦˥beː˧kit̚˦˥sa˨˩tʰaːn˩˩˦		
+643	สมาน	sandhi	sa˨˩maːn˩˩˦	sa˨˩maːn˩˩˦ | sa˨˩maːn˩˩˦naʔ˦˥ | sa˨˩maː˧naʔ˦˥		
+638	โภชนาการ	REVIEW	pʰoː˧tɕʰa˦˥naː˧kaːn˧	pʰoːt̚˥˩tɕʰa˦˥naː˧kaːn˧ | pʰoː˧tɕʰa˦˥naː˧kaːn˧		
+626	ไนโตรเจน	vowel-length	naj˧troː˧tɕeːn˧	naj˧troː˧tɕen˥˩ | naj˧troː˧tɕeːn˧		
+619	อะลูมิเนียม	tone-only	ʔa˨˩luː˧mi˦˥niam˧	ʔa˨˩luː˧mi˦˥nia̯m˥˩ | ʔa˨˩luː˧mi˦˥nia̯m˧		
+612	วิกฤติ	sandhi	wi˦˥krit̚˨˩	wi˦˥krit̚˨˩ | wi˦˥krit̚˨˩ti˨˩		
+611	ทวาร	sandhi	tʰa˦˥waːn˧	tʰa˦˥waːn˧ | tʰa˦˥waː˧ra˦˥		
+603	สวิตช์	tone-only	sa˨˩wit̚˦˥	sa˧wit̚˦˥ | sa˨˩wit̚˦˥		
+602	เชิด	vowel-length	tɕʰɤːt̚˥˩	tɕʰɤt̚˥˩ | tɕʰɤːt̚˥˩		
+601	เวทนา	REVIEW	weːt̚˥˩tʰa˦˥naː˧	weːt̚˥˩tʰa˦˥naː˧ | weː˧tʰa˦˥naː˧		
+600	โศก	sandhi	soːk̚˨˩	soːk̚˨˩ | soːk̚˨˩ka˨˩ | soː˩˩˦ka˨˩		
+591	เพนกวิน	vowel-length	pʰen˧kwin˥˩	pʰen˧kwin˥˩ | pʰeːn˧kwin˥˩		
+587	กายวิภาคศาสตร์	REVIEW	kaːj˧ja˦˥wi˦˥pʰaːk̚˥˩kʰa˦˥saːt̚˨˩	kaːj˧ja˦˥wi˦˥pʰaːk̚˥˩kʰa˦˥saːt̚˨˩ | kaːj˧wi˦˥pʰaːk̚˥˩kʰa˦˥saːt̚˨˩		
+586	ภูมิลำเนา	REVIEW	pʰuː˧mi˦˥lam˧naw˧	pʰuːm˧lam˧naw˧ | pʰuː˧mi˦˥lam˧naw˧		
+586	ประชาธิปัตย์	REVIEW	pra˨˩tɕʰaː˧tʰi˦˥pat̚˨˩	pra˨˩tɕʰaː˧tʰip̚˦˥pat̚˨˩ | pra˨˩tɕʰaː˧tʰi˦˥pat̚˨˩		
+586	กรรมาธิการ	REVIEW	kan˧maː˧tʰi˦˥kaːn˧	kam˧maː˧tʰi˦˥kaːn˧ | kan˧maː˧tʰi˦˥kaːn˧		
+582	สำรับ	tone-only	sam˩˩˦rap̚˦˥	sam˩˩˦rap̚˦˥ | sam˩˩˦rap̚˨˩		
+582	ภูติ	REVIEW	pʰuːt̚˥˩	pʰuːt̚˥˩ | pʰuː˧tiʔ˨˩		
+582	กิเลส	sandhi	ki˨˩leːt̚˨˩	ki˨˩leːt̚˨˩ | ki˨˩leːt̚˨˩sa˨˩		
+581	แฟ้ม	vowel-length	fɛːm˦˥	fɛm˦˥ | fɛːm˦˥		
+575	ยิมนาสติก	REVIEW	jim˧naːs˦˥tik̚˨˩	jim˧naːs˦˥tik̚˨˩ | jim˧naːt̚˦˥sa˨˩tik̚˨˩		
+575	มันฝรั่ง	tone-only	man˧fa˨˩raŋ˨˩	man˧fa˦˥raŋ˨˩ | man˧fa˨˩raŋ˨˩		
+566	ฉันท์	sandhi	tɕʰan˩˩˦	tɕʰan˩˩˦ | tɕʰan˩˩˦tʰa˦˥		
+564	ข้าวเหนียว	vowel-length	kʰaːw˥˩niaw˩˩˦	kʰaw˥˩nia̯w˩˩˦ | kʰaːw˥˩nia̯w˩˩˦		
+552	ฐ	sandhi	tʰɔː˩˩˦	tʰɔː˩˩˦ | tʰɔː˩˩˦tʰaːn˩˩˦		
+551	แซลมอน	REVIEW	sɛːl˧mɔn˥˩	sɛw˧mɔn˥˩ | sɛːl˧mɔn˥˩		
+550	ปรสิต	sandhi	pa˨˩ra˦˥sit̚˨˩	pa˨˩ra˦˥sit̚˨˩ | pa˨˩ra˦˥sit̚˨˩ta˨˩ | pɔː˧ra˦˥sit̚˨˩ | pɔː˧ra˦˥sit̚˨˩ta˨˩		
+548	สังขาร	sandhi	saŋ˩˩˦kʰaːn˩˩˦	saŋ˩˩˦kʰaːn˩˩˦ | saŋ˩˩˦kʰaːn˩˩˦ra˦˥ | saŋ˩˩˦kʰaː˩˩˦ra˦˥		
+544	คริสต์ศาสนิกชน	REVIEW	kʰrit̚˦˥saː˩˩˦sa˨˩nik̚˦˥ka˨˩tɕʰon˧	kʰrit̚˦˥saːt̚˨˩sa˨˩nik̚˦˥ka˨˩tɕʰon˧ | kʰrit̚˦˥saː˩˩˦sa˨˩nik̚˦˥ka˨˩tɕʰon˧		
+543	เวร	sandhi	weːn˧	weːn˧ | weː˧ra˦˥		
+540	หายนะ	REVIEW	haː˩˩˦ja˦˥naʔ˦˥	haːj˩˩˦ja˦˥naʔ˦˥ | haː˩˩˦ja˦˥naʔ˦˥		
+531	จาร	sandhi	tɕaːn˧	tɕaːn˧ | tɕaː˧ra˦˥		
+528	วิบัติ	sandhi	wi˦˥bat̚˨˩	wi˦˥bat̚˨˩ | wi˦˥bat̚˨˩ti˨˩		
+527	โปสเตอร์	REVIEW	poːt̚˨˩tɤː˥˩	poːs˦˥tɤː˥˩ | poːt̚˦˥tɤː˥˩		
+523	ชลประทาน	REVIEW	tɕʰon˧la˦˥pra˨˩tʰaːn˧	tɕʰon˧la˦˥pra˨˩tʰaːn˧ | tɕʰon˧pra˨˩tʰaːn˧		
+521	เหลา	REVIEW	law˩˩˦	heː˩˩˦laː˧ | law˩˩˦		
+521	สังคายนา	REVIEW	saŋ˩˩˦kʰaː˧ja˦˥naː˧	saŋ˩˩˦kʰaːj˧ja˦˥naː˧ | saŋ˩˩˦kʰaː˧ja˦˥naː˧		
+520	โศกนาฏกรรม	REVIEW	soːk̚˨˩ka˨˩naːt̚˥˩ta˨˩kam˧	soːk̚˨˩ka˨˩naːt̚˥˩ta˨˩kam˧ | soː˩˩˦ka˨˩naːt̚˥˩ta˨˩kam˧		
+510	วิสามัญ	sandhi	wi˦˥saː˩˩˦man˧	wi˦˥saː˩˩˦man˧ | wi˦˥saː˩˩˦man˧ja˦˥		
+508	กาก	REVIEW	kaːk̚˨˩	kaːk̚˨˩ | kaː˧ka˨˩		
+505	ชาด	tone-only	tɕʰaːt̚˥˩	tɕʰaːt̚˥˩ | tɕʰaːt̚˦˥		
+498	ไสย	sandhi	saj˩˩˦	saj˩˩˦ | saj˩˩˦ja˦˥		
+497	วาร	sandhi	waːn˧	waːn˧ | waː˧ra˦˥		
+490	หฤทัย	sandhi	ha˨˩rɯ˦˥tʰaj˧	ha˨˩rɯ˦˥tʰaj˧ | ha˨˩rɯ˦˥tʰaj˧ja˦˥		
+486	น้ำยา	vowel-length	naːm˦˥jaː˧	nam˦˥jaː˧ | naːm˦˥jaː˧		
+483	ลิสบอน	tone-only	lis˦˥bɔn˥˩	lis˦˥bɔn˥˩ | lis˦˥bɔn˧		
+471	นักเทนนิส	REVIEW	nak̚˦˥tʰen˧nis˦˥	nak̚˦˥tʰen˧nis˦˥ | nak̚˦˥tʰen˧nit̚˦˥		
+469	โอสถ	sandhi	ʔoː˧sot̚˨˩	ʔoː˧sa˨˩tʰa˨˩ | ʔoː˧sot̚˨˩ | ʔoː˧sot̚˨˩tʰa˨˩		
+469	อุบัติ	sandhi	ʔu˨˩bat̚˨˩	ʔu˨˩bat̚˨˩ | ʔu˨˩bat̚˨˩ti˨˩		
+458	โพแทสเซียม	vowel-length	pʰoː˧tʰɛs˦˥siam˥˩	pʰoː˧tʰɛs˦˥sia̯m˥˩ | pʰoː˧tʰɛːs˦˥sia̯m˥˩		
+454	ทารุณ	sandhi	tʰaː˧run˧	tʰaː˧run˧ | tʰaː˧run˧na˦˥		
+453	พีช	REVIEW	pʰiːt̚˦˥	pʰiːtɕʰ˦˥ | pʰiːt̚˦˥		
+453	ดล	sandhi	don˧	don˧ | don˧la˦˥		
+452	ลิฟต์	REVIEW	lip̚˦˥	lif˦˥ | lip̚˦˥		
+447	เภสัช	sandhi	pʰeː˧sat̚˨˩	pʰeː˧sat̚˨˩ | pʰeː˧sat̚˨˩tɕʰa˦˥		
+447	บะหมี่	tone-only	ba˨˩miː˨˩	ba˦˥miː˨˩ | ba˨˩miː˨˩		
+441	โวลต์	REVIEW	woːn˦˥	woːl˦˥ | woːn˦˥		
+437	เจ้าหนี้	vowel-length	tɕaːw˥˩niː˥˩	tɕaw˥˩niː˥˩ | tɕaːw˥˩niː˥˩		
+436	รามัญ	sandhi	raː˧man˧	raː˧man˧ | raː˧man˧ja˦˥		
+433	อัปโหลด	tone-only	ʔap̚˦˥loːt̚˨˩	ʔap̚˥˩loːt̚˨˩ | ʔap̚˦˥loːt̚˨˩		
+432	ทาจิกิสถาน	REVIEW	tʰaː˧tɕi˨˩kis˦˥tʰaːn˩˩˦	tʰaː˧tɕi˨˩kis˦˥tʰaːn˩˩˦ | tʰaː˧tɕi˨˩kit̚˦˥sa˨˩tʰaːn˩˩˦		
+428	แอลฟา	vowel-length	ʔɛːl˧faː˥˩	ʔɛl˧faː˥˩ | ʔɛːl˧faː˥˩		
+424	กรณีพิพาท	REVIEW	kɔː˧ra˦˥niː˧pʰi˦˥pʰaːt̚˥˩	ka˨˩ra˦˥niː˧pʰi˦˥pʰaːt̚˥˩ | kɔː˧ra˦˥niː˧pʰi˦˥pʰaːt̚˥˩		
+422	เคส	REVIEW	kʰeːt̚˦˥	kʰeːs˦˥ | kʰeːt̚˦˥		
+422	ภูต	REVIEW	pʰuːt̚˥˩	pʰuːt̚˥˩ | pʰuː˧ta˨˩		
+418	แมส	REVIEW	mɛːt̚˦˥	mɛːs˦˥ | mɛːt̚˦˥		
+416	โทส	REVIEW	tʰoːt̚˥˩	tʰoːt̚˥˩ | tʰoː˧sa˨˩		
+413	เปต	sandhi	peːt̚˨˩	peːt̚˨˩ | peːt̚˨˩ta˨˩ | peː˧ta˨˩		
+412	เมลเบิร์น	REVIEW	mel˧bɤːn˧	mel˧bɤːn˧ | mew˧bɤːn˧		
+409	สกล	sandhi	sa˨˩kon˧	sa˨˩kon˧ | sa˨˩kon˧la˦˥		
+400	ซิมบับเว	tone-only	sim˧bap̚˨˩weː˧	sim˧bap̚˦˥weː˧ | sim˧bap̚˨˩weː˧		
+398	อาชญา	REVIEW	ʔaːt̚˨˩jaː˧	ʔaːt̚˨˩jaː˧ | ʔaːt̚˨˩tɕʰa˦˥jaː˧		
+393	โฮเต็ล	REVIEW	hoː˧ten˧	hoː˧tel˧ | hoː˧ten˧		
+391	เพิกเฉย	vowel-length	pʰɤːk̚˥˩tɕʰɤːj˩˩˦	pʰɤːk̚˥˩tɕʰɤj˩˩˦ | pʰɤːk̚˥˩tɕʰɤːj˩˩˦		
+391	รถบัส	REVIEW	rot̚˦˥bas˦˥	rot̚˦˥bas˦˥ | rot̚˦˥bat̚˦˥		
+391	มอเตอร์ไซค์	tone-only	mɔː˧tɤː˧saj˧	mɔː˧tɤː˥˩saj˧ | mɔː˧tɤː˧saj˧		
+390	ศัลยแพทย์	REVIEW	san˩˩˦ja˦˥pʰɛːt̚˥˩	san˩˩˦ja˦˥pʰɛːt̚˥˩ | san˩˩˦la˦˥ja˦˥pʰɛːt̚˥˩		
+388	คช	sandhi	kʰot̚˦˥tɕʰa˦˥	kʰot̚˦˥ | kʰot̚˦˥tɕʰa˦˥		
+384	พลาสมา	REVIEW	pʰlaːt̚˥˩maː˥˩	pʰlaːs˦˥maː˥˩ | pʰlaːt̚˦˥maː˥˩		
+378	เฉย	vowel-length	tɕʰɤːj˩˩˦	tɕʰɤj˩˩˦ | tɕʰɤːj˩˩˦		
+376	สงสาร	sandhi	soŋ˩˩˦saːn˩˩˦	soŋ˩˩˦saːn˩˩˦ | soŋ˩˩˦saː˩˩˦ra˦˥		
+375	สุภาพสตรี	REVIEW	su˨˩pʰaːp̚˥˩sa˨˩triː˧	su˨˩pʰaːp̚˥˩sat̚˨˩triː˧ | su˨˩pʰaːp̚˥˩sa˨˩triː˧		
+373	ศัลยกรรม	REVIEW	san˩˩˦ja˦˥kam˧	san˩˩˦ja˦˥kam˧ | san˩˩˦la˦˥ja˦˥kam˧		
+371	เกษตรศาสตร์	REVIEW	ka˨˩seːt̚˨˩tra˨˩saːt̚˨˩	ka˨˩seːt̚˨˩saːt̚˨˩ | ka˨˩seːt̚˨˩tra˨˩saːt̚˨˩		
+371	ดามัสกัส	REVIEW	daː˧mat̚˦˥kas˦˥	daː˧mas˦˥kat̚˦˥ | daː˧mat̚˦˥kas˦˥		
+369	ฆาต	sandhi	kʰaːt̚˥˩	kʰaːt̚˥˩ | kʰaːt̚˥˩ta˨˩		
+368	อุปโภค	REVIEW	ʔu˨˩pa˨˩pʰoːk̚˥˩	ʔup̚˨˩pa˨˩pʰoːk̚˥˩ | ʔu˨˩pa˨˩pʰoːk̚˥˩		
+360	เยาว์	sandhi	jaw˧	jaw˧ | jaw˧waʔ˦˥		
+357	ไมโครเวฟ	REVIEW	maj˧kʰroː˧weːp̚˦˥	maj˧kʰroː˧weːf˦˥ | maj˧kʰroː˧weːp̚˦˥		
+357	เสวก	REVIEW	seː˩˩˦wok̚˦˥	seː˩˩˦wa˦˥ka˨˩ | seː˩˩˦wok̚˦˥		
+355	เติร์กเมนิสถาน	REVIEW	tɤːk̚˦˥meː˧nis˦˥tʰaːn˩˩˦	tɤːk̚˦˥meː˧nis˦˥tʰaːn˩˩˦ | tɤːk̚˦˥meː˧nit̚˦˥sa˨˩tʰaːn˩˩˦		
+355	อาคเนย์	REVIEW	ʔaː˧kʰa˦˥neː˧	ʔaːk̚˨˩kʰa˦˥neː˧ | ʔaː˧kʰa˦˥neː˧		
+355	มัลดีฟส์	REVIEW	mal˧diːf˦˥	mal˧diːf˦˥ | man˧diːp̚˦˥		
+348	สังข	sandhi	saŋ˩˩˦kʰa˨˩	saŋ˩˩˦ | saŋ˩˩˦kʰa˨˩		
+346	นวม	REVIEW	nuam˧	na˦˥wa˦˥ma˦˥ | nua̯m˧		
+343	งอน	vowel-length	ŋɔːn˧	ŋɔn˧ | ŋɔːn˧		
+343	กฐิน	sandhi	ka˨˩tʰin˩˩˦	ka˨˩tʰin˩˩˦ | ka˨˩tʰin˩˩˦na˦˥		
+341	มรณ	REVIEW	mɔː˧ra˦˥naʔ˦˥	ma˦˥ra˦˥na˦˥ | mɔː˧ra˦˥na˦˥		
+339	มัชฌิม	sandhi	mat̚˦˥tɕʰim˧	mat̚˦˥tɕʰim˧ | mat̚˦˥tɕʰim˧ma˦˥ | mat̚˦˥tɕʰi˦˥ma˦˥		
+339	ปักเป้า	tone-only	pak̚˨˩ka˨˩paw˥˩	pak̚˦˥ka˨˩paw˥˩ | pak̚˨˩ka˨˩paw˥˩		
+338	เซเนกัล	tone-only	seː˧neː˧kal˥˩	seː˧neː˧kal˥˩ | seː˧neː˧kal˧		
+333	น้ำใจ	vowel-length	naːm˦˥tɕaj˧	nam˦˥tɕaj˧ | naːm˦˥tɕaj˧		
+324	วาดรูป	sandhi	waːt̚˥˩ruːp̚˥˩	waːt̚˥˩ruːp̚˥˩ | waːt̚˥˩ruːp̚˥˩pa˨˩		
+320	วิจิตรศิลป์	REVIEW	wi˦˥tɕit̚˨˩sin˩˩˦	wi˦˥tɕit̚˨˩sin˩˩˦ | wi˦˥tɕit̚˨˩tra˨˩sin˩˩˦		
+319	พลร่ม	REVIEW	pʰon˧rom˥˩	pʰon˧la˦˥rom˥˩ | pʰon˧rom˥˩		
+318	ปัจเจก	sandhi	pat̚˨˩tɕeːk̚˨˩	pat̚˨˩tɕeːk̚˨˩ | pat̚˨˩tɕeːk̚˨˩ka˨˩ | pat̚˨˩tɕeː˧ka˨˩		
+317	น้ำเกลือ	vowel-length	naːm˦˥klɯa˧	nam˦˥klɯa̯˧ | naːm˦˥klɯa̯˧		
+314	โมดูล	REVIEW	moː˧duːn˧	moː˧duːl˧ | moː˧duːn˧		
+305	คมนาคม	REVIEW	kʰa˦˥ma˦˥naː˧kʰom˧	kʰa˦˥ma˦˥naː˧kʰom˧ | kʰom˧ma˦˥naː˧kʰom˧		
+304	แฟรงก์เฟิร์ต	tone-only	frɛŋ˦˥fɤt̚˨˩	frɛŋ˦˥fɤt̚˨˩ | frɛŋ˧fɤt̚˨˩		
+304	เอนโทรปี	tone-only	ʔeːn˧tʰoː˧ra˦˥piː˧	ʔeːn˧tʰroː˧piː˥˩ | ʔeːn˧tʰroː˧piː˧		
+304	เทนเนสซี	tone-only	tʰen˧nes˦˥siː˥˩	tʰen˧net̚˦˥siː˥˩ | tʰen˧net̚˦˥siː˧		
+303	แกมมา	vowel-length	kɛːm˧maː˥˩	kɛm˧maː˥˩ | kɛːm˧maː˥˩		
+299	ฮองเฮา	vowel-length	hɔːŋ˧haw˧	hɔŋ˧haw˧ | hɔːŋ˧haw˧		
+294	บัลลาด	REVIEW	ban˧laːt̚˨˩	bal˧laːt̚˨˩ | ban˧laːt̚˨˩		
+294	กาฬ	sandhi	kaːn˧	kaːn˧ | kaːn˧la˦˥ | kaː˧la˦˥		
+293	เดลตา	vowel-length	deːl˧taː˥˩	del˧taː˥˩ | deːl˧taː˥˩		
+293	พิหาร	sandhi	pʰi˦˥haːn˩˩˦	pʰi˦˥haːn˩˩˦ | pʰi˦˥haː˩˩˦ra˦˥		
+292	ประชากรศาสตร์	REVIEW	pra˨˩tɕʰaː˧kɔːn˧saːt̚˨˩	pra˨˩tɕʰaː˧kɔːn˧saːt̚˨˩ | pra˨˩tɕʰaː˧kɔː˧ra˦˥saːt̚˨˩		
+291	สมภาร	sandhi	som˩˩˦pʰaːn˧	som˩˩˦pʰaːn˧ | som˩˩˦pʰaː˧ra˦˥		
+290	หริภุญชัย	tone-only	ha˨˩ri˦˥pʰun˧tɕʰaj˧	ha˨˩ri˦˥pʰun˧tɕʰaj˧ | ha˨˩ri˨˩pʰun˧tɕʰaj˧		
+289	นักษัตร	sandhi	nak̚˦˥sat̚˨˩tra˨˩	nak̚˦˥sat̚˨˩ | nak̚˦˥sat̚˨˩tra˨˩		
+288	ปฐพี	REVIEW	pa˨˩tʰa˨˩pʰiː˧	pat̚˨˩tʰa˦˥pʰiː˧ | pa˨˩tʰa˦˥pʰiː˧		
+288	ถาวรวัตถุ	REVIEW	tʰaː˩˩˦wɔːn˧wat̚˦˥tʰuʔ˨˩	tʰaː˩˩˦wɔːn˧wat̚˦˥tʰuʔ˨˩ | tʰaː˩˩˦wɔː˧ra˦˥wat̚˦˥tʰuʔ˨˩		
+287	เก้ง	vowel-length	keːŋ˥˩	keŋ˥˩ | keːŋ˥˩		
+287	ว่าว	vowel-length	waːw˥˩	waw˥˩ | waːw˥˩		
+285	ทรัสต์	REVIEW	tʰras˦˥	tʰras˦˥ | tʰrat̚˦˥		
+284	อักษรศาสตร์	REVIEW	ʔak̚˨˩sɔːn˩˩˦saːt̚˨˩	ʔak̚˨˩sɔːn˩˩˦saːt̚˨˩ | ʔak̚˨˩sɔː˩˩˦ra˦˥saːt̚˨˩		
+284	หงอน	vowel-length	ŋɔːn˩˩˦	ŋɔn˩˩˦ | ŋɔːn˩˩˦		
+284	กันดาร	sandhi	kan˧daːn˧	kan˧daːn˧ | kan˧daː˧ra˦˥		
+277	ภาส	sandhi	pʰaːt̚˥˩	pʰaːt̚˥˩ | pʰaːt̚˥˩sa˨˩		
+277	พสกนิกร	REVIEW	pʰa˦˥sok̚˨˩ni˦˥kɔːn˧	pʰa˦˥sok̚˨˩ka˨˩ni˦˥kɔːn˧ | pʰa˦˥sok̚˨˩ni˦˥kɔːn˧		
+273	ยีสต์	REVIEW	jiːs˦˥	jiːs˦˥ | jiːt̚˦˥		
+273	คณะรัฐประหาร	REVIEW	kʰa˦˥na˦˥rat̚˦˥tʰa˨˩pra˨˩haːn˩˩˦	kʰa˦˥na˦˥rat̚˦˥pra˨˩haːn˩˩˦ | kʰa˦˥na˦˥rat̚˦˥tʰa˨˩pra˨˩haːn˩˩˦		
+270	อมฤต	sandhi	ʔa˨˩ma˦˥rit̚˦˥	ʔa˨˩ma˦˥rit̚˦˥ | ʔa˨˩ma˦˥rit̚˦˥ta˨˩ | ʔa˨˩ma˦˥rɯt̚˦˥ | ʔa˨˩ma˦˥rɯt̚˦˥ta˨˩		
+270	กลวิธี	REVIEW	kon˧la˦˥wi˦˥tʰiː˧	kon˧la˦˥wi˦˥tʰiː˧ | kon˧wi˦˥tʰiː˧		
+269	อัคนี	REVIEW	ʔak̚˨˩kʰa˦˥niː˧	ʔak̚˨˩kʰa˦˥niː˧ | ʔak̚˨˩niː˧		
+269	ฌ	sandhi	tɕʰɔː˧	tɕʰɔː˧ | tɕʰɔː˧tɕʰɤː˧		
+268	อัฐ	sandhi	ʔat̚˨˩	ʔat̚˨˩ | ʔat̚˨˩tʰa˨˩		
+268	มอริเชียส	tone-only	mɔː˧ri˦˥tɕʰias˦˥	mɔː˧ri˦˥tɕʰia̯s˥˩ | mɔː˧ri˦˥tɕʰia̯s˦˥		
+265	คละ	REVIEW	kʰlaʔ˦˥	kʰlaʔ˦˥ | kʰon˧laʔ˦˥		
+264	มลภาวะ	REVIEW	mon˧pʰaː˧waʔ˦˥	mon˧la˦˥pʰaː˧waʔ˦˥ | mon˧pʰaː˧waʔ˦˥		
+263	คู่กรณี	REVIEW	kʰuː˥˩kɔː˧ra˦˥niː˧	kʰuː˥˩ka˨˩ra˦˥niː˧ | kʰuː˥˩kɔː˧ra˦˥niː˧		
+262	แคนซัส	vowel-length	kʰɛn˧sas˦˥	kʰɛn˧sas˦˥ | kʰɛːn˧sas˦˥		
+259	ศต	REVIEW	sa˨˩taʔ˨˩	sat̚˨˩ta˨˩ | sa˨˩ta˨˩ | sot̚˨˩		
+257	อัลตราไวโอเลต	REVIEW	ʔal˧traː˥˩waj˧ʔoː˧let̚˨˩	ʔal˧traː˥˩waj˧ʔoː˧let̚˨˩ | ʔan˧traː˥˩waj˧ʔoː˧let̚˨˩		
+256	เบญจมาศ	vowel-length	ben˧tɕa˨˩maːt̚˥˩	ben˧tɕa˨˩maːt̚˥˩ | beːn˧tɕa˨˩maːt̚˥˩		
+252	แซนด์วิช	REVIEW	sɛːn˧wit̚˦˥	sɛːn˧witɕʰ˦˥ | sɛːn˧wit̚˦˥		
+251	เจ้าของบ้าน	vowel-length	tɕaːw˥˩kʰɔːŋ˩˩˦baːn˥˩	tɕaw˥˩kʰɔːŋ˩˩˦baːn˥˩ | tɕaːw˥˩kʰɔːŋ˩˩˦baːn˥˩		
+251	ค่ะ	tone-only	kʰaʔ˥˩	kʰaʔ˥˩ | kʰaʔ˨˩		
+251	คอมพิวเตอร์ส่วนบุคคล	tone-only	kʰɔːm˧pʰiw˧tɤː˥˩suan˨˩buk̚˨˩kʰon˧	kʰɔm˧pʰiw˦˥tɤː˥˩sua̯n˨˩buk̚˨˩kʰon˧ | kʰɔm˧pʰiw˧tɤː˥˩sua̯n˨˩buk̚˨˩kʰon˧		
+249	ไบเบิล	REVIEW	baj˧bɤn˥˩	baj˧bɤl˥˩ | baj˧bɤn˥˩		
+246	เปรต	sandhi	preːt̚˨˩	preːt̚˨˩ | preːt̚˨˩ta˨˩ | preː˧ta˨˩		
+246	ฮอนดูรัส	REVIEW	hɔn˧duː˧ras˦˥	hɔn˧duː˧ras˦˥ | hɔn˧duː˧rat̚˦˥		
+246	รีไซเคิล	REVIEW	riː˧saj˧kʰɤn˥˩	riː˧saj˧kʰɤl˥˩ | riː˧saj˧kʰɤn˥˩		
+246	ผ	sandhi	pʰɔː˩˩˦	pʰɔː˩˩˦ | pʰɔː˩˩˦pʰɯŋ˥˩		
+244	อัลกอริทึม	REVIEW	ʔan˧kɔː˧ri˦˥tʰɯm˧	ʔal˧kɔː˧ri˦˥tʰɯm˥˩ | ʔan˧kɔː˧ri˦˥tʰɯm˥˩		
+244	ฬ	sandhi	lɔː˧	lɔː˧ | lɔː˧tɕu˨˩laː˧		
+240	จันทรุปราคา	REVIEW	tɕan˧tʰa˦˥rup̚˦˥pa˨˩raː˧kʰaː˧	tɕan˧tʰa˦˥rup̚˦˥pa˨˩raː˧kʰaː˧ | tɕan˧tʰru˦˥pa˨˩raː˧kʰaː˧		
+238	ดูกร	REVIEW	duː˧kɔːn˧	duː˧ka˨˩raʔ˦˥ | duː˧kɔːn˧		
+236	วรรษ	sandhi	wat̚˦˥	wat̚˦˥ | wat̚˦˥sa˨˩		
+236	บัลเลต์	REVIEW	ban˧leː˥˩	bal˧leː˥˩ | ban˧leː˥˩		
+236	กอริลลา	REVIEW	kɔː˧rin˧laː˥˩	kɔː˧ril˧laː˥˩ | kɔː˧rin˧laː˥˩		
+230	พรีเซ็นเตอร์	tone-only	pʰriː˧sen˧tɤː˥˩	pʰriː˧sen˦˥tɤː˥˩ | pʰriː˧sen˧tɤː˥˩		
+229	แมคโดนัลด์	REVIEW	mɛːk̚˥˩doː˧nan˧	mɛk̚˦˥doː˧nan˥˩ | mɛk̚˦˥doː˧noː˥˩		
+225	ยีราฟ	REVIEW	jiː˧raːp̚˦˥	jiː˧raːf˦˥ | jiː˧raːp̚˦˥		
+224	ฑ	sandhi	tʰɔː˧	tʰɔː˧ | tʰɔː˧mon˧tʰoː˧		
+217	เคาน์เตอร์	tone-only	kʰaw˧tɤː˥˩	kʰaw˦˥tɤː˥˩ | kʰaw˧tɤː˥˩		
+217	รังสีแกมมา	vowel-length	raŋ˧siː˩˩˦kɛːm˧maː˥˩	raŋ˧siː˩˩˦kɛm˧maː˥˩ | raŋ˧siː˩˩˦kɛːm˧maː˥˩		
+214	สุขา	REVIEW	su˨˩kʰaː˩˩˦	suk̚˨˩kʰaː˩˩˦ | su˨˩kʰaː˩˩˦		
+212	โยเกิร์ต	vowel-length	joː˧kɤːt̚˨˩	joː˧kɤt̚˨˩ | joː˧kɤːt̚˨˩		
+210	สุเมธ	REVIEW	su˨˩meːt̚˥˩	su˨˩meːt̚˥˩ | su˨˩meː˧tʰa˦˥		
+207	บรรณ	sandhi	ban˧	ban˧ | ban˧na˦˥		
+206	โจรกรรม	REVIEW	tɕoː˧ra˦˥kam˧	tɕoːn˧ra˦˥kam˧ | tɕoː˧ra˦˥kam˧		
+205	เอ็มบริโอ	tone-only	ʔem˧bri˨˩ʔoː˧	ʔem˧bri˨˩ʔoː˥˩ | ʔem˧bri˨˩ʔoː˧		
+205	อดิเรก	sandhi	ʔa˨˩di˨˩reːk̚˨˩	ʔa˨˩di˨˩reːk̚˨˩ | ʔa˨˩di˨˩reːk̚˨˩ka˨˩		
+200	เอลซัลวาดอร์	REVIEW	ʔeːl˧sal˧waː˧dɔː˧	ʔew˧saw˧waː˧dɔː˧ | ʔeːl˧sal˧waː˧dɔː˧		
+199	นีออน	vowel-length	niː˧ʔɔːn˧	niː˧ʔɔn˥˩ | niː˧ʔɔn˧ | niː˧ʔɔːn˧		
+197	แฟกซ์	REVIEW	fɛk̚˨˩	fɛk̚s˨˩ | fɛk̚˨˩		
+197	สวิง	tone-only	sa˨˩wiŋ˩˩˦	sa˨˩wiŋ˧ | sa˨˩wiŋ˩˩˦		
+194	อุปนายก	REVIEW	ʔu˨˩pa˨˩naː˧jok̚˦˥	ʔup̚˨˩pa˨˩naː˧jok̚˦˥ | ʔu˨˩pa˨˩naː˧jok̚˦˥		
+194	ราเมศวร	REVIEW	raː˧meː˧suan˩˩˦	raːm˧meː˧sua̯n˩˩˦ | raː˧meː˧sua̯n˩˩˦		
+194	บอตสวานา	REVIEW	bɔːt̚˦˥sa˨˩waː˧naː˥˩	bɔːt̚˦˥sa˨˩waː˧naː˥˩ | bɔːt̚˦˥swaː˩˩˦naː˥˩		
+191	ไม้กวาด	vowel-length	maːj˦˥kwaːt̚˨˩	maj˦˥kwaːt̚˨˩ | maːj˦˥kwaːt̚˨˩		
+191	กาฬโรค	REVIEW	kaː˧la˦˥roːk̚˥˩	kaːn˧la˦˥roːk̚˥˩ | kaː˧la˦˥roːk̚˥˩		
+190	จิตบำบัด	REVIEW	tɕit̚˨˩ta˨˩bam˧bat̚˨˩	tɕit̚˨˩bam˧bat̚˨˩ | tɕit̚˨˩ta˨˩bam˧bat̚˨˩		
+185	แพลทินัม	REVIEW	pʰlɛː˧tʰi˦˥nam˥˩	pʰlɛt̚˦˥tʰi˦˥nam˥˩ | pʰlɛː˧tʰi˦˥nam˥˩		
+183	เซ็กส์	REVIEW	sek̚˦˥	sek̚s˦˥ | sek̚˦˥		
+182	ปัจฉิม	sandhi	pat̚˨˩tɕʰim˩˩˦	pat̚˨˩tɕʰim˩˩˦ | pat̚˨˩tɕʰim˩˩˦ma˦˥		
+180	มูส	REVIEW	muːs˦˥	muːs˦˥ | muːt̚˦˥		
+178	ปราชัย	REVIEW	praː˧tɕʰaj˧	pa˨˩raː˧tɕʰaj˧ | praː˧tɕʰaj˧		
+176	วาทยกร	REVIEW	waː˧tʰa˦˥ja˦˥kɔːn˧	waːt̚˥˩tʰa˦˥ja˦˥kɔːn˧ | waː˧tʰa˦˥ja˦˥kɔːn˧		
+170	ไซบอร์ก	vowel-length	saj˧bɔːk̚˨˩	saj˧bɔk̚˨˩ | saj˧bɔːk̚˨˩		
+168	เมียนมา	tone-only	mian˧maː˧	mia̯n˧maː˥˩ | mia̯n˧maː˧		
+165	ฟ้าแลบ	vowel-length	faː˦˥lɛːp̚˥˩	faː˦˥lɛp̚˥˩ | faː˦˥lɛːp̚˥˩		
+164	สลาก	sandhi	sa˨˩laːk̚˨˩	sa˨˩laːk̚˨˩ | sa˨˩laːk̚˨˩ka˨˩		
+163	เบญจศก	vowel-length	ben˧tɕa˨˩sok̚˨˩	ben˧tɕa˨˩sok̚˨˩ | beːn˧tɕa˨˩sok̚˨˩		
+163	ศัลยศาสตร์	REVIEW	san˩˩˦ja˦˥saːt̚˨˩	san˩˩˦ja˦˥saːt̚˨˩ | san˩˩˦la˦˥ja˦˥saːt̚˨˩		
+162	สุมน	REVIEW	su˨˩mon˧	su˨˩ma˦˥na˦˥ | su˨˩mon˧		
+162	ฒ	sandhi	tʰɔː˧	tʰɔː˧ | tʰɔː˧pʰuː˥˩tʰaw˥˩		
+161	อเนก	sandhi	ʔa˨˩neːk̚˨˩	ʔa˨˩neːk̚˨˩ | ʔa˨˩neːk̚˨˩ka˨˩		
+160	สารท	REVIEW	saːt̚˨˩	saːt̚˨˩ | saː˩˩˦ra˦˥tʰa˦˥		
+157	ฃ	sandhi	kʰɔː˩˩˦	kʰɔː˩˩˦ | kʰɔː˩˩˦kʰua̯t̚˨˩		
+156	วิปลาส	REVIEW	wi˦˥pa˨˩laːt̚˥˩	wip̚˦˥pa˨˩laːt̚˥˩ | wi˦˥pa˨˩laːt̚˥˩		
+155	นาวิก	sandhi	naː˧wik̚˦˥	naː˧wik̚˦˥ | naː˧wik̚˦˥ka˨˩		
+154	โภค	sandhi	pʰoːk̚˥˩	pʰoːk̚˥˩ | pʰoːk̚˥˩kʰa˦˥ | pʰoː˧kʰa˦˥		
+151	เสย	vowel-length	sɤːj˩˩˦	sɤj˩˩˦ | sɤːj˩˩˦		
+148	อาชญากรสงคราม	REVIEW	ʔaːt̚˨˩jaː˧kɔːn˧soŋ˩˩˦kʰraːm˧	ʔaːt̚˨˩jaː˧kɔːn˧soŋ˩˩˦kʰraːm˧ | ʔaːt̚˨˩tɕʰa˦˥jaː˧kɔːn˧soŋ˩˩˦kʰraːm˧		
+148	กุลสตรี	REVIEW	kun˧la˦˥sa˨˩triː˧	kun˧la˦˥sat̚˨˩triː˧ | kun˧la˦˥sa˨˩triː˧		
+148	กรรมาชีพ	REVIEW	kan˧maː˧tɕʰiːp̚˥˩	kam˧maː˧tɕʰiːp̚˥˩ | kan˧maː˧tɕʰiːp̚˥˩		
+147	ไฟร์ฟอกซ์	REVIEW	faːj˧fɔk̚˦˥	faːj˧fɔk̚s˦˥ | faːj˧fɔk̚˦˥		
+147	น้ำจิ้ม	vowel-length	naːm˦˥tɕim˥˩	nam˦˥tɕim˥˩ | naːm˦˥tɕim˥˩		
+147	คีต	REVIEW	kʰiːt̚˥˩	kʰiːt̚˥˩ | kʰiː˧ta˨˩		
+145	บูร์กินาฟาโซ	tone-only	buː˧ki˨˩naː˧faː˧soː˧	buː˧ki˨˩naː˥˩faː˧soː˥˩ | buː˧ki˨˩naː˥˩faː˧soː˧ | buː˧ki˨˩naː˧faː˧soː˧		
+144	ไฮดรา	tone-only	haj˧draː˧	haj˧draː˥˩ | haj˧draː˧		
+141	ฝ	sandhi	fɔː˩˩˦	fɔː˩˩˦ | fɔː˩˩˦faː˩˩˦		
+139	ไวไฟ	vowel-length	waj˧faj˧	waj˧faj˧ | waːj˧faːj˧		
+139	ถุงน้ำดี	vowel-length	tʰuŋ˩˩˦naːm˦˥diː˧	tʰuŋ˩˩˦nam˦˥diː˧ | tʰuŋ˩˩˦naːm˦˥diː˧		
+138	ฅ	sandhi	kʰɔː˧	kʰɔː˧ | kʰɔː˧kʰon˧		
+136	บาร์เบโดส	REVIEW	baː˧beː˧doːs˦˥	baː˧beː˧doːs˦˥ | baː˧beː˧doːt̚˦˥		
+135	แดนเซอร์	vowel-length	dɛːn˦˥sɤː˥˩	dɛn˦˥sɤː˥˩ | dɛːn˦˥sɤː˥˩		
+135	อภิชน	REVIEW	ʔa˨˩pʰi˦˥tɕʰon˧	ʔa˨˩pʰi˦˥tɕʰa˦˥na˦˥ | ʔa˨˩pʰi˦˥tɕʰon˧		
+132	สัทศาสตร์	tone-only	sat̚˨˩tʰa˦˥saːt̚˨˩	sat̚˨˩tʰa˦˥saːt̚˨˩ | sat̚˨˩tʰa˧saːt̚˨˩		
+129	ไซเรน	vowel-length	saj˧reːn˧	saj˧ren˧ | saj˧reːn˧		
+128	โรดไอแลนด์	vowel-length	roːt̚˦˥ʔaj˧lɛːn˧	roːt̚˦˥ʔaj˧lɛn˥˩ | roːt̚˦˥ʔaj˧lɛːn˧		
+125	เซเชลส์	REVIEW	seː˧tɕʰeːn˧	seː˧tɕʰeːl˧ | seː˧tɕʰeːn˧		
+120	อันตรธาน	REVIEW	ʔan˧tra˨˩tʰaːn˧	ʔan˧ta˨˩ra˦˥tʰaːn˧ | ʔan˧tra˨˩tʰaːn˧		
+120	มกร	sandhi	ma˦˥kɔːn˧	ma˦˥ka˨˩ra˦˥ | ma˦˥kɔːn˧ | ma˦˥kɔː˧ra˦˥		
+119	แมงกานีส	vowel-length	mɛːŋ˧kaː˧niːs˦˥	mɛŋ˧kaː˧niːs˦˥ | mɛːŋ˧kaː˧niːs˦˥		
+118	ทส	sandhi	tʰot̚˦˥	tʰot̚˦˥ | tʰot̚˦˥sa˨˩		
+117	พันธกรณี	REVIEW	pʰan˧tʰa˦˥kɔː˧ra˦˥niː˧	pʰan˧tʰa˦˥ka˨˩ra˦˥niː˧ | pʰan˧tʰa˦˥kɔː˧ra˦˥niː˧		
+117	ฆาฏ	sandhi	kʰaːt̚˥˩	kʰaːt̚˥˩ | kʰaːt̚˥˩ta˨˩		
+116	แฮมสเตอร์	REVIEW	hɛm˧sa˨˩tɤː˨˩	hɛms˧tɤː˥˩ | hɛm˧sa˨˩tɤː˥˩		
+116	นฤมิต	sandhi	na˦˥rɯ˦˥mit̚˦˥	na˦˥rɯ˦˥mit̚˦˥ | na˦˥rɯ˦˥mit̚˦˥ta˨˩		
+115	อนาถ	REVIEW	ʔa˨˩naːt̚˨˩	ʔa˨˩naːt̚˨˩ | ʔa˨˩naː˧tʰa˨˩		
+114	สัตยาบัน	sandhi	sat̚˨˩ta˨˩jaː˧ban˧	sat̚˨˩ta˨˩jaː˧ban˧ | sat̚˨˩ta˨˩jaː˧ban˧na˦˥		
+113	หมากฝรั่ง	tone-only	maːk̚˨˩fa˨˩raŋ˨˩	maːk̚˨˩fa˦˥raŋ˨˩ | maːk̚˨˩fa˨˩raŋ˨˩		
+112	แลมบ์ดา	vowel-length	lɛːm˧daː˥˩	lɛm˧daː˥˩ | lɛːm˧daː˥˩		
+111	มอสส์	REVIEW	mɔːt̚˦˥	mɔːs˦˥ | mɔːt̚˦˥		
+109	ฉิบหาย	tone-only	tɕʰip̚˨˩haːj˩˩˦	tɕʰip̚˦˥haːj˩˩˦ | tɕʰip̚˨˩haːj˩˩˦		
+107	แหน	REVIEW	hɛːn˩˩˦	hɛːn˩˩˦ | nɛː˩˩˦		
+107	ลิงค์	tone-only	liŋ˧	liŋ˦˥ | liŋ˧		
+107	มอม	vowel-length	mɔːm˧	mɔm˧ | mɔːm˧		
+104	วีรสตรี	REVIEW	wiː˧ra˦˥sa˨˩triː˧	wiː˧ra˦˥sat̚˨˩triː˧ | wiː˧ra˦˥sa˨˩triː˧		
+104	มกรา	REVIEW	mok̚˦˥ka˨˩raː˧	ma˦˥ka˨˩raː˧ | mok̚˦˥ka˨˩raː˧		
+103	ซีเรียส	REVIEW	siː˧riat̚˥˩	siː˧ria̯s˥˩ | siː˧ria̯t̚˥˩		
+102	ญาณวิทยา	REVIEW	jaːn˧na˦˥wit̚˦˥tʰa˦˥jaː˧	jaːn˧na˦˥wit̚˦˥tʰa˦˥jaː˧ | jaː˧na˦˥wit̚˦˥tʰa˦˥jaː˧		
+100	อุปาทาน	REVIEW	ʔu˨˩paː˧tʰaːn˧	ʔup̚˨˩paː˧tʰaːn˧ | ʔu˨˩paː˧tʰaːn˧		
+100	อัฒ	sandhi	ʔat̚˨˩tʰaʔ˨˩	ʔat̚˨˩ | ʔat̚˨˩tʰaʔ˦˥		
+98	ทีปังกร	REVIEW	tʰiː˧paŋ˧kɔːn˧	tʰiː˧paŋ˧ka˨˩ra˦˥ | tʰiː˧paŋ˧kɔːn˧		
+97	ไม้บรรทัด	vowel-length	maːj˦˥ban˧tʰat̚˦˥	maj˦˥ban˧tʰat̚˦˥ | maːj˦˥ban˧tʰat̚˦˥		
+97	ใต้เท้า	vowel-length	taːj˥˩tʰaːw˦˥	taj˥˩tʰaːw˦˥ | taːj˥˩tʰaːw˦˥		
+97	แลบ	vowel-length	lɛːp̚˥˩	lɛp̚˥˩ | lɛːp̚˥˩		
+97	อุปัชฌาย์	REVIEW	ʔu˨˩pat̚˨˩tɕʰaː˧	ʔup̚˨˩pat̚˨˩tɕʰaː˧ | ʔu˨˩pat̚˨˩tɕʰaː˧		
+97	อาทิตย	sandhi	ʔaː˧tʰit̚˦˥ta˨˩ja˦˥	ʔaː˧tʰit̚˦˥ | ʔaː˧tʰit̚˦˥ta˨˩ja˦˥		
+97	วิสกี้	REVIEW	wis˦˥kiː˥˩	wis˦˥kiː˥˩ | wit̚˦˥sa˨˩kiː˥˩		
+97	งอม	vowel-length	ŋɔːm˧	ŋɔm˧ | ŋɔːm˧		
+96	โภชนา	REVIEW	pʰoː˧tɕʰa˦˥naː˧	pʰoːt̚˥˩tɕʰa˦˥naː˧ | pʰoː˧tɕʰa˦˥naː˧		
+96	อามิส	sandhi	ʔaː˧mit̚˦˥	ʔaː˧mit̚˦˥ | ʔaː˧mit̚˦˥sa˨˩		
+95	น้ำแร่	vowel-length	naːm˦˥rɛː˥˩	nam˦˥rɛː˥˩ | naːm˦˥rɛː˥˩		
+94	โฮ่ง	vowel-length	hoːŋ˥˩	hoŋ˥˩ | hoːŋ˥˩		
+92	มนุษย	sandhi	ma˦˥nut̚˦˥sa˨˩ja˦˥	ma˦˥nut̚˦˥ | ma˦˥nut̚˦˥sa˨˩ja˦˥		
+92	ดุลพินิจ	REVIEW	dun˧pʰi˦˥nit̚˦˥	dun˧la˦˥pʰi˦˥nit̚˦˥ | dun˧pʰi˦˥nit̚˦˥		
+91	มห	letter-names	ma˦˥ha˨˩	ma˦˥ha˨˩ | mɔː˧hɔː˩˩˦		
+91	พาราเซตามอล	REVIEW	pʰaː˧raː˧seː˧taː˧mɔn˥˩	pʰaː˧raː˧seː˧taː˧mɔl˥˩ | pʰaː˧raː˧seː˧taː˧mɔn˥˩		
+90	แฟลนเดอส์	REVIEW	flɛːn˧dɤː˧	flɛn˧dɤːs˥˩ | flɛn˧dɤː˥˩		
+90	ฮามาส	REVIEW	haː˧maːt̚˥˩	haː˧maːs˦˥ | haː˧maːt̚˦˥		
+90	บุคลิกลักษณะ	REVIEW	buk̚˨˩kʰa˦˥lik̚˦˥ka˨˩lak̚˦˥sa˨˩naʔ˨˩	buk̚˨˩kʰa˦˥lik̚˦˥ka˨˩lak̚˦˥sa˨˩naʔ˨˩ | buk̚˨˩kʰa˦˥lik̚˦˥lak̚˦˥sa˨˩naʔ˨˩		
+88	ไอดาโฮ	tone-only	ʔaj˧daː˧hoː˥˩	ʔaj˧daː˧hoː˥˩ | ʔaj˧daː˧hoː˧		
+88	อัลลอฮฺ	REVIEW		ʔan˧lɔʔ˦˥ | ʔan˧lɔː˧		
+87	สมานฉันท์	REVIEW	sa˨˩maː˧	sa˨˩maːn˩˩˦na˦˥tɕʰan˩˩˦ | sa˨˩maː˧na˦˥tɕʰan˩˩˦		
+85	พฤฒ	sandhi	pʰrɯt̚˦˥	pʰrɯt̚˦˥ | pʰrɯt̚˦˥tʰa˦˥		
+85	ดุลยพินิจ	REVIEW	dun˧ja˦˥pʰi˦˥nit̚˦˥	dun˧ja˦˥pʰi˦˥nit̚˦˥ | dun˧la˦˥ja˦˥pʰi˦˥nit̚˦˥		
+85	คาราเมล	REVIEW	kʰaː˧raː˧meːl˧	kʰaː˧raː˧meːl˧ | kʰaː˧raː˧meːw˧		
+84	แซว	vowel-length	sɛːw˧	sɛw˧ | sɛːw˧		
+83	อสมการ	REVIEW	ʔa˨˩sa˨˩ma˦˥kaːn˧	ʔa˨˩sa˨˩ma˦˥kaːn˧ | ʔa˨˩som˩˩˦ma˦˥kaːn˧		
+83	คณาธิปไตย	REVIEW	kʰa˦˥naː˧tʰip̚˦˥pa˨˩taj˧	kʰa˦˥naː˧tʰip̚˦˥pa˨˩taj˧ | kʰa˦˥naː˧tʰi˦˥pa˨˩taj˧		
+82	วาต	REVIEW	waːt̚˥˩	waːt̚˥˩ | waː˧ta˨˩		
+82	ปรโลก	REVIEW	pɔː˧ra˦˥loːk̚˥˩	pa˨˩ra˦˥loːk̚˥˩ | pɔː˧ra˦˥loːk̚˥˩		
+82	น้ำส้ม	vowel-length	naːm˦˥som˥˩	nam˦˥som˥˩ | naːm˦˥som˥˩		
+81	สังหาริมทรัพย์	REVIEW	saŋ˩˩˦haː˩˩˦ri˦˥ma˦˥sap̚˦˥	saŋ˩˩˦haː˩˩˦rim˧ma˦˥sap̚˦˥ | saŋ˩˩˦haː˩˩˦ri˦˥ma˦˥sap̚˦˥		
+80	โสภิต	REVIEW	soː˩˩˦pʰit̚˦˥	soː˩˩˦pʰit̚˦˥ | soː˩˩˦pʰi˦˥ta˨˩		
+79	ถุงพลาสติก	REVIEW	tʰuŋ˩˩˦pʰlaːs˦˥tik̚˨˩	tʰuŋ˩˩˦pʰlaːs˦˥tik̚˨˩ | tʰuŋ˩˩˦pʰlaːt̚˦˥sa˨˩tik̚˨˩		
+78	เปตอง	vowel-length	peː˧tɔːŋ˧	peː˧tɔŋ˧ | peː˧tɔːŋ˧		
+78	ปริวรรต	sandhi	pa˨˩ri˦˥wat̚˦˥	pa˨˩ri˦˥wat̚˦˥ | pa˨˩ri˦˥wat̚˦˥ta˨˩		
+78	บรั่นดี	REVIEW	bran˨˩diː˧	ba˨˩ran˨˩diː˧ | bran˨˩diː˧		
+77	พิบัติ	sandhi	pʰi˦˥bat̚˨˩	pʰi˦˥bat̚˨˩ | pʰi˦˥bat̚˨˩ti˨˩		
+77	การทะเลาะ	tone-only	kaːn˧tʰa˦˥lɔʔ˦˥	kaːn˧tʰa˦˥lɔʔ˦˥ | kaːn˧tʰa˧lɔʔ˦˥		
+74	เมษ	sandhi	meːt̚˥˩	meːt̚˥˩ | meːt̚˥˩sa˨˩ | meː˧sa˨˩		
+74	ยัญ	sandhi	jan˧	jan˧ | jan˧ja˦˥		
+73	สอย	vowel-length	sɔːj˩˩˦	sɔj˩˩˦ | sɔːj˩˩˦		
+73	วินาศ	sandhi	wi˦˥naːt̚˥˩	wi˦˥naːt̚˥˩ | wi˦˥naːt̚˥˩sa˨˩		
+71	ครหา	REVIEW	kʰɔː˧ra˦˥haː˩˩˦	kʰa˦˥ra˦˥haː˩˩˦ | kʰɔː˧ra˦˥haː˩˩˦		
+69	ซานตาคลอส	REVIEW	saːn˧taː˧kʰlɔːt̚˦˥	saːn˧taː˧kʰlɔːs˦˥ | saːn˧taː˧kʰlɔːt̚˦˥		
+68	เครย์ฟิช	REVIEW	kʰreː˧fit̚˦˥	kʰreː˧fitɕʰ˦˥ | kʰreː˧fit̚˦˥		
+68	มอดูล	REVIEW	mɔː˧duːn˧	mɔː˧duːl˧ | mɔː˧duːn˧		
+67	พฤษภ	REVIEW	pʰrɯ˦˥sop̚˨˩	pʰrɯt̚˦˥sop̚˨˩ | pʰrɯ˦˥sop̚˨˩		
+66	เยิน	vowel-length	jɤːn˧	jɤn˧ | jɤːn˧		
+66	อัตตาธิปไตย	REVIEW	ʔat̚˨˩taː˧tʰip̚˦˥pa˨˩taj˧	ʔat̚˨˩taː˧tʰip̚˦˥pa˨˩taj˧ | ʔat̚˨˩taː˧tʰi˦˥pa˨˩taj˧		
+66	อธิกมาส	REVIEW	ʔa˨˩tʰi˦˥ka˨˩maːt̚˥˩	ʔa˨˩tʰik̚˦˥ka˨˩maːt̚˥˩ | ʔa˨˩tʰi˦˥ka˨˩maːt̚˥˩		
+65	คามวาสี	REVIEW	kʰaːm˧ma˦˥waː˧siː˩˩˦	kʰaːm˧ma˦˥waː˧siː˩˩˦ | kʰaː˧ma˦˥waː˧siː˩˩˦		
+64	แม้ว	vowel-length	mɛːw˦˥	mɛw˦˥ | mɛːw˦˥		
+62	บุณฑริก	REVIEW	bun˧tʰa˦˥rik̚˦˥	bun˧da˨˩rik̚˦˥ | bun˧tʰa˦˥rik̚˦˥		
+61	ฮาลาล	tone-only	haː˧laːn˧	haː˧laːn˦˥ | haː˧laːn˧		
+61	สากลนิยม	REVIEW	saː˩˩˦kon˧ni˦˥jom˧	saː˩˩˦kon˧la˦˥ni˦˥jom˧ | saː˩˩˦kon˧ni˦˥jom˧		
+60	ไปรษณียบัตร	REVIEW	praj˧sa˨˩niː˧ja˦˥bat̚˨˩	praj˧sa˨˩niː˧bat̚˨˩ | praj˧sa˨˩niː˧ja˦˥bat̚˨˩		
+60	มนุษยสัมพันธ์	REVIEW	ma˦˥nut̚˦˥sa˨˩ja˦˥sam˩˩˦pʰan˧	ma˦˥nut̚˦˥sam˩˩˦pʰan˧ | ma˦˥nut̚˦˥sa˨˩ja˦˥sam˩˩˦pʰan˧		
+59	วณิพก	REVIEW	wa˦˥ni˦˥pʰok̚˦˥	wa˦˥nip̚˦˥pʰok̚˦˥ | wa˦˥ni˦˥pʰok̚˦˥		
+57	พาสปอร์ต	REVIEW	pʰaːt̚˦˥sa˨˩pɔːt̚˨˩	pʰaːs˦˥pɔːt̚˨˩ | pʰaːt̚˦˥sa˨˩pɔːt̚˨˩		
+56	แฟบ	vowel-length	fɛːp̚˥˩	fɛp̚˥˩ | fɛːp̚˥˩		
+56	อัลลอหฺ	REVIEW		ʔan˧lɔʔ˦˥ | ʔan˧lɔː˧		
+56	มัสกัต	tone-only	mas˦˥kat̚˨˩	mas˦˥kat̚˦˥ | mas˦˥kat̚˨˩		
+55	เจ้ามือ	vowel-length	tɕaːw˥˩mɯː˧	tɕaw˥˩mɯː˧ | tɕaːw˥˩mɯː˧		
+54	มฤค	sandhi	ma˦˥rɯk̚˦˥kʰa˦˥	ma˦˥rɯk̚˦˥ | ma˦˥rɯk̚˦˥kʰa˦˥		
+53	แทนทาลัม	vowel-length	tʰɛːn˧tʰaː˧lam˥˩	tʰɛn˧tʰaː˧lam˥˩ | tʰɛːn˧tʰaː˧lam˥˩		
+53	กุมารแพทย์	REVIEW	ku˨˩maː˧ra˦˥pʰɛːt̚˥˩	ku˨˩maːn˧ra˦˥pʰɛːt̚˥˩ | ku˨˩maː˧ra˦˥pʰɛːt̚˥˩		
+52	พรหมวิหาร	REVIEW	pʰrom˧wi˦˥haːn˩˩˦	pʰrom˧ma˦˥wi˦˥haːn˩˩˦ | pʰrom˧wi˦˥haːn˩˩˦		
+51	หมากฮอส	REVIEW	maːk̚˨˩hɔt̚˦˥	maːk̚˨˩hɔs˦˥ | maːk̚˨˩hɔt̚˦˥		
+50	แซบ	vowel-length	sɛːp̚˥˩	sɛp̚˥˩ | sɛːp̚˥˩		
+49	อธิป	sandhi	ʔa˨˩tʰip̚˦˥paʔ˨˩	ʔa˨˩tʰip̚˦˥ | ʔa˨˩tʰip̚˦˥pa˨˩ | ʔa˨˩tʰi˦˥pa˨˩		
+49	บุรพทิศ	REVIEW	bup̚˨˩pʰa˦˥tʰit̚˦˥	bup̚˨˩pʰa˦˥tʰit̚˦˥ | bu˨˩ra˦˥pʰa˦˥tʰit̚˦˥		
+49	คูปอง	vowel-length	kʰuː˧pɔːŋ˧	kʰuː˧pɔŋ˧ | kʰuː˧pɔːŋ˧		
+48	ไม้กอล์ฟ	REVIEW	maːj˦˥kɔːp̚˦˥	maːj˦˥kɔːf˦˥ | maːj˦˥kɔːp̚˦˥		
+47	อลูมิเนียม	tone-only	ʔa˨˩luː˧mi˦˥niam˧	ʔa˨˩luː˧mi˦˥nia̯m˥˩ | ʔa˨˩luː˧mi˦˥nia̯m˧		
+47	น้อยหน่า	vowel-length	nɔːj˦˥naː˨˩	nɔj˦˥naː˨˩ | nɔːj˦˥naː˨˩		
+46	ขึ้นฉ่าย	tone-only	kʰɯn˥˩tɕʰaːj˨˩	kʰɯn˥˩tɕʰaːj˥˩ | kʰɯn˥˩tɕʰaːj˨˩		
+45	อัลตราซาวนด์	REVIEW	ʔan˧traː˥˩saːw˧	ʔal˧traː˥˩saːw˧ | ʔan˧traː˥˩saːw˧		
+44	คลิตอริส	REVIEW	kʰli˦˥tɔː˧ris˦˥	kʰli˦˥tɔː˧ris˦˥ | kʰli˦˥tɔː˧rit̚˦˥		
+42	ศฤงคาร	sandhi	sa˨˩riŋ˩˩˦kʰaːn˧	sa˨˩riŋ˩˩˦kʰaːn˧ | sa˨˩riŋ˩˩˦kʰaːn˧ra˦˥ | siŋ˩˩˦kʰaːn˧ | siŋ˩˩˦kʰaː˧ra˦˥		
+42	พลาสเตอร์	REVIEW	pʰlaːt̚˥˩tɤː˥˩	pʰlaːs˦˥tɤː˥˩ | pʰlaːt̚˦˥tɤː˥˩		
+42	น้ำเปล่า	vowel-length	naːm˦˥plaw˨˩	nam˦˥plaw˨˩ | naːm˦˥plaw˨˩		
+41	เนคไท	tone-only	nek̚˦˥tʰaj˦˥	nek̚˦˥tʰaj˦˥ | nek̚˦˥tʰaj˧		
+41	หน่อไม้ฝรั่ง	tone-only	nɔː˨˩maːj˦˥fa˨˩raŋ˨˩	nɔː˨˩maːj˦˥fa˦˥raŋ˨˩ | nɔː˨˩maːj˦˥fa˨˩raŋ˨˩		
+41	ศัลย	REVIEW	san˩˩˦ja˦˥	san˩˩˦ja˦˥ | san˩˩˦la˦˥ja˦˥		
+41	ก็แล้วกัน	REVIEW	kɔː˥˩lɛːw˦˥kan˧	kɔʔ˥˩lɛːw˦˥kan˧ | kɔː˥˩lɛːw˦˥kan˧		
+40	ฮอตดอก	vowel-length	hɔt̚˦˥dɔːk̚˨˩	hɔt̚˦˥dɔk̚˨˩ | hɔt̚˦˥dɔːk̚˨˩		
+40	ลักษณนาม	tone-only	lak̚˦˥sa˨˩na˨˩naːm˧	lak̚˦˥sa˧na˨˩naːm˧ | lak̚˦˥sa˨˩na˨˩naːm˧		
+40	ความฉิบหาย	tone-only	kʰwaːm˧tɕʰip̚˨˩haːj˩˩˦	kʰwaːm˧tɕʰip̚˦˥haːj˩˩˦ | kʰwaːm˧tɕʰip̚˨˩haːj˩˩˦		
+38	แลนทานัม	vowel-length	lɛːn˧tʰaː˧nam˥˩	lɛn˧tʰaː˧nam˥˩ | lɛːn˧tʰaː˧nam˥˩		
+38	เซลเซียส	REVIEW	sen˧siat̚˥˩	sel˧sia̯s˥˩ | sel˧sia̯t̚˥˩ | sen˧sia̯t̚˥˩		
+37	แหงน	vowel-length	ŋɛːn˩˩˦	ŋɛn˩˩˦ | ŋɛːn˩˩˦		
+37	ปิตาธิปไตย	REVIEW	pi˨˩taː˧tʰip̚˦˥pa˨˩taj˧	pi˨˩taː˧tʰip̚˦˥pa˨˩taj˧ | pi˨˩taː˧tʰi˦˥pa˨˩taj˧		
+36	อุปยุวราช	REVIEW	ʔu˨˩pa˨˩ju˦˥wa˦˥raːt̚˥˩	ʔup̚˨˩pa˨˩ju˦˥wa˦˥raːt̚˥˩ | ʔu˨˩pa˨˩ju˦˥wa˦˥raːt̚˥˩		
+36	ภาคยานุวัติ	sandhi	pʰaːk̚˥˩kʰa˦˥jaː˧nu˦˥wat̚˦˥	pʰaːk̚˥˩kʰa˦˥jaː˧nu˦˥wat̚˦˥ | pʰaːk̚˥˩kʰa˦˥jaː˧nu˦˥wat̚˦˥ti˨˩		
+34	แฟ็กซ์	REVIEW	fɛk̚˨˩	fɛk̚s˨˩ | fɛk̚˨˩		
+34	ดัชต์	REVIEW	datɕʰ˦˥	datɕʰ˦˥ | dat̚˦˥		
+33	ไอศครีม	REVIEW	ʔaj˧sa˨˩kʰriːm˧	ʔajs˧kʰriːm˧ | ʔaj˧sa˨˩kʰriːm˧		
+33	อาชญาสิทธิ์	REVIEW	ʔaːt̚˨˩jaː˧sit̚˨˩	ʔaːt̚˨˩jaː˧sit̚˨˩ | ʔaːt̚˨˩tɕʰa˦˥jaː˧sit̚˨˩		
+33	สถล	sandhi	sa˨˩tʰon˩˩˦	sa˨˩tʰon˩˩˦ | sa˨˩tʰon˩˩˦la˦˥		
+33	ลองกอง	vowel-length	lɔːŋ˧kɔːŋ˧	lɔŋ˧kɔŋ˧ | lɔːŋ˧kɔːŋ˧		
+32	อภิชนาธิปไตย	REVIEW	ʔa˨˩pʰi˦˥tɕʰa˦˥naː˧tʰip̚˦˥pa˨˩taj˧	ʔa˨˩pʰi˦˥tɕʰa˦˥naː˧tʰip̚˦˥pa˨˩taj˧ | ʔa˨˩pʰi˦˥tɕʰa˦˥naː˧tʰi˦˥pa˨˩taj˧		
+32	หีนยาน	REVIEW	hiː˩˩˦na˦˥jaːn˧	hiːn˩˩˦na˦˥jaːn˧ | hiː˧na˦˥jaːn˧ | hiː˩˩˦na˦˥jaːn˧		
+31	ผักชีฝรั่ง	tone-only	pʰak̚˨˩tɕʰiː˧fa˨˩raŋ˨˩	pʰak̚˨˩tɕʰiː˧fa˦˥raŋ˨˩ | pʰak̚˨˩tɕʰiː˧fa˨˩raŋ˨˩		
+30	กระดานชนวน	tone-only	kra˨˩daːn˧tɕʰa˦˥nuan˧	kra˧daːn˧tɕʰa˦˥nua̯n˧ | kra˨˩daːn˧tɕʰa˦˥nua̯n˧		
+29	ไม้เรียว	vowel-length	maːj˦˥riaw˧	maj˦˥ria̯w˧ | maːj˦˥ria̯w˧		
+29	ไม้จิ้มฟัน	vowel-length	maj˦˥tɕim˥˩fan˧	maj˦˥tɕim˥˩fan˧ | maːj˦˥tɕim˥˩fan˧		
+29	ส้มเช้ง	vowel-length	som˥˩tɕʰeːŋ˦˥	som˥˩tɕʰeŋ˦˥ | som˥˩tɕʰeːŋ˦˥		
+29	กาลกิณี	REVIEW	kaː˧la˦˥ki˨˩niː˧	kaːn˧la˦˥ki˨˩niː˧ | kaː˧la˦˥ki˨˩niː˧		
+27	เนปทูเนียม	vowel-length	neːp̚˦˥tʰuː˧niam˥˩	nep̚˦˥tʰuː˧nia̯m˥˩ | neːp̚˦˥tʰuː˧nia̯m˥˩		
+27	สวัสติกะ	tone-only	sa˨˩wat̚˨˩ti˨˩kaʔ˨˩	sa˧wat̚˨˩ti˨˩kaʔ˨˩ | sa˨˩wat̚˨˩ti˨˩kaʔ˨˩		
+26	อบาย	sandhi	ʔa˨˩baːj˧	ʔa˨˩baːj˧ | ʔa˨˩baːj˧ja˦˥		
+26	การ์ฟิลด์	REVIEW	kaː˧fin˧	kaː˧fil˧ | kaː˧fin˧		
+25	บัลลาสต์	REVIEW	ban˧laːt̚˨˩	bal˧laːt̚˨˩ | ban˧laːt̚˨˩		
+25	บอนไซ	vowel-length	bɔn˧saj˧	bɔn˧saj˧ | bɔːn˧saj˧		
+24	ไม้โท	vowel-length	maːj˦˥tʰoː˧	maj˦˥tʰoː˧ | maːj˦˥tʰoː˧		
+24	โภชนะ	REVIEW	pʰoːt̚˥˩tɕʰa˦˥naʔ˦˥	pʰoːt̚˥˩tɕʰa˦˥naʔ˦˥ | pʰoː˧tɕʰa˦˥naʔ˦˥		
+24	สกรรมกริยา	REVIEW	sa˨˩kam˧kri˨˩jaː˧	sa˨˩kam˧ka˨˩ri˦˥jaː˧ | sa˨˩kam˧kri˨˩jaː˧		
+24	นักประชาธิปไตย	REVIEW	nak̚˦˥pra˨˩tɕʰaː˧tʰip̚˦˥pa˨˩taj˧	nak̚˦˥pra˨˩tɕʰaː˧tʰip̚˦˥pa˨˩taj˧ | nak̚˦˥pra˨˩tɕʰaː˧tʰi˦˥pa˨˩taj˧		
+24	ช่างทาสี	vowel-length	tɕʰaŋ˥˩tʰaː˧siː˩˩˦	tɕʰaŋ˥˩tʰaː˧siː˩˩˦ | tɕʰaːŋ˥˩tʰaː˧siː˩˩˦		
+24	ขนมเข่ง	tone-only	kʰa˨˩nom˩˩˦kʰeŋ˨˩	kʰa˦˥nom˩˩˦kʰeŋ˨˩ | kʰa˨˩nom˩˩˦kʰeŋ˨˩		
+24	กระดานหมากรุก	tone-only	kra˨˩daːn˧maːk̚˨˩ruk̚˦˥	kra˧daːn˧maːk̚˨˩ruk̚˦˥ | kra˨˩daːn˧maːk̚˨˩ruk̚˦˥		
+23	ประทุษ	sandhi	pra˨˩tʰut̚˦˥	pra˨˩tʰut̚˦˥ | pra˨˩tʰut̚˦˥sa˨˩		
+23	นักขัต	sandhi	nak̚˦˥kʰat̚˨˩	nak̚˦˥kʰat̚˨˩ | nak̚˦˥kʰat̚˨˩ta˨˩		
+23	กิกะไบต์	REVIEW	ki˨˩ka˨˩baj˧	kik̚˦˥ka˨˩baj˦˥ | ki˨˩ka˨˩baj˦˥		
+22	โศภิต	REVIEW	soː˩˩˦pʰit̚˦˥	soː˩˩˦pʰit̚˦˥ | soː˩˩˦pʰi˦˥ta˨˩		
+22	แพลเลเดียม	vowel-length	pʰɛːl˧leː˧diam˥˩	pʰɛl˧leː˧dia̯m˥˩ | pʰɛːl˧leː˧dia̯m˥˩		
+22	น้ำกลั่น	vowel-length	naːm˦˥klan˨˩	nam˦˥klan˨˩ | naːm˦˥klan˨˩		
+22	คฤห	REVIEW	kʰa˦˥rɯ˦˥ha˨˩	kʰa˦˥rɯ˦˥ha˨˩ | kʰrɯʔ˦˥		
+22	กรรตุการก	REVIEW	kan˧tu˨˩kaː˧rok̚˦˥	kan˧tu˨˩kaː˧rok̚˦˥ | kat̚˨˩tu˨˩kaː˧rok̚˦˥		
+21	อุปัชฌายะ	REVIEW	ʔu˨˩pat̚˨˩tɕʰaː˧jaʔ˦˥	ʔup̚˨˩pat̚˨˩tɕʰaː˧jaʔ˦˥ | ʔu˨˩pat̚˨˩tɕʰaː˧jaʔ˦˥		
+21	อรรฆ	sandhi	ʔak̚˨˩	ʔak̚˨˩ | ʔak̚˨˩kʰa˦˥		
+21	สแกนเดียม	vowel-length	sa˨˩kɛːn˧diam˥˩	sa˨˩kɛn˧dia̯m˥˩ | sa˨˩kɛːn˧dia̯m˥˩		
+20	ไม้เอก	vowel-length	maːj˦˥ʔeːk̚˨˩	maj˦˥ʔeːk̚˨˩ | maːj˦˥ʔeːk̚˨˩		
+20	ประวัติการณ์	REVIEW	pra˨˩wat̚˨˩ti˨˩kaːn˧	pra˨˩wat̚˨˩kaːn˧ | pra˨˩wat̚˨˩ti˨˩kaːn˧		
+19	กษัตร	sandhi	ka˨˩sat̚˨˩	ka˨˩sat̚˨˩ | ka˨˩sat̚˨˩tra˨˩		
+18	อมาตย์	tone-only	ʔa˨˩maːt̚˨˩	ʔa˨˩maːt̚˥˩ | ʔa˨˩maːt̚˨˩		
+18	สรภัญญะ	REVIEW	sɔː˩˩˦ra˦˥pʰan˧jaʔ˦˥	sa˨˩ra˦˥pʰan˧jaʔ˦˥ | sɔː˩˩˦ra˦˥pʰan˧jaʔ˦˥		
+17	รีโมตคอนโทรล	REVIEW	riː˧moːt̚˨˩kʰɔn˧tʰroːn˧	riː˧moːt̚˨˩kʰɔn˧tʰroːl˧ | riː˧moːt̚˨˩kʰɔn˧tʰroːn˧		
+16	ไม้ตรี	vowel-length	maːj˦˥triː˧	maj˦˥triː˧ | maːj˦˥triː˧		
+16	งอมแงม	vowel-length	ŋɔːm˧ŋɛːm˧	ŋɔm˧ŋɛm˧ | ŋɔːm˧ŋɛːm˧		
+16	กรกฎา	REVIEW	ka˨˩ra˦˥ka˨˩daː˧	ka˨˩rak̚˦˥ka˨˩daː˧ | ka˨˩ra˦˥ka˨˩daː˧		
+15	แทลเลียม	vowel-length	tʰɛːl˧liam˥˩	tʰɛl˧lia̯m˥˩ | tʰɛːl˧lia̯m˥˩		
+15	เบญจเพส	vowel-length	ben˧tɕa˨˩pʰeːt̚˥˩	ben˧tɕa˨˩pʰeːt̚˥˩ | beːn˧tɕa˨˩pʰeːt̚˥˩		
+15	พัฟฟิน	REVIEW	pʰap̚˦˥fin˥˩	pʰaf˦˥fin˥˩ | pʰap̚˦˥fin˥˩		
+15	ปรมินทร์	REVIEW	pɔː˧ra˦˥min˧	pa˨˩ra˦˥min˧ | pɔː˧ra˦˥min˧		
+14	อกรรมกริยา	REVIEW	ʔa˨˩kam˧kri˨˩jaː˧	ʔa˨˩kam˧ka˨˩ri˦˥jaː˧ | ʔa˨˩kam˧kri˨˩jaː˧		
+14	พาฬ	sandhi	pʰaːn˧	pʰaːn˧ | pʰaː˧la˦˥		
+14	ป๊อปคอร์น	vowel-length	pɔp̚˦˥kʰɔːn˧	pɔp̚˦˥kʰɔn˧ | pɔp̚˦˥kʰɔːn˧		
+12	โมเต็ล	REVIEW	moː˧ten˧	moː˧tel˧ | moː˧ten˧		
+12	คูถ	REVIEW	kʰuːt̚˥˩	kʰuːt̚˥˩ | kʰuː˧tʰa˨˩		
+11	แมสก์	REVIEW	mɛːt̚˦˥	mɛːs˦˥ | mɛːt̚˦˥		
+11	แฟลนเดอร์ส	REVIEW	flɛːn˧dɤː˧	flɛn˧dɤːs˥˩ | flɛn˧dɤː˥˩		
+11	บาทบงกช	sandhi	baːt̚˨˩boŋ˧kot̚˨˩	baːt̚˨˩boŋ˧kot̚˨˩ | baːt̚˨˩boŋ˧kot̚˨˩tɕʰa˦˥ | baːt̚˨˩tʰa˦˥boŋ˧kot̚˨˩ | baːt̚˨˩tʰa˦˥boŋ˧kot̚˨˩tɕʰa˦˥		
+11	กระดานหก	tone-only	kra˨˩daːn˧hok̚˨˩	kra˧daːn˧hok̚˨˩ | kra˨˩daːn˧hok̚˨˩		
+10	เปตพลี	REVIEW	peːt̚˨˩pʰliː˧	peːt̚˨˩ta˨˩pʰa˦˥liː˧ | peː˧ta˨˩pʰa˦˥liː˧		
+10	เน็คไท	tone-only	nek̚˦˥tʰaj˧	nek̚˦˥tʰaj˦˥ | nek̚˦˥tʰaj˧		
+10	วิกาล	sandhi	wi˦˥kaːn˧	wi˦˥kaːn˧ | wi˦˥kaːn˧la˦˥		
+10	ดิกชันนารี	tone-only	dik̚˨˩tɕʰan˧naː˧riː˥˩	dik̚˨˩tɕʰan˧naː˧riː˥˩ | dik̚˨˩tɕʰan˧naː˧riː˧		
+10	ชักว่าว	vowel-length	tɕʰak̚˦˥waːw˥˩	tɕʰak̚˦˥waw˥˩ | tɕʰak̚˦˥waːw˥˩		
+9	ไม้จัตวา	vowel-length	maːj˦˥tɕat̚˨˩ta˨˩waː˧	maj˦˥tɕat̚˨˩ta˨˩waː˧ | maːj˦˥tɕat̚˨˩ta˨˩waː˧		
+8	เสียน้ำใจ	vowel-length	sia˩˩˦naːm˦˥tɕaj˧	sia̯˩˩˦nam˦˥tɕaj˧ | sia̯˩˩˦naːm˦˥tɕaj˧		
+8	เช้ง	vowel-length	tɕʰeːŋ˦˥	tɕʰeŋ˦˥ | tɕʰeːŋ˦˥		
+8	พสก	sandhi	pʰa˦˥sok̚˨˩	pʰa˦˥sok̚˨˩ | pʰa˦˥sok̚˨˩ka˨˩		
+8	กริยาวิเศษณ์	REVIEW	kri˨˩jaː˧wi˦˥seːt̚˨˩	ka˨˩ri˦˥jaː˧wi˦˥seːt̚˨˩ | kri˨˩jaː˧wi˦˥seːt̚˨˩		
+7	ไต้ก๋ง	vowel-length	taj˥˩koŋ˩˩˦	taj˥˩koŋ˩˩˦ | taːj˥˩koŋ˩˩˦		
+7	โปสต์การ์ด	REVIEW	poːt̚˦˥kaːt̚˦˥	poːs˦˥kaːt̚˦˥ | poːt̚˦˥kaːt̚˦˥ | poːt̚˦˥sa˨˩kaːt̚˦˥		
+7	อุปไมย	REVIEW	ʔu˨˩pa˨˩maj˧	ʔup̚˨˩pa˨˩maj˧ | ʔu˨˩pa˨˩maj˧		
+7	อักษรสาสน์	REVIEW	ʔak̚˨˩sɔːn˩˩˦saːt̚˨˩	ʔak̚˨˩sɔːn˩˩˦ra˦˥saːt̚˨˩ | ʔak̚˨˩sɔːn˩˩˦saːt̚˨˩		
+7	วิชญะ	REVIEW	wit̚˦˥jaʔ˦˥	wit̚˦˥jaʔ˦˥ | wit̚˦˥tɕʰa˦˥jaʔ˦˥		
+6	เจ้ากรรม	vowel-length	tɕaːw˥˩kam˧	tɕaw˥˩kam˧ | tɕaːw˥˩kam˧		
+6	ปรมาภิไธย	REVIEW	pɔː˧ra˦˥maː˧pʰi˦˥tʰaj˧	pa˨˩ra˦˥maː˧pʰi˦˥tʰaj˧ | pɔː˧ra˦˥maː˧pʰi˦˥tʰaj˧		
+6	กริยานุเคราะห์	REVIEW	kri˨˩jaː˧nu˦˥kʰrɔʔ˦˥	ka˨˩ri˦˥jaː˧nu˦˥kʰrɔʔ˦˥ | kri˨˩jaː˧nu˦˥kʰrɔʔ˦˥		
+5	ไก่อ่อน	vowel-length	kaj˨˩ʔɔːn˨˩	kaj˨˩ʔɔn˨˩ | kaj˨˩ʔɔːn˨˩		
+5	อั้งม้อ	tone-only	ʔaŋ˥˩mɔː˦˥	ʔaŋ˥˩mɔː˦˥ | ʔaŋ˦˥mɔː˦˥		
+5	อมาตยาธิปไตย	REVIEW	ʔa˨˩maːt̚˨˩ta˨˩jaː˧tʰi˦˥pa˨˩taj˧	ʔa˨˩maːt̚˨˩ta˨˩jaː˧tʰip̚˦˥pa˨˩taj˧ | ʔa˨˩maːt̚˨˩ta˨˩jaː˧tʰi˦˥pa˨˩taj˧		
+5	น้ำมันพราย	vowel-length	naːm˦˥man˧pʰraːj˧	nam˦˥man˧pʰraːj˧ | naːm˦˥man˧pʰraːj˧		
+5	ถอก	vowel-length	tʰɔːk̚˨˩	tʰɔk̚˨˩ | tʰɔːk̚˨˩		
+5	คณิตกรณ์	REVIEW	kʰa˦˥nit̚˦˥kɔːn˧	kʰa˦˥nit̚˦˥kɔːn˧ | kʰa˦˥nit̚˦˥ta˨˩kɔːn˧		
+5	กระดาษเช็ดปาก	tone-only	kra˨˩daːt̚˨˩tɕʰet̚˦˥paːk̚˨˩	kra˧daːt̚˨˩tɕʰet̚˦˥paːk̚˨˩ | kra˨˩daːt̚˨˩tɕʰet̚˦˥paːk̚˨˩		
+5	กรรมสัมปาทิก	sandhi	kam˧ma˦˥sam˩˩˦paː˧tʰik̚˦˥	kam˧ma˦˥sam˩˩˦paː˧tʰik̚˦˥ | kam˧ma˦˥sam˩˩˦paː˧tʰik̚˦˥ka˨˩ | kam˧ma˦˥sam˩˩˦paː˧tʰi˦˥ka˨˩		
+4	วนิพก	REVIEW	wa˦˥ni˦˥pʰok̚˦˥	wa˦˥nip̚˦˥pʰok̚˦˥ | wa˦˥ni˦˥pʰok̚˦˥		
+4	นกสองหัว	vowel-length	nok̚˦˥sɔːŋ˩˩˦hua˩˩˦	nok̚˦˥sɔŋ˩˩˦hua̯˩˩˦ | nok̚˦˥sɔːŋ˩˩˦hua̯˩˩˦		
+4	ทศมี	REVIEW	tʰot̚˦˥sa˨˩miː˧	tʰa˦˥sa˨˩miː˧ | tʰot̚˦˥sa˨˩miː˧		
+4	ช่ะ	tone-only	tɕʰaʔ˥˩	tɕʰaʔ˥˩ | tɕʰaʔ˨˩		
+3	แจซซ์	REVIEW	tɕɛːt̚˦˥	tɕɛːs˦˥ | tɕɛːt̚˦˥		
+3	หมอย	vowel-length	mɔːj˩˩˦	mɔj˩˩˦ | mɔːj˩˩˦		
+3	ศารท	REVIEW	saːt̚˨˩	saːt̚˨˩ | saː˩˩˦ra˦˥tʰa˦˥		
+2	เอิ่ม	vowel-length	ʔɤːm˨˩	ʔɤm˨˩ | ʔɤːm˨˩		
+2	เอกาธิปไตย	REVIEW	ʔeː˧kaː˧tʰip̚˦˥pa˨˩taj˧	ʔeː˧kaː˧tʰip̚˦˥pa˨˩taj˧ | ʔeː˧kaː˧tʰi˦˥pa˨˩taj˧		
+2	เกลศ	sandhi	ka˨˩leːt̚˨˩	ka˨˩leːt̚˨˩ | ka˨˩leːt̚˨˩sa˨˩		
+2	ตับแลบ	vowel-length	tap̚˨˩lɛːp̚˥˩	tap̚˨˩lɛp̚˥˩ | tap̚˨˩lɛːp̚˥˩		
+1	สังกรประโยค	REVIEW	saŋ˩˩˦ka˨˩ra˦˥pra˨˩joːk̚˨˩	saŋ˩˩˦ka˨˩ra˦˥pra˨˩joːk̚˨˩ | saŋ˩˩˦kɔː˧ra˦˥pra˨˩joːk̚˨˩		
+1	บุรพบท	REVIEW	bup̚˨˩pʰa˦˥bot̚˨˩	bup̚˨˩pʰa˦˥bot̚˨˩ | bu˨˩ra˦˥pʰa˦˥bot̚˨˩		
+1	ค่าน้ำร้อนน้ำชา	vowel-length	kʰaː˥˩naːm˦˥rɔːn˦˥naːm˦˥tɕʰaː˧	kʰaː˥˩nam˦˥rɔːn˦˥nam˦˥tɕʰaː˧ | kʰaː˥˩naːm˦˥rɔːn˦˥naːm˦˥tɕʰaː˧		
+1	ขนมผสมน้ำยา	vowel-length		kʰa˨˩nom˩˩˦pʰa˨˩som˩˩˦nam˦˥jaː˧ | kʰa˨˩nom˩˩˦pʰa˨˩som˩˩˦naːm˦˥jaː˧		
+0	ไมโครพลาสติก	REVIEW		maj˧kʰroː˧pʰlaːs˦˥tik̚˨˩ | maj˧kʰroː˧pʰlaːt̚˦˥sa˨˩tik̚˨˩		
+0	ไซแนปส์	tone-only	saj˧nɛp̚˦˥	saj˧nɛp̚˦˥ | saj˧nɛp̚˨˩		
+0	ไซเล็ม	tone-only	saj˧lem˧	saj˧lem˥˩ | saj˧lem˧		
+0	ไซเบอร์เนติกส์	tone-only	saj˧bɤː˥˩neː˧tik̚s˨˩	saj˧bɤː˥˩neː˧tik̚s˨˩ | saj˧bɤː˧neː˧tik̚s˨˩		
+0	ไซเบอร์สเปซ	tone-only	saj˧bɤː˥˩sa˨˩peːs˦˥	saj˧bɤː˥˩sa˨˩peːs˦˥ | saj˧bɤː˥˩sa˨˩peːs˨˩		
+0	โหราธิบดี	REVIEW	hoː˩˩˦raː˧tʰi˦˥bɔː˧diː˧	hoː˩˩˦raː˧tʰip̚˦˥bɔː˧diː˧ | hoː˩˩˦raː˧tʰi˦˥bɔː˧diː˧		
+0	โสษ	sandhi	soːt̚˨˩	soːt̚˨˩ | soːt̚˨˩sa˨˩		
+0	โวลเตจ	REVIEW	woːn˧teːt̚˨˩	woːl˧teːt̚˨˩ | woːn˧teːt̚˨˩		
+0	โวลต์มิเตอร์	REVIEW		woːl˦˥mi˦˥tɤː˥˩ | woːn˦˥mi˦˥tɤː˥˩		
+0	โภชนากร	REVIEW		pʰoːt̚˥˩tɕʰa˦˥naː˧kɔːn˧ | pʰoː˧tɕʰa˦˥naː˧kɔːn˧		
+0	โภคกิจ	REVIEW		pʰoːk̚˥˩kʰa˦˥kit̚˨˩ | pʰoː˧kʰa˦˥kit̚˨˩		
+0	โฟลเอ็ม	tone-only	floː˧ʔem˥˩	floː˧ʔem˥˩ | floː˧ʔem˧		
+0	โทรลล์	REVIEW	tʰroːl˧	tʰroːl˧ | tʰroːn˧		
+0	แอลเจียร์ส	REVIEW	ʔɛl˧tɕiat̚˨˩	ʔɛl˧tɕia̯t̚˨˩ | ʔɛn˧tɕia̯t̚˨˩		
+0	แมรี	tone-only	mɛː˧riː˧	mɛː˧riː˥˩ | mɛː˧riː˧		
+0	แพ็กเจ	tone-only	pʰɛk̚˦˥tɕeː˧	pʰɛk̚˦˥tɕeː˧ | pʰɛk̚˨˩tɕeː˧		
+0	แท็บเล็ตคอมพิวเตอร์	tone-only		tʰɛp̚˦˥let̚˨˩kʰɔm˧pʰiw˦˥tɤː˥˩ | tʰɛp̚˦˥let̚˨˩kʰɔm˧pʰiw˧tɤː˥˩		
+0	แทสเมเนียนเดวิล	tone-only	tʰɛːs˦˥meː˧nian˥˩deː˧wil˥˩	tʰɛːs˦˥meː˧nia̯n˥˩deː˧wil˥˩ | tʰɛːs˦˥meː˧nia̯n˥˩deː˧wil˧		
+0	แทลลาแฮสซี	tone-only	tʰɛn˧laː˧hɛt̚˦˥siː˥˩	tʰɛn˧laː˧hɛt̚˦˥siː˥˩ | tʰɛn˧laː˧hɛt̚˦˥siː˧		
+0	แคล	vowel-length	kʰɛːl˧	kʰɛl˧ | kʰɛːl˧		
+0	แคนวาส	REVIEW	kʰɛːn˧waːt̚˦˥	kʰɛːn˧waːs˦˥ | kʰɛːn˧waːt̚˦˥		
+0	แกรนด์ดัชเชส	tone-only	krɛːn˧dat̚˦˥tɕʰes˦˥	krɛːn˧dat̚˦˥tɕʰes˥˩ | krɛːn˧dat̚˦˥tɕʰes˦˥		
+0	เฮช	vowel-length	heːtɕʰ˦˥	hetɕʰ˦˥ | heːtɕʰ˦˥		
+0	เฮก	vowel-length	hek̚˦˥	hek̚˦˥ | heːk̚˦˥		
+0	เอสเปรันโต	REVIEW	ʔeːs˨˩peː˧ran˧toː˧	ʔeːs˨˩peː˧ran˧toː˧ | ʔeːt̚˨˩peː˧ran˧toː˧		
+0	เอนทาลปี	tone-only		ʔeːn˧tʰaw˧piː˥˩ | ʔeːn˧tʰaw˧piː˧		
+0	เอนทัลปี	tone-only		ʔeːn˧tʰaw˧piː˥˩ | ʔeːn˧tʰaw˧piː˧		
+0	เอซ	REVIEW		ʔeːs˨˩ | ʔeːt̚˨˩		
+0	เหล็กแหลม	vowel-length		lek̚˨˩lɛm˩˩˦ | lek̚˨˩lɛːm˩˩˦		
+0	เศรษฐยาธิปไตย	REVIEW	seːt̚˨˩tʰa˨˩jaː˧tʰip̚˦˥pa˨˩taj˧	seːt̚˨˩tʰa˨˩jaː˧tʰip̚˦˥pa˨˩taj˧ | seːt̚˨˩tʰa˨˩jaː˧tʰi˦˥pa˨˩taj˧		
+0	เวสต์แบงก์	REVIEW	weːt̚˦˥bɛŋ˦˥	weːs˦˥bɛŋ˦˥ | weːt̚˦˥bɛŋ˦˥		
+0	เลิศสะแมนแตน	vowel-length		lɤːt̚˥˩sa˨˩mɛn˧tɛn˧ | lɤːt̚˥˩sa˨˩mɛːn˧tɛːn˧		
+0	เริ่ดสะแมนแตน	vowel-length		rɤt̚˥˩sa˨˩mɛn˧tɛn˧ | rɤt̚˥˩sa˨˩mɛːn˧tɛːn˧		
+0	เมืองราชบุรี	REVIEW		mɯa̯ŋ˧raːt̚˥˩bu˨˩riː˧ | mɯa̯ŋ˧raːt̚˥˩tɕʰa˦˥bu˨˩riː˧		
+0	เมษปิศาจ	REVIEW	meːt̚˥˩sa˨˩pi˨˩saːt̚˨˩	meːt̚˥˩sa˨˩pi˨˩saːt̚˨˩ | meː˧sa˨˩pi˨˩saːt̚˨˩		
+0	เมษบาล	REVIEW	meːt̚˥˩sa˨˩baːn˧	meːt̚˥˩sa˨˩baːn˧ | meː˧sa˨˩baːn˧		
+0	เมธังกร	REVIEW	meː˧tʰaŋ˧kɔːn˧	meː˧tʰaŋ˧ka˨˩ra˦˥ | meː˧tʰaŋ˧kɔːn˧		
+0	เพกาซัส	REVIEW	pʰeː˧kaː˧sat̚˦˥	pʰeː˧kaː˧sas˦˥ | pʰeː˧kaː˧sat̚˦˥		
+0	เบงกอลตะวันตก	REVIEW		beŋ˧kɔːl˧ta˨˩wan˧tok̚˨˩ | beŋ˧kɔːn˧ta˨˩wan˧tok̚˨˩		
+0	เน็ตไอดอล	REVIEW	net̚˨˩ʔaj˧dɔl˥˩	net̚˨˩ʔaj˧dɔl˥˩ | net̚˨˩ʔaj˧dɔn˥˩		
+0	เน็กไท	tone-only	nek̚˦˥tʰaj˧	nek̚˦˥tʰaj˦˥ | nek̚˦˥tʰaj˧		
+0	เทเบิลเทนนิส	REVIEW	tʰeː˧bɤl˥˩tʰen˧nis˦˥	tʰeː˧bɤl˥˩tʰen˧nis˦˥ | tʰeː˧bɤn˥˩tʰen˧nit̚˦˥		
+0	เทวาธิปไตย	REVIEW	tʰeː˧waː˧tʰip̚˦˥pa˨˩taj˧	tʰeː˧waː˧tʰip̚˦˥pa˨˩taj˧ | tʰeː˧waː˧tʰi˦˥pa˨˩taj˧		
+0	เทคบอล	REVIEW	tʰek̚˨˩bɔn˧	tʰek̚˨˩bɔl˧ | tʰek̚˨˩bɔn˧		
+0	เตาอบไมโครเวฟ	REVIEW	taw˧ʔop̚˨˩maj˧kʰroː˧weːp̚˦˥	taw˧ʔop̚˨˩maj˧kʰroː˧weːf˦˥ | taw˧ʔop̚˨˩maj˧kʰroː˧weːp̚˦˥		
+0	เด็กเจ็ดเข้าเฒ่าเจ็ดสิบ	vowel-length	dek̚˨˩tɕet̚˨˩kʰaw˥˩tʰaw˥˩tɕet̚˨˩sip̚˨˩	dek̚˨˩tɕet̚˨˩kʰaw˥˩tʰaw˥˩tɕet̚˨˩sip̚˨˩ | dek̚˨˩tɕet̚˨˩kʰaːw˥˩tʰaw˥˩tɕet̚˨˩sip̚˨˩		
+0	เซาตูเมและปรินซีปี	tone-only	saw˧tuː˧meː˧lɛʔ˦˥prin˧siː˧piː˧	saw˧tuː˧meː˧lɛʔ˦˥prin˧siː˧piː˥˩ | saw˧tuː˧meː˧lɛʔ˦˥prin˧siː˧piː˧		
+0	เกมคอมพิวเตอร์	tone-only		keːm˧kʰɔm˧pʰiw˦˥tɤː˥˩ | keːm˧kʰɔm˧pʰiw˧tɤː˥˩		
+0	อุปัชฌาย	REVIEW	ʔu˨˩pat̚˨˩tɕʰaː˧ja˦˥	ʔup̚˨˩pat̚˨˩tɕʰaː˧ja˦˥ | ʔu˨˩pat̚˨˩tɕʰaː˧ja˦˥		
+0	อุปัชฌา	REVIEW	ʔu˨˩pat̚˨˩tɕʰaː˧	ʔup̚˨˩pat̚˨˩tɕʰaː˧ | ʔu˨˩pat̚˨˩tɕʰaː˧		
+0	อาร์ชดัชเชส	tone-only	ʔaːtɕʰ˦˥dat̚˦˥tɕʰes˦˥	ʔaːtɕʰ˦˥dat̚˦˥tɕʰes˥˩ | ʔaːtɕʰ˦˥dat̚˦˥tɕʰes˦˥		
+0	อาชญากรรมสงคราม	REVIEW	ʔaːt̚˨˩jaː˧kam˧soŋ˩˩˦kʰraːm˧	ʔaːt̚˨˩jaː˧kam˧soŋ˩˩˦kʰraːm˧ | ʔaːt̚˨˩tɕʰa˦˥jaː˧kam˧soŋ˩˩˦kʰraːm˧		
+0	อัสตานา	tone-only	ʔas˥˩taː˧naː˧	ʔas˥˩taː˧naː˥˩ | ʔas˥˩taː˧naː˧		
+0	อัลตร้าซาวด์	REVIEW	ʔan˧traː˥˩saːw˧	ʔal˧traː˥˩saːw˧ | ʔan˧traː˥˩saːw˧		
+0	อับดุลเลาะ	tone-only	ʔap̚˨˩dun˧lɔʔ˦˥	ʔap̚˨˩dun˧lɔʔ˦˥ | ʔap̚˨˩dun˧lɔʔ˨˩		
+0	อัตวินิบาต	sandhi	ʔat̚˨˩ta˨˩wi˦˥ni˦˥baːt̚˨˩	ʔat̚˨˩ta˨˩wi˦˥ni˦˥baːt̚˨˩ | ʔat̚˨˩ta˨˩wi˦˥ni˦˥baːt̚˨˩ta˨˩		
+0	อะเลปโป	tone-only		ʔa˨˩lep̚˦˥poː˥˩ | ʔa˨˩lep̚˦˥poː˧		
+0	อะนิเมะ	tone-only	ʔa˨˩ni˦˥meʔ˦˥	ʔa˨˩ni˦˥meʔ˦˥ | ʔa˨˩ni˦˥meʔ˨˩		
+0	อะนาโตลี	tone-only	ʔa˨˩naː˧toː˧liː˧	ʔa˨˩naː˧toː˧liː˥˩ | ʔa˨˩naː˧toː˧liː˧		
+0	ออเดิร์ฟ	REVIEW	ʔɔː˧dɤːp̚˦˥	ʔɔː˧dɤːf˦˥ | ʔɔː˧dɤːp̚˦˥		
+0	ออนแทรีโอ	vowel-length		ʔɔn˧tʰɛː˧riː˧ʔoː˥˩ | ʔɔːn˧tʰɛː˧riː˧ʔoː˥˩		
+0	อนิยมสรรพนาม	REVIEW	ʔa˨˩ni˦˥ja˦˥ma˦˥sap̚˨˩pʰa˦˥naːm˧	ʔa˨˩ni˦˥ja˦˥ma˦˥sap̚˨˩pʰa˦˥naːm˧ | ʔa˨˩ni˦˥jom˧ma˦˥sap̚˨˩pʰa˦˥naːm˧		
+0	องค์กรอาชญากรรม	REVIEW		ʔoŋ˧kɔːn˧ʔaːt̚˨˩jaː˧kam˧ | ʔoŋ˧kɔːn˧ʔaːt̚˨˩tɕʰa˦˥jaː˧kam˧		
+0	หิมะถล่ม	tone-only	hi˨˩ma˦˥tʰa˨˩lom˨˩	hi˧ma˦˥tʰa˨˩lom˨˩ | hi˨˩ma˦˥tʰa˨˩lom˨˩		
+0	สุโขทย	REVIEW		suk̚˨˩kʰoː˩˩˦tʰa˦˥ja˦˥ | su˨˩kʰoː˩˩˦tʰa˦˥ja˦˥		
+0	สุชาต	REVIEW	su˨˩tɕʰaːt̚˥˩	su˨˩tɕʰaːt̚˥˩ | su˨˩tɕʰaː˧ta˨˩		
+0	สุขสันต์วันคริสต์มาส	REVIEW	suk̚˨˩san˩˩˦wan˧kʰris˦˥maːs˥˩	suk̚˨˩san˩˩˦wan˧kʰris˦˥maːs˥˩ | suk̚˨˩san˩˩˦wan˧kʰrit̚˦˥sa˨˩maːt̚˥˩		
+0	สาธารณรัฐแอฟริกากลาง	tone-only	saː˩˩˦tʰaː˧ra˦˥na˦˥rat̚˦˥ʔɛp̚˦˥fri˦˥kaː˧klaːŋ˧	saː˩˩˦tʰaː˧ra˦˥na˦˥rat̚˦˥ʔɛp̚˦˥fri˦˥kaː˧klaːŋ˧ | saː˩˩˦tʰaː˧ra˧na˦˥rat̚˦˥ʔɛp̚˦˥fri˦˥kaː˧klaːŋ˧		
+0	สาธารณรัฐฝรั่งเศส	tone-only		saː˩˩˦tʰaː˧ra˦˥na˦˥rat̚˦˥fa˨˩raŋ˨˩seːt̚˨˩ | saː˩˩˦tʰaː˧ra˧na˦˥rat̚˦˥fa˨˩raŋ˨˩seːt̚˨˩		
+0	สาธารณรัฐจีน	tone-only	saː˩˩˦tʰaː˧ra˦˥na˦˥rat̚˦˥tɕiːn˧	saː˩˩˦tʰaː˧ra˦˥na˦˥rat̚˦˥tɕiːn˧ | saː˩˩˦tʰaː˧ra˧na˦˥rat̚˦˥tɕiːn˧		
+0	สาธารณรัฐกล้วย	tone-only		saː˩˩˦tʰaː˧ra˦˥na˦˥rat̚˦˥klua̯j˥˩ | saː˩˩˦tʰaː˧ra˧na˦˥rat̚˦˥klua̯j˥˩		
+0	สากลศักราช	REVIEW	saː˩˩˦kon˧la˦˥sak̚˨˩ka˨˩raːt̚˨˩	saː˩˩˦kon˧la˦˥sak̚˨˩ka˨˩raːt̚˨˩ | saː˩˩˦kon˧sak̚˨˩ka˨˩raːt̚˨˩		
+0	สอยมะม่วง	vowel-length	sɔːj˩˩˦ma˦˥muaŋ˥˩	sɔj˩˩˦ma˦˥mua̯ŋ˥˩ | sɔːj˩˩˦ma˦˥mua̯ŋ˥˩		
+0	สหราชอาณาจักรเกรตบริเตนและนอร์เทิร์นไอร์แลนด์	vowel-length	sa˨˩ha˨˩raːt̚˥˩tɕʰa˦˥ʔaː˧naː˧tɕak̚˨˩kreːt̚˦˥bri˨˩teːn˧lɛʔ˦˥nɔt̚˦˥tʰɤn˥˩ʔaj˧lɛn˥˩	sa˨˩ha˨˩raːt̚˥˩tɕʰa˦˥ʔaː˧naː˧tɕak̚˨˩kreːt̚˦˥bri˨˩teːn˧lɛʔ˦˥nɔt̚˦˥tʰɤn˥˩ʔaj˧lɛn˥˩ | sa˨˩ha˨˩raːt̚˥˩tɕʰa˦˥ʔaː˧naː˧tɕak̚˨˩kreːt̚˦˥bri˨˩teːn˧lɛʔ˦˥nɔt̚˦˥tʰɤn˥˩ʔaj˧lɛːn˧		
+0	สหภาพสาธารณรัฐสังคมนิยมโซเวียต	REVIEW		sa˨˩ha˨˩pʰaːp̚˥˩saː˩˩˦tʰaː˧ra˦˥na˦˥rat̚˦˥saŋ˩˩˦kʰom˧ma˦˥ni˦˥jom˧soː˧wia̯t̚˥˩ | sa˨˩ha˨˩pʰaːp̚˥˩saː˩˩˦tʰaː˧ra˦˥na˦˥rat̚˦˥saŋ˩˩˦kʰom˧ni˦˥jom˧soː˧wia̯t̚˥˩		
+0	สหพันธ์สาธารณรัฐเยอรมนี	REVIEW		sa˨˩ha˨˩pʰan˧saː˩˩˦tʰaː˧ra˦˥na˦˥rat̚˦˥jɤː˧ma˦˥niː˧ | sa˨˩ha˨˩pʰan˧saː˩˩˦tʰaː˧ra˦˥na˦˥rat̚˦˥jɤː˧ra˦˥ma˦˥niː˧ | sa˨˩ha˨˩pʰan˧saː˩˩˦tʰaː˧ra˧na˦˥rat̚˦˥jɤː˧ma˦˥niː˧ | sa˨˩ha˨˩pʰan˧saː˩˩˦tʰaː˧ra˧na˦˥rat̚˦˥jɤː˧ra˦˥ma˦˥niː˧		
+0	สลาฟ	REVIEW	sa˨˩laːf˦˥	sa˨˩laːf˦˥ | sa˨˩laːp̚˦˥		
+0	สรณังกร	REVIEW	sɔː˩˩˦ra˦˥naŋ˧kɔːn˧	sa˨˩ra˦˥naŋ˧ka˨˩ra˦˥ | sa˨˩ra˦˥naŋ˧kɔːn˧ | sɔː˩˩˦ra˦˥naŋ˧ka˨˩ra˦˥ | sɔː˩˩˦ra˦˥naŋ˧kɔːn˧		
+0	สมาพันธรัฐสวิส	REVIEW		sa˨˩maː˧pʰan˧tʰa˦˥rat̚˦˥sa˨˩wis˦˥ | sa˨˩maː˧pʰan˧tʰa˦˥rat̚˦˥sa˨˩wit̚˦˥		
+0	สถานีบริการน้ำมัน	vowel-length	sa˨˩tʰaː˩˩˦niː˧bɔː˧ri˦˥kaːn˧naːm˦˥man˧	sa˨˩tʰaː˩˩˦niː˧bɔː˧ri˦˥kaːn˧nam˦˥man˧ | sa˨˩tʰaː˩˩˦niː˧bɔː˧ri˦˥kaːn˧naːm˦˥man˧		
+0	สตรีนิยม	REVIEW	sa˨˩triː˧ni˦˥jom˧	sat̚˨˩triː˧ni˦˥jom˧ | sa˨˩triː˧ni˦˥jom˧		
+0	ศุโขไทย	REVIEW		suk̚˨˩kʰoː˩˩˦tʰaj˧ | su˨˩kʰoː˩˩˦tʰaj˧		
+0	ศุโขไท	REVIEW		suk̚˨˩kʰoː˩˩˦tʰaj˧ | su˨˩kʰoː˩˩˦tʰaj˧		
+0	ศัลยกรรมเสริมสวย	REVIEW	san˩˩˦ja˦˥kam˧sɤːm˩˩˦suaj˩˩˦	san˩˩˦ja˦˥kam˧sɤːm˩˩˦sua̯j˩˩˦ | san˩˩˦la˦˥ja˦˥kam˧sɤːm˩˩˦sua̯j˩˩˦		
+0	วิศวกรซอฟต์แวร์	REVIEW	wit̚˦˥sa˨˩wa˦˥kɔːn˧sɔːp̚˦˥wɛː˧	wit̚˦˥sa˨˩wa˦˥kɔːn˧sɔːf˦˥wɛː˧ | wit̚˦˥sa˨˩wa˦˥kɔːn˧sɔːp̚˦˥wɛː˧		
+0	วิทยาการคอมพิวเตอร์	tone-only		wit̚˦˥tʰa˦˥jaː˧kaːn˧kʰɔm˧pʰiw˦˥tɤː˥˩ | wit̚˦˥tʰa˦˥jaː˧kaːn˧kʰɔm˧pʰiw˧tɤː˥˩		
+0	วิซิกอท	tone-only	wi˦˥si˦˥kɔt̚˦˥	wi˦˥si˦˥kɔt̚˦˥ | wi˦˥si˦˥kɔt̚˨˩		
+0	วอลล์เพเปอร์	REVIEW		wɔːl˧pʰeː˧pɤː˥˩ | wɔːn˧pʰeː˧pɤː˥˩ | wɔː˧pʰeː˧pɤː˥˩		
+0	ลพบูรี	vowel-length	lop̚˦˥buː˧riː˧	lop̚˦˥buː˧riː˧ | lop̚˦˥bu˨˩riː˧		
+0	รีมูฟเวอร์	REVIEW	riː˧muːp̚˦˥wɤː˥˩	riː˧muːf˦˥wɤː˥˩ | riː˧muːp̚˦˥wɤː˥˩		
+0	ราชาธิปไตยภายใต้รัฐธรรมนูญ	REVIEW	raː˧tɕʰaː˧tʰip̚˦˥pa˨˩taj˧pʰaːj˧taːj˥˩rat̚˦˥tʰa˨˩tʰam˧ma˦˥nuːn˧	raː˧tɕʰaː˧tʰip̚˦˥pa˨˩taj˧pʰaːj˧taːj˥˩rat̚˦˥tʰa˨˩tʰam˧ma˦˥nuːn˧ | raː˧tɕʰaː˧tʰi˦˥pa˨˩taj˧pʰaːj˧taːj˥˩rat̚˦˥tʰa˨˩tʰam˧ma˦˥nuːn˧		
+0	รัฐอิสราเอล	REVIEW		rat̚˦˥ʔis˨˩raː˧ʔeːl˧ | rat̚˦˥ʔit̚˨˩sa˨˩raː˧ʔeːl˧ | rat̚˦˥ʔit̚˨˩sa˨˩raː˧ʔeːw˧		
+0	รังสีอัลตราไวโอเลต	REVIEW	raŋ˧siː˩˩˦ʔal˧traː˥˩waj˧ʔoː˧let̚˨˩	raŋ˧siː˩˩˦ʔal˧traː˥˩waj˧ʔoː˧let̚˨˩ | raŋ˧siː˩˩˦ʔan˧traː˥˩waj˧ʔoː˧let̚˨˩		
+0	ระบบอุปถัมภ์	REVIEW		ra˦˥bop̚˨˩ʔup̚˨˩pa˨˩tʰam˩˩˦ | ra˦˥bop̚˨˩ʔu˨˩pa˨˩tʰam˩˩˦		
+0	รองประธานาธิบดี	REVIEW		rɔːŋ˧pra˨˩tʰaː˧naː˧tʰip̚˦˥bɔː˧diː˧ | rɔːŋ˧pra˨˩tʰaː˧naː˧tʰi˦˥bɔː˧diː˧		
+0	ยิบรอลตาร์	REVIEW	jip̚˦˥rɔːl˧taː˥˩	jip̚˦˥rɔl˧taː˥˩ | jip̚˦˥rɔn˧taː˥˩		
+0	มือฝรั่ง	tone-only		mɯː˧fa˦˥raŋ˨˩ | mɯː˧fa˨˩raŋ˨˩		
+0	มือบอน	vowel-length		mɯː˧bɔn˧ | mɯː˧bɔːn˧		
+0	มึนเชิน	tone-only	mɯn˧tɕʰɤn˧	mɯn˧tɕʰɤn˥˩ | mɯn˧tɕʰɤn˧		
+0	มีดพับสวิส	REVIEW	miːt̚˥˩pʰap̚˦˥sa˨˩wis˦˥	miːt̚˥˩pʰap̚˦˥sa˨˩wis˦˥ | miːt̚˥˩pʰap̚˦˥sa˨˩wit̚˦˥		
+0	มินสค์	REVIEW	min˦˥	mins˦˥ | min˦˥		
+0	มินสก์	REVIEW	min˦˥	mins˧ | min˦˥		
+0	มิคกี้เมาส์	REVIEW	mik̚˦˥kiː˥˩maw˧	mik̚˦˥kiː˥˩maws˦˥ | mik̚˦˥kiː˥˩maw˦˥		
+0	มาโตรชก้า	REVIEW	maː˧troːtɕʰ˨˩kaː˥˩	maː˧troːtɕʰ˨˩kaː˥˩ | maː˧troːt̚˨˩kaː˥˩		
+0	มาตาธิปไตย	REVIEW	maː˧taː˧tʰip̚˦˥pa˨˩taj˧	maː˧taː˧tʰip̚˦˥pa˨˩taj˧ | maː˧taː˧tʰi˦˥pa˨˩taj˧		
+0	มัชฌิมยุค	REVIEW		mat̚˦˥tɕʰim˧ma˦˥juk̚˦˥ | mat̚˦˥tɕʰi˦˥ma˦˥juk̚˦˥		
+0	มังงะ	tone-only	maŋ˧ŋaʔ˦˥	maŋ˧ŋaʔ˦˥ | maŋ˧ŋaʔ˨˩		
+0	มังคล	REVIEW	maŋ˧kʰon˧	maŋ˧kʰa˦˥la˦˥ | maŋ˧kʰon˧		
+0	มหาเถร	sandhi	ma˦˥haː˩˩˦tʰeːn˩˩˦	ma˦˥haː˩˩˦tʰeːn˩˩˦ | ma˦˥haː˩˩˦tʰeː˩˩˦ra˦˥		
+0	ฟีเจอริ่ง	tone-only	fiː˧tɕɤː˧riŋ˥˩	fiː˦˥tɕɤː˥˩riŋ˥˩ | fiː˦˥tɕɤː˧riŋ˥˩ | fiː˧tɕɤː˥˩riŋ˥˩ | fiː˧tɕɤː˧riŋ˥˩		
+0	พูดไปก็ไลฟ์บอย	REVIEW		pʰuːt̚˥˩paj˧kɔː˥˩lajf˦˥bɔːj˧ | pʰuːt̚˥˩paj˧kɔː˥˩laj˦˥bɔːj˧		
+0	พิสุทธินิยม	REVIEW	pʰi˦˥sut̚˨˩tʰi˦˥ni˦˥jom˧	pʰi˦˥sut̚˨˩ni˦˥jom˧ | pʰi˦˥sut̚˨˩tʰi˦˥ni˦˥jom˧		
+0	พอดแคสต์	REVIEW	pʰɔːt̚˨˩kʰɛːs˦˥	pʰɔːt̚˨˩kʰɛːs˦˥ | pʰɔːt̚˨˩kʰɛːt̚˦˥		
+0	พอดคาสต์	REVIEW	pʰɔːt̚˨˩kʰaːs˦˥	pʰɔːt̚˨˩kʰaːs˦˥ | pʰɔːt̚˨˩kʰaːt̚˦˥		
+0	พลเดช	REVIEW	pʰon˧deːt̚˨˩	pʰa˦˥la˦˥deːt̚˨˩ | pʰon˧deːt̚˨˩ | pʰon˧la˦˥deːt̚˨˩		
+0	พริชตีนา	REVIEW	pʰrit̚˦˥tiː˧naː˧	pʰritɕʰ˦˥tiː˧naː˧ | pʰrit̚˦˥tiː˧naː˧		
+0	พรอวิเดนซ์	REVIEW	pʰrɔː˧wi˦˥den˦˥	pʰrɔː˧wi˦˥dens˦˥ | pʰrɔː˧wi˦˥den˦˥		
+0	ผัคคุณ	sandhi		pʰak̚˨˩kʰun˧ | pʰak̚˨˩kʰu˦˥na˦˥		
+0	ปาลิเมนต์	tone-only		paː˧li˦˥meːn˦˥ | paː˧li˦˥meːn˧		
+0	ปัจฉิมบท	REVIEW	pat̚˨˩tɕʰim˩˩˦bot̚˨˩	pat̚˨˩tɕʰim˩˩˦bot̚˨˩ | pat̚˨˩tɕʰim˩˩˦ma˦˥bot̚˨˩		
+0	ปรากฎการณ์	REVIEW	praː˧kot̚˨˩kaːn˧	praː˧kot̚˨˩kaːn˧ | praː˧kot̚˨˩ta˨˩kaːn˧		
+0	ปรัตยุตบัน	sandhi		prat̚˨˩ta˨˩jut̚˦˥ban˧ | prat̚˨˩ta˨˩jut̚˦˥ban˧na˦˥		
+0	ปรมินทร	REVIEW	pɔː˧ra˦˥min˧	pa˨˩ra˦˥min˧tʰra˦˥ | pɔː˧ra˦˥min˧tʰra˦˥		
+0	ปรมราชาธิราช	REVIEW	pɔː˧ra˦˥ma˦˥raː˧tɕʰaː˧tʰi˦˥raːt̚˥˩	pa˨˩ra˦˥ma˦˥raː˧tɕʰaː˧tʰi˦˥raːt̚˥˩ | pa˨˩rom˧raː˧tɕʰaː˧tʰi˦˥raːt̚˥˩ | pɔː˧ra˦˥ma˦˥raː˧tɕʰaː˧tʰi˦˥raːt̚˥˩ | pɔː˧rom˧ma˦˥raː˧tɕʰaː˧tʰi˦˥raːt̚˥˩ | pɔː˧rom˧raː˧tɕʰaː˧tʰi˦˥raːt̚˥˩		
+0	ปทุมุตร	sandhi	pa˨˩tʰu˦˥mut̚˦˥	pa˨˩tʰu˦˥mut̚˦˥ | pa˨˩tʰu˦˥mut̚˦˥ta˨˩ra˦˥		
+0	บ้านตาล	sandhi		baːn˥˩taːn˧ | baːn˥˩taː˧la˦˥		
+0	บุรพผลคุนี	REVIEW	pu˨˩ra˦˥pʰa˦˥pʰon˩˩˦la˦˥kʰu˦˥niː˧	pup̚˨˩pʰa˦˥pʰon˩˩˦la˦˥kʰu˦˥niː˧ | pu˨˩ra˦˥pʰa˦˥pʰon˩˩˦la˦˥kʰu˦˥niː˧		
+0	บัณฑิตย	sandhi	ban˧dit̚˨˩ta˨˩ja˦˥	ban˧dit̚˨˩ | ban˧dit̚˨˩ta˨˩ja˦˥		
+0	บัควีท	REVIEW		bak̚˦˥hwiːt̚˨˩ | bak̚˦˥wiːt̚˦˥		
+0	บลัดดีแมรี	tone-only	blat̚˦˥diː˥˩mɛː˧riː˥˩	blat̚˦˥diː˥˩mɛː˧riː˥˩ | blat̚˨˩diː˥˩mɛː˧riː˥˩		
+0	บริษัทร่วม	tone-only		bɔː˧ri˦˥sat̚˨˩rua̯m˥˩ | bɔː˧ri˧sat̚˨˩rua̯m˥˩		
+0	บริษัทมหจำกัด	tone-only		bɔː˧ri˦˥sat̚˨˩ma˦˥ha˨˩tɕam˧kat̚˨˩ | bɔː˧ri˧sat̚˨˩ma˦˥ha˨˩tɕam˧kat̚˨˩		
+0	บริษัททัวร์	tone-only		bɔː˧ri˦˥sat̚˨˩tʰua̯˧ | bɔː˧ri˧sat̚˨˩tʰua̯˧		
+0	บรมราชาธีราช	REVIEW	bɔː˧rom˧raː˧tɕʰaː˧tʰi˦˥raːt̚˥˩	bɔː˧rom˧ma˦˥raː˧tɕʰaː˧tʰi˦˥raːt̚˥˩ | bɔː˧rom˧raː˧tɕʰaː˧tʰi˦˥raːt̚˥˩		
+0	บรมราชาธิราช	REVIEW	bɔː˧rom˧raː˧tɕʰaː˧tʰi˦˥raːt̚˥˩	bɔː˧rom˧ma˦˥raː˧tɕʰaː˧tʰi˦˥raːt̚˥˩ | bɔː˧rom˧raː˧tɕʰaː˧tʰi˦˥raːt̚˥˩		
+0	บรมราชา	REVIEW	bɔː˧rom˧raː˧tɕʰaː˧	bɔː˧rom˧ma˦˥raː˧tɕʰaː˧ | bɔː˧rom˧raː˧tɕʰaː˧		
+0	บรมนาถบพิตร	REVIEW	bɔː˧rom˧ma˦˥naːt̚˥˩bɔː˧pʰit̚˦˥	bɔː˧rom˧ma˦˥naːt̚˥˩bɔː˧pʰit̚˦˥ | bɔː˧rom˧ma˦˥naːt̚˥˩tʰa˨˩bɔː˧pʰit̚˦˥		
+0	น้ำฟ้า	vowel-length		nam˦˥faː˦˥ | naːm˦˥faː˦˥		
+0	น้ำตาจระเข้	vowel-length		nam˦˥taː˧tɕɔː˧ra˦˥kʰeː˥˩ | naːm˦˥taː˧tɕɔː˧ra˦˥kʰeː˥˩		
+0	นิวยอร์กซิตี	vowel-length	niw˧jɔːk̚˦˥si˦˥tiː˥˩	niw˧jɔːk̚˦˥si˦˥tiː˥˩ | niw˧jɔːk̚˨˩siː˧tiː˥˩		
+0	นิยมสรรพนาม	REVIEW	ni˦˥ja˦˥ma˦˥sap̚˨˩pʰa˦˥naːm˧	ni˦˥ja˦˥ma˦˥sap̚˨˩pʰa˦˥naːm˧ | ni˦˥jom˧ma˦˥sap̚˨˩pʰa˦˥naːm˧		
+0	นาฏราช	REVIEW		naːt̚˥˩ta˨˩raːt̚˥˩ | naː˧ta˨˩raːt̚˥˩		
+0	นักกอล์ฟ	REVIEW	nak̚˦˥kɔːp̚˦˥	nak̚˦˥kɔːf˦˥ | nak̚˦˥kɔːp̚˦˥		
+0	นอร์เทิร์นไอร์แลนด์	vowel-length	nɔt̚˦˥tʰɤn˥˩ʔaj˧lɛn˥˩	nɔt̚˦˥tʰɤn˥˩ʔaj˧lɛn˥˩ | nɔt̚˦˥tʰɤn˥˩ʔaj˧lɛːn˧		
+0	ทุติ	sandhi	tʰut̚˦˥	tʰut̚˦˥ | tʰut̚˦˥ti˨˩		
+0	ทาลลินน์	REVIEW	tʰaːl˧lin˧	tʰaːl˧lin˧ | tʰaːn˧lin˧		
+0	ทอฟฟี	REVIEW	tʰɔp̚˦˥fiː˥˩	tʰɔf˦˥fiː˥˩ | tʰɔp̚˦˥fiː˥˩		
+0	ทสมี	REVIEW	tʰot̚˦˥sa˨˩miː˧	tʰa˦˥sa˨˩miː˧ | tʰot̚˦˥sa˨˩miː˧		
+0	ทวิราชาธิปไตย	REVIEW	tʰa˦˥wi˦˥raː˧tɕʰaː˧tʰip̚˦˥pa˨˩taj˧	tʰa˦˥wi˦˥raː˧tɕʰaː˧tʰip̚˦˥pa˨˩taj˧ | tʰa˦˥wi˦˥raː˧tɕʰaː˧tʰi˦˥pa˨˩taj˧		
+0	ทรชนาธิปไตย	REVIEW	tʰɔː˧ra˦˥tɕʰa˦˥naː˧tʰip̚˦˥pa˨˩taj˧	tʰɔː˧ra˦˥tɕʰa˦˥naː˧tʰip̚˦˥pa˨˩taj˧ | tʰɔː˧ra˦˥tɕʰa˦˥naː˧tʰi˦˥pa˨˩taj˧		
+0	ถังรีไซเคิล	REVIEW		tʰaŋ˩˩˦riː˧saj˧kʰɤl˥˩ | tʰaŋ˩˩˦riː˧saj˧kʰɤn˥˩		
+0	ถถถ	letter-names	haː˥˩haː˥˩haː˥˩	haː˥˩haː˥˩haː˥˩ | tʰɔː˩˩˦tʰɔː˩˩˦tʰɔː˩˩˦		
+0	ตำน้ำพริกละลายแม่น้ำ	vowel-length	tam˧naːm˦˥pʰrik̚˦˥la˦˥laːj˧mɛː˥˩naːm˦˥	tam˧nam˦˥pʰrik̚˦˥la˦˥laːj˧mɛː˥˩naːm˦˥ | tam˧naːm˦˥pʰrik̚˦˥la˦˥laːj˧mɛː˥˩naːm˦˥		
+0	ตรุษฝรั่ง	tone-only	trut̚˨˩fa˨˩raŋ˨˩	trut̚˨˩fa˦˥raŋ˨˩ | trut̚˨˩fa˨˩raŋ˨˩		
+0	ดุอาอ์	REVIEW		du˨˩ʔaːʔ˧ | du˨˩ʔaː˧		
+0	ญิฮาด	tone-only		ji˦˥haːt̚˥˩ | ji˦˥haːt̚˦˥		
+0	ซินเดอเรลล่า	REVIEW	sin˧dɤː˧rel˧laː˥˩	sin˧dɤː˧rel˧laː˥˩ | sin˧dɤː˧ren˧laː˥˩		
+0	ซอสถั่วเหลือง	REVIEW	sɔːt̚˦˥tʰua˨˩lɯaŋ˩˩˦	sɔːs˦˥tʰua̯˨˩lɯa̯ŋ˩˩˦ | sɔːt̚˦˥tʰua̯˨˩lɯa̯ŋ˩˩˦		
+0	ชีสเค้ก	REVIEW		tɕʰiːs˦˥kʰeːk̚˦˥ | tɕʰiːt̚˦˥kʰeːk̚˦˥		
+0	ชิลลา	REVIEW	tɕʰin˧laː˧	tɕʰil˧laː˧ | tɕʰin˧laː˧		
+0	จิกะไบต์	REVIEW		tɕik̚˦˥ka˨˩baj˦˥ | tɕi˨˩ka˨˩baj˦˥		
+0	จากัวร์	tone-only	tɕaː˧kua˧	tɕaː˧kua̯˥˩ | tɕaː˧kua̯˧		
+0	จักรวรรดิบริติช	tone-only		tɕak̚˨˩kra˨˩wat̚˨˩bri˦˥tit̚˦˥ | tɕak̚˨˩kra˨˩wat̚˨˩bri˨˩tit̚˦˥		
+0	คิสซินเจอร์	REVIEW		kʰis˦˥sin˧tɕɤː˥˩ | kʰit̚˦˥sin˧tɕɤː˥˩		
+0	คาร์สันซิตี	tone-only	kʰaː˧san˩˩˦si˦˥tiː˥˩	kʰaː˧san˥˩si˦˥tiː˥˩ | kʰaː˧san˩˩˦si˦˥tiː˥˩		
+0	คอมพิวเตอร์โน้ตบุ๊ก	tone-only		kʰɔm˧pʰiw˦˥tɤː˥˩noːt̚˦˥buk̚˦˥ | kʰɔm˧pʰiw˧tɤː˥˩noːt̚˦˥buk̚˦˥		
+0	คอนญัก	tone-only	kʰɔːn˧jak̚˦˥	kʰɔːn˧jak̚˦˥ | kʰɔːn˧jak̚˨˩		
+0	ความเอ็กซ์	REVIEW	kʰwaːm˧ʔek̚˦˥	kʰwaːm˧ʔek̚s˦˥ | kʰwaːm˧ʔek̚˦˥		
+0	ความอ่อน	vowel-length	kʰwaːm˧ʔɔːn˨˩	kʰwaːm˧ʔɔn˨˩ | kʰwaːm˧ʔɔːn˨˩		
+0	ความวิปลาส	REVIEW	kʰwaːm˧wi˦˥pa˨˩laːt̚˥˩	kʰwaːm˧wip̚˦˥pa˨˩laːt̚˥˩ | kʰwaːm˧wi˦˥pa˨˩laːt̚˥˩		
+0	ครัช	REVIEW	kʰrat̚˦˥	kʰratɕʰ˦˥ | kʰrat̚˦˥		
+0	คมน	REVIEW	kʰa˦˥ma˦˥na˦˥	kʰa˦˥ma˦˥na˦˥ | kʰom˧ma˦˥na˦˥		
+0	ขนมเปี๊ยะ	tone-only	kʰa˨˩nom˩˩˦piaʔ˦˥	kʰa˦˥nom˩˩˦pia̯ʔ˦˥ | kʰa˨˩nom˩˩˦pia̯ʔ˦˥		
+0	ก๊อฟ	REVIEW		kɔːf˦˥ | kɔːp̚˦˥		
+0	กูว์รี	tone-only		kuː˧riː˥˩ | kuː˧riː˧		
+0	กูรี	tone-only		kuː˧riː˥˩ | kuː˧riː˧		
+0	กุญแจซอล	REVIEW	kun˧tɕɛː˧sɔn˧	kun˧tɕɛː˧sɔl˧ | kun˧tɕɛː˧sɔn˧		
+0	การเสย	vowel-length	kaːn˧sɤːj˩˩˦	kaːn˧sɤj˩˩˦ | kaːn˧sɤːj˩˩˦		
+0	การเทศนา	REVIEW	kaːn˧tʰeːt̚˥˩sa˨˩naː˩˩˦	kaːn˧tʰeːt̚˥˩sa˨˩naː˩˩˦ | kaːn˧tʰeː˧sa˨˩naː˧		
+0	การเจรจาสันติภาพ	REVIEW		kaːn˧tɕeːn˧ra˦˥tɕaː˧san˩˩˦ti˨˩pʰaːp̚˥˩ | kaːn˧tɕeː˧ra˦˥tɕaː˧san˩˩˦ti˨˩pʰaːp̚˥˩		
+0	การเจรจา	REVIEW		kaːn˧tɕeːn˧ra˦˥tɕaː˧ | kaːn˧tɕeː˧ra˦˥tɕaː˧		
+0	การวิปลาส	REVIEW	kaːn˧wi˦˥pa˨˩laːt̚˥˩	kaːn˧wip̚˦˥pa˨˩laːt̚˥˩ | kaːn˧wi˦˥pa˨˩laːt̚˥˩		
+0	การฉิบหาย	tone-only	kaːn˧tɕʰip̚˨˩haːj˩˩˦	kaːn˧tɕʰip̚˦˥haːj˩˩˦ | kaːn˧tɕʰip̚˨˩haːj˩˩˦		
+0	การคอมพิวเตอร์	tone-only		kaːn˧kʰɔm˧pʰiw˦˥tɤː˥˩ | kaːn˧kʰɔm˧pʰiw˧tɤː˥˩		
+0	กัมโพชาธิบดี	REVIEW		kam˧pʰoː˧tɕʰaː˧tʰip̚˦˥bɔː˧diː˧ | kam˧pʰoː˧tɕʰaː˧tʰi˦˥bɔː˧diː˧		
+0	กัมพูชาธิบดี	REVIEW	kam˧pʰuː˧tɕʰaː˧tʰi˦˥bɔː˧diː˧	kam˧pʰuː˧tɕʰaː˧tʰip̚˦˥bɔː˧diː˧ | kam˧pʰuː˧tɕʰaː˧tʰi˦˥bɔː˧diː˧		
+0	กันดารวิถี	REVIEW	kan˧daːn˧wi˦˥tʰiː˩˩˦	kan˧daːn˧wi˦˥tʰiː˩˩˦ | kan˧daː˧ra˦˥wi˦˥tʰiː˩˩˦		
+0	กอลลัม	REVIEW	kɔn˧lam˥˩	kɔl˧lam˥˩ | kɔn˧lam˥˩		
+0	กรีซโบราณ	REVIEW		kriːs˨˩boː˧raːn˧ | kriːt̚˨˩boː˧raːn˧		
+0	กริยาวิเศษณานุประโยค	REVIEW	kri˨˩jaː˧wi˦˥seː˩˩˦sa˨˩naː˧nu˦˥pra˨˩joːk̚˨˩	ka˨˩ri˦˥jaː˧wi˦˥seː˩˩˦sa˨˩naː˧nu˦˥pra˨˩joːk̚˨˩ | kri˨˩jaː˧wi˦˥seː˩˩˦sa˨˩naː˧nu˦˥pra˨˩joːk̚˨˩		
+0	กริยาช่วย	REVIEW	kri˨˩jaː˧tɕʰuaj˥˩	ka˨˩ri˦˥jaː˧tɕʰua̯j˥˩ | kri˨˩jaː˧tɕʰua̯j˥˩		
+0	กระษัตร	sandhi	kra˨˩sat̚˨˩tra˨˩	kra˨˩sat̚˨˩ | kra˨˩sat̚˨˩tra˨˩		
+0	กมรเตงอัญ	REVIEW	ka˨˩ma˦˥ra˦˥teŋ˧ʔan˧	kam˧ma˦˥ra˦˥teŋ˧ʔan˧ | ka˨˩ma˦˥ra˦˥teŋ˧ʔan˧		
+0	กมรเตง	REVIEW	ka˨˩ma˦˥ra˦˥teŋ˧	kam˧ma˦˥ra˦˥teŋ˧ | ka˨˩ma˦˥ra˦˥teŋ˧		
