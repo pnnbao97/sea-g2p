@@ -126,3 +126,28 @@ fn an_empty_dictionary_entry_is_not_a_pronunciation() {
     // ordinary words are unaffected
     assert!(th.phonemize("โอลิมปิก", &dict).contains("lim"));
 }
+
+#[test]
+fn a_heteronym_is_chosen_by_its_neighbours() {
+    let (dict, th) = thai();
+    // เพลา is /pʰeː laː/ "time" and /pʰlaw/ "axle". One token either way, so
+    // no segmenter can separate them — only the words around it can.
+    assert!(th.phonemize("เพลาเช้า", &dict).starts_with("pʰeː˧ laː˧"), "morning");
+    assert!(th.phonemize("เพลาบ่าย", &dict).starts_with("pʰeː˧ laː˧"), "afternoon");
+    // with no cue, the dictionary's reading stands
+    assert!(th.phonemize("เพลารถยนต์", &dict).starts_with("pʰlaw˧"), "axle");
+    assert!(th.phonemize("เพลา", &dict).starts_with("pʰlaw˧"), "bare");
+
+    // แหน: the ห is silent in the water fern, read in หวงแหน "to cherish"
+    assert!(th.phonemize("จอกแหน", &dict).contains("nɛː˩˩˦"));
+    assert!(th.phonemize("หวงแหน", &dict).contains("hɛːn˩˩˦"));
+}
+
+#[test]
+fn two_dictionary_entries_that_disagreed_with_gold() {
+    let (dict, th) = thai();
+    // ปรัก was stored as prak̚˨˩; the only human transcription is pa˨˩rak̚˦˥,
+    // and ปรักหักพัง carried the wrong tone on its second syllable.
+    assert_eq!(th.phonemize("ปรัก", &dict), "pa˨˩ rak̚˦˥");
+    assert!(th.phonemize("ปรักหักพัง", &dict).starts_with("pa˨˩ rak̚˦˥"));
+}

@@ -20,6 +20,7 @@ pub mod rules;
 pub mod segment;
 
 use crate::core::dict::{PhonemeDict, SECTION_TH, SECTION_TH_FREQ};
+use resources::TH_HETERONYMS;
 use segment::{segment as split, Token, WordTrie};
 
 /// Join phoneme groups with spaces, but attach a punctuation mark to the
@@ -86,6 +87,27 @@ impl Thai {
         split(text, &self.trie)
     }
 
+    /// The alternate reading of a heteronym, when a cue word sits within two
+    /// tokens either side.
+    ///
+    /// Thai writes เพลา for both /pʰeː laː/ "time" and /pʰlaw/ "axle". No
+    /// segmenter can separate them — it is one token either way — so this is
+    /// a different axis from word boundaries entirely, and the only signal
+    /// available is what the neighbours say.
+    fn heteronym(word: &str, toks: &[Token], at: usize) -> Option<&'static str> {
+        let alts = TH_HETERONYMS.get(word)?;
+        let lo = at.saturating_sub(2);
+        let hi = (at + 3).min(toks.len());
+        alts.iter()
+            .find(|h| {
+                toks[lo..hi]
+                    .iter()
+                    .enumerate()
+                    .any(|(i, t)| lo + i != at && h.cues.contains(&t.text.as_str()))
+            })
+            .map(|h| h.reading)
+    }
+
     /// Phonemes of the last dictionary word inside `word`, when `word` is a
     /// compound of two dictionary words. `None` when it is atomic — the
     /// caller then repeats the token whole.
@@ -123,9 +145,13 @@ impl Thai {
         F: Fn(&str) -> String,
     {
         let text = normalizer::normalize(text);
+        // Collected rather than streamed: a heteronym is chosen by the words
+        // AROUND it, so the loop needs to see both directions.
+        let toks: Vec<Token> = self.segment(&text);
         let mut out: Vec<String> = Vec::new();
         let mut prev_word: Option<String> = None;
-        for tok in self.segment(&text) {
+        for (ti, tok) in toks.iter().enumerate() {
+            let tok = tok.clone();
             // ๆ (mai yamok) repeats the word before it. Applied here, not in
             // the normalizer, because only after segmentation is it known
             // where that word starts: คนต่างๆ is คน-ต่าง-ต่าง, not
@@ -180,7 +206,13 @@ impl Thai {
                     // them from the phoneme stream, 0.08% of corpus tokens
                     // vanishing with nothing to hear. Treat it as a miss and
                     // let the rules read the word, which they can.
-                    let listed = dict.lookup_section(SECTION_TH, &tok.text).unwrap_or("");
+                    // A heteronym takes its alternate reading when a cue
+                    // word sits beside it; otherwise the dictionary's, which
+                    // holds the more frequent sense.
+                    let listed = match Self::heteronym(&tok.text, &toks, ti) {
+                        Some(alt) => alt,
+                        None => dict.lookup_section(SECTION_TH, &tok.text).unwrap_or(""),
+                    };
                     if !listed.trim().is_empty() {
                         out.push(listed.to_string());
                     } else {

@@ -13,6 +13,58 @@ use crate::core::abbrev::{AbbrevTable, Reading};
 use once_cell::sync::Lazy;
 use std::collections::HashMap;
 
+/// One alternate reading of a heteronym, and the words that license it.
+///
+/// Thai has คำพ้องรูป — one spelling, several pronunciations, several
+/// meanings — and the dictionary can hold only one reading per key, so the
+/// frequent one lives there and the rest live here with the context that
+/// selects them. เพลา is /pʰeː laː/ "time" and /pʰlaw/ "axle"; nothing in
+/// the spelling separates them, and no segmenter can, because it is one
+/// token either way.
+pub struct Heteronym {
+    /// Used instead of the dictionary reading when a cue is adjacent.
+    pub reading: &'static str,
+    /// Words looked for within two tokens either side. Kept deliberately
+    /// narrow: a cue that fires too easily is worse than no cue, because the
+    /// dictionary default is already the more frequent reading.
+    pub cues: &'static [&'static str],
+}
+
+/// Heteronyms whose alternate reading is worth selecting for.
+///
+/// Deliberately small. 1,109 Thai words have more than one recorded reading
+/// (7.33% of corpus tokens), but most of that is not ambiguity a listener
+/// would notice: 2.89% is sandhi — the linking form a Pali/Sanskrit morpheme
+/// takes inside a compound, which the dictionary already carries on the
+/// compound itself — and 1.03% differs only in tone between two accepted
+/// pronunciations. What is left, where picking wrong says a different word,
+/// is a short list, and its head is shorter still: เพลา at 27 per million,
+/// everything else near 1.
+pub static TH_HETERONYMS: Lazy<HashMap<&'static str, &'static [Heteronym]>> = Lazy::new(|| {
+    [
+        // เพลา: the dictionary holds /pʰlaw/ "axle". The "time" reading is
+        // the one in เพลาเช้า, เพลาบ่าย, เพลาค่ำ.
+        (
+            "เพลา",
+            &[Heteronym {
+                reading: "pʰeː˧ laː˧",
+                cues: &["เช้า", "สาย", "บ่าย", "เย็น", "ค่ำ", "กลางวัน", "กลางคืน", "ยาม"],
+            }][..],
+        ),
+        // แหน: /hɛːn/ by default — that is the reading inside หวงแหน "to
+        // cherish". As the water fern the ห is silent: จอกแหน is /tɕɔːk nɛː/.
+        (
+            "แหน",
+            &[Heteronym {
+                reading: "nɛː˩˩˦",
+                cues: &["จอก", "สาหร่าย", "บัว", "สระ", "บ่อ", "น้ำ"],
+            }][..],
+        ),
+    ]
+    .into_iter()
+    .collect()
+});
+
 /// Thai letter names, used when an isolated Latin or Thai letter has to be
 /// spelled out. Thai spells its own letters as "CV + ชื่อ" (ก = กอ ไก่); the
 /// short form is what a reader actually says in an initialism.
