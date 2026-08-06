@@ -1,0 +1,2005 @@
+# Words whose schwa nothing has verified, most frequent first.
+# Answer one question per row: is each marked e the vowel of 'enak' (e)
+# or of 'sedang' (schwa)? Put y or n in the last column; leave blank if unsure.
+# The first 500 rows carry 77% of this group's weight in running text.
+freq	word	pronunciation	schwa_decision	correct
+1239	ke	k ə	e1=ə	
+520	israel	i s r a ə l	e1=ə	
+380	sistem	s i s t ə m	e1=ə	
+301	elektron	e l e k t r o n	e1=e e2=e	
+278	matematika	m a t ə m a t i k a	e1=ə	
+212	eropa	e r o p a	e1=e	
+195	geografi	ɡ e o ɡ r a f i	e1=e	
+194	sendiri	s ə n d i r i	e1=ə	
+182	partikel	p a r t i k ə l	e1=ə	
+172	wales	w a l e s	e1=e	
+165	infeksi	i n f e k s i	e1=e	
+155	sulawesi	s u l a w e s i	e1=e	
+131	molekul	m o l ə k u l	e1=ə	
+123	konsep	k o n s ə p	e1=ə	
+119	komputer	k o m p u t ə r	e1=ə	
+109	metode	m e t o d ə	e1=e e2=ə	
+106	tenggara	t ə ŋ ɡ a r a	e1=ə	
+101	militer	m i l i t ə r	e1=ə	
+99	organisme	o r ɡ a n i s m ə	e1=ə	
+87	reaksi	r e a k s i	e1=e	
+84	aspek	a s p e k	e1=e	
+80	etnis	e t n i s	e1=e	
+74	referensi	r e f ə r e n s i	e1=e e2=ə e3=e	
+73	relatif	r e l a t i f	e1=e	
+71	lembaga	l ə m b a ɡ a	e1=ə	
+63	objek	o b d͡ʒ e k	e1=e	
+60	fenomena	f e n o m e n a	e1=e e2=e	
+60	elemen	e l ə m e n	e1=e e2=ə e3=e	
+58	austronesia	a u s t r o n e s i a	e1=e	
+53	sektor	s ə k t o r	e1=ə	
+51	borneo	b o r n e o	e1=e	
+50	medis	m e d i s	e1=e	
+50	geografis	ɡ e o ɡ r a f i s	e1=e	
+49	evolusi	e v o l u s i	e1=e	
+47	tipe	t i p ə	e1=ə	
+47	sumenep	s u m ə n ə p	e1=ə e2=ə	
+47	genetik	ɡ e n e t i k	e1=e e2=e	
+43	nukleus	n u k l e u s	e1=e	
+43	media	m e d i a	e1=e	
+43	hepatitis	h ə p a t i t i s	e1=ə	
+40	genom	ɡ e n o m	e1=e	
+39	verba	v ə r b a	e1=ə	
+39	morfem	m o r f ə m	e1=ə	
+39	argumen	a r ɡ u m e n	e1=e	
+38	negatif	n ə ɡ a t i f	e1=ə	
+38	dewasa	d e w a s a	e1=e	
+37	populer	p o p u l e r	e1=e	
+37	mekanisme	m e k a n i s m ə	e1=e e2=ə	
+37	entitas	e n t i t a s	e1=e	
+36	tepi	t ə p i	e1=ə	
+36	artikel	a r t i k ə l	e1=ə	
+35	moresby	m o r e e s b e j e	?	
+34	gastroenteritis	ɡ a s t r u n t ə r i t i s	?	
+32	identitas	i d e n t i t a s	e1=e	
+31	tersendiri	t ə r s e n d i r i	e1=ə e2=e	
+31	organel	o r ɡ a n e l	e1=e	
+31	menginfeksi	m ə ŋ i n f e k s i	e1=ə e2=e	
+31	heliks	h ə l i k s	e1=ə	
+31	diare	d i a r e	e1=e	
+30	terinfeksi	t ə r i n f e k s i	e1=ə e2=e	
+30	persona	p ə r s o n a	e1=ə	
+30	nasser	n a s s ə r	e1=ə	
+29	terkemuka	t ə r k ə m u k a	e1=ə e2=ə	
+29	enklitik	e n k l i t i k	e1=e	
+28	tertua	t ə r t u a	e1=ə	
+28	museum	m u s e u m	e1=e	
+28	ekologi	e k o l o ɡ i	e1=e	
+27	mengidentifikasi	m ə ŋ i d ə n t i f i k a s i	e1=ə e2=ə	
+27	kilometer	k i l o m e t ə r	e1=e e2=ə	
+27	fotosfer	f o t o s f ə r	e1=ə	
+27	federasi	f e d ə r a s i	e1=e e2=ə	
+27	eyd	e j d	e1=e	
+27	dekade	d e k a d ə	e1=e e2=ə	
+26	peringkat	p ə r i ŋ k a t	e1=ə	
+26	nyeri	ɲ ə r i	e1=ə	
+26	internal	i n t ə r n a l	e1=ə	
+26	departemen	d ə p a r t ə m e n	e1=ə e2=ə e3=e	
+25	karakter	k a r a k t ə r	e1=ə	
+24	pesat	p ə s a t	e1=ə	
+24	merebut	m ə r ə b u t	e1=ə e2=ə	
+24	demokrasi	d e m o k r a s i	e1=e	
+24	alternatif	a l t ə r n a t i f	e1=ə	
+23	teoretis	t e o r e t i s	e1=e e2=e	
+22	sekelompok	s ə k ə l o m p o k	e1=ə e2=ə	
+22	riset	r i s ə t	e1=ə	
+22	revolusi	r e v o l u s i	e1=e	
+22	pasien	p a s i e n	e1=e	
+22	legislatif	l ə ɡ i s l a t i f	e1=ə	
+22	geologi	ɡ e o l o ɡ i	e1=e	
+21	karakteristik	k a r a k t ə r i s t i k	e1=ə	
+21	kanker	k a n k ə r	e1=ə	
+21	geometri	ɡ e o m e t r i	e1=e e2=e	
+21	ekspor	e k s p o r	e1=e	
+20	resolusi	r e s o l u s i	e1=e	
+20	relativitas	r e l a t i v i t a s	e1=e	
+20	predikat	p r e d i k a t	e1=e	
+20	polinesia	p o l i n e s i a	e1=e	
+20	newton	n e w t o n	e1=e	
+20	genetika	ɡ e n e t i k a	e1=e e2=e	
+20	ed	e d	e1=e	
+20	bone	b o n e	e1=e	
+19	subtipe	s u b t i p ə	e1=ə	
+19	segi	s ə ɡ i	e1=ə	
+19	rute	r u t ə	e1=ə	
+19	direbut	d i r ə b u t	e1=ə	
+19	dikelompokkan	d i k ə l o m p o k k a n	e1=ə	
+18	nukleat	n u k l e a t	e1=e	
+18	nobel	n o b ə l	e1=ə	
+18	lempeng	l ə m p ə ŋ	e1=ə e2=ə	
+18	kedah	k ə d a h	e1=ə	
+18	kanjeng	k a n d͡ʒ ə ŋ	e1=ə	
+18	investasi	i n v e s t a s i	e1=e	
+18	elektromagnetik	e l e k t r o m a ɡ n e t i k	e1=e e2=e e3=e	
+17	seberang	s ə b ə r a ŋ	e1=ə e2=ə	
+17	netral	n e t r a l	e1=e	
+17	matematis	m a t ə m a t i s	e1=ə	
+17	kode	k o d ə	e1=ə	
+17	kelak	k ə l a k	e1=ə	
+17	internet	i n t ə r n e t	e1=ə e2=e	
+17	buleleng	b u l e l e ŋ	e1=e e2=e	
+17	buddhisme	b u d d h i s m ə	e1=ə	
+17	aristoteles	a r i s t o t e l ə s	e1=e e2=ə	
+17	alfabet	a l f a b ə t	e1=ə	
+16	retikulum	r e t i k u l u m	e1=e	
+16	potensial	p o t e n s i a l	e1=e	
+16	penginderaan	p ə ŋ i n d ə r a a n	e1=ə e2=ə	
+16	neuraminidase	n e u r a m i n i d a s ə	e1=e e2=ə	
+16	mempromosikan	m ə m p r o m o s i k a n	e1=ə	
+16	konservatif	k o n s e r v a t i f	e1=e	
+16	epidemi	e p i d ə m i	e1=e e2=ə	
+16	endoplasma	e n d o p l a s m a	e1=e	
+16	emisi	e m i s i	e1=e	
+16	einstein	e i n s t e i n	e1=e e2=e	
+16	arsitektur	a r s i t e k t u r	e1=e	
+15	sistematis	s i s t ə m a t i s	e1=ə	
+15	respons	r e s p o n s	e1=e	
+15	nukleobasa	n u k l e o b a s a	e1=e	
+15	metafisika	m e t a f i s i k a	e1=e	
+15	lebanon	l ə b a n o n	e1=ə	
+15	language	l a ŋ u a ɡ ə	e1=ə	
+15	kolonialisme	k o l o n i a l i s m ə	e1=ə	
+15	karangasem	k a r a ŋ a s ə m	e1=ə	
+15	etnik	e t n i k	e1=e	
+15	elementer	e l ə m e n t e r	e1=e e2=ə e3=e e4=e	
+15	diselenggarakan	d i s ə l ə ŋ ɡ a r a k a n	e1=ə e2=ə	
+15	diidentifikasi	d i i d e n t i f i k a s i	e1=e	
+15	besi	b ə s i	e1=ə	
+15	bawean	b a w e a n	e1=e	
+14	lateran	l a t e r a n	e1=e	
+14	helium	h ə l i u m	e1=ə	
+14	gencatan	ɡ e n t͡ʃ a t a n	e1=e	
+14	festival	f e s t i v a l	e1=e	
+14	erupsi	e r u p s i	e1=e	
+14	epistemologi	e p i s t ə m o l o ɡ i	e1=e e2=ə	
+14	dikelilingi	d i k ə l i l i ŋ i	e1=ə	
+14	center	t͡ʃ ə n t e r	e1=ə e2=e	
+14	akademik	a k a d ə m i k	e1=ə	
+13	seluler	s ə l u l e r	e1=ə e2=e	
+13	reptil	r e p t i l	e1=e	
+13	prominensa	p r o m i n ə n s a	e1=ə	
+13	persentase	p ə r s e n t a s ə	e1=ə e2=e e3=ə	
+13	pegon	p ə ɡ o n	e1=ə	
+13	neutrino	n e u t r i n o	e1=e	
+13	milenium	m i l ə n i u m	e1=ə	
+13	komersial	k o m ə r s i a l	e1=ə	
+13	evolusioner	e v o l u s i o n e r	e1=e e2=e	
+13	derajat	d ə r a d͡ʒ a t	e1=ə	
+13	college	t͡ʃ o l l ə ɡ e	e1=ə e2=e	
+13	berevolusi	b ə r e v o l u s i	e1=ə e2=e	
+12	vesikel	v e s i k ə l	e1=e e2=ə	
+12	terkondensasi	t ə r k o n d ə n s a s i	e1=ə e2=ə	
+12	leksikal	l e k s i k a l	e1=e	
+12	kreol	k r e o l	e1=e	
+12	kontemporer	k o n t ə m p o r ə r	e1=ə e2=ə	
+12	ilegal	i l ə ɡ a l	e1=ə	
+12	henry	h ə n r j	e1=ə	
+12	glikoprotein	ɡ l i k o p r o t e i n	e1=e	
+12	dependensi	d e p e n d ə n s i	e1=e e2=e e3=ə	
+12	demak	d ə m a k	e1=ə	
+11	tema	t ə m a	e1=ə	
+11	numeralia	n u m ə r a l i a	e1=ə	
+11	menyelidiki	m ə ɲ ə l i d i k i	e1=ə e2=ə	
+11	konservasi	k o n s e r v a s i	e1=e	
+11	koleksi	k o l e k s i	e1=e	
+11	intensif	i n t e n s i f	e1=e	
+11	eurasia	ə u r a s i a	e1=ə	
+11	eksklusif	e k s k l u s i f	e1=e	
+11	edition	e d i t i o n	e1=e	
+11	deskripsi	d e s k r i p s i	e1=e	
+11	del	d ə l	e1=ə	
+11	bergeser	b ə r ɡ e s ə r	e1=ə e2=e e3=ə	
+10	sendirinya	s ə n d i r i ɲ a	e1=ə	
+10	seleksi	s ə l e k s i	e1=ə e2=e	
+10	sekuler	s ə k u l e r	e1=ə e2=e	
+10	religius	r e l i ɡ i u s	e1=e	
+10	rel	r e l	e1=e	
+10	rekan	r ə k a n	e1=ə	
+10	novelis	n o v ə l i s	e1=ə	
+10	multiseluler	m u l t i s e l u l e r	e1=e e2=e	
+10	menembus	m ə n ə m b u s	e1=ə e2=ə	
+10	melekat	m ə l e k a t	e1=ə e2=e	
+10	konferensi	k o n f ə r e n s i	e1=ə e2=e	
+10	komunisme	k o m u n i s m ə	e1=ə	
+10	kolektif	k o l e k t i f	e1=e	
+10	kerjasama	k ə r d͡ʒ a s a m a	e1=ə	
+10	gaelik	ɡ a ə l i k	e1=ə	
+10	elektronik	e l e k t r o n i k	e1=e e2=e	
+10	demokratis	d e m o k r a t i s	e1=e	
+10	database	d a t a b a s ə	e1=ə	
+10	atlet	a t l e t	e1=e	
+10	american	a m e r i t͡ʃ a n	e1=e	
+9	yudaisme	j u d a i s m ə	e1=ə	
+9	wilhelm	w i l h e l m	e1=e	
+9	valensi	v a l ə n s i	e1=ə	
+9	strategis	s t r a t ə ɡ i s	e1=ə	
+9	selesma	s ə l e s m a	e1=ə e2=e	
+9	sate	s a t e	e1=e	
+9	respon	r e s p o n	e1=e	
+9	polimerase	p o l i m e r a s ə	e1=e e2=ə	
+9	pilek	p i l ə k	e1=ə	
+9	numerik	n u m ə r i k	e1=ə	
+9	napoleon	n a p o l e o n	e1=e	
+9	mengelilingi	m ə ŋ ə l i l i ŋ i	e1=ə e2=ə	
+9	memprediksi	m ə m p r e d i k s i	e1=ə e2=e	
+9	lepton	l ə p t o n	e1=ə	
+9	kromosfer	k r o m o s f ə r	e1=ə	
+9	konvektif	k o n v e k t i f	e1=e	
+9	konsesi	k o n s e s i	e1=e	
+9	kelvin	k ə l v i n	e1=ə	
+9	karier	k a r i ə r	e1=ə	
+9	getah	ɡ ə t a h	e1=ə	
+9	fretilin	f r e t i l i n	e1=e	
+9	euro	e u r o	e1=e	
+9	etnografi	e t n o ɡ r a f i	e1=e	
+9	endositosis	e n d o s i t o s i s	e1=e	
+9	direalisasikan	d i r e a l i s a s i k a n	e1=e	
+9	desain	d e s a i n	e1=e	
+9	demonstrativa	d e m o n s t r a t i v a	e1=e	
+9	aset	a s ə t	e1=ə	
+9	ariel	a r i ə l	e1=ə	
+9	argentina	a r ɡ e n t i n a	e1=e	
+8	weber	w e b ə r	e1=e e2=ə	
+8	uniseluler	u n i s e l u l e r	e1=e e2=e	
+8	tidore	t i d o r e	e1=e	
+8	temporal	t ə m p o r a l	e1=ə	
+8	telinga	t ə l i ŋ a	e1=ə	
+8	subkelompok	s u b k ə l o m p o k	e1=ə	
+8	soewardi	s u w a r d i	?	
+8	sitoskeleton	s i t o s k ə l ə t o n	e1=ə e2=ə	
+8	seksual	s ə k s u a l	e1=ə	
+8	se	s ə	e1=ə	
+8	realisme	r e a l i s m ə	e1=e e2=ə	
+8	potensi	p o t e n s i	e1=e	
+8	nanometer	n a n o m e t ə r	e1=e e2=ə	
+8	merepresentasikan	m ə r e p r e s e n t a s i k a n	e1=ə e2=e e3=e e4=e	
+8	menjelang	m ə n d͡ʒ ə l a ŋ	e1=ə e2=ə	
+8	mendeskripsikan	m ə n d e s k r i p s i k a n	e1=ə e2=e	
+8	made	m a d ə	e1=ə	
+8	love	l o v ə	e1=ə	
+8	keterlibatan	k ə t ə r l i b a t a n	e1=ə e2=ə	
+8	jejak	d͡ʒ ə d͡ʒ a k	e1=ə	
+8	intensitas	i n t e n s i t a s	e1=e	
+8	insiden	i n s i d e n	e1=e	
+8	impetigo	i m p ə t i ɡ o	e1=ə	
+8	heliosfer	h ə l i o s f ə r	e1=ə e2=ə	
+8	hebat	h ə b a t	e1=ə	
+8	fotosintesis	f o t o s i n t e s i s	e1=e	
+8	fenom	f e n o m	e1=e	
+8	ek	e k	e1=e	
+8	deklarasi	d e k l a r a s i	e1=e	
+8	bereaksi	b ə r e a k s i	e1=ə e2=e	
+8	ben	b ə n	e1=ə	
+8	baltimore	b a l t i m o r e	e1=e	
+7	teguh	t ə ɡ u h	e1=ə	
+7	swedia	s w ə d i a	e1=ə	
+7	sumeria	s u m ə r i a	e1=ə	
+7	soetan	s u t a n	?	
+7	seringkali	s ə r i ŋ k a l i	e1=ə	
+7	sengketa	s ə ŋ k e t a	e1=ə e2=e	
+7	religiusitas	r e l i ɡ i u s i t a s	e1=e	
+7	rehidrasi	r e h i d r a s i	e1=e	
+7	reduplikasi	r e d u p l i k a s i	e1=e	
+7	progresif	p r o ɡ r e s i f	e1=e	
+7	prapenyakit	p r a p ə ɲ a k i t	e1=ə	
+7	perspektif	p ə r s p e k t i f	e1=ə e2=e	
+7	peroksisom	p ə r o k s i s o m	e1=ə	
+7	panen	p a n e n	e1=e	
+7	mengerahkan	m ə ŋ ə r a h k a n	e1=ə e2=ə	
+7	mempekerjakan	m ə m p e k ə r d͡ʒ a k a n	e1=ə e2=e e3=ə	
+7	matrilineal	m a t r i l i n e a l	e1=e	
+7	marxisme	m a r k s i s m ə	e1=ə	
+7	korelasi	k o r e l a s i	e1=e	
+7	klemantan	k l e m a n t a n	e1=e	
+7	keesokan	k ə e s o k a n	e1=ə e2=e	
+7	kebal	k ə b a l	e1=ə	
+7	jembrana	d͡ʒ ə m b r a n a	e1=ə	
+7	interior	i n t ə r i o r	e1=ə	
+7	integrasi	i n t ə ɡ r a s i	e1=ə	
+7	geografer	ɡ e o ɡ r a f ə r	e1=e e2=ə	
+7	efisiensi	e f i s i e n s i	e1=e e2=e	
+7	dinger	d i ŋ ə r	e1=ə	
+7	diameter	d i a m e t ə r	e1=e e2=ə	
+7	den	d e n	e1=e	
+7	cambridge	t͡ʃ a m b r i d ɡ e	e1=e	
+7	boer	b u r	?	
+7	berdiameter	b ə r d i a m e t ə r	e1=ə e2=e e3=ə	
+7	berair	b ə r a i r	e1=ə	
+7	benuaq	b ə n u a k	e1=ə	
+7	bakteriofag	b a k t ə r i o f a ɡ	e1=ə	
+7	ateis	a t e i s	e1=e	
+6	tiber	t i b ə r	e1=ə	
+6	teuku	t e u k u	e1=e	
+6	temurun	t ə m u r u n	e1=ə	
+6	slamet	s l a m ə t	e1=ə	
+6	serotipe	s e r o t i p ə	e1=e e2=ə	
+6	sensitif	s ə n s i t i f	e1=ə	
+6	selangor	s ə l a n ɡ o r	e1=ə	
+6	samudera	s a m u d ə r a	e1=ə	
+6	saleh	s a l e h	e1=e	
+6	re	r e	e1=e	
+6	prevalensi	p r e v a l ə n s i	e1=e e2=ə	
+6	presisi	p r e s i s i	e1=e	
+6	persepsi	p ə r s e p s i	e1=ə e2=e	
+6	penultima	p ə n u l t i m a	e1=ə	
+6	pengekspor	p ə ŋ e k s p o r	e1=ə e2=e	
+6	pelekatan	p ə l e k a t a n	e1=ə e2=e	
+6	pamekasan	p a m ə k a s a n	e1=ə	
+6	orientasi	o r i e n t a s i	e1=e	
+6	moneter	m o n ə t e r	e1=ə e2=e	
+6	molekular	m o l e k u l a r	e1=e	
+6	metodologi	m e t o d o l o ɡ i	e1=e	
+6	meningokokus	m ə n i ŋ o k o k u s	e1=ə	
+6	melodi	m ə l o d i	e1=ə	
+6	melanesia	m ə l a n e s i a	e1=ə e2=e	
+6	mekkah	m ə k k a h	e1=ə	
+6	legitimasi	l ə ɡ i t i m a s i	e1=ə	
+6	le	l e	e1=e	
+6	kriket	k r i k e t	e1=e	
+6	konstituen	k o n s t i t u ə n	e1=ə	
+6	kapel	k a p ə l	e1=ə	
+6	kangean	k a ŋ e a n	e1=e	
+6	jones	d͡ʒ o n ə s	e1=ə	
+6	hitler	h i t l e r	e1=e	
+6	herodes	h e r o d e s	e1=e e2=e	
+6	gelas	ɡ ə l a s	e1=ə	
+6	fermion	f e r m i o n	e1=e	
+6	ergatif	e r ɡ a t i f	e1=e	
+6	eds	e d s	e1=e	
+6	droplet	d r o p l e t	e1=e	
+6	diprediksi	d i p r e d i k s i	e1=e	
+6	dikerahkan	d i k ə r a h k a n	e1=ə	
+6	cicero	t͡ʃ i t͡ʃ ə r o	e1=ə	
+6	biogeografi	b i o ɡ e o ɡ r a f i	e1=e	
+6	benjamin	b ə n d͡ʒ a m i n	e1=ə	
+6	beguk	b ə ɡ u k	e1=ə	
+6	antarsel	a n t a r s ə l	e1=ə	
+6	alergi	a l e r ɡ i	e1=e	
+6	akademisi	a k a d ə m i s i	e1=ə	
+6	akademis	a k a d ə m i s	e1=ə	
+5	transmembran	t r a n s m ə m b r a n	e1=ə	
+5	transkriptase	t r a n s k r i p t a s ə	e1=ə	
+5	tetes	t ə t e s	e1=ə e2=e	
+5	sensor	s ə n s o r	e1=ə	
+5	semburan	s ə m b u r a n	e1=ə	
+5	rezim	r e z i m	e1=e	
+5	representasi	r e p r ə s e n t a s i	e1=e e2=ə e3=e	
+5	religions	r e l i ɡ i o n s	e1=e	
+5	religi	r e l i ɡ i	e1=e	
+5	rekreasi	r e k r e a s i	e1=e e2=e	
+5	rekor	r e k o r	e1=e	
+5	regulasi	r e ɡ u l a s i	e1=e	
+5	protease	p r o t e a s ə	e1=e e2=ə	
+5	prestasi	p r e s t a s i	e1=e	
+5	polinukleotida	p o l i n u k l e o t i d a	e1=e	
+5	penida	p e n i d a	e1=e	
+5	paramiliter	p a r a m i l i t ə r	e1=ə	
+5	paralel	p a r a l e l	e1=e	
+5	paket	p a k e t	e1=e	
+5	operasional	o p ə r a s i o n a l	e1=ə	
+5	obelisk	o b ə l i s k	e1=ə	
+5	ngaseng	ŋ a s e ŋ	e1=e	
+5	monumental	m o n u m e n t a l	e1=e	
+5	monoteistik	m o n o t e i s t i k	e1=e	
+5	miosen	m i o s e n	e1=e	
+5	militernya	m i l i t ə r ɲ a	e1=ə	
+5	mikroorganisme	m i k r o o r ɡ a n i s m ə	e1=ə	
+5	meulaboh	m e u l a b o h	e1=e	
+5	metafisik	m e t a f i s i k	e1=e	
+5	mesopotamia	m ə s o p o t a m i a	e1=ə	
+5	menstabilkan	m ə n s t a b i l k a n	e1=ə	
+5	mengejutkan	m ə ŋ ə d͡ʒ u t k a n	e1=ə e2=ə	
+5	mempublikasikan	m ə m p u b l i k a s i k a n	e1=ə	
+5	me	m ə	e1=ə	
+5	magazine	m a ɡ a z i n ə	e1=ə	
+5	lepuhan	l ə p u h a n	e1=ə	
+5	lemak	l ə m a k	e1=ə	
+5	lebat	l ə b a t	e1=ə	
+5	kuliner	k u l i n e r	e1=e	
+5	kreatif	k r e a t i f	e1=e	
+5	koresponden	k o r e s p o n d e n	e1=e e2=e	
+5	kinerja	k i n ə r d͡ʒ a	e1=ə	
+5	kemak	k ə m a k	e1=ə	
+5	keliru	k ə l i r u	e1=ə	
+5	kelembaban	k ə l ə m b a b a n	e1=ə e2=ə	
+5	kecak	k ə t͡ʃ a k	e1=ə	
+5	kamera	k a m ə r a	e1=ə	
+5	hinduisme	h i n d u i s m ə	e1=ə	
+5	geseran	ɡ e s e r a n	e1=e e2=e	
+5	genre	ɡ e n r e	e1=e e2=e	
+5	genetis	ɡ e n e t i s	e1=e e2=e	
+5	fundamentalis	f u n d a m e n t a l i s	e1=e	
+5	feminisme	f e m i n i s m ə	e1=e e2=ə	
+5	esensi	e s ə n s i	e1=e e2=ə	
+5	ekspatriat	e k s p a t r i a t	e1=e	
+5	eksistensialisme	e k s i s t e n s i a l i s m ə	e1=e e2=e e3=ə	
+5	eic	e i t͡ʃ	e1=e	
+5	duet	d u e t	e1=e	
+5	direktur	d i r e k t u r	e1=e	
+5	dikelompokan	d i k ə l o m p o k a n	e1=ə	
+5	dideskripsikan	d i d e s k r i p s i k a n	e1=e	
+5	des	d e s	e1=e	
+5	denominasi	d e n o m i n a s i	e1=e	
+5	deli	d e l i	e1=e	
+5	deklaratif	d e k l a r a t i f	e1=e	
+5	celebes	t͡ʃ e l ə b e s	e1=e e2=ə e3=e	
+5	ceko	t͡ʃ ə k o	e1=ə	
+5	bercak	b ə r t͡ʃ a k	e1=ə	
+5	beitar	b e e i t a r	?	
+5	beit	b e i t	e1=e	
+5	antarplanet	a n t a r p l a n e t	e1=e	
+5	animisme	a n i m i s m ə	e1=ə	
+5	ager	a ɡ ə r	e1=ə	
+4	water	w a t ə r	e1=ə	
+4	wage	w a ɡ e	e1=e	
+4	vegetasi	v e ɡ ə t a s i	e1=e e2=ə	
+4	utilitarianisme	u t i l i t a r i a n i s m ə	e1=ə	
+4	topeng	t o p e ŋ	e1=e	
+4	tibet	t i b ə t	e1=ə	
+4	tetun	t ə t u n	e1=ə	
+4	terkecuali	t ə r k ə t͡ʃ u a l i	e1=ə e2=ə	
+4	terjun	t ə r d͡ʒ u n	e1=ə	
+4	temasek	t ə m a s ə k	e1=ə e2=ə	
+4	tegal	t ə ɡ a l	e1=ə	
+4	teater	t e a t ə r	e1=e e2=ə	
+4	stroke	s t r o k e	e1=e	
+4	soppeng	s o p p e ŋ	e1=e	
+4	sisterna	s i s t ə r n a	e1=ə	
+4	sistematika	s i s t ə m a t i k a	e1=ə	
+4	sistematik	s i s t ə m a t i k	e1=ə	
+4	sintetik	s i n t e t i k	e1=e	
+4	simbolisme	s i m b o l i s m ə	e1=ə	
+4	sferik	s f e r i k	e1=e	
+4	sesar	s ə s a r	e1=ə	
+4	semitransitif	s ə m i t r a n s i t i f	e1=ə	
+4	sembari	s ə m b a r i	e1=ə	
+4	seks	s ə k s	e1=ə	
+4	segmentasi	s ə ɡ m e n t a s i	e1=ə e2=e	
+4	salmonella	s a l m o n e l l a	e1=e	
+4	salep	s a l ə p	e1=ə	
+4	salem	s a l ə m	e1=ə	
+4	rubella	r u b e l l a	e1=e	
+4	regimen	r e ɡ i m ə n	e1=e e2=ə	
+4	prosedur	p r o s ə d u r	e1=ə	
+4	projek	p r o d͡ʒ e k	e1=e	
+4	profesi	p r o f e s i	e1=e	
+4	premis	p r e m i s	e1=e	
+4	prediksi	p r e d i k s i	e1=e	
+4	popper	p o p p e r	e1=e	
+4	pleistosen	p l e i s t o s e n	e1=e e2=e	
+4	persis	p ə r s i s	e1=ə	
+4	penyerbuan	p ə ɲ ə r b u a n	e1=ə e2=ə	
+4	pelalawan	p ə l a l a w a n	e1=ə	
+4	pekanbaru	p ə k a n b a r u	e1=ə	
+4	patogenesis	p a t o ɡ e n e s i s	e1=e e2=e	
+4	ole	o l e	e1=e	
+4	nukleokapsid	n u k l e o k a p s i d	e1=e	
+4	nukleoid	n u k l e o i d	e1=e	
+4	neurologis	n e u r o l o ɡ i s	e1=e	
+4	neurolinguistik	n e u r o l i ŋ u i s t i k	e1=e	
+4	negarawan	n ə ɡ a r a w a n	e1=ə	
+4	nanoteknologi	n a n o t e k n o l o ɡ i	e1=e	
+4	modernisme	m o d e r n i s m ə	e1=e e2=ə	
+4	modernisasi	m o d ə r n i s a s i	e1=ə	
+4	mikrometer	m i k r o m e t ə r	e1=e e2=ə	
+4	menyerbu	m ə ɲ ə r b u	e1=ə e2=ə	
+4	meningitis	m ə n i ŋ i t i s	e1=ə	
+4	mengenyam	m ə ŋ e ɲ a m	e1=ə e2=e	
+4	mengelompokkan	m ə ŋ ə l o m p o k k a n	e1=ə e2=ə	
+4	mengelompokan	m ə ŋ ə l o m p o k a n	e1=ə e2=ə	
+4	menempuh	m ə n ə m p u h	e1=ə e2=ə	
+4	mendeklarasikan	m ə n d e k l a r a s i k a n	e1=ə e2=e	
+4	memproses	m ə m p r o s e s	e1=ə e2=e	
+4	meksiko	m e k s i k o	e1=e	
+4	megalitik	m e ɡ a l i t i k	e1=e	
+4	lumen	l u m ə n	e1=ə	
+4	letup	l ə t u p	e1=ə	
+4	letnan	l e t n a n	e1=e	
+4	letih	l ə t i h	e1=ə	
+4	leiden	l e i d e n	e1=e e2=e	
+4	legislasi	l ə ɡ i s l a s i	e1=ə	
+4	kreativitas	k r e a t i v i t a s	e1=e	
+4	konsepsi	k o n s e p s i	e1=e	
+4	kondensat	k o n d ə n s a t	e1=ə	
+4	kompleksitas	k o m p l e k s i t a s	e1=e	
+4	keris	k ə r i s	e1=ə	
+4	kejawen	k ə d͡ʒ a w e n	e1=ə e2=e	
+4	kavaleri	k a v a l ə r i	e1=ə	
+4	kariernya	k a r i ə r ɲ a	e1=ə	
+4	kanselir	k a n s ə l i r	e1=ə	
+4	kaledonia	k a l e d o n i a	e1=e	
+4	jeneponto	d͡ʒ ə n ə p o n t o	e1=ə e2=ə	
+4	israeli	i s r a ə l i	e1=ə	
+4	investigasi	i n v e s t i ɡ a s i	e1=e	
+4	intern	i n t ə r n	e1=ə	
+4	intermediat	i n t ə r m e d i a t	e1=ə e2=e	
+4	insidensi	i n s i d ə n s i	e1=ə	
+4	inderapura	i n d ə r a p u r a	e1=ə	
+4	hussein	h u s s e j n	e1=e	
+4	harper	h a r p e r	e1=e	
+4	geosfer	ɡ e o s f ə r	e1=e e2=ə	
+4	genomnya	ɡ e n o m ɲ a	e1=e	
+4	generik	ɡ e n ə r i k	e1=e e2=ə	
+4	generatif	ɡ e n ə r a t i f	e1=e e2=ə	
+4	gelembung	ɡ ə l ə m b u ŋ	e1=ə e2=ə	
+4	gede	ɡ ə d e	e1=ə e2=e	
+4	forensik	f o r ə n s i k	e1=ə	
+4	flores	f l o r e s	e1=e	
+4	etolog	e t o l o ɡ	e1=e	
+4	erosi	e r o s i	e1=e	
+4	endomembran	e n d o m ə m b r a n	e1=e e2=ə	
+4	end	e n d	e1=e	
+4	elektrostatik	e l e k t r o s t a t i k	e1=e e2=e	
+4	elektrolisis	e l e k t r o l i s i s	e1=e e2=e	
+4	elektrodinamika	e l e k t r o d i n a m i k a	e1=e e2=e	
+4	eksplisit	e k s p l i s i t	e1=e	
+4	eksperimentalis	e k s p e r i m e n t a l i s	e1=e e2=e e3=e	
+4	earl	e a r l	e1=e	
+4	duke	d u k e	e1=e	
+4	ditetaskan	d i t ə t a s k a n	e1=ə	
+4	direpresentasikan	d i r e p r ə s e n t a s i k a n	e1=e e2=ə e3=e	
+4	diprediksikan	d i p r e d i k s i k a n	e1=e	
+4	dievakuasi	d i e v a k u a s i	e1=e	
+4	dicetuskan	d i t͡ʃ ə t u s k a n	e1=ə	
+4	dewantara	d e w a n t a r a	e1=e	
+4	detektor	d e t e k t o r	e1=e e2=e	
+4	deoksiribosa	d e o k s i r i b o s a	e1=e	
+4	deoksiribonukleat	d e o k s i r i b o n u k l e a t	e1=e e2=e	
+4	demokrat	d e m o k r a t	e1=e	
+4	delta	d e l t a	e1=e	
+4	centauri	t͡ʃ ə n t a u r i	e1=ə	
+4	bose	b o s ə	e1=ə	
+4	berprestasi	b ə r p r e s t a s i	e1=ə e2=e	
+4	berpotensi	b ə r p o t e n s i	e1=ə e2=e	
+4	berkomitmen	b ə r k o m i t m e n	e1=ə e2=e	
+4	bergengsi	b ə r ɡ e ŋ s i	e1=ə e2=e	
+4	beni	b ə n i	e1=ə	
+4	arkea	a r k ə a	e1=ə	
+4	apresiasi	a p r e s i a s i	e1=e	
+4	adenina	a d e n i n a	e1=e	
+3	williamite	w i l l i a m i t e e	?	
+3	willem	w i l l e m	e1=e	
+3	vertebrata	v ə r t ə b r a t a	e1=ə e2=ə	
+3	varisela	v a r i s e l a	e1=e	
+3	variabel	v a r i a b ə l	e1=ə	
+3	thames	t h a m ə s	e1=ə	
+3	thales	t h a l e s	e1=e	
+3	testis	t e s t i s	e1=e	
+3	terdelokalisasi	t ə r d e l o k a l i s a s i	e1=ə e2=e	
+3	teoritis	t ə o r i t i s	e1=ə	
+3	tekstil	t e k s t i l	e1=e	
+3	taoisme	t a o i s m ə	e1=ə	
+3	tangerang	t a ŋ ə r a ŋ	e1=ə	
+3	taipei	t a j p e i	e1=e	
+3	survey	s u r v e j	e1=e	
+3	supersimetri	s u p ə r s i m e t r i	e1=ə e2=e	
+3	superkonduktivitas	s u p ə r k o n d u k t i v i t a s	e1=ə	
+3	super	s u p ə r	e1=ə	
+3	sumberdaya	s u m b ə r d a j a	e1=ə	
+3	subspesies	s u b s p e s i e s	e1=e e2=e	
+3	subkeluarga	s u b k ə l u a r ɡ a	e1=ə	
+3	subjektif	s u b d͡ʒ e k t i f	e1=e	
+3	sterling	s t e r l i ŋ	e1=e	
+3	somare	s o m a r e	e1=e	
+3	skeptisisme	s k e p t i s i s m ə	e1=e e2=ə	
+3	skenario	s k ə n a r i o	e1=ə	
+3	simpleks	s i m p l ə k s	e1=ə	
+3	silabel	s i l a b ə l	e1=ə	
+3	seremonial	s ə r ə m o n i a l	e1=ə e2=ə	
+3	senyulong	s ə ɲ u l o ŋ	e1=ə	
+3	semit	s ə m i t	e1=ə	
+3	seljuk	s e l d͡ʒ u k	e1=e	
+3	selimbau	s e l i m b a w	e1=e	
+3	sekuens	s ə k u ə n s	e1=ə e2=ə	
+3	sekar	s ə k a r	e1=ə	
+3	see	s ə ə	e1=ə e2=ə	
+3	revisi	r e v i s i	e1=e	
+3	retrovirus	r e t r o v i r u s	e1=e	
+3	respirasi	r e s p i r a s i	e1=e	
+3	rerata	r ə r a t a	e1=ə	
+3	relativistik	r e l a t i v i s t i k	e1=e	
+3	rejang	r ə d͡ʒ a ŋ	e1=ə	
+3	reduktor	r e d u k t o r	e1=e	
+3	redaksi	r ə d a k s i	e1=ə	
+3	reaktor	r e a k t o r	e1=e	
+3	reaktivitas	r e a k t i v i t a s	e1=e	
+3	reaktan	r e a k t a n	e1=e	
+3	punden	p u n d e n	e1=e	
+3	preposisional	p r e p o s i s i o n a l	e1=e	
+3	potter	p o t t e r	e1=e	
+3	perlis	p e r l i s	e1=e	
+3	perfektif	p ə r f e k t i f	e1=ə e2=e	
+3	perebutan	p ə r ə b u t a n	e1=ə e2=ə	
+3	peptidoglikan	p e p t i d o ɡ l i k a n	e1=e	
+3	penning	p e n n i ŋ	e1=e	
+3	pengkodean	p ə ŋ k o d e a n	e1=ə e2=e	
+3	pengeraman	p ə ŋ ə r a m a n	e1=ə e2=ə	
+3	patriotisme	p a t r i o t i s m ə	e1=ə	
+3	patogenik	p a t o ɡ e n i k	e1=e	
+3	parole	p a r o l e	e1=e	
+3	pangkajene	p a ŋ k a d͡ʒ ə n e	e1=ə e2=e	
+3	pane	p a n e	e1=e	
+3	osteologi	o s t e o l o ɡ i	e1=e	
+3	omzet	o m z e t	e1=e	
+3	oliver	o l i v ə r	e1=ə	
+3	nukleosintesis	n u k l e o s i n t e s i s	e1=e e2=e	
+3	nukleoprotein	n u k l e o p r o t e i n	e1=e e2=e	
+3	nero	n ə r o	e1=ə	
+3	nature	n a t u r e	e1=e	
+3	multimedia	m u l t i m e d i a	e1=e	
+3	molekulnya	m o l ə k u l ɲ a	e1=ə	
+3	moderen	m o d e r ə n	e1=e e2=ə	
+3	mikronesia	m i k r o n e s i a	e1=e	
+3	mikrofilamen	m i k r o f i l a m e n	e1=e	
+3	meteorologi	m e t e o r o l o ɡ i	e1=e e2=e	
+3	metal	m e t a l	e1=e	
+3	mesoamerika	m ə s o a m ə r i k a	e1=ə e2=ə	
+3	merespons	m ə r e s p o n s	e1=ə e2=e	
+3	merespon	m ə r e s p o n	e1=ə e2=e	
+3	meregulasi	m ə r e ɡ u l a s i	e1=ə e2=e	
+3	merebak	m ə r ə b a k	e1=ə e2=ə	
+3	mentransfer	m ə n t r a n s f ə r	e1=ə e2=ə	
+3	mensuplai	m ə n s u p l a j	e1=ə	
+3	mengikutsertakan	m ə ŋ i k u t s e r t a k a n	e1=ə e2=e	
+3	mengendarai	m ə ŋ e n d a r a j	e1=ə e2=e	
+3	mengebom	m ə ŋ ə b o m	e1=ə e2=ə	
+3	menetas	m ə n e t a s	e1=ə e2=e	
+3	mendeteksi	m ə n d e t e k s i	e1=ə e2=e e3=e	
+3	memprotes	m ə m p r o t e s	e1=ə e2=e	
+3	memprediksikan	m ə m p r e d i k s i k a n	e1=ə e2=e	
+3	mempawah	m ə m p a w a h	e1=ə	
+3	membedah	m ə m b e d a h	e1=ə e2=e	
+3	megavirus	m e ɡ a v i r u s	e1=e	
+3	mee	m ə ə	e1=ə e2=ə	
+3	medisinal	m e d i s i n a l	e1=e	
+3	makabe	m a k a b ə	e1=ə	
+3	luther	l u t h e r	e1=e	
+3	litosfer	l i t o s f ə r	e1=ə	
+3	lesu	l ə s u	e1=ə	
+3	leksikon	l e k s i k o n	e1=e	
+3	legian	l ə ɡ i a n	e1=ə	
+3	langue	l a n ɡ w e	e1=e	
+3	lae	l a ə	e1=ə	
+3	konstelasi	k o n s t ə l a s i	e1=ə	
+3	konsekuensi	k o n s ə k u e n s i	e1=ə e2=e	
+3	konfusianisme	k o n f u s i a n i s m ə	e1=ə	
+3	konfederasi	k o n f e d ə r a s i	e1=e e2=ə	
+3	kondensasi	k o n d ə n s a s i	e1=ə	
+3	kolektor	k o l e k t o r	e1=e	
+3	koevolusi	k u v o l u s i	?	
+3	klien	k l i ə n	e1=ə	
+3	kinetika	k i n e t i k a	e1=e	
+3	khmer	x m e r	e1=e	
+3	ketut	k ə t u t	e1=ə	
+3	kertanegara	k ə r t a n ə ɡ a r a	e1=ə e2=ə	
+3	keropeng	k ə r o p e ŋ	e1=ə e2=e	
+3	kerikil	k ə r i k i l	e1=ə	
+3	kerdil	k ə r d i l	e1=ə	
+3	kepler	k a e p e l e r	?	
+3	kental	k ə n t a l	e1=ə	
+3	keltik	k ə l t i k	e1=ə	
+3	kate	k a t ə	e1=ə	
+3	kapitalisme	k a p i t a l i s m ə	e1=ə	
+3	kalianget	k a l i a ŋ ə t	e1=ə	
+3	kader	k a d ə r	e1=ə	
+3	joged	d͡ʒ o ɡ e d	e1=e	
+3	jermanik	d͡ʒ ə r m a n i k	e1=ə	
+3	jelantik	d͡ʒ ə l a n t i k	e1=ə	
+3	jejaring	d͡ʒ ə d͡ʒ a r i ŋ	e1=ə	
+3	intuisionisme	i n t u i s i o n i s m ə	e1=ə	
+3	interaktif	i n t ə r a k t i f	e1=ə	
+3	intens	i n t e n s	e1=e	
+3	identifikasi	i d e n t i f i k a s i	e1=e	
+3	hieroglif	h i ə r o ɡ l i f	e1=ə	
+3	hidrosfer	h i d r o s f ə r	e1=ə	
+3	heterodoks	h e t ə r o d o k s	e1=e e2=ə	
+3	herpetologi	h e r p ə t o l o ɡ i	e1=e e2=ə	
+3	heliopause	h e l i o p a u s ə	e1=e e2=ə	
+3	hektar	h e k t a r	e1=e	
+3	geomagnetik	ɡ e o m a ɡ n e t i k	e1=e e2=e	
+3	geokimia	ɡ e o k i m i a	e1=e	
+3	geografiwan	ɡ e o ɡ r a f i w a n	e1=e	
+3	geograf	ɡ e o ɡ r a f	e1=e	
+3	geofisika	ɡ e o f i s i k a	e1=e	
+3	gentar	ɡ ə n t a r	e1=ə	
+3	genomik	ɡ e n o m i k	e1=e	
+3	genealogi	ɡ e n e a l o ɡ i	e1=e e2=e	
+3	gencar	ɡ ə n t͡ʃ a r	e1=ə	
+3	gemuruh	ɡ ə m u r u h	e1=ə	
+3	gejolak	ɡ ə d͡ʒ o l a k	e1=ə	
+3	filogeni	f i l o ɡ e n i	e1=e	
+3	feromagnetik	f e r o m a ɡ n e t i k	e1=e e2=e	
+3	europe	e u r o p ə	e1=e e2=ə	
+3	eukariotik	e u k a r i o t i k	e1=e	
+3	etologi	e t o l o ɡ i	e1=e	
+3	etnisitas	e t n i s i t a s	e1=e	
+3	etimologis	e t i m o l o ɡ i s	e1=e	
+3	epik	e p i k	e1=e	
+3	entomologi	e n t o m o l o ɡ i	e1=e	
+3	ensefalitis	e n s e f a l i t i s	e1=e e2=e	
+3	emosi	e m o s i	e1=e	
+3	emigrasi	e m i ɡ r a s i	e1=e	
+3	elektronika	e l e k t r o n i k a	e1=e e2=e	
+3	elektrokimia	e l e k t r o k i m i a	e1=e e2=e	
+3	ekabahasa	e k a b a h a s a	e1=e	
+3	egaliter	ə ɡ a l i t ə r	e1=ə e2=ə	
+3	ebi	ə b i	e1=ə	
+3	dolmen	d o l m ə n	e1=ə	
+3	ditempuh	d i t ə m p u h	e1=ə	
+3	diselidiki	d i s ə l i d i k i	e1=ə	
+3	disebarluaskan	d i s ə b a r l u a s k a n	e1=ə	
+3	dipopulerkan	d i p o p u l e r k a n	e1=e	
+3	dilembagakan	d i l ə m b a ɡ a k a n	e1=ə	
+3	diinfeksi	d i i n f e k s i	e1=e	
+3	dideteksi	d i d e t e k s i	e1=e e2=e	
+3	didesain	d i d e s a i n	e1=e	
+3	demonstrasi	d e m o n s t r a s i	e1=e	
+3	definition	d e f i n i t i o n	e1=e	
+3	cerdas	t͡ʃ ə r d a s	e1=ə	
+3	castel	t͡ʃ a s t e l	e1=e	
+3	carter	t͡ʃ a r t ə r	e1=ə	
+3	brigade	b r i ɡ a d ə	e1=ə	
+3	bonaparte	b o n a p a r t e	e1=e	
+3	bioteknologi	b i o t e k n o l o ɡ i	e1=e	
+3	betatron	b ə t a t r o n	e1=ə	
+3	berebut	b ə r ə b u t	e1=ə e2=ə	
+3	bercerai	b ə r t͡ʃ ə r a j	e1=ə e2=ə	
+3	berau	b ə r a w	e1=ə	
+3	berargumen	b ə r a r ɡ u m e n	e1=ə e2=e	
+3	bentrokan	b ə n t r o k a n	e1=ə	
+3	bendawi	b ə n d a w i	e1=ə	
+3	beluga	b ə l u ɡ a	e1=ə	
+3	belitung	b ə l i t u ŋ	e1=ə	
+3	armenia	a r m e n i a	e1=e	
+3	aransemen	a r a n s ə m e n	e1=ə e2=e	
+3	apec	a p ə t͡ʃ	e1=ə	
+3	antropometri	a n t r o p o m e t r i	e1=e	
+3	antineutrino	a n t i n e u t r i n o	e1=e	
+3	antepenultima	a n t ə p ə n u l t i m a	e1=ə e2=ə	
+3	antarmolekul	a n t a r m o l ə k u l	e1=ə	
+3	anderson	a n d ə r s o n	e1=ə	
+3	amendemen	a m e n d ə m e n	e1=e e2=ə e3=e	
+3	amandemen	a m a n d ə m e n	e1=ə e2=e	
+3	akuifer	a k u i f ə r	e1=ə	
+3	aken	a k ə n	e1=ə	
+3	agresif	a ɡ r e s i f	e1=e	
+2	yale	j a l e	e1=e	
+2	yahweh	j a h w e h	e1=e	
+2	wide	w i d ə	e1=ə	
+2	weda	w ə d a	e1=ə	
+2	virulensinya	v i r u l ə n s i ɲ a	e1=ə	
+2	virulensi	v i r u l ə n s i	e1=ə	
+2	veto	v e t o	e1=e	
+2	vernakular	v ə r n a k u l a r	e1=ə	
+2	venezuela	v e n ə z u e l a	e1=e e2=ə e3=e	
+2	vashem	v a s h e m	e1=e	
+2	use	u s ə	e1=ə	
+2	unnes	u n n ə s	e1=ə	
+2	ue	u ə	e1=ə	
+2	turatea	t u r a t e a	e1=e	
+2	trivalen	t r i v a l e n	e1=e	
+2	tripel	t r i p ə l	e1=ə	
+2	trigonometri	t r i ɡ o n o m e t r i	e1=e	
+2	totem	t o t ə m	e1=ə	
+2	tetua	t ə t u a	e1=ə	
+2	tersegmentasi	t ə r s ə ɡ m e n t a s i	e1=ə e2=ə e3=e	
+2	terperangkap	t ə r p ə r a ŋ k a p	e1=ə e2=ə	
+2	termonuklir	t ə r m o n u k l i r	e1=ə	
+2	termokimia	t ə r m o k i m i a	e1=ə	
+2	terdeteksi	t ə r d e t e k s i	e1=ə e2=e e3=e	
+2	tepian	t ə p i a n	e1=ə	
+2	tengkorak	t ə ŋ k o r a k	e1=ə	
+2	tempoh	t ə m p o h	e1=ə	
+2	templat	t ə m p l a t	e1=ə	
+2	tem	t ə m	e1=ə	
+2	tello	t e l l o	e1=e	
+2	teistik	t e i s t i k	e1=e	
+2	tate	t a t e	e1=e	
+2	talempong	t a l ə m p o ŋ	e1=ə	
+2	tagore	t a ɡ o r e	e1=e	
+2	sutera	s u t ə r a	e1=ə	
+2	surveyor	s u r v e j o r	e1=e	
+2	supernova	s u p ə r n o v a	e1=ə	
+2	suleiman	s u l e i m a n	e1=e	
+2	subseluler	s u b s ə l u l e r	e1=ə e2=e	
+2	subkelas	s u b k ə l a s	e1=ə	
+2	subjektivisme	s u b d͡ʒ e k t i v i s m ə	e1=e e2=ə	
+2	subgenus	s u b ɡ e n u s	e1=e	
+2	spionase	s p i o n a s ə	e1=ə	
+2	spekulatif	s p e k u l a t i f	e1=e	
+2	spektrometer	s p e k t r o m e t ə r	e1=e e2=e e3=ə	
+2	sokrates	s o k r a t e s	e1=e	
+2	soewarno	s u w a r n o	?	
+2	soetomo	s u t o m o	?	
+2	soekarnoputri	s u k a r n o p u t r i	?	
+2	sinkretik	s i n k r e t i k	e1=e	
+2	singapore	s i ŋ a p o r e	e1=e	
+2	setar	s ə t a r	e1=ə	
+2	setanisme	s e t a n i s m ə	e1=e e2=ə	
+2	sertifikasi	s ə r t i f i k a s i	e1=ə	
+2	serealia	s ə r e a l i a	e1=ə e2=e	
+2	serdang	s ə r d a ŋ	e1=ə	
+2	ser	s ə r	e1=ə	
+2	sentak	s ə n t a k	e1=ə	
+2	semivokal	s ə m i v o k a l	e1=ə	
+2	semboyan	s ə m b o j a n	e1=ə	
+2	sembada	s ə m b a d a	e1=ə	
+2	selera	s ə l e r a	e1=ə e2=e	
+2	selasih	s ə l a s i h	e1=ə	
+2	selaparang	s e l a p a r a ŋ	e1=e	
+2	seksek	s ə k s ə k	e1=ə e2=ə	
+2	sekeliling	s ə k ə l i l i ŋ	e1=ə e2=ə	
+2	sape	s a p ə	e1=ə	
+2	rubeola	r u b e o l a	e1=e	
+2	roket	r o k e t	e1=e	
+2	ritter	r i t t e r	e1=e	
+2	resistivitas	r e s i s t i v i t a s	e1=e	
+2	reseptif	r e s e p t i f	e1=e e2=e	
+2	reruntuhan	r ə r u n t u h a n	e1=ə	
+2	reptilia	r e p t i l i a	e1=e	
+2	remak	r ə m a k	e1=ə	
+2	related	r e l a t ə d	e1=e e2=ə	
+2	rekursif	r e k u r s i f	e1=e	
+2	rekursi	r e k u r s i	e1=e	
+2	rekoneksi	r e k o n e k s i	e1=e e2=e	
+2	rekombinasi	r e k o m b i n a s i	e1=e	
+2	rekombinan	r e k o m b i n a n	e1=e	
+2	reklamasi	r e k l a m a s i	e1=e	
+2	rekannya	r ə k a n ɲ a	e1=ə	
+2	regular	r ə ɡ u l a r	e1=ə	
+2	refrein	r e f r e i n	e1=e e2=e	
+2	redoks	r e d o k s	e1=e	
+2	rebuttal	r ə b u t t a l	e1=ə	
+2	realisasi	r e a l i s a s i	e1=e	
+2	reaktif	r e a k t i f	e1=e	
+2	reading	r e a d i ŋ	e1=e	
+2	purdue	p u r d u ə	e1=ə	
+2	pubertas	p u b ə r t a s	e1=ə	
+2	prototipe	p r o t o t i p ə	e1=ə	
+2	prospek	p r o s p e k	e1=e	
+2	primates	p r i m a t e s	e1=e	
+2	prevalensinya	p r e v a l ə n s i ɲ a	e1=e e2=ə	
+2	presesi	p r e s e s i	e1=e e2=e	
+2	polites	p o l i t e s	e1=e	
+2	polisintetik	p o l i s i n t e t i k	e1=e	
+2	pledoi	p l ə d o j	e1=ə	
+2	platonisme	p l a t o n i s m ə	e1=ə	
+2	plasmodesmata	p l a s m o d e s m a t a	e1=e	
+2	plasebo	p l a s ə b o	e1=ə	
+2	pinniped	p i n n i p e d	e1=e	
+2	peteng	p ə t e ŋ	e1=ə e2=e	
+2	persuasif	p ə r s u a s i f	e1=ə	
+2	persengketaan	p ə r s e ŋ k ə t a a n	e1=ə e2=e e3=ə	
+2	perceraian	p ə r t͡ʃ ə r a i a n	e1=ə e2=ə	
+2	penyerbu	p ə ɲ ə r b u	e1=ə e2=ə	
+2	penumbra	p ə n u m b r a	e1=ə	
+2	pengintegrasian	p ə ŋ i n t ə ɡ r a s i a n	e1=ə e2=ə	
+2	penginfeksian	p ə ŋ i n f e k s i a n	e1=ə e2=e	
+2	pengambilalihan	p ə ŋ a m b i l a l i h a n	e1=ə	
+2	pendet	p ə n d e t	e1=ə e2=e	
+2	pembedahan	p ə m b e d a h a n	e1=ə e2=e	
+2	pelosok	p ə l o s o k	e1=ə	
+2	pedir	p ə d i r	e1=ə	
+2	pedas	p ə d a s	e1=ə	
+2	paugeran	p a u ɡ ə r a n	e1=ə	
+2	patrilineal	p a t r i l i n e a l	e1=e	
+2	pascaperang	p a s t͡ʃ a p ə r a ŋ	e1=ə	
+2	parser	p a r s ə r	e1=ə	
+2	parikesit	p a r i k ə s i t	e1=ə	
+2	parepare	p a r e p a r e	e1=e e2=e	
+2	paramagnetik	p a r a m a ɡ n e t i k	e1=e	
+2	parainfluenza	p a r a i n f l u ə n z a	e1=ə	
+2	palmer	p a l m ə r	e1=ə	
+2	palestinian	p a l ə s t i n i a n	e1=ə	
+2	paleopatologi	p a l e o p a t o l o ɡ i	e1=e	
+2	palemahan	p a l ə m a h a n	e1=ə	
+2	paderi	p a d ə r i	e1=ə	
+2	oseanografi	o s e a n o ɡ r a f i	e1=e	
+2	orkestra	o r k ə s t r a	e1=ə	
+2	observatorium	o b s ə r v a t o r i u m	e1=ə	
+2	objektivisme	o b d͡ʒ e k t i v i s m ə	e1=e e2=ə	
+2	nukleosida	n u k l e o s i d a	e1=e	
+2	nukleon	n u k l e o n	e1=e	
+2	nukleolus	n u k l e o l u s	e1=e	
+2	neurologi	n e u r o l o ɡ i	e1=e	
+2	neon	n e o n	e1=e	
+2	neolitikum	n e o l i t i k u m	e1=e	
+2	neolitik	n e o l i t i k	e1=e	
+2	negatron	n ə ɡ a t r o n	e1=ə	
+2	negasi	n ə ɡ a s i	e1=ə	
+2	mukena	m u k ə n a	e1=ə	
+2	morobe	m o r o b ə	e1=ə	
+2	more	m o r e	e1=e	
+2	monovalen	m o n o v a l e n	e1=e	
+2	monolingualisme	m o n o l i ŋ u a l i s m ə	e1=ə	
+2	moller	m o l l e r	e1=e	
+2	modernis	m o d ə r n i s	e1=ə	
+2	mistisisme	m i s t i s i s m ə	e1=ə	
+2	minister	m i n i s t e r	e1=e	
+2	metronidazol	m e t r o n i d a z o l	e1=e	
+2	metonimia	m e t o n i m i a	e1=e	
+2	metodologis	m e t o d o l o ɡ i s	e1=e	
+2	metalurgi	m e t a l u r ɡ i	e1=e	
+2	merta	m ə r t a	e1=ə	
+2	merebutnya	m ə r ə b u t ɲ a	e1=ə e2=ə	
+2	menyembul	m ə ɲ ə m b u l	e1=ə e2=ə	
+2	menyelundupkan	m ə ɲ ə l u n d u p k a n	e1=ə e2=ə	
+2	menyebarluaskan	m ə ɲ ə b a r l u a s k a n	e1=ə e2=ə	
+2	mentranskripsi	m ə n t r a n s k r i p s i	e1=ə	
+2	mentawai	m ə n t a w a j	e1=ə	
+2	menitikberatkan	m ə n i t i k b ə r a t k a n	e1=ə e2=ə	
+2	menhir	m ə n h i r	e1=ə	
+2	mengoleksi	m ə ŋ o l e k s i	e1=ə e2=e	
+2	mengkarakterisasikan	m ə ŋ k a r a k t ə r i s a s i k a n	e1=ə e2=ə	
+2	mengesampingkan	m ə ŋ e s a m p i ŋ k a n	e1=ə e2=e	
+2	mengemuka	m ə ŋ ə m u k a	e1=ə e2=ə	
+2	mengelilinginya	m ə ŋ ə l i l i ŋ i ɲ a	e1=ə e2=ə	
+2	mengekspor	m ə ŋ e k s p o r	e1=ə e2=e	
+2	mengecualikan	m ə ŋ ə t͡ʃ u a l i k a n	e1=ə e2=ə	
+2	mengecoh	m ə ŋ ə t͡ʃ o h	e1=ə e2=ə	
+2	menekuni	m ə n e k u n i	e1=ə e2=e	
+2	mendesain	m ə n d e s a i n	e1=ə e2=e	
+2	mendedikasikan	m ə n d ə d i k a s i k a n	e1=ə e2=ə	
+2	mencetuskan	m ə n t͡ʃ e t u s k a n	e1=ə e2=e	
+2	menceret	m e n t͡ʃ ə r e t	e1=e e2=ə e3=e	
+2	men	m ə n	e1=ə	
+2	mempropagandakan	m ə m p r o p a ɡ a n d a k a n	e1=ə	
+2	memprioritaskan	m ə m p r i o r i t a s k a n	e1=ə	
+2	mempraktikkan	m ə m p r a k t i k k a n	e1=ə	
+2	memorial	m ə m o r i a l	e1=ə	
+2	memorandum	m ə m o r a n d u m	e1=ə	
+2	memamerkan	m ə m a m ə r k a n	e1=ə e2=ə	
+2	melewar	m ə l e w a r	e1=ə e2=e	
+2	melembagakan	m ə l ə m b a ɡ a k a n	e1=ə e2=ə	
+2	melegitimasi	m ə l e ɡ i t i m a s i	e1=ə e2=e	
+2	mekanisasi	m e k a n i s a s i	e1=e	
+2	mekanik	m e k a n i k	e1=e	
+2	meh	m e h	e1=e	
+2	megaton	m e ɡ a t o n	e1=e	
+2	megafauna	m e ɡ a f a u n a	e1=e	
+2	meditasi	m e d i t a s i	e1=e	
+2	medical	m e d i t͡ʃ a l	e1=e	
+2	mea	m e a	e1=e	
+2	marsose	m a r s o s ə	e1=ə	
+2	mandean	m a n d ə a n	e1=ə	
+2	makromolekul	m a k r o m o l ə k u l	e1=ə	
+2	majene	m a d͡ʒ ə n e	e1=ə e2=e	
+2	magneton	m a ɡ n e t o n	e1=e	
+2	magnetisme	m a ɡ n e t i s m ə	e1=e e2=ə	
+2	lutheran	l u t h e r a n	e1=e	
+2	loekito	l u k i t o	?	
+2	literature	l i t ə r a t u r e	e1=ə e2=e	
+2	leti	l e t i	e1=e	
+2	lepuh	l ə p u h	e1=ə	
+2	leo	l e o	e1=e	
+2	lempengan	l ə m p ə ŋ a n	e1=ə e2=ə	
+2	lembongan	l ə m b o ŋ a n	e1=ə	
+2	lelucon	l ə l u t͡ʃ o n	e1=ə	
+2	legong	l ə ɡ o ŋ	e1=ə	
+2	leaman	l e a m a n	e1=e	
+2	latensi	l a t e n s i	e1=e	
+2	langage	l a n ɡ a ɡ ə	e1=ə	
+2	kuasipartikel	k u a s i p a r t i k ə l	e1=ə	
+2	kuarterner	k u a r t ə r n ə r	e1=ə e2=ə	
+2	kuarter	k u a r t ə r	e1=ə	
+2	kreasi	k r e a s i	e1=e	
+2	koreografi	k o r e o ɡ r a f i	e1=e	
+2	kooperatif	k o o p ə r a t i f	e1=ə	
+2	konsensusnya	k o n s e n s u s ɲ a	e1=e	
+2	kondensi	k o n d ə n s i	e1=ə	
+2	komitmen	k o m i t m ə n	e1=ə	
+2	komedi	k o m e d i	e1=e	
+2	kolagen	k o l a ɡ e n	e1=e	
+2	koheren	k o h e r ə n	e1=e e2=ə	
+2	klerus	k l e r u s	e1=e	
+2	klasisisme	k l a s i s i s m ə	e1=ə	
+2	ketidaktahuan	k ə t i d a k t a h u a n	e1=ə	
+2	ketidakadilan	k ə t i d a k a d i l a n	e1=ə	
+2	ketaklengkapan	k ə t a k l ə ŋ k a p a n	e1=ə e2=ə	
+2	kesalehan	k ə s a l e h a n	e1=ə e2=e	
+2	keng	k ə ŋ	e1=ə	
+2	kendeng	k ə n d ə ŋ	e1=ə e2=ə	
+2	kendayan	k e n d a j a n	e1=e	
+2	kendari	k ə n d a r i	e1=ə	
+2	kencang	k ə n t͡ʃ a ŋ	e1=ə	
+2	kemiliteran	k ə m i l i t ə r a n	e1=ə e2=ə	
+2	kemben	k ə m b ə n	e1=ə e2=ə	
+2	kelt	k ə l t	e1=ə	
+2	kelembagaan	k ə l ə m b a ɡ a a n	e1=ə e2=ə	
+2	kejut	k ə d͡ʒ u t	e1=ə	
+2	keikutsertaan	k ə i k u t s e r t a a n	e1=ə e2=e	
+2	kecerdasan	k ə t͡ʃ ə r d a s a n	e1=ə e2=ə	
+2	kecemburuan	k ə t͡ʃ ə m b u r u a n	e1=ə e2=ə	
+2	kebumen	k ə b u m e n	e1=ə e2=e	
+2	kasepuhan	k a s ə p u h a n	e1=ə	
+2	kartanegara	k a r t a n ə ɡ a r a	e1=ə	
+2	karesidenan	k a r e s i d ə n a n	e1=e e2=ə	
+2	kapiler	k a p i l e r	e1=e	
+2	kalsel	k a l s ə l	e1=ə	
+2	kadipaten	k a d i p a t e n	e1=e	
+2	jure	d͡ʒ u r e	e1=e	
+2	jerai	d͡ʒ ə r a i	e1=ə	
+2	jepara	d͡ʒ ə p a r a	e1=ə	
+2	jendral	d͡ʒ ə n d r a l	e1=ə	
+2	jelai	d͡ʒ ə l a j	e1=ə	
+2	jegog	d͡ʒ ə ɡ o ɡ	e1=ə	
+2	jainisme	d͡ʒ a i n i s m ə	e1=ə	
+2	intraseluler	i n t r a s e l u l e r	e1=e e2=e	
+2	interval	i n t ə r v a l	e1=ə	
+2	interogatif	i n t ə r o ɡ a t i f	e1=ə	
+2	interkonversi	i n t ə r k o n v ə r s i	e1=ə e2=ə	
+2	interferometer	i n t ə r f e r o m e t ə r	e1=ə e2=e e3=e e4=ə	
+2	interdependensi	i n t ə r d e p e n d ə n s i	e1=ə e2=e e3=e e4=ə	
+2	intelektualisme	i n t ə l e k t u a l i s m ə	e1=ə e2=e e3=ə	
+2	integratif	i n t ə ɡ r a t i f	e1=ə	
+2	infeksinya	i n f e k s i ɲ a	e1=e	
+2	images	i m a ɡ e s	e1=e	
+2	ikosahedral	i k o s a h ə d r a l	e1=ə	
+2	ijambe	i d͡ʒ a m b ə	e1=ə	
+2	identitasnya	i d e n t i t a s ɲ a	e1=e	
+2	iatrogenik	i a t r o ɡ e n i k	e1=e	
+2	hope	h o p ə	e1=ə	
+2	holosen	h o l o s e n	e1=e	
+2	hokkien	h o k k i e n	e1=e	
+2	hipotetis	h i p o t e t i s	e1=e	
+2	herbivora	h e r b i v o r a	e1=e	
+2	herald	h e r a l d	e1=e	
+2	hela	h ə l a	e1=ə	
+2	hektare	h e k t a r ə	e1=e e2=ə	
+2	he	h ə	e1=ə	
+2	halmahera	h a l m a h e r a	e1=e	
+2	haldane	h a l d a n e	e1=e	
+2	gradien	ɡ r a d i e n	e1=e	
+2	getir	ɡ ə t i r	e1=ə	
+2	gestur	ɡ e s t u r	e1=e	
+2	gerobak	ɡ ə r o b a k	e1=ə	
+2	germanic	ɡ ə r m a n i t͡ʃ	e1=ə	
+2	gerilyawan	ɡ ə r i l j a w a n	e1=ə	
+2	geomorfologi	ɡ e o m o r f o l o ɡ i	e1=e	
+2	geometris	ɡ e o m e t r i s	e1=e e2=e	
+2	geologis	ɡ e o l o ɡ i s	e1=e	
+2	geo	ɡ e o	e1=e	
+2	generalis	ɡ e n ə r a l i s	e1=e e2=ə	
+2	gendarmeria	ɡ ə n d a r m ə r i a	e1=ə e2=ə	
+2	gempol	ɡ ə m p o l	e1=ə	
+2	geminat	ɡ ə m i n a t	e1=ə	
+2	gelgel	ɡ ə l ɡ ə l	e1=ə e2=ə	
+2	gedang	ɡ ə d a ŋ	e1=ə	
+2	galilea	ɡ a l i l e a	e1=e	
+2	formalisme	f o r m a l i s m ə	e1=ə	
+2	flagela	f l a ɡ ə l a	e1=ə	
+2	filter	f i l t ə r	e1=ə	
+2	filogenetika	f i l o ɡ e n e t i k a	e1=e e2=e	
+2	fenotip	f e n o t i p	e1=e	
+2	feminis	f ə m i n i s	e1=ə	
+2	fellow	f ə l l o w	e1=ə	
+2	fasisme	f a s i s m ə	e1=ə	
+2	ezra	e z r a	e1=e	
+2	eutrofikasi	e u t r o f i k a s i	e1=e	
+2	etnolog	e t n o l o ɡ	e1=e	
+2	essay	e s s a j	e1=e	
+2	erikson	ə r i k s o n	e1=ə	
+2	epistemologis	e p i s t ə m o l o ɡ i s	e1=e e2=ə	
+2	episteme	e p i s t ə m ə	e1=e e2=ə e3=ə	
+2	enteritis	e n t ə r i t i s	e1=e e2=ə	
+2	enten	ə n t e n	e1=ə e2=e	
+2	entalpi	e n t a l p i	e1=e	
+2	endotermik	e n d o t ə r m i k	e1=e e2=ə	
+2	empirik	e m p i r i k	e1=e	
+2	embriologi	e m b r i o l o ɡ i	e1=e	
+2	emansipasi	e m a n s i p a s i	e1=e	
+2	elegan	e l ə ɡ a n	e1=e e2=ə	
+2	ekuatorial	e k u a t o r i a l	e1=e	
+2	ekstrim	e k s t r i m	e1=e	
+2	ekstrateritorial	e k s t r a t ə r i t o r i a l	e1=e e2=ə	
+2	ekstrak	e k s t r a k	e1=e	
+2	ekstern	e k s t ə r n	e1=e e2=ə	
+2	eksponensial	e k s p o n ə n s i a l	e1=e e2=ə	
+2	eksajoule	e k s a d͡ʒ o u l ə	e1=e e2=ə	
+2	ei	e i	e1=e	
+2	efektivitas	e f e k t i v i t a s	e1=e e2=e	
+2	ee	ə ə	e1=ə e2=ə	
+2	ebola	ə b o l a	e1=ə	
+2	dwivalen	d w i v a l e n	e1=e	
+2	double	d o u b l e	e1=e	
+2	divergen	d i v ə r ɡ e n	e1=ə e2=e	
+2	dinamisme	d i n a m i s m ə	e1=ə	
+2	dilekatinya	d i l ə k a t i ɲ a	e1=ə	
+2	dikreditkan	d i k r e d i t k a n	e1=e	
+2	dikecualikan	d i k ə t͡ʃ u a l i k a n	e1=ə	
+2	dikarakterisasikan	d i k a r a k t ə r i s a s i k a n	e1=ə	
+2	dijebloskan	d i d͡ʒ ə b l o s k a n	e1=ə	
+2	diinvestasikan	d i i n v e s t a s i k a n	e1=e	
+2	digemari	d i ɡ ə m a r i	e1=ə	
+2	dieng	d i e ŋ	e1=e	
+2	dideklarasikan	d i d e k l a r a s i k a n	e1=e	
+2	didedikasikan	d i d ə d i k a s i k a n	e1=ə	
+2	diaransemen	d i a r a n s ə m e n	e1=ə e2=e	
+2	deterministik	d e t ə r m i n i s t i k	e1=e e2=ə	
+2	deterjen	d e t ə r d͡ʒ e n	e1=e e2=ə e3=e	
+2	deteksi	d e t e k s i	e1=e e2=e	
+2	destin	d e s t i n	e1=e	
+2	deru	d ə r u	e1=ə	
+2	derivasi	d ə r i v a s i	e1=ə	
+2	deregulasi	d ə r e ɡ u l a s i	e1=ə e2=e	
+2	derai	d ə r a j	e1=ə	
+2	dengue	d e ŋ u ə	e1=e e2=ə	
+2	defisiensi	d e f i s i e n s i	e1=e e2=e	
+2	definite	d e f i n i t ə	e1=e e2=ə	
+2	dedari	d ə d a r i	e1=ə	
+2	debit	d ə b i t	e1=ə	
+2	daeng	d a ə ŋ	e1=ə	
+2	coppens	t͡ʃ o p p ə n s	e1=ə	
+2	conference	t͡ʃ o n f ə r ə n t͡ʃ e	e1=ə e2=ə e3=e	
+2	cengkih	t͡ʃ ə ŋ k i h	e1=ə	
+2	celsius	t͡ʃ ə l s i u s	e1=ə	
+2	cape	t͡ʃ a p ə	e1=ə	
+2	cameron	t͡ʃ a m ə r o n	e1=ə	
+2	bumiputera	b u m i p u t ə r a	e1=ə	
+2	bridge	b r i d ɡ e	e1=e	
+2	braille	b r a i l l ə	e1=ə	
+2	bivalen	b i v a l e n	e1=e	
+2	biomolekul	b i o m o l e k u l	e1=e	
+2	biomedis	b i o m e d i s	e1=e	
+2	biogeografis	b i o ɡ e o ɡ r a f i s	e1=e	
+2	biofuel	b i o f u ə l	e1=ə	
+2	bikameral	b i k a m ə r a l	e1=ə	
+2	bersikeras	b ə r s i k ə r a s	e1=ə e2=ə	
+2	bersel	b ə r s ə l	e1=ə e2=ə	
+2	berprofesi	b ə r p r o f e s i	e1=ə e2=e	
+2	berkorelasi	b ə r k o r e l a s i	e1=ə e2=e	
+2	berkeropeng	b ə r k ə r o p e ŋ	e1=ə e2=ə e3=e	
+2	berkelompok	b ə r k ə l o m p o k	e1=ə e2=ə	
+2	berkecimpung	b ə r k ə t͡ʃ i m p u ŋ	e1=ə e2=ə	
+2	beretnis	b ə r e t n i s	e1=ə e2=e	
+2	berber	b ə r b ə r	e1=ə e2=ə	
+2	berbekal	b ə r b ə k a l	e1=ə e2=ə	
+2	benson	b ə n s o n	e1=ə	
+2	benito	b ə n i t o	e1=ə	
+2	benefaktif	b e n ə f a k t i f	e1=e e2=ə	
+2	belo	b ə l o	e1=ə	
+2	becquerel	b ə t͡ʃ k u ə r e l	e1=ə e2=ə e3=e	
+2	base	b a s ə	e1=ə	
+2	avirulen	a v i r u l e n	e1=e	
+2	aveling	a v e l i ŋ	e1=e	
+2	audiensi	a u d i e n s i	e1=e	
+2	asimetri	a s i m e t r i	e1=e	
+2	asetaminofen	a s ə t a m i n o f e n	e1=ə e2=e	
+2	artsen	a e r t e s e n	?	
+2	apendiks	a p ə n d i k s	e1=ə	
+2	anyelir	a ɲ ə l i r	e1=ə	
+2	antimateri	a n t i m a t ə r i	e1=ə	
+2	antarspesies	a n t a r s p e s i e s	e1=e e2=e	
+2	antarpembicara	a n t a r p ə m b i t͡ʃ a r a	e1=ə	
+2	antarmembran	a n t a r m ə m b r a n	e1=ə	
+2	andreas	a n d r e a s	e1=e	
+2	alveolar	a l v e o l a r	e1=e	
+2	aglomerasi	a ɡ l o m ə r a s i	e1=ə	
+2	aforisme	a f o r i s m ə	e1=ə	
+2	afektif	a f e k t i f	e1=e	
+2	adhesi	a d h e s i	e1=e	
+2	addie	a d d i ə	e1=ə	
+1	zoroaster	z o r o a s t ə r	e1=ə	
+1	zeppelin	z e p p ə l i n	e1=e e2=ə	
+1	xenon	k s ə n o n	e1=ə	
+1	wisanggeni	w i s a ŋ ɡ ə n i	e1=ə	
+1	wilhem	w i l h e m	e1=e	
+1	wilhelmina	w i l h e l m i n a	e1=e	
+1	wikimedia	w i k i m e d i a	e1=e	
+1	wijen	w i d͡ʒ ə n	e1=ə	
+1	wetanan	w e t a n a n	e1=e	
+1	wetan	w e t a n	e1=e	
+1	weiser	w e i s ə r	e1=e e2=ə	
+1	weimar	w e i m a r	e1=e	
+1	webster	w e b s t e r	e1=e e2=e	
+1	watermark	w a t ə r m a r k	e1=ə	
+1	wamena	w a m e n a	e1=e	
+1	volumetrik	v o l u m e t r i k	e1=e	
+1	vilayet	v i l a j e t	e1=e	
+1	veteran	v e t ə r a n	e1=e e2=ə	
+1	velar	v ə l a r	e1=ə	
+1	vei	v e i	e1=e	
+1	vega	v ə ɡ a	e1=ə	
+1	valensinya	v a l ə n s i ɲ a	e1=ə	
+1	uremik	u r e m i k	e1=e	
+1	urea	u r e a	e1=e	
+1	universalisme	u n i v ə r s a l i s m ə	e1=ə e2=ə	
+1	ulet	u l ə t	e1=ə	
+1	turnamen	t u r n a m e n	e1=e	
+1	tumapel	t u m a p e l	e1=e	
+1	tulamben	t u l a m b e n	e1=e	
+1	tubingen	t u b i n ɡ e n	e1=e	
+1	tube	t u b ə	e1=ə	
+1	trombositopenia	t r o m b o s i t o p ə n i a	e1=ə	
+1	tribune	t r i b u n e	e1=e	
+1	trend	t r ə n d	e1=ə	
+1	trem	t r ə m	e1=ə	
+1	transversal	t r a n s v ə r s a l	e1=ə	
+1	transporter	t r a n s p o r t ə r	e1=ə	
+1	topoisomerase	t o p o i s o m e r a s ə	e1=e e2=ə	
+1	toksigenik	t o k s i ɡ e n i k	e1=e	
+1	tokohindonesia	t o k o h i n d o n e s i a	e1=e	
+1	tokodede	t o k o d ə d ə	e1=ə e2=ə	
+1	tinea	t i n e a	e1=e	
+1	tibetan	t i b ə t a n	e1=ə	
+1	tetrodotoksin	t ə t r o d o t o k s i n	e1=ə	
+1	tetra	t ə t r a	e1=ə	
+1	tetelo	t ə t ə l o	e1=ə e2=ə	
+1	tetek	t ə t e k	e1=ə e2=e	
+1	testing	t e s t i ŋ	e1=e	
+1	terran	t e r r a n	e1=e	
+1	terobosan	t ə r o b o s a n	e1=ə	
+1	terlezat	t ə r l e z a t	e1=ə e2=e	
+1	terkode	t ə r k o d ə	e1=ə e2=ə	
+1	terik	t ə r i k	e1=ə	
+1	terigu	t ə r i ɡ u	e1=ə	
+1	terhad	t ə r h a d	e1=ə	
+1	tergelincir	t ə r ɡ ə l i n t͡ʃ i r	e1=ə e2=ə	
+1	teresina	t ə r e s i n a	e1=ə e2=e	
+1	terelakkan	t ə r e l a k k a n	e1=ə e2=e	
+1	tercetus	t ə r t͡ʃ e t u s	e1=ə e2=e	
+1	tercerai	t ə r t͡ʃ ə r a j	e1=ə e2=ə	
+1	terbenam	t ə r b ə n a m	e1=ə e2=ə	
+1	tera	t ə r a	e1=ə	
+1	teologis	t e o l o ɡ i s	e1=e	
+1	tensor	t ə n s o r	e1=ə	
+1	tengkoraknya	t ə ŋ k o r a k ɲ a	e1=ə	
+1	tenggaranya	t ə ŋ ɡ a r a ɲ a	e1=ə	
+1	tenganan	t e ŋ a n a n	e1=e	
+1	tempurung	t ə m p u r u ŋ	e1=ə	
+1	tempuhnya	t ə m p u h ɲ a	e1=ə	
+1	tempuh	t ə m p u h	e1=ə	
+1	tempe	t ə m p ə	e1=ə e2=ə	
+1	tembuku	t ə m b u k u	e1=ə	
+1	temasik	t ə m a s i k	e1=ə	
+1	telekung	t ə l ə k u ŋ	e1=ə e2=ə	
+1	telekom	t e l e k o m	e1=e e2=e	
+1	telak	t ə l a k	e1=ə	
+1	tekun	t ə k u n	e1=ə	
+1	tektonika	t e k t o n i k a	e1=e	
+1	teisme	t e i s m ə	e1=e e2=ə	
+1	tegallalang	t ə ɡ a l l a l a ŋ	e1=ə	
+1	tegalalang	t e ɡ a l a l a ŋ	e1=e	
+1	teflon	t e f l o n	e1=e	
+1	tauge	t a u ɡ ə	e1=ə	
+1	tanggetong	t a ŋ ɡ ə t o ŋ	e1=ə	
+1	tampek	t a m p ə k	e1=ə	
+1	tambelan	t a m b ə l a n	e1=ə	
+1	takbersuara	t a k b ə r s u a r a	e1=ə	
+1	taena	t a ə n a	e1=ə	
+1	surawisesa	s u r a w i s e s a	e1=e	
+1	suprasegmental	s u p r a s ə ɡ m e n t a l	e1=ə e2=e	
+1	supervulkan	s u p ə r v u l k a n	e1=ə	
+1	superkritis	s u p ə r k r i t i s	e1=ə	
+1	superkonduktor	s u p ə r k o n d u k t o r	e1=ə	
+1	superfluida	s u p ə r f l u i d a	e1=ə	
+1	superfisial	s u p ə r f i s i a l	e1=ə	
+1	superbus	s u p ə r b a s	e1=ə	
+1	sumedang	s u m ə d a ŋ	e1=ə	
+1	subspesialisasi	s u b s p e s i a l i s a s i	e1=e	
+1	subsisten	s u b s i s t e n	e1=e	
+1	subkerajaan	s u b k ə r a d͡ʒ a a n	e1=ə	
+1	subjektivitas	s u b d͡ʒ e k t i v i t a s	e1=e	
+1	subgenius	s u b ɡ e n i u s	e1=e	
+1	subdialek	s u b d i a l e k	e1=e	
+1	subaltern	s u b a l t ə r n	e1=ə	
+1	stres	s t r e s	e1=e	
+1	stoker	s t o k ə r	e1=ə	
+1	stoikisme	s t o i k i s m ə	e1=ə	
+1	steril	s t ə r i l	e1=ə	
+1	stereokimia	s t ə r e o k i m i a	e1=ə e2=e	
+1	steganografi	s t ə ɡ a n o ɡ r a f i	e1=ə	
+1	sriwedari	s r i w ə d a r i	e1=ə	
+1	spoken	w e e n a k e n	?	
+1	spesiasi	s p e s i a s i	e1=e	
+1	spermatozoid	s p ə r m a t o z o i d	e1=ə	
+1	spermatozoa	s p ə r m a t o z o a	e1=ə	
+1	spekulan	s p e k u l a n	e1=e	
+1	spektator	s p e k t a t o r	e1=e	
+1	spageti	s p a ɡ ə t i	e1=ə	
+1	solek	s o l e k	e1=e	
+1	soeroto	s u r o t o	?	
+1	soekito	s u k i t o	?	
+1	soe	s u	?	
+1	sober	s o b ə r	e1=ə	
+1	smetana	s m e t a n a	e1=e	
+1	sleman	s l ə m a n	e1=ə	
+1	skeleton	s k ə l ə t o n	e1=ə e2=ə	
+1	sistemnya	s i s t ə m ɲ a	e1=ə	
+1	sintetis	s i n t e t i s	e1=e	
+1	sintesa	s i n t e s a	e1=e	
+1	singer	s i ŋ ə r	e1=ə	
+1	sinema	s i n ə m a	e1=ə	
+1	simpanse	s i m p a n s ə	e1=ə	
+1	silinder	s i l i n d ə r	e1=ə	
+1	sikhisme	s i x i s m ə	e1=ə	
+1	siena	s i e n a	e1=e	
+1	sie	s i ə	e1=ə	
+1	sidenreng	s i d ə n r e ŋ	e1=ə e2=e	
+1	siberpunk	s i b ə r p u n k	e1=ə	
+1	seuatu	s ə u a t u	e1=ə	
+1	setua	s ə t u a	e1=ə	
+1	setiawan	s ə t i a w a n	e1=ə	
+1	seti	s ə t i	e1=ə	
+1	setaria	s ə t a r i a	e1=ə	
+1	sese	s ə s ə	e1=ə e2=ə	
+1	serologi	s ə r o l o ɡ i	e1=ə	
+1	sergei	s ə r ɡ e i	e1=ə e2=e	
+1	serentak	s ə r ə n t a k	e1=ə e2=ə	
+1	seremban	s ə r ə m b a n	e1=ə e2=ə	
+1	serbuk	s ə r b u k	e1=ə	
+1	serbuan	s ə r b u a n	e1=ə	
+1	serbasama	s ə r b a s a m a	e1=ə	
+1	serasah	s ə r a s a h	e1=ə	
+1	serai	s ə r a j	e1=ə	
+1	sepertujuh	s ə p ə r t u d͡ʒ u h	e1=ə e2=ə	
+1	seperi	s ə p ə r i	e1=ə e2=ə	
+1	seperenam	s ə p ə r ə n a m	e1=ə e2=ə e3=ə	
+1	separate	s ə p a r a t e	e1=ə e2=e	
+1	sentripetal	s ə n t r i p ə t a l	e1=ə e2=ə	
+1	sentriol	s ə n t r i o l	e1=ə	
+1	sentrifugasi	s ə n t r i f u ɡ a s i	e1=ə	
+1	sentralisasi	s ə n t r a l i s a s i	e1=ə	
+1	sentimentalisme	s e n t i m e n t a l i s m ə	e1=e e2=e e3=ə	
+1	sentaurus	s ə n t a u r u s	e1=ə	
+1	sentani	s ə n t a n i	e1=ə	
+1	sensing	s e n s i ŋ	e1=e	
+1	senhora	s e n h o r a	e1=e	
+1	senat	s ə n a t	e1=ə	
+1	semuanja	s ə m u a n d͡ʒ a	e1=ə	
+1	semitisme	s ə m i t i s m ə	e1=ə e2=ə	
+1	semitau	s ə m i t a u	e1=ə	
+1	semikonduktor	s ə m i k o n d u k t o r	e1=ə	
+1	semar	s ə m a r	e1=ə	
+1	seman	s ə m a n	e1=ə	
+1	seluk	s ə l u k	e1=ə	
+1	selektivitas	s ə l e k t i v i t a s	e1=ə e2=e	
+1	seleguri	s ə l ə ɡ u r i	e1=ə e2=ə	
+1	sekularitas	s ə k u l a r i t a s	e1=ə	
+1	sekularisme	s e k u l a r i s m ə	e1=e e2=ə	
+1	sekularisasi	s ə k u l a r i s a s i	e1=ə	
+1	sekuestrasi	s ə k u e s t r a s i	e1=ə e2=e	
+1	sektarianisme	s e k t a r i a n i s m ə	e1=e e2=ə	
+1	sektar	s e k t a r	e1=e	
+1	seksualitas	s ə k s u a l i t a s	e1=ə	
+1	seksagesimal	s ə k s a ɡ e s i m a l	e1=ə e2=e	
+1	sekret	s e k r e t	e1=e e2=e	
+1	sekelilingnya	s ə k ə l i l i ŋ ɲ a	e1=ə e2=ə	
+1	sekadau	s ə k a d a w	e1=ə	
+1	sejenak	s ə d͡ʒ ə n a k	e1=ə e2=ə	
+1	segelas	s ə ɡ ə l a s	e1=ə e2=ə	
+1	sedu	s ə d u	e1=ə	
+1	saronen	s a r o n ə n	e1=ə	
+1	sapeh	s a p e h	e1=e	
+1	sansekerta	s a n s ə k ə r t a	e1=ə e2=ə	
+1	sangkep	s a ŋ k ə p	e1=ə	
+1	sangger	s a ŋ ɡ ə r	e1=ə	
+1	samasekali	s a m a s ə k a l i	e1=ə	
+1	saleha	s a l e h a	e1=e	
+1	sakramentalnya	s a k r a m e n t a l ɲ a	e1=e	
+1	sahel	s a h ə l	e1=ə	
+1	saben	s a b ə n	e1=ə	
+1	rutenya	r u t ə ɲ a	e1=ə	
+1	rubel	r u b ə l	e1=ə	
+1	ritme	r i t m ə	e1=ə	
+1	ritel	r i t e l	e1=e	
+1	revitalisasi	r e v i t a l i s a s i	e1=e	
+1	reversible	r e v ə r s i b l e	e1=e e2=ə e3=e	
+1	retrofleks	r e t r o f l e k s	e1=e e2=e	
+1	resolusinya	r e s o l u s i ɲ a	e1=e	
+1	resisten	r e s i s t e n	e1=e e2=e	
+1	resin	r e s i n	e1=e	
+1	resi	r ə s i	e1=ə	
+1	replikator	r e p l i k a t o r	e1=e	
+1	repeats	r ə p ə a t s	e1=ə e2=ə	
+1	reovirus	r e o v i r u s	e1=e	
+1	rengat	r ə ŋ a t	e1=ə	
+1	rembau	r e m b a w	e1=e	
+1	relief	r e l i e f	e1=e e2=e	
+1	rekornya	r e k o r ɲ a	e1=e	
+1	reinkarnasi	r e i n k a r n a s i	e1=e	
+1	registrasi	r e ɡ i s t r a s i	e1=e	
+1	regelson	r e ɡ ə l s o n	e1=e e2=ə	
+1	regangan	r e ɡ a ŋ a n	e1=e	
+1	redup	r ə d u p	e1=ə	
+1	reduktif	r e d u k t i f	e1=e	
+1	redefinisi	r e d e f i n i s i	e1=e e2=e	
+1	redang	r ə d a ŋ	e1=ə	
+1	rebana	r ə b a n a	e1=ə	
+1	realistik	r e a l i s t i k	e1=e	
+1	realis	r e a l i s	e1=e	
+1	reaksinya	r e a k s i ɲ a	e1=e	
+1	ramen	r a m e n	e1=e	
+1	ramage	r a m a ɡ ə	e1=ə	
+1	rahel	r a h ə l	e1=ə	
+1	puteri	p u t ə r i	e1=ə	
+1	pterosaurus	p t ə r o s a u r u s	e1=ə	
+1	pseudopodia	p s e u d o p o d i a	e1=e	
+1	proyektif	p r o j e k t i f	e1=e	
+1	protosejarah	p r o t o s ə d͡ʒ a r a h	e1=ə	
+1	proteoglikan	p r o t e o ɡ l i k a n	e1=e	
+1	prostetik	p r o s t e t i k	e1=e	
+1	prospektif	p r o s p e k t i f	e1=e	
+1	prosentase	p r o s e n t a s ə	e1=e e2=ə	
+1	proselit	p r o s ə l i t	e1=ə	
+1	proper	p r o p e r	e1=e	
+1	programmes	p r o ɡ r a m m ə s	e1=ə	
+1	programmer	p r o ɡ r a m m ə r	e1=ə	
+1	privilese	p r i v i l e s ə	e1=e e2=ə	
+1	prestasinya	p r e s t a s i ɲ a	e1=e	
+1	presidensial	p r e s i d ə n s i a l	e1=e e2=ə	
+1	presenting	p r e s ə n t i ŋ	e1=e e2=ə	
+1	prembun	p r ə m b u n	e1=ə	
+1	predisposisi	p r e d i s p o s i s i	e1=e	
+1	predikatnya	p r e d i k a t ɲ a	e1=e	
+1	predator	p r e d a t o r	e1=e	
+1	pre	p r e	e1=e	
+1	praseno	p r a s ə n o	e1=ə	
+1	prasejahtera	p r a s ə d͡ʒ a h t ə r a	e1=ə e2=ə	
+1	pramodern	p r a m o d ə r n	e1=ə	
+1	prahipertensi	p r a h i p ə r t e n s i	e1=ə e2=e	
+1	prague	p r a ɡ w e	e1=e	
+1	poteran	p o t ə r a n	e1=ə	
+1	positivisme	p o s i t i v i s m ə	e1=ə	
+1	poseidon	p o s e i d o n	e1=e	
+1	populernya	p o p u l e r ɲ a	e1=e	
+1	ponelo	p o n e l o	e1=e	
+1	politeknik	p o l i t e k n i k	e1=e	
+1	politeistik	p o l i t e i s t i k	e1=e	
+1	polihedral	p o l i h ə d r a l	e1=ə	
+1	polem	p o l ə m	e1=ə	
+1	poket	p o k e t	e1=e	
+1	pluralisme	p l u r a l i s m ə	e1=ə	
+1	pliosen	p l i o s e n	e1=e	
+1	plagiarisme	p l a ɡ i a r i s m ə	e1=ə	
+1	pisces	p i s t͡ʃ ə s	e1=ə	
+1	pirates	p i r a t ə s	e1=ə	
+1	pinter	p i n t e r	e1=e	
+1	pidie	p i d i ə	e1=ə	
+1	pewarganegaraan	p ə w a r ɡ a n ə ɡ a r a a n	e1=ə e2=ə	
+1	petrologi	p ə t r o l o ɡ i	e1=ə	
+1	petah	p ə t a h	e1=ə	
+1	peru	p ə r u	e1=ə	
+1	perturbasi	p ə r t u r b a s i	e1=ə	
+1	perti	p ə r t i	e1=ə	
+1	persentasenya	p ə r s e n t a s ə ɲ a	e1=ə e2=e e3=ə	
+1	persekusi	p ə r s e k u s i	e1=ə e2=e	
+1	persekongkolan	p ə r s ə k o ŋ k o l a n	e1=ə e2=ə	
+1	perron	p e r r o n	e1=e	
+1	permitivitas	p ə r m i t i v i t a s	e1=ə	
+1	permakultur	p ə r m a k u l t u r	e1=ə	
+1	perkecualiannya	p ə r k ə t͡ʃ u a l i a n ɲ a	e1=ə e2=ə	
+1	periplus	p ə r i p l u s	e1=ə	
+1	peripatetik	p ə r i p a t e t i k	e1=ə e2=e	
+1	perihelium	p ə r i h e l i u m	e1=ə e2=e	
+1	perihelion	p ə r i h ə l i o n	e1=ə e2=ə	
+1	perhelatan	p ə r h ə l a t a n	e1=ə e2=ə	
+1	performance	p ə r f o r m a n t͡ʃ ə	e1=ə e2=ə	
+1	perembukan	p ə r ə m b u k a n	e1=ə e2=ə	
+1	penyergap	p ə ɲ ə r ɡ a p	e1=ə e2=ə	
+1	penyeberangan	p ə ɲ ə b ə r a ŋ a n	e1=ə e2=ə e3=ə	
+1	pentosa	p ə n t o s a	e1=ə	
+1	pentas	p ə n t a s	e1=ə	
+1	pensiunnya	p ə n s i u n ɲ a	e1=ə	
+1	pensiun	p ə n s i u n	e1=ə	
+1	penpres	p ə n p r e s	e1=ə e2=e	
+1	penjambretan	p ə n d͡ʒ a m b r e t a n	e1=ə e2=e	
+1	penisilin	p ə n i s i l i n	e1=ə	
+1	penginfeksi	p ə ŋ i n f e k s i	e1=ə e2=e	
+1	penggemarnya	p ə ŋ ɡ ə m a r ɲ a	e1=ə e2=ə	
+1	penggelondongan	p ə ŋ ɡ ə l o n d o ŋ a n	e1=ə e2=ə	
+1	pengetsaan	p ə ŋ ə t s a a n	e1=ə e2=ə	
+1	pengembangbiakan	p ə ŋ ə m b a ŋ b i a k a n	e1=ə e2=ə	
+1	penganten	p ə ŋ a n t e n	e1=ə e2=e	
+1	penetralan	p ə n e t r a l a n	e1=ə e2=e	
+1	peneroka	p ə n ə r o k a	e1=ə e2=ə	
+1	penebel	p ə n e b e l	e1=ə e2=e e3=e	
+1	pendopo	p ə n d o p o	e1=ə	
+1	pendeteksian	p ə n d e t e k s i a n	e1=ə e2=e e3=e	
+1	pencetus	p ə n t͡ʃ e t u s	e1=ə e2=e	
+1	penataulangan	p ə n a t a u l a ŋ a n	e1=ə	
+1	pemeringkatan	p ə m ə r i ŋ k a t a n	e1=ə e2=ə	
+1	pemerian	p ə m ə r i a n	e1=ə e2=ə	
+1	pembredelan	p ə m b r e d ə l a n	e1=ə e2=e e3=ə	
+1	pemberangusan	p ə m b ə r a ŋ u s a n	e1=ə e2=ə	
+1	pelipatgandaan	p ə l i p a t ɡ a n d a a n	e1=ə	
+1	peleng	p ə l ə ŋ	e1=ə e2=ə	
+1	pelembagaan	p ə l ə m b a ɡ a a n	e1=ə e2=ə	
+1	pelembab	p ə l ə m b a b	e1=ə e2=ə	
+1	pelak	p ə l a k	e1=ə	
+1	pediatrik	p ə d i a t r i k	e1=ə	
+1	pascamodernisme	p a s t͡ʃ a m o d e r n i s m ə	e1=e e2=ə	
+1	pascakolonialisme	p a s t͡ʃ a k o l o n i a l i s m ə	e1=ə	
+1	pareanom	p a r e a n o m	e1=e	
+1	parasetamol	p a r a s e t a m o l	e1=e	
+1	papteng	p a p t ə ŋ	e1=ə	
+1	panteistik	p a n t e i s t i k	e1=e	
+1	panteisme	p a n t e i s m ə	e1=e e2=ə	
+1	pankreatitis	p a n k r e a t i t i s	e1=e	
+1	panggelaran	p a ŋ ɡ ə l a r a n	e1=ə	
+1	pangerang	p a n ɡ ə r a ŋ	e1=ə	
+1	panennya	p a n e n ɲ a	e1=e	
+1	pandeglang	p a n d ə ɡ l a ŋ	e1=ə	
+1	pamflet	p a m f l e t	e1=e	
+1	pamela	p a m ə l a	e1=ə	
+1	paleozoikum	p a l e o z o i k u m	e1=e	
+1	paleolitik	p a l e o l i t i k	e1=e	
+1	paleogeografi	p a l e o ɡ e o ɡ r a f i	e1=e e2=e	
+1	palem	p a l ə m	e1=ə	
+1	palate	p a l a t e	e1=e	
+1	palace	p a l a t͡ʃ ə	e1=ə	
+1	pajegan	p a d͡ʒ ə ɡ a n	e1=ə	
+1	paget	p a ɡ ə t	e1=ə	
+1	paganisme	p a ɡ a n i s m ə	e1=ə	
+1	over	o v ə r	e1=ə	
+1	otek	o t e k	e1=e	
+1	osteometri	o s t e o m e t r i	e1=e e2=e	
+1	oseanik	o s e a n i k	e1=e	
+1	orientasinya	o r i e n t a s i ɲ a	e1=e	
+1	operating	o p ə r a t i ŋ	e1=ə	
+1	open	o p ə n	e1=ə	
+1	ontogeni	o n t o ɡ e n i	e1=e	
+1	onkogen	o n k o ɡ e n	e1=e	
+1	onder	o n d ə r	e1=ə	
+1	oligosen	o l i ɡ o s e n	e1=e	
+1	olesi	o l ə s i	e1=ə	
+1	oktet	o k t e t	e1=e	
+1	ojek	o d͡ʒ e k	e1=e	
+1	oikumene	o i k u m e n e	e1=e e2=e	
+1	ode	o d ə	e1=ə	
+1	observer	o b s ə r v ə r	e1=ə e2=ə	
+1	objeksi	o b d͡ʒ e k s i	e1=e	
+1	objeknya	o b d͡ʒ e k ɲ a	e1=e	
+1	nukleusnya	n u k l e u s ɲ a	e1=e	
+1	nukleoplasma	n u k l e o p l a s m a	e1=e	
+1	nuklei	n u k l e i	e1=e	
+1	nopember	n o p e m b ə r	e1=e e2=ə	
+1	nonteistik	n o n t e i s t i k	e1=e	
+1	nonproliferasi	n o n p r o l i f e r a s i	e1=e	
+1	noninfeksi	n o n i n f e k s i	e1=e	
+1	nondepartemen	n o n d ə p a r t ə m e n	e1=ə e2=ə e3=e	
+1	nomaden	n o m a d ə n	e1=ə	
+1	nirleka	n i r l e k a	e1=e	
+1	ngaben	ŋ a b e n	e1=e	
+1	neurosaintis	n e u r o s a i n t i s	e1=e	
+1	neuropsikiatrik	n e u r o p s i k i a t r i k	e1=e	
+1	neurobiologi	n e u r o b i o l o ɡ i	e1=e	
+1	neturei	n e t u r e i	e1=e e2=e	
+1	netralisasi	n e t r a l i s a s i	e1=e	
+1	nestorian	n e s t o r i a n	e1=e	
+1	neptunus	n ə p t u n u s	e1=ə	
+1	neoplatonisme	n e o p l a t o n i s m ə	e1=e e2=ə	
+1	neoliberal	n e o l i b ə r a l	e1=e e2=ə	
+1	neoklasik	n e o k l a s i k	e1=e	
+1	nenas	n ə n a s	e1=ə	
+1	nektar	n e k t a r	e1=e	
+1	negarakertagama	n ə ɡ a r a k ə r t a ɡ a m a	e1=ə e2=ə	
+1	nazaret	n a z a r e t	e1=e	
+1	nausea	n a u s e a	e1=e	
+1	naueti	n a w ə t i	e1=ə	
+1	naturalisme	n a t u r a l i s m ə	e1=ə	
+1	nationale	n a t i o n a l e	e1=e	
+1	nagarakertagama	n a ɡ a r a k ə r t a ɡ a m a	e1=ə	
+1	nabire	n a b i r e	e1=e	
+1	mutualisme	m u t u a l i s m ə	e1=ə	
+1	museums	m u s ə u m s	e1=ə	
+1	museumnya	m u s e u m ɲ a	e1=e	
+1	musei	m u s ə i	e1=ə	
+1	muse	m u s ə	e1=ə	
+1	multilingualisme	m u l t i l i ŋ u a l i s m ə	e1=ə	
+1	multilateral	m u l t i l a t ə r a l	e1=ə	
+1	moslem	m o s l e m	e1=e	
+1	morfogenesis	m o r f o ɡ e n e s i s	e1=e e2=e	
+1	monisme	m o n i s m ə	e1=ə	
+1	mirage	m i r a ɡ ə	e1=ə	
+1	minutes	m i n u t e s	e1=e	
+1	minisatelit	m i n i s a t ə l i t	e1=ə	
+1	minimalisme	m i n i m a l i s m ə	e1=ə	
+1	mineralogi	m i n ə r a l o ɡ i	e1=ə	
+1	milimeter	m i l i m e t ə r	e1=e e2=ə	
+1	milidetik	m i l i d ə t i k	e1=ə	
+1	mikroekonomi	m i k r u k o n o m i	?	
+1	meuseukat	m e u s e u k a t	e1=e e2=e	
+1	metropop	m e t r o p o p	e1=e	
+1	metro	m e t r o	e1=e	
+1	metrikasi	m e t r i k a s i	e1=e	
+1	metodis	m e t o d i s	e1=e	
+1	metodenya	m e t o d ə ɲ a	e1=e e2=ə	
+1	metil	m e t i l	e1=e	
+1	metastasis	m e t a s t a s i s	e1=e	
+1	metalofon	m e t a l o f o n	e1=e	
+1	metaforis	m e t a f o r i s	e1=e	
+1	mesti	m ə s t i	e1=ə	
+1	messenger	m ə s s ə ŋ ə r	e1=ə e2=ə e3=ə	
+1	meskipin	m ə s k i p i n	e1=ə	
+1	mesianik	m ə s i a n i k	e1=ə	
+1	mesambel	m ə s a m b ə l	e1=ə e2=ə	
+1	merril	m ə r r i l	e1=ə	
+1	merkus	m ə r k u s	e1=ə	
+1	merkava	m ə r k a v a	e1=ə	
+1	merkantilisme	m e r k a n t i l i s m ə	e1=e e2=ə	
+1	merevolusi	m ə r e v o l u s i	e1=ə e2=e	
+1	merevitalisasi	m ə r e v i t a l i s a s i	e1=ə e2=e	
+1	meresponsnya	m ə r e s p o n s ɲ a	e1=ə e2=e	
+1	merenggut	m ə r ə ŋ ɡ u t	e1=ə e2=ə	
+1	meregang	m ə r e ɡ a ŋ	e1=ə e2=e	
+1	mereduplikasi	m ə r e d u p l i k a s i	e1=ə e2=e	
+1	meredup	m ə r e d u p	e1=ə e2=e	
+1	mercia	m ə r t͡ʃ i a	e1=ə	
+1	merbuk	m ə r b u k	e1=ə	
+1	meranun	m ə r a n u n	e1=ə	
+1	merajalelanya	m ə r a d͡ʒ a l e l a ɲ a	e1=ə e2=e	
+1	merajalela	m ə r a d͡ʒ a l e l a	e1=ə e2=e	
+1	mer	m ə r	e1=ə	
+1	menyembulkan	m ə ɲ ə m b u l k a n	e1=ə e2=ə	
+1	menyeludupkan	m ə ɲ ə l u d u p k a n	e1=ə e2=ə	
+1	menyelidikinya	m ə ɲ ə l i d i k i ɲ a	e1=ə e2=ə	
+1	menyelenggarakan	m ə ɲ ə l ə ŋ ɡ a r a k a n	e1=ə e2=ə e3=ə	
+1	menyeberangi	m ə ɲ ə b ə r a ŋ i	e1=ə e2=ə e3=ə	
+1	menyeberang	m ə ɲ ə b ə r a ŋ	e1=ə e2=ə e3=ə	
+1	menyamaratakan	m ə ɲ a m a r a t a k a n	e1=ə	
+1	menyalahgunakan	m ə ɲ a l a h ɡ u n a k a n	e1=ə	
+1	menujuk	m ə n u d͡ʒ u k	e1=ə	
+1	mentranspor	m ə n t r a n s p o r	e1=ə	
+1	mentransformasi	m ə n t r a n s f o r m a s i	e1=ə	
+1	menteng	m ə n t e ŋ	e1=ə e2=e	
+1	mensyaratkan	m ə n ʃ a r a t k a n	e1=ə	
+1	menstandardisasi	m ə n s t a n d a r d i s a s i	e1=ə	
+1	mensintesiskan	m ə n s i n t e s i s k a n	e1=ə e2=e	
+1	mensintesis	m ə n s i n t e s i s	e1=ə e2=e	
+1	menristek	m ə n r i s t e k	e1=ə e2=e	
+1	menjepit	m ə n d͡ʒ ə p i t	e1=ə e2=ə	
+1	menjenguk	m ə n d͡ʒ ə ŋ u k	e1=ə e2=ə	
+1	menjejakkan	m ə n d͡ʒ ə d͡ʒ a k k a n	e1=ə e2=ə	
+1	mengonsepkan	m ə ŋ o n s e p k a n	e1=ə e2=e	
+1	mengoleskan	m ə ŋ o l e s k a n	e1=ə e2=e	
+1	mengodekan	m ə ŋ o d e k a n	e1=ə e2=e	
+1	mengode	m ə ŋ o d ə	e1=ə e2=ə	
+1	mengoceh	m ə ŋ o t͡ʃ e h	e1=ə e2=e	
+1	mengkarakterisasi	m ə ŋ k a r a k t ə r i s a s i	e1=ə e2=ə	
+1	menginvestigasi	m ə ŋ i n v e s t i ɡ a s i	e1=ə e2=e	
+1	mengintegrasikan	m ə ŋ i n t ə ɡ r a s i k a n	e1=ə e2=ə	
+1	mengintegrasi	m ə ŋ i n t ə ɡ r a s i	e1=ə e2=ə	
+1	menggelepai	m ə ŋ ɡ ə l ə p a j	e1=ə e2=ə e3=ə	
+1	menggaet	m ə ŋ ɡ a e t	e1=ə e2=e	
+1	mengerikan	m ə ŋ ə r i k a n	e1=ə e2=ə	
+1	mengenang	m ə ŋ e n a ŋ	e1=ə e2=e	
+1	mengembargo	m ə ŋ ə m b a r ɡ o	e1=ə e2=ə	
+1	mengembara	m ə ŋ ə m b a r a	e1=ə e2=ə	
+1	mengeluh	m ə ŋ ə l u h	e1=ə e2=ə	
+1	mengeksitasi	m ə ŋ e k s i t a s i	e1=ə e2=e	
+1	mengedalikan	m ə ŋ ə d a l i k a n	e1=ə e2=ə	
+1	mengapresiasikan	m ə ŋ a p r e s i a s i k a n	e1=ə e2=e	
+1	mengapresiasi	m ə ŋ a p r e s i a s i	e1=ə e2=e	
+1	menetralkan	m ə n e t r a l k a n	e1=ə e2=e	
+1	menetralisir	m ə n e t r a l i s i r	e1=ə e2=e	
+1	meneror	m ə n ə r o r	e1=ə e2=ə	
+1	meneroka	m ə n ə r o k a	e1=ə e2=ə	
+1	menderai	m ə n d ə r a j	e1=ə e2=ə	
+1	mendemonstrasikan	m ə n d ə m o n s t r a s i k a n	e1=ə e2=ə	
+1	mendel	m ə n d ə l	e1=ə e2=ə	
+1	mendekorasi	m ə n d e k o r a s i	e1=ə e2=e	
+1	mendeklarasikannya	m ə n d e k l a r a s i k a n ɲ a	e1=ə e2=e	
+1	mencetus	m ə n t͡ʃ e t u s	e1=ə e2=e	
+1	mencerdaskan	m ə n t͡ʃ ə r d a s k a n	e1=ə e2=ə	
+1	menceraikan	m ə n t͡ʃ ə r a i k a n	e1=ə e2=ə	
+1	mencemooh	m ə n t͡ʃ ə m o o h	e1=ə e2=ə	
+1	mencampuradukkan	m ə n t͡ʃ a m p u r a d u k k a n	e1=ə	
+1	memproyeksikan	m ə m p r o j e k s i k a n	e1=ə e2=e	
+1	memproteksi	m ə m p r o t e k s i	e1=ə e2=e	
+1	mempromosikannya	m ə m p r o m o s i k a n ɲ a	e1=ə	
+1	memprivatisasi	m ə m p r i v a t i s a s i	e1=ə	
+1	memprakarsai	m ə m p r a k a r s a j	e1=ə	
+1	memposisikan	m ə m p o s i s i k a n	e1=ə	
+1	memperebutkan	m ə m p ə r ə b u t k a n	e1=ə e2=ə e3=ə	
+1	memparodikan	m ə m p a r o d i k a n	e1=ə	
+1	memopulerkan	m ə m o p u l e r k a n	e1=ə e2=e	
+1	memoar	m ə m o a r	e1=ə	
+1	memerangkap	m ə m ə r a ŋ k a p	e1=ə e2=ə	
+1	memelintir	m ə m ə l i n t i r	e1=ə e2=ə	
+1	membendung	m ə m b ə n d u ŋ	e1=ə e2=ə	
+1	membelot	m ə m b ə l o t	e1=ə e2=ə	
+1	membelit	m ə m b ə l i t	e1=ə e2=ə	
+1	memar	m ə m a r	e1=ə	
+1	melipatgandakan	m ə l i p a t ɡ a n d a k a n	e1=ə	
+1	melepuh	m ə l ə p u h	e1=ə e2=ə	
+1	melejit	m ə l ə d͡ʒ i t	e1=ə e2=ə	
+1	melatarbelakanginya	m ə l a t a r b ə l a k a ŋ i ɲ a	e1=ə e2=ə	
+1	melanesian	m ə l a n e s i a n	e1=ə e2=e	
+1	melamed	m ə l a m e d	e1=ə e2=e	
+1	mekanistik	m e k a n i s t i k	e1=e	
+1	mekanismenya	m e k a n i s m ə ɲ a	e1=e e2=ə	
+1	mekanis	m e k a n i s	e1=e	
+1	megat	m ə ɡ a t	e1=ə	
+1	meganesia	m e ɡ a n e s i a	e1=e e2=e	
+1	megalitikum	m e ɡ a l i t i k u m	e1=e	
+1	megakota	m e ɡ a k o t a	e1=e	
+1	megah	m ə ɡ a h	e1=ə	
+1	megadiversitas	m e ɡ a d i v ə r s i t a s	e1=e e2=ə	
+1	medinat	m e d i n a t	e1=e	
+1	medikasi	m e d i k a s i	e1=e	
+1	medikalisasi	m e d i k a l i s a s i	e1=e	
+1	mausoleum	m a u s o l e u m	e1=e	
+1	matter	m a t t e r	e1=e	
+1	matebian	m a t e b i a n	e1=e	
+1	mate	m a t e	e1=e	
+1	mastering	m a s t e r i ŋ	e1=e	
+1	maser	m a s ə r	e1=ə	
+1	masalembu	m a s a l ə m b u	e1=ə	
+1	masalembo	m a s a l ə m b o	e1=ə	
+1	marianne	m a r i a n ə	e1=ə	
+1	mandelbaum	m a n d ə l b a u m	e1=ə	
+1	mameluk	m a m ə l u k	e1=ə	
+1	malware	m a l w a r e	e1=e	
+1	malesia	m a l e s i a	e1=e	
+1	malden	m a l d e n	e1=e	
+1	makasae	m a k a s a ə	e1=ə	
+1	magnetosfer	m a ɡ n e t o s f ə r	e1=e e2=ə	
+1	magellan	m a ɡ ə l l a n	e1=ə	
+1	madame	m a d a m ə	e1=ə	
+1	lyceum	l j t͡ʃ e u m	e1=e	
+1	lovelace	l o v ə l a t͡ʃ ə	e1=ə e2=ə	
+1	literatura	l i t ə r a t u r a	e1=ə	
+1	literate	l i t ə r a t e	e1=ə e2=e	
+1	lisensi	l i s e n s i	e1=e	
+1	liner	l i n e r	e1=e	
+1	limpapeh	l i m p a p e h	e1=e	
+1	lex	l e k s	e1=e	
+1	leukemia	l e u k ə m i a	e1=e e2=ə	
+1	letkol	l e t k o l	e1=e	
+1	lester	l e s t e r	e1=e e2=e	
+1	ler	l e r	e1=e	
+1	lembang	l ə m b a ŋ	e1=ə	
+1	lembab	l ə m b a b	e1=ə	
+1	lema	l ə m a	e1=ə	
+1	lekukan	l e k u k a n	e1=e	
+1	lektin	l e k t i n	e1=e	
+1	leksigram	l e k s i ɡ r a m	e1=e	
+1	leksem	l e k s ə m	e1=e e2=ə	
+1	lei	l e i	e1=e	
+1	ledang	l ə d a ŋ	e1=ə	
+1	led	l ə d	e1=ə	
+1	lecet	l ə t͡ʃ e t	e1=ə e2=e	
+1	lebuhraya	l ə b u h r a j a	e1=ə	
+1	lebu	l ə b u	e1=ə	
+1	leak	l e a k	e1=e	
+1	layer	l a j ə r	e1=ə	
+1	lautem	l a w t ə m	e1=ə	
+1	laurence	l a u r ə n t͡ʃ e	e1=ə e2=e	
+1	latter	l a t t e r	e1=e	
+1	lane	l a n e	e1=e	
+1	lancet	l a n t͡ʃ e t	e1=e	
+1	lamakera	l a m a k ə r a	e1=ə	
+1	lahane	l a h a n e	e1=e	
+1	lager	l a ɡ ə r	e1=ə	
+1	kutei	k u t e i	e1=e	
+1	kupperman	k u p p e r m a n	e1=e	
+1	kunsten	k u n s t e n	e1=e	
+1	kudengar	k u d e ŋ a r	e1=e	
+1	kubisme	k u b i s m ə	e1=ə	
+1	kuberitahu	k u b e r i t a h u	e1=e	
+1	kuaternion	k u a t ə r n i o n	e1=ə	
+1	krustasea	k r u s t a s e a	e1=e	
+1	krimea	k r i m e a	e1=e	
+1	kreatifnya	k r e a t i f ɲ a	e1=e	
+1	kreasionisme	k r e a s i o n i s m ə	e1=e e2=ə	
+1	koteka	k o t e k a	e1=e	
+1	kortikosteroid	k o r t i k o s t ə r o i d	e1=ə	
+1	korean	k o r e a n	e1=e	
+1	konvergensi	k o n v ə r ɡ e n s i	e1=ə e2=e	
+1	konvergen	k o n v ə r ɡ e n	e1=ə e2=e	
+1	kontinental	k o n t i n ə n t a l	e1=ə	
+1	konsistensinya	k o n s i s t e n s i ɲ a	e1=e	
+1	konsesinya	k o n s e s i ɲ a	e1=e	
+1	konser	k o n s ə r	e1=ə	
+1	konsepnya	k o n s ə p ɲ a	e1=ə	
+1	konsentris	k o n s e n t r i s	e1=e	
+1	konsensus	k o n s e n s u s	e1=e	
+1	konseling	k o n s ə l i ŋ	e1=ə	
+1	konsekuensinya	k o n s ə k u e n s i ɲ a	e1=ə e2=e	
+1	konsekuensial	k o n s ə k u e n s i a l	e1=ə e2=e	
+1	kongregasi	k o ŋ r e ɡ a s i	e1=e	
+1	konawe	k o n a w ə	e1=ə	
+1	komprehensi	k o m p r e h ə n s i	e1=e e2=ə	
+1	komplek	k o m p l e k	e1=e	
+1	kompeten	k o m p ə t e n	e1=ə e2=e	
+1	komentator	k o m e n t a t o r	e1=e	
+1	komentarnya	k o m e n t a r ɲ a	e1=e	
+1	koleksinya	k o l e k s i ɲ a	e1=e	
+1	kole	k o l e	e1=e	
+1	koefisien	k u f i s i e n	?	
+1	kluwer	k l u w ə r	e1=ə	
+1	kluster	k l u s t ə r	e1=ə	
+1	klaten	k l a t e n	e1=e	
+1	klaster	k l a s t ə r	e1=ə	
+1	kissinger	k i s s i ŋ ə r	e1=ə	
+1	kinsale	k i n s a l e	e1=e	
+1	kieng	k i ə ŋ	e1=ə	
+1	keumala	k e u m a l a	e1=e	
+1	ketumpangtindihan	k ə t u m p a ŋ t i n d i h a n	e1=ə	
+1	keton	k ə t o n	e1=ə	
+1	ketoasidosis	k ə t o a s i d o s i s	e1=ə	
+1	ketidaktepatan	k ə t i d a ʔ t ə p a t a n	e1=ə e2=ə	
+1	ketidakseimbangan	k ə t i d a k s e i m b a ŋ a n	e1=ə e2=e	
+1	ketidakpuasan	k ə t i d a k p u a s a n	e1=ə	
+1	ketidakkekalan	k ə t i d a ʔ k ə k a l a n	e1=ə e2=ə	
+1	ketidakberesan	k ə t i d a k b ə r e s a n	e1=ə e2=ə e3=e	
+1	keterpurukan	k ə t ə r p u r u k a n	e1=ə e2=ə	
+1	keterasingan	k ə t ə r a s i ŋ a n	e1=ə e2=ə	
+1	ketenger	k ə t e ŋ ə r	e1=ə e2=e e3=ə	
+1	ketekunan	k ə t e k u n a n	e1=ə e2=e	
+1	ketaksetujuan	k ə t a k s e t u d͡ʒ u a n	e1=ə e2=e	
+1	kesalahpahaman	k ə s a l a h p a h a m a n	e1=ə	
+1	keroncong	k ə r o n t͡ʃ o ŋ	e1=ə	
+1	keritang	k ə r i t a ŋ	e1=ə	
+1	keretapi	k ə r e t a p i	e1=ə e2=e	
+1	keramologi	k ə r a m o l o ɡ i	e1=ə	
+1	kerah	k ə r a h	e1=ə	
+1	kepepatan	k ə p ə p a t a n	e1=ə e2=ə	
+1	kenyon	k e n j o n	e1=e	
+1	kenyir	k ə ɲ i r	e1=ə	
+1	kenetralan	k ə n e t r a l a n	e1=ə e2=e	
+1	kenekatan	k ə n e k a t a n	e1=ə e2=e	
+1	kendang	k ə n d a ŋ	e1=ə	
+1	kemudia	k ə m u d i a	e1=ə	
+1	kemotrof	k ə m o t r o f	e1=ə	
+1	kemi	k ə m i	e1=ə	
+1	kementrian	k ə m ə n t r i a n	e1=ə e2=ə	
+1	kemendikbud	k ə m ə n d i k b u d	e1=ə e2=ə	
+1	kemelut	k ə m ə l u t	e1=ə e2=ə	
+1	kemegahan	k ə m e ɡ a h a n	e1=ə e2=e	
+1	kemantren	k ə m a n t r e n	e1=ə e2=e	
+1	kemandekan	k ə m a n d e k a n	e1=ə e2=e	
+1	kemah	k ə m a h	e1=ə	
+1	kelud	k ə l u d	e1=ə	
+1	kelon	k ə l o n	e1=ə	
+1	keletihan	k ə l ə t i h a n	e1=ə e2=ə	
+1	kelenteng	k ə l ə n t ə ŋ	e1=ə e2=ə e3=ə	
+1	kekeliruan	k ə k ə l i r u a n	e1=ə e2=ə	
+1	kejora	k ə d͡ʒ o r a	e1=ə	
+1	keingintahuan	k ə i ŋ i n t a h u a n	e1=ə	
+1	keeropaan	k ə ə r o p a a n	e1=ə e2=ə	
+1	keduk	k ə d u k	e1=ə	
+1	kedai	k ə d a j	e1=ə	
+1	kecicang	k ə t͡ʃ i t͡ʃ a ŋ	e1=ə	
+1	katekis	k a t ə k i s	e1=ə	
+1	kategoris	k a t ə ɡ o r i s	e1=ə	
+1	kastela	k a s t e l a	e1=e	
+1	karangetang	k a r a ŋ ə t a ŋ	e1=ə	
+1	karakteristiknya	k a r a k t ə r i s t i k ɲ a	e1=ə	
+1	karakterisasi	k a r a k t ə r i s a s i	e1=ə	
+1	kapsomer	k a p s o m e r	e1=e	
+1	kanibalisme	k a n i b a l i s m ə	e1=ə	
+1	kale	k a l e	e1=e	
+1	kafeina	k a f e i n a	e1=e	
+1	kabel	k a b ə l	e1=ə	
+1	juruselamat	d͡ʒ u r u s ə l a m a t	e1=ə	
+1	jurgensen	d͡ʒ u r ɡ e n s e n	e1=e e2=e	
+1	jonge	d͡ʒ o ŋ e	e1=e	
+1	jewawut	d͡ʒ e w a w u t	e1=e	
+1	jerawat	d͡ʒ ə r a w a t	e1=ə	
+1	jeratan	d͡ʒ ə r a t a n	e1=ə	
+1	jeram	d͡ʒ ə r a m	e1=ə	
+1	jeddah	d͡ʒ ə d d a h	e1=ə	
+1	janger	d͡ʒ a ŋ ə r	e1=ə	
+1	jambek	d͡ʒ a m b e k	e1=e	
+1	jambe	d͡ʒ a m b ə	e1=ə	
+1	jabodetabek	d͡ʒ a b o d e t a b ə k	e1=e e2=ə	
+1	item	i t ə m	e1=ə	
+1	isteri	i s t ə r i	e1=ə	
+1	isolek	i s o l e k	e1=e	
+1	isidore	i s i d o r e	e1=e	
+1	investigator	i n v e s t i ɡ a t o r	e1=e	
+1	interpolasi	i n t ə r p o l a s i	e1=ə	
+1	interpol	i n t ə r p o l	e1=ə	
+1	interogasi	i n t ə r o ɡ a s i	e1=ə	
+1	internetnya	i n t ə r n e t ɲ a	e1=ə e2=e	
+1	interlude	i n t ə r l u d ə	e1=ə e2=ə	
+1	interfet	i n t ə r f e t	e1=ə e2=e	
+1	interferon	i n t ə r f e r o n	e1=ə e2=e	
+1	interdisiplin	i n t ə r d i s i p l i n	e1=ə	
+1	inter	i n t ə r	e1=ə	
+1	intensionalitas	i n t e n s i o n a l i t a s	e1=e	
+1	intensifikasi	i n t e n s i f i k a s i	e1=e	
+1	integer	i n t ə ɡ ə r	e1=ə e2=ə	
+1	insufisiensi	i n s u f i s i e n s i	e1=e	
+1	inlander	i n l a n d ə r	e1=ə	
+1	inheren	i n h e r ə n	e1=e e2=ə	
+1	influensial	i n f l u e n s i a l	e1=e	
+1	influences	i n f l u e n t͡ʃ ə s	e1=e e2=ə	
+1	inferior	i n f e r i o r	e1=e	
+1	infektif	i n f e k t i f	e1=e	
+1	infante	i n f a n t e	e1=e	
+1	indonesi	i n d o n e s i	e1=e	
+1	indigenos	i n d i ɡ e n o s	e1=e	
+1	indie	i n d i ə	e1=ə	
+1	inderagiri	i n d ə r a ɡ i r i	e1=ə	
+1	imunogenisitas	i m u n o ɡ e n i s i t a s	e1=e	
+1	impresionisme	i m p r e s i o n i s m ə	e1=e e2=ə	
+1	importance	i m p o r t a n t͡ʃ ə	e1=ə	
+1	imperfektif	i m p ə r f e k t i f	e1=ə e2=e	
+1	ilegalitas	i l ə ɡ a l i t a s	e1=ə	
+1	ijen	i d͡ʒ ə n	e1=ə	
+1	idiolek	i d i o l e k	e1=e	
+1	ideofon	i d e o f o n	e1=e	
+1	ibuprofen	i b u p r o f e n	e1=e	
+1	iberia	i b ə r i a	e1=ə	
+1	hunter	h u n t e r	e1=e	
+1	hotei	h o t e i	e1=e	
+1	hossein	h o s s e j n	e1=e	
+1	homoseksual	h o m o s ə k s u a l	e1=ə	
+1	homogenisasi	h o m o ɡ e n i s a s i	e1=e	
+1	homogenat	h o m o ɡ e n a t	e1=e	
+1	homer	h o m ə r	e1=ə	
+1	holmes	h o l m ə s	e1=ə	
+1	historisisme	h i s t o r i s i s m ə	e1=ə	
+1	hipoglikemia	h i p o ɡ l i k ə m i a	e1=ə	
+1	hiperpigmentasi	h i p ə r p i ɡ m e n t a s i	e1=ə e2=e	
+1	higienis	h i ɡ i e n i s	e1=e	
+1	hidrotermal	h i d r o t ə r m a l	e1=ə	
+1	herzen	h e r z e n	e1=e e2=e	
+1	heryanto	h e r j a n t o	e1=e	
+1	hertz	h ə r t z	e1=ə	
+1	hersri	h e r s r i	e1=e	
+1	herpesvirus	h e r p e s v i r u s	e1=e e2=e	
+1	herodian	h e r o d i a n	e1=e	
+1	hermeneutika	h ə r m ə n e u t i k a	e1=ə e2=ə e3=e	
+1	herman	h e r m a n	e1=e	
+1	herlambang	h e r l a m b a ŋ	e1=e	
+1	herder	h e r d ə r	e1=e e2=ə	
+1	hematologi	h e m a t o l o ɡ i	e1=e	
+1	hemat	h e m a t	e1=e	
+1	helisitas	h ə l i s i t a s	e1=ə	
+1	heliport	h ə l i p o r t	e1=ə	
+1	helikase	h e l i k a s ə	e1=e e2=ə	
+1	helenis	h ə l ə n i s	e1=ə e2=ə	
+1	helen	h ə l e n	e1=ə e2=e	
+1	hegemoni	h e ɡ ə m o n i	e1=e e2=ə	
+1	harmen	h a r m ə n	e1=ə	
+1	happens	h a p p ə n s	e1=ə	
+1	guatemala	ɡ u a t ə m a l a	e1=ə	
+1	gritude	ɡ r i t u d ə	e1=ə	
+1	gravel	ɡ r a v ə l	e1=ə	
+1	grafitipers	ɡ r a f i t i p e r s	e1=e	
+1	goresan	ɡ o r e s a n	e1=e	
+1	golekan	ɡ o l e k a n	e1=e	
+1	golden	ɡ o l d e n	e1=e	
+1	gluten	ɡ l u t e n	e1=e	
+1	girase	ɡ i r a s ə	e1=ə	
+1	gersang	ɡ ə r s a ŋ	e1=ə	
+1	gerokgak	ɡ ə r o k ɡ a ʔ	e1=ə	
+1	gerindra	ɡ ə r i n d r a	e1=ə	
+1	gerik	ɡ ə r i k	e1=ə	
+1	geospasial	ɡ e o s p a s i a l	e1=e	
+1	geosentris	ɡ e o s e n t r i s	e1=e e2=e	
+1	geonim	ɡ e o n i m	e1=e	
+1	geometrinya	ɡ e o m e t r i ɲ a	e1=e e2=e	
+1	geometrical	ɡ e o m e t r i t͡ʃ a l	e1=e e2=e	
+1	geolog	ɡ e o l o ɡ	e1=e	
+1	geografinya	ɡ e o ɡ r a f i ɲ a	e1=e	
+1	geografiana	ɡ e o ɡ r a f i a n a	e1=e	
+1	genotip	ɡ e n o t i p	e1=e	
+1	genomika	ɡ e n o m i k a	e1=e	
+1	genitif	ɡ e n i t i f	e1=e	
+1	genggong	ɡ e ŋ ɡ o ŋ	e1=e	
+1	genetiknya	ɡ e n e t i k ɲ a	e1=e e2=e	
+1	genetikawan	ɡ e n e t i k a w a n	e1=e e2=e	
+1	genera	ɡ e n e r a	e1=e e2=e	
+1	genekologi	ɡ e n e k o l o ɡ i	e1=e e2=e	
+1	genealogis	ɡ e n e a l o ɡ i s	e1=e e2=e	
+1	gempur	ɡ ə m p u r	e1=ə	
+1	gemologi	ɡ ə m o l o ɡ i	e1=ə	
+1	geminasi	ɡ ə m i n a s i	e1=ə	
+1	gemetar	ɡ ə m ə t a r	e1=ə e2=ə	
+1	gemar	ɡ ə m a r	e1=ə	
+1	gelung	ɡ ə l u ŋ	e1=ə	
+1	gelondongan	ɡ ə l o n d o ŋ a n	e1=ə	
+1	gelanggi	ɡ ə l a ŋ ɡ i	e1=ə	
+1	gelandangan	ɡ ə l a n d a ŋ a n	e1=ə	
+1	gel	ɡ ə l	e1=ə	
+1	gathering	ɡ a t h e r i ŋ	e1=e	

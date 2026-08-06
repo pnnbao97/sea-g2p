@@ -27,10 +27,105 @@ same ground is not covered twice.
 | WikiPron gold | 17,777 | human-transcribed |
 | KBBI `pelafalan` | 15,096 | 91.5% agreement with gold |
 | KBBI words with no ⟨e⟩ | 41,006 | no ambiguity to resolve |
-| KBBI + schwa classifier | 42,314 | ~80% — the weakest, replace first |
+| KBBI + schwa classifier | 42,314 | ~80% — the weakest |
 | Affix derivation | 19,244 | 92.1% |
 | Compounds | 28,042 | inherited from the parts |
 | Reduplication | 9,078 | inherited from the parts |
+
+## How much of this is actually verified
+
+The table above says where each entry came from. This one says how much
+anything outside the build has confirmed, which is a different and less
+comfortable question. Entry counts and running text answer it differently,
+and the gap between the two columns is the whole point:
+
+| | Entries | Share of real tokens |
+|---|---:|---:|
+| Transcribed by a human (gold) | 17,793 — 10.3% | **70.2%** |
+| No ⟨e⟩, so nothing to get wrong | 71,965 — 41.7% | 9.4% |
+| Root is in gold, so derivable (97.3%) | 21,508 — 12.5% | 7.7% |
+| **Nothing has verified this** | **61,291 — 35.5%** | **6.6%** |
+| Not in the dictionary, read by rule (76.2%) | — | 6.1% |
+
+Token shares are measured over 251k tokens of Indonesian Wikipedia.
+
+A third of the dictionary is unverified and it accounts for one token in
+fifteen, because those entries are overwhelmingly rare words. Reading the
+first column alone overstates the problem; reading the second alone hides
+that the tail exists at all.
+
+**Do not read the 97.7% coverage figure as accuracy.** Coverage says a word
+was found. It says nothing about whether the ⟨e⟩ in it was resolved
+correctly, and those are the two independent things this dictionary has to
+get right.
+
+## Inheriting the root's schwa instead of guessing it
+
+Every affix has a fixed pronunciation, so in an affixed word the only
+unknown is the root — and if the root is in gold, the whole word is
+derivable rather than classifiable. Cross-validated by deriving gold words
+from *other* gold roots (4,320 cases): **97.3% correct on the schwa
+decision**, against the classifier's ~80%.
+
+Applied to the 21,508 analysable entries outside gold, 86.3% already agreed
+— itself evidence the classifier is broadly sound — and 2,080 did not:
+
+    e -> ə  1,101      ə -> e  800      j -> i  216      i -> j  94
+
+Those 2,080 now follow the root. The substitution is deliberately narrow:
+only ə/e and i/j are touched, and an entry is skipped whole if it differs
+anywhere else, so WikiPron's narrower notation — unreleased stops, ɪ ʊ ɛ ɔ —
+cannot leak into a phonemic dictionary.
+
+There is no post-hoc measurement that this improved the dictionary. The
+patch derives from gold, so re-measuring against gold would be circular. The
+justification is the method's cross-validated accuracy, fixed before the
+patch was generated.
+
+### The i/j half was a rule bug
+
+The 310 i/j changes are one cause seen from both sides. "⟨ai⟩ is a diphthong
+only word-finally" is right about roots and wrong about affixed forms:
+
+    menguasai   = meN + kuasa + i     the final i is a SUFFIX, not a glide
+    serangkaian = se + rangkai + an   the root's diphthong is no longer final
+
+Morphology settles both. Fixing the rule in `id_g2p.py` would generalise to
+words never seen; the patch only corrects the entries.
+
+## What still needs a human: `schwa_review.tsv`
+
+51,320 entries remain unverified after the derivation above. They are rare,
+but not uniformly so, and the weight is extremely concentrated:
+
+| Words reviewed | Share of the unverified group's weight |
+|---:|---:|
+| 100 | 52.7% |
+| 500 | **77.1%** |
+| 2,000 | 95.3% |
+
+So the practical task is not 51,320 words. It is **500**, which is an
+evening's work, and `schwa_review.tsv` ships the top 2,000 ordered by
+corpus frequency:
+
+    freq  word     pronunciation  schwa_decision  correct
+    1239  ke       k ə           e1=ə
+     520  israel   i s r a ə l   e1=ə
+     380  sistem   s i s t ə m   e1=ə
+
+A reviewer needs no IPA. The `schwa_decision` column isolates the only
+question being asked — is this ⟨e⟩ the vowel of *enak* or of *sedang*? —
+numbered by order of appearance for words with more than one. Put `y` or
+`n` in the last column, leave it blank when unsure.
+
+Expect roughly 80–100 corrections out of 500, not 500: the pool is already
+around 80–85% right. The value of the other 400 rows is turning an estimate
+into a measurement.
+
+One warning, from this project's own history. The rows most likely to be
+wrong are loanwords ending in `-el`, `-er`, `-en` — and those are exactly
+where hand annotation scored **68.4%**, below the classifier it was meant to
+improve on. A reviewer who is not a native speaker will make it worse.
 
 ## The one thing spelling does not say
 
@@ -122,6 +217,7 @@ why compound splitting is in the build at all.
 | `id_schwa_clf.py` | context classifier for ⟨e⟩ |
 | `build_id_dict.py` | the build pipeline |
 | `id_freq.tsv.gz` | corpus frequency table |
+| `schwa_review.tsv` | the 2,000 unverified words worth a human's time |
 
 ## Output format
 
@@ -139,9 +235,19 @@ words supplied per language. Before them `10^6 orang` read as "sepuluh enam"
 
 ## Known limitations
 
-- The 42k classifier-derived entries are the least certain part of the
-  dictionary. A source that marks ⟨é⟩ more widely than KBBI would replace
-  them wholesale; that is the single highest-value contribution.
+- 51,320 entries have a schwa nothing outside the build has checked — 6.6%
+  of running text. `schwa_review.tsv` is the shortlist; a source that marks
+  ⟨é⟩ more widely than KBBI would settle them wholesale, and that remains
+  the single highest-value contribution.
+- **No native speaker has heard any of this.** Every number here is
+  intrinsic: coverage, agreement between sources, cross-validated
+  derivation. None of them measures whether the output sounds right, and no
+  amount of further measurement from inside the system will.
+- 42 entries have non-ASCII headwords (`arrivée`, `führer`) whose vowels the
+  build already dropped: `arrivée` is stored as `a r r i v ə`. The
+  normalizer folds diacritics before lookup, so these keys are unreachable
+  and the words route to the English engine instead — accidentally the
+  better reading. Dead weight, 0.024%.
 - Javanese names follow Javanese phonology, not Indonesian: Pakubuwana is
   /pakubuwɔnɔ/ to a Javanese speaker, /pakubuwana/ by these rules.
 - Final ⟨k⟩ is /k/ or /ʔ/ by lexical choice (887 vs 250 in gold); /k/ is the
