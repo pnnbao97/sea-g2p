@@ -63,14 +63,16 @@ impl Thai {
         // names (มปิก from โอลิมปิก, ทเทิล from Seattle). Two independent
         // judges still say leave them:
         //
-        //                    F1 vs newmm   curated words kept whole
-        //   keep (current)   0.9854        74.76%
-        //   drop from trie   0.9850        74.69%
+        //                    F1 vs newmm   curated kept whole   F1 vs BEST2009
+        //   keep (current)   0.9854        74.76%               0.8702
+        //   drop from trie   0.9850        74.69%               0.8700
         //
         // The first judge is compromised — `thai/build/freq_count.py` counts
         // with newmm, so newmm produced these fragments and agreeing with it
-        // cannot penalise them — which is why the second one was run at all.
-        // Both reject the change: the fragments almost never win a
+        // cannot penalise them. The third is not: BEST2009 is human-annotated
+        // (`nectec/best2009` on Hugging Face, train split, 4,800 records over
+        // its four genres), and it says the same thing to four decimal places.
+        // All three reject the change: the fragments almost never win a
         // segmentation, because the cost model already prefers a whole word
         // wherever one exists. Their harm was in the pronunciation lookup,
         // and that is fixed in `phonemize_with`, one layer down.
