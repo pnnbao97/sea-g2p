@@ -15,6 +15,58 @@ Why not espeak-ng: tested empirically, its Thai voice reads character-by-charact
 with no word segmentation, no preposed-vowel reordering (เขา → "e-kha"), no
 silent-ห handling and broken tones. Unusable even as a fallback.
 
+## Measuring segmentation honestly
+
+The segmenter was benchmarked against PyThaiNLP `newmm` and scored F1 0.987.
+That number was not what it looked like. `build/freq_count.py` counts the
+corpus **with newmm**, so newmm's segmentation is what the cost model learns
+— and newmm was also the judge. A metric cannot penalise a system for
+inheriting the mistakes of the thing it is being compared to.
+
+Against human annotation the picture is different, and more useful:
+
+| | F1 vs newmm | F1 vs BEST2009 (human) |
+|---|---|---|
+| frequencies counted with newmm | 0.987 | 0.870 |
+| **frequencies counted from human annotation** | — | **0.906** |
+| newmm itself | — | 0.868 |
+
+The diagnosis came from the shape of the errors: precision 0.95 but recall
+0.80, meaning the segmenter systematically **under-split**. 99.8% of the
+boundaries it missed fell inside compounds whose parts were already in the
+dictionary — ความสัมพันธ์ for ความ|สัมพันธ์, ทางกฎหมาย for ทาง|กฎหมาย.
+Counting with newmm had made each compound look like one frequent word, so
+the dynamic program never had reason to split it.
+
+Recounting frequencies from human word boundaries fixes exactly that:
+recall 0.801 → 0.864, precision unchanged. Cross-checked on
+VISTEC-TP-TH-2021, a corpus from neither source and a different register:
+0.865 → 0.877.
+
+**Absence is informative.** A word the annotators never emit is one they
+split, so it gets frequency 1. Blending the old newmm counts back in for
+those words measured worse (0.9177 at 2% weight, 0.8986 at 10%).
+
+### Which corpus, and why not the obvious one
+
+BEST2009 is the standard benchmark and scores slightly higher — but it is
+**CC BY-NC-SA 3.0**, and a frequency table derived from it would carry the
+NonCommercial term into `sea_g2p.bin`, making an Apache-2.0 library
+unusable commercially. It is used here for **evaluation only**, which
+distributes nothing.
+
+The shipped table comes from **Blackboard Treebank** (NECTEC),
+[bitbucket.org/kaamanita/blackboard-treebank](https://bitbucket.org/kaamanita/blackboard-treebank/),
+**CC BY 3.0** — attribution only, no NonCommercial, no ShareAlike. On
+BEST2009 it scores 0.906 against BEST-derived frequencies' 0.925, but that
+gap is test-set bias: on the neutral VISTEC corpus the two are level
+(0.8767 vs 0.8776). It is `thai/blackboard_freq.tsv.gz`, 23,302 word types
+over 858,531 tokens.
+
+Note also that BEST's *test* split carries no gold segmentation — 0.5% of
+characters marked word-initial — because it was a shared-task set scored by
+submission. Evaluation here uses held-out records from the train split.
+
 ## Results at a glance
 
 - `thai_dict.tsv`: **91,865 words** (every corpus word type down to frequency
@@ -22,10 +74,10 @@ silent-ห handling and broken tones. Unusable even as a fallback.
 - `src/lang/th/rules.rs`: rule-based G2P reading **any** Thai string, so the
   pipeline never gives up on a word. Validated on the gold lexicon: **84%**
   of syllables and **77%** of short words exactly right.
-- Segmenter vs PyThaiNLP `newmm` on 100 random wiki articles: boundary
-  **F1 0.987**, **93.6%** of runs identical. Frequency weighting is what got
-  it there — the earlier "fewest pieces" objective scored F1 0.983 / 90.3%
-  and mis-split genuine ambiguities.
+- Segmenter vs **human annotation** (BEST2009, 4,800 records across its four
+  genres): boundary **F1 0.906**. PyThaiNLP `newmm` scores 0.868 on the same
+  sample. See *Measuring segmentation honestly* below — an earlier figure of
+  0.987 measured agreement with newmm, which is not the same thing.
 - Out-of-domain check on [pythainlp/thaisum](https://huggingface.co/datasets/pythainlp/thaisum)
   news (3,000 random articles): token coverage **99.92%**, unknown-character
   rate 0.047% — the wiki-built dictionary generalizes to the news register;
@@ -59,6 +111,7 @@ silent-ห handling and broken tones. Unusable even as a fallback.
 | `tone_rules.py` | independent tone-rule checker (QA gate) |
 | `segment.py` | TCC + maximal-matching word segmenter (Python reference; the shipping implementation is `src/lang/th/segment.rs`) |
 | `rule_g2p.py` | rule-based G2P (Python reference for `src/lang/th/rules.rs`) |
+| `blackboard_freq.tsv.gz` | word frequencies from human annotation (Blackboard Treebank, CC BY 3.0) — the segmenter's cost model |
 | `word_freq.tsv.gz` | full corpus frequency table (143,676 types) |
 | `build_report.txt` | build statistics |
 | `build_rejects.tsv` | 332 words rejected by QA and why |

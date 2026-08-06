@@ -28,3 +28,9 @@ target/
 python/sea_g2p/sea_g2p.bin.bak
 python/sea_g2p/sea_g2p.bin.prejunk
 python/sea_g2p/sea_g2p.bin.filtered
+
+# BEST2009-derived: CC BY-NC-SA, incompatible with this project's Apache 2.0
+thai/best2009_freq.tsv
+python/sea_g2p/*.bin.keep
+python/sea_g2p/*.bin.bak*
+python/sea_g2p/*.bin.new

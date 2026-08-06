@@ -18,7 +18,7 @@ import seap
 ROOT = Path(__file__).resolve().parent.parent
 BIN = ROOT / "python" / "sea_g2p" / "sea_g2p.bin"
 THAI_TSV = ROOT / "thai" / "thai_dict.tsv"
-FREQ_TSV = ROOT / "thai" / "word_freq.tsv.gz"
+FREQ_TSV = ROOT / "thai" / "blackboard_freq.tsv.gz"
 INDO_TSV = ROOT / "indo" / "id_dict.tsv"
 
 
@@ -37,9 +37,20 @@ def main():
     print(f"thai entries: {len(thai)}")
     sections[seap.SECTION_TH] = thai
 
-    # Word frequencies for the segmenter's unigram cost model. Words absent
-    # from the corpus (gold-lexicon-only entries) get 1, the same floor a
-    # hapax gets, so they stay usable but never outrank a real frequency.
+    # Word frequencies for the segmenter's unigram cost model, counted from
+    # HUMAN word-boundary annotation (Blackboard Treebank, CC BY 3.0) rather
+    # than from newmm's segmentation of the corpus.
+    #
+    # This is the single largest quality change the Thai segmenter has had.
+    # Counting with newmm baked newmm's compounds into the cost model, so
+    # ความสัมพันธ์ and ทางกฎหมาย each looked like one frequent word and the
+    # dynamic program never split them: 99.8% of the boundaries we missed
+    # against human annotation were inside compounds whose parts were already
+    # in the dictionary. Measured on BEST2009, F1 0.8702 -> 0.9060.
+    #
+    # A word absent from the annotation gets 1. That is not a gap to be
+    # patched — absence is evidence the annotators split the word — and
+    # blending the old newmm counts back in measured worse.
     import gzip
     counts = {}
     with gzip.open(FREQ_TSV, "rt", encoding="utf-8") as f:
