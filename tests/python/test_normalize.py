@@ -141,7 +141,7 @@ TEST_CASES = [
     ("tốc độ 120 km/h", "tốc độ một trăm hai mươi ki lô mét trên giờ"),
     ("chỉ số P/E cao", "chỉ số phê trên e cao"),
     # Mã chữ-số: phần số ≥3 chữ số đọc từng chữ số như đọc mã.
-    ("mã vé ABC-1234", "mã vé <en>a b c</en> một hai ba bốn"),
+    ("mã vé ABC-1234", "mã vé a bê xê một hai ba bốn"),
     # ...nhưng ≤2 chữ số vẫn đọc số đếm (COVID-19, U-23).
     ("bệnh nhân COVID-19", "bệnh nhân <en>covid</en> mười chín"),
     ("đội U-23 Việt Nam", "đội u hai mươi ba việt nam"),
@@ -417,11 +417,12 @@ TEST_CASES = [
     ("quý iii", "quý iii"),
     ("lần di chuyển", "lần di chuyển"),
     ("lần vi phạm", "lần vi phạm"),
-    # Không có từ dẫn -> rơi vào nhánh acronym tiếng Anh.
+    # Không có từ dẫn -> không đọc thành số La Mã. CD/DVD/MC/XL nằm trong danh
+    # sách đọc tiếng Anh; CIV và MIX không có tên nên theo mặc định tiếng Việt.
     ("đĩa CD và đầu DVD", "đĩa <en>c d</en> và đầu <en>d v d</en>"),
     ("mã MC", "mã <en>m c</en>"),
     ("size XL và XXL", "size <en>x l</en> và <en>x x l</en>"),
-    ("CIV và MIX", "<en>c i v</en> và <en>m i x</en>"),
+    ("CIV và MIX", "xê i vê và mờ i ích"),
     # Số thứ tự đề mục La Mã đầu dòng, kèm dấu "." -> đọc là số (không phải chữ cái).
     ("I. VỀ ĐỀ NGHỊ HUÂN CHƯƠNG LAO ĐỘNG",
      "một. về đề nghị huân chương lao động"),
@@ -480,8 +481,38 @@ TEST_CASES = [
     ("i9-14900K", "i chín mười bốn nghìn chín trăm ca"),  # hậu tố model, không phải tiền lóng
     ("Mã số A1B.", "mã số a một bê."),
     ("Tôi đang học về AI.", "tôi đang học về <en>a i</en>."),
-    ("Dự án VYE.", "dự án <en>v y e</en>."),
-    ("Chào mừng bạn đến với CTY.", "chào mừng bạn đến với <en>c t y</en>."),
+    # Mặc định của pipeline vi: viết tắt không có trong bảng -> đánh vần bằng
+    # tên chữ cái tiếng Việt. Trước đây mặc định là tiếng Anh, nên đuôi dài các
+    # viết tắt thuần Việt (CTV, TTHC, BQL) đều bị đọc giọng Anh.
+    ("cộng tác viên CTV", "cộng tác viên xê tê vê"),
+    ("thủ tục TTHC", "thủ tục tê tê hát xê"),
+    ("ban quản lý BQL", "ban quản lý bê qui lờ"),
+    ("mã OTP", "mã ô tê phê"),
+    # Ngoại lệ đọc tiếng Anh vẫn thắng mặc định.
+    ("máy ATM", "máy <en>a t m</en>"),
+    ("xét nghiệm PCR", "xét nghiệm <en>p c r</en>"),
+    ("dùng VPN", "dùng <en>v p n</en>"),
+    ("máy CNC", "máy <en>c n c</en>"),
+    # Câu tiếng Anh lật mặc định trở lại, cùng cổng en_ctx với nhánh Expand.
+    # Áp dụng cho cả mục khai báo LettersNative, không chỉ nhánh fallback.
+    ("The CTV team will join us", "the <en>c t v</en> team will join us"),
+    ("tối qua xem VTV", "tối qua xem vê tê vê"),
+    ("I watched VTV last night and paid the VAT already",
+     "i watched <en>v t v</en> last night and paid the <en>v a t</en> already"),
+    # VAT phải khai báo vì "vat" vừa là âm tiết hợp lệ vừa có trong từ điển,
+    # nên nhánh trọng tài từ điển đọc thành từ "vat" trước khi tới fallback.
+    ("thuế VAT 10%", "thuế vê a tê mười phần trăm"),
+    ("chạy quảng cáo mà không đo ROI", "chạy quảng cáo mà không đo rờ ô i"),
+    # ROM đọc thành âm tiết như RAM, không đánh vần.
+    ("bộ nhớ ROM", "bộ nhớ <en>rom</en>"),
+    ("khuyến cáo của WHO", "khuyến cáo của vê kép hát ô"),
+    ("gia nhập WTO", "gia nhập vê kép tê ô"),
+    ("làm OT tới khuya", "làm <en>o t</en> tới khuya"),
+    # Nhánh trọng tài vẫn giữ được từ tiếng Việt không dấu viết hoa để nhấn.
+    ("nó KHEN tôi mãi", "nó khen tôi mãi"),
+    ("xăng RON 95", "xăng ron chín mươi lăm"),
+    ("Dự án VYE.", "dự án vê y e."),
+    ("Chào mừng bạn đến với CTY.", "chào mừng bạn đến với công ty."),
     ("TÔI ĐI HỌC", "tôi đi học"),
     ("Dữ liệu dạng JSON.", "dữ liệu dạng <en>j son</en>."),
     ("Chỉ số VN-Index giảm.", "chỉ số <en>v n</en> index giảm."),
@@ -849,7 +880,7 @@ TEST_CASES = [
     ("CPU Core i9-14900K chạy ở xung nhịp 6,0 GHz nhưng nhiệt độ lên tới 95°C.",
      "<en>c p u</en> core i chín mười bốn nghìn chín trăm ca chạy ở xung nhịp sáu gi ga héc nhưng nhiệt độ lên tới chín mươi lăm độ xê."),
     ("Thông tin này được Tập đoàn Hóa chất Đức Giang (DGC) công bố hôm 19/3 - hai ngày sau khi Bộ Công an thông báo tạm giam ông Đào Hữu Huyền",
-     "thông tin này được tập đoàn hóa chất đức giang, <en>d g c</en>, công bố hôm mười chín tháng ba, hai ngày sau khi bộ công an thông báo tạm giam ông đào hữu huyền"),
+     "thông tin này được tập đoàn hóa chất đức giang, đê gờ xê, công bố hôm mười chín tháng ba, hai ngày sau khi bộ công an thông báo tạm giam ông đào hữu huyền"),
     ("Vi khuẩn kháng thuốc Methicillin-resistant Staphylococcus aureus (MRSA).",
      "vi khuẩn kháng thuốc methicillin resistant staphylococcus aureus, <en>m r s a</en>."),
     ("Dom Studio cho đăng tải tập 17 Skippy Toilet Multiverse với rất nhiều tinh tiết đáng chú ý và cả đáng sợ nữa.",

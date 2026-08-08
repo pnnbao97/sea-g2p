@@ -163,6 +163,9 @@ pub static ACRONYMS_EXCEPTIONS_VI: Lazy<HashMap<&'static str, &'static str>> = L
     m.insert("GTGT", "giá trị gia tăng"); m.insert("BCTC", "báo cáo tài chính");
     m.insert("ĐHĐCĐ", "đại hội đồng cổ đông"); m.insert("TGĐ", "tổng giám đốc");
     m.insert("PTGĐ", "phó tổng giám đốc"); m.insert("Cty", "công ty");
+    // The all-caps variant: only "Cty" was listed, so "CTY" fell through to the
+    // acronym branch and was spelled out instead of expanded.
+    m.insert("CTY", "công ty");
     m.insert("TNHH MTV", "trách nhiệm hữu hạn một thành viên");
     // Ministries written with "&". Masked early, since the special character
     // would otherwise be rewritten before the abbreviation is recognised.
@@ -172,6 +175,10 @@ pub static ACRONYMS_EXCEPTIONS_VI: Lazy<HashMap<&'static str, &'static str>> = L
     m.insert("TT&TT", "thông tin truyền thông"); m.insert("TTTT", "thông tin truyền thông");
     m.insert("VH-TT&DL", "văn hóa thể thao du lịch"); m.insert("VHTTDL", "văn hóa thể thao du lịch");
     m.insert("CT&XH", "chính trị xã hội");
+    // Broadcasting. Listing the compound lets the bare "PT" go to the English
+    // list, where the gym sense ("anh PT ở phòng tập") belongs.
+    m.insert("PT-TH", "phát thanh truyền hình");
+    m.insert("PTTH", "phát thanh truyền hình");
     // Document reference numbers.
     m.insert("TT-BYT", "tê tê bê y tê"); m.insert("CT-TTg", "xê tê tê tê giê");
     m.insert("UBND-VP", "uỷ ban nhân dân vê phê");
@@ -360,6 +367,8 @@ pub static WORD_LIKE_ACRONYMS: Lazy<HashSet<&'static str>> = Lazy::new(|| {
     let mut s = HashSet::new();
     let words = [
         "UNESCO", "NASA", "NATO", "ASEAN", "OPEC", "SARS", "FIFA", "UNIC", "RAM", "VRAM", "COVID", "IELTS", "STEM",
+        // "ROM" belongs beside "RAM": both are said as a syllable, not spelled.
+        "ROM",
         "ISO",
         // Sport, organisations, examinations, everyday life — all read as words.
         "UEFA", "EURO", "VAR", "ASIAD", "INTERPOL", "UNICEF",
@@ -409,10 +418,18 @@ pub static COMMON_EMAIL_DOMAINS: Lazy<HashMap<&'static str, &'static str>> = Laz
     m
 });
 
-/// Acronyms spelled with ENGLISH letter names. Doubles as the veto list for
-/// the dictionary-arbiter fallback: several of these are valid Vietnamese
-/// syllables whose lowercase form is a dictionary word (LA, CA, IT, AM, PM),
-/// and without an entry here they would be read as words.
+/// Acronyms spelled with ENGLISH letter names — the EXCEPTION list.
+///
+/// An unlisted all-caps token is spelled with Vietnamese letter names, because
+/// the long tail of acronyms in Vietnamese text is Vietnamese: CTV, BQL, TTHC,
+/// OCOP, CPTPP, UPU, CNC all read "xê tê vê", "bê qui lờ" and so on. What needs
+/// listing is the closed, high-frequency set that Vietnamese speakers really do
+/// read with English letters — computing, finance and global brands.
+///
+/// Doubles as the veto list for the dictionary-arbiter fallback: several of
+/// these are valid Vietnamese syllables whose lowercase form is a dictionary
+/// word (LA, CA, IT, AM, PM), and without an entry here they would be read as
+/// words.
 pub static ACRONYMS_SPELL_EN: &[&str] = &[
     "LA", "CA", "IT", "US", "UK", "AI", "ID", "IP", "PC", "TV", "CD", "DVD",
     "USB", "GPS", "SUV", "CEO", "CFO", "CTO", "GDP", "FBI", "CIA", "NBA",
@@ -424,14 +441,55 @@ pub static ACRONYMS_SPELL_EN: &[&str] = &[
     // already spells them correctly: several are one dictionary change away
     // from breaking — "MIT" sat in the common table and was read "mít".
     "MIT", "UCLA", "NYU", "USC", "RMIT", "NUS", "NTU", "ANU", "LSE",
-    "UN", "WHO", "WTO", "IMF", "ADB", "OECD", "UNDP", "UNHCR", "ILO", "IAEA",
+    // "WHO" and "WTO" are deliberately absent: Vietnamese reads both with
+    // Vietnamese letter names ("vê kép hát ô", "vê kép tê ô"), which is what
+    // the default now gives. The rest of the UN family stays English.
+    "UN", "IMF", "WB", "ADB", "OECD", "UNDP", "UNHCR", "ILO", "IAEA",
     "IBM", "BMW", "LG", "MSI", "AMD", "TSMC", "VW", "GM",
     "BBC", "CNN", "HBO", "MTV", "ESPN", "NFL", "MLB", "UFC", "PSG",
     "HSBC", "ANZ", "UOB", "DBS", "KFC",
+    // ── Added when the default flipped to Vietnamese letter names ───────────
+    // Everything below used to reach the English reading through the fallback.
+    // Computing and the web, where the English letters are what practitioners
+    // and advertising both say.
+    "API", "SDK", "CPU", "GPU", "SSD", "HDD", "OS", "SSL", "HTTP", "HTML",
+    "CSS", "SQL", "XML", "DNS", "LAN", "HDMI", "UI", "UX", "QR", "NFC",
+    "VR", "AR", "GPT", "LLM", "OCR", "SMS", "MMS", "CMS", "CRM", "ERP",
+    // Data sizes. "GB" is more often said "gi ga bai" than spelled at all;
+    // listing it here only preserves the previous reading rather than claiming
+    // it is right — a Fixed entry per unit would be the real fix.
+    "GB", "TB", "MB", "KB",
+    // Business, finance and currency codes.
+    "KPI", "OKR", "IPO", "NDA", "MOU", "SME", "CV", "MBA", "ROE",
+    "USD", "EUR", "GBP", "JPY", "CNY",
+    // Media, entertainment and remaining brands.
+    "MC", "VJ", "BTS", "ASMR", "AFK", "GPA", "CBRE", "KOL", "PT",
+    // Hardware, networking and medical imaging. Foreign coinages that never
+    // acquired a Vietnamese letter reading: "máy ATM", "máy CNC", "xét nghiệm
+    // PCR" and "dùng VPN" are all said with English letters.
+    "ATM", "VPN", "CNC", "PCR", "LCD", "RGB", "IPS", "VGA", "FPS",
+    "FTP", "SSH", "MRI", "CT", "ECG", "EEG", "ICU", "BMI", "IVF", "HPV",
+    // Economics and markets, where the English letters came in with the term.
+    "CPI", "FDI", "ODA", "FTA", "ETF", "ROA", "EPS", "EBITDA",
+    "ASR", "TTS", "AQI", "CTR", "ROAS", "ML", "DB", "RTX", "MRSA", "ASQ",
+    // "OT" (overtime) is another dictionary-arbiter casualty: "ot" is a valid
+    // syllable in the dictionary, so "làm OT tới khuya" came out "làm ot".
+    "OT",
+    // Clothing sizes, said in English on every label and in every shop.
+    "XS", "XL", "XXL", "XXS", "XXXL",
 ];
 
 /// Acronyms conventionally spelled with VIETNAMESE letter names.
-pub static ACRONYMS_SPELL_VI: &[&str] = &["VTV", "VTC", "HTV", "EU", "QĐ"];
+///
+/// Since Vietnamese letter names are now the default, an entry here is needed
+/// only to override an earlier branch that would otherwise claim the token —
+/// the dictionary arbiter reading "EU" as a word, say. Ordinary Vietnamese
+/// acronyms need no entry at all.
+/// "VAT" and "ROI" need their entries for the second reason: "vat" and "roi"
+/// are both valid Vietnamese syllables AND dictionary words, so the arbiter
+/// read "thuế VAT" and "đo ROI" as the words "vat" and "roi" rather than
+/// spelling "vê a tê" and "rờ ô i".
+pub static ACRONYMS_SPELL_VI: &[&str] = &["VTV", "VTC", "HTV", "EU", "QĐ", "VAT", "ROI"];
 
 /// The Vietnamese abbreviation table: one lookup façade with an explicit
 /// reading mode per entry, assembled from the data groups above

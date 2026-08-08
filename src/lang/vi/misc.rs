@@ -487,7 +487,24 @@ pub fn expand_weekday_abbr(text: &str) -> String {
     res
 }
 
-pub fn normalize_acronyms(text: &str) -> String {
+/// Spell a token out with Vietnamese letter names, reading any digit as a
+/// single figure: "CTV" -> "xê tê vê", "ST120K" -> "ét tê một hai không ca".
+fn spell_vi(word: &str) -> String {
+    word.chars()
+        .filter(|c: &char| c.is_alphanumeric())
+        .map(|c: char| {
+            if c.is_ascii_digit() {
+                n2w_single(&c.to_string())
+            } else {
+                let cl = c.to_lowercase().to_string();
+                VI_LETTER_NAMES.get(cl.as_str()).map(|n: &&str| n.to_string()).unwrap_or(cl)
+            }
+        })
+        .collect::<Vec<String>>()
+        .join(" ")
+}
+
+pub fn normalize_acronyms(text: &str, en_ctx: bool) -> String {
     let mut result = Vec::new();
     let re_split = &*RE_ACRONYMS_SPLIT;
 
@@ -540,6 +557,17 @@ pub fn normalize_acronyms(text: &str) -> String {
                         return format!("__start_en__{}__end_en__", word.to_lowercase());
                     }
                     Some(Reading::LettersNative) => {
+                        // Gated on sentence language, like Expand and Fixed: a
+                        // Vietnamese letter reading is a Vietnamese-sentence
+                        // reading. "I watched VTV last night" and "paid the
+                        // VAT" take English letters; "tối qua xem VTV" takes
+                        // "vê tê vê".
+                        if en_ctx {
+                            let spaced = word.chars()
+                                .map(|c: char| c.to_lowercase().to_string())
+                                .collect::<Vec<String>>().join(" ");
+                            return format!("__start_en__{}__end_en__", spaced);
+                        }
                         let parts: Vec<String> = word.chars()
                             .filter_map(|c: char| {
                                 let cl = c.to_lowercase().to_string();
@@ -608,6 +636,22 @@ pub fn normalize_acronyms(text: &str) -> String {
                     return res.join(" ");
                 }
 
+                // Unlisted all-caps ASCII token. The Vietnamese pipeline spells
+                // it with Vietnamese letter names — "CTV" -> "xê tê vê" —
+                // because the long tail of acronyms in Vietnamese text is
+                // Vietnamese (CTV, BQL, TTHC, OCOP, CPTPP). Tokens that must
+                // keep English letter names are the curated exception and live
+                // in ACRONYMS_SPELL_EN; before this, the default was the other
+                // way round and "mã OTP" came out "<en>o t p</en>".
+                //
+                // An English sentence flips the default back, using the same
+                // `en_ctx` gate as the Expand/Fixed stage: "The CTV team" keeps
+                // English letters, just as "The VN team" spells v-n rather than
+                // expanding to "việt nam".
+                if !en_ctx {
+                    let spelled = spell_vi(word);
+                    return if spelled.is_empty() { word.to_string() } else { spelled };
+                }
                 let spaced_word = word.chars().filter(|c: &char| c.is_alphanumeric()).map(|c: char| c.to_lowercase().to_string()).collect::<Vec<String>>().join(" ");
                 if !spaced_word.is_empty() { format!("__start_en__{}__end_en__", spaced_word) } else { word.to_string() }
             }).to_string();
@@ -795,7 +839,7 @@ pub fn normalize_others(text: &str, en_ctx: bool) -> String {
     res = RE_BRACKETS.replace_all(&res, ", $1, ").into_owned();
     res = RE_STRIP_BRACKETS.replace_all(&res, " ").into_owned();
     res = expand_temperatures(&res);
-    res = normalize_acronyms(&res);
+    res = normalize_acronyms(&res, en_ctx);
 
     res = RE_VERSION.replace_all(&res, |caps: &FCaps| {
         let parts: Vec<String> = caps.get(1).unwrap().as_str().split('.').map(|s: &str| {
