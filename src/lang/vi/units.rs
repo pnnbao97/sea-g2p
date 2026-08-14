@@ -216,24 +216,8 @@ pub fn expand_height_weight(text: &str) -> String {
 
 // ── Context for a single uppercase letter after a number ──────────────────
 // By default such a letter ("51M", "12B", "5S", "100K") marks an identifier and
-// is spelled out. A unit or magnitude reading requires one of the cues below.
-static MONEY_LEAD_WORDS: Lazy<std::collections::HashSet<&'static str>> = Lazy::new(|| {
-    // The LAST word of a money phrase sitting right before the number
-    // ("doanh thu" -> "thu", "thu nhập" -> "nhập", "đầu tư" -> "tư").
-    ["giá", "vé", "phí", "lương", "thưởng", "vốn", "quỹ", "thu", "chi", "lãi",
-     "lỗ", "nợ", "tiền", "cọc", "combo", "thầu", "tư", "nhập", "trả", "giảm",
-     "tặng", "đơn", "phạt", "ship",
-     // Verbs of price movement immediately before the number
-     // ("giá … lên 92M", "còn 500K").
-     "lên", "xuống", "còn", "đạt", "chạm", "về", "hết", "tốn", "tầm", "khoảng",
-     "gần", "hơn", "tới"].into_iter().collect()
-});
-static MONEY_AFTER_WORDS: Lazy<std::collections::HashSet<&'static str>> = Lazy::new(|| {
-    // A word right after the number-letter pair confirming money or bulk count.
-    ["usd", "vnd", "vnđ", "usdt", "eur", "euro", "gbp", "jpy", "cny", "đồng",
-     "đô", "lượt", "view", "views", "follower", "followers", "sub", "subs",
-     "người"].into_iter().collect()
-});
+// is spelled out. Only "L" still earns a unit reading from context; the money
+// cue lists that used to license M/B/K are gone with the magnitude reading.
 static CONTAINER_LEAD_WORDS: Lazy<std::collections::HashSet<&'static str>> = Lazy::new(|| {
     // A container or measuring verb before the number makes "L" mean litres
     // ("chai 2L", "bình 20L").
@@ -285,12 +269,13 @@ pub fn expand_units_and_currency(text: &str) -> String {
     // It becomes a unit only with context:
     //   - a DECIMAL number ("3.2M", "1.25B", "1.5L"), since identifiers have no
     //     fractional part;
-    //   - M/B/K with a money cue before ("lương 20M") or after ("5M USD",
-    //     "2B đồng") -> million / billion / thousand;
     //   - L with a container word before it ("chai 2L") -> litres.
-    // Two exceptions: "W" is always watts, as no common serial uses it, and "G"
-    // is never grams because "5G"/"4G" dominate real text. Lowercase always
-    // keeps the unit meaning ("24h", "450g", "30m", "15s").
+    // Three exceptions never take the unit reading: "W" is always watts, as no
+    // common serial uses it; "G" is never grams because "5G"/"4G" dominate real
+    // text; and M/B/K never become million/billion/thousand — one capital letter
+    // is too thin a basis for guessing a magnitude, and "một trăm ca" is what a
+    // Vietnamese reader says for "100k" anyway. Lowercase always keeps the unit
+    // meaning ("24h", "450g", "30m", "15s").
     let units_src = result.clone();
     result = RE_UNITS_WITH_NUM.replace_all(&units_src, |caps: &Captures| {
         let m0 = caps.get(0).unwrap();
@@ -303,12 +288,11 @@ pub fn expand_units_and_currency(text: &str) -> String {
         if is_upper_single && unit != "W" {
             let is_decimal = num.contains('.') || num.contains(',');
             let lead = last_word_before(&units_src, m0.start());
-            let after = first_word_after(&units_src, m0.end());
-            let money_ok = matches!(unit, "M" | "B" | "K")
-                && (MONEY_LEAD_WORDS.contains(lead.as_str())
-                    || MONEY_AFTER_WORDS.contains(after.as_str()));
             let liter_ok = unit == "L" && CONTAINER_LEAD_WORDS.contains(lead.as_str());
-            if unit == "G" || !(is_decimal || money_ok || liter_ok) {
+            // M/B/K join G here: never a unit, whatever the context. Without
+            // this, a decimal would still reach the table below, where "1.5M"
+            // would come out "một phẩy năm mét".
+            if matches!(unit, "G" | "M" | "B" | "K") || !(is_decimal || liter_ok) {
                 return m0.as_str().to_string();
             }
         }
@@ -327,13 +311,7 @@ pub fn expand_units_and_currency(text: &str) -> String {
             }
         }
 
-        let full = if unit == "M" {
-            "triệu"
-        } else if unit == "B" {
-            "tỷ"
-        } else if unit == "K" {
-            "nghìn"
-        } else if unit == "m" {
+        let full = if unit == "m" {
             "mét"
         } else {
             ALL_UNITS_MAP.get(&unit.to_lowercase()).map(|s: &String| s.as_str()).unwrap_or(unit)

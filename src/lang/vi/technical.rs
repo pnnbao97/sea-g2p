@@ -67,6 +67,54 @@ pub fn dict_has_vi(word: &str) -> bool {
         .unwrap_or(false)
 }
 
+/// Mark the single LETTERS in `s` as English and leave every word bare.
+///
+/// The normalizer does not decide a word's language; only letters. Three
+/// reasons, in the order they matter:
+///
+/// 1. A letter genuinely needs the marker. Stage 16 turns a bare single letter
+///    into a Vietnamese letter name, so "MI5" without it comes out "mờ i five"
+///    instead of ˈɛm ˈaɪ fˈaɪv.
+/// 2. A word does not. The dictionary already carries the language —
+///    "megapascal" and "nasa" read English with or without markup — and for a
+///    genuine homograph G2P picks from the nearest language anchor, which is
+///    usually right: "con voi to lắm" -> t̪ˈɔ, "i want to go home" -> tuː. A
+///    marked letter beside a word is itself such an anchor, which is why
+///    "<en>j</en> son" still gives dʒˈeɪ sˈʌn.
+/// 3. Where the anchor loses, the Vietnamese reading is acceptable anyway —
+///    "kỳ thi SAT" as "sát", "thẻ SIM" as "sim" — and a caller who wants
+///    otherwise can write the `<en>` tag by hand. That escape hatch is the
+///    user's, not the normalizer's.
+///
+/// Adjacent letters share one marker pair, so "washington d c" is marked once
+/// rather than twice and "b two b" keeps its "two" bare.
+pub fn en_marked(s: &str) -> String {
+    let toks: Vec<&str> = s.split_whitespace().collect();
+    if toks.is_empty() { return s.to_string(); }
+    let need: Vec<bool> = toks.iter()
+        .map(|t: &&str| t.chars().count() == 1)
+        .collect();
+    if !need.iter().any(|b: &bool| *b) { return toks.join(" "); }
+
+    let mut out: Vec<String> = Vec::new();
+    let mut run: Vec<&str> = Vec::new();
+    for (t, n) in toks.iter().zip(need.iter()) {
+        if *n {
+            run.push(t);
+        } else {
+            if !run.is_empty() {
+                out.push(format!("__start_en__{}__end_en__", run.join(" ")));
+                run.clear();
+            }
+            out.push(t.to_string());
+        }
+    }
+    if !run.is_empty() {
+        out.push(format!("__start_en__{}__end_en__", run.join(" ")));
+    }
+    out.join(" ")
+}
+
 // ── Vietnamese-style reading of paths, URLs and emails ──────────────────────
 // Vietnamese onsets without diacritics ("đ" folded to "d"). Longer strings come
 // first so they are tried first; the empty string last covers syllables with no
@@ -272,14 +320,14 @@ fn en_chunk(t: &str) -> String {
     if (t.chars().all(|c: char| c.is_uppercase()) && t.len() <= 4) || t.len() <= 2 {
         val = val.chars().map(|c: char| c.to_string()).collect::<Vec<String>>().join(" ");
     }
-    format!("__start_en__{}__end_en__", val)
+    en_marked(&val)
 }
 
 /// Email variant: local parts are always read as English words, short tokens
 /// included, so the Vietnamese branch is added only when `vi_ctx` holds.
 fn norm_letter_chunk_email(t: &str, vi_ctx: bool, _en_ctx: bool) -> String {
     let lw = t.to_lowercase();
-    if !vi_ctx { return format!("__start_en__{}__end_en__", lw); }
+    if !vi_ctx { return en_marked(&lw); }
     // Single letters and consonant-only runs take Vietnamese letter names,
     // checked before the dictionary, exactly as in paths.
     if lw.chars().count() == 1 || !lw.chars().any(|c: char| "aeiouy".contains(c)) {
@@ -422,7 +470,7 @@ pub fn normalize_technical(text: &str, vi_ctx: bool, en_ctx: bool) -> String {
                 } else {
                     protocol.to_lowercase()
                 };
-                res.push(format!("__start_en__{}__end_en__", p_norm));
+                res.push(en_marked(&p_norm));
                 if en_ctx {
                     res.push("colon slash slash".to_string());
                 }

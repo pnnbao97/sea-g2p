@@ -123,21 +123,33 @@ static RE_AMPERSAND_ACRONYM: Lazy<Regex> = Lazy::new(|| {
 // Clothing size labels REQUIRE "size" or "cỡ" in front (size M/L/XL, cỡ M).
 // With that cue, S/M/L/XL are labels read as letters rather than units, which
 // is what stops them becoming "triệu" or "lít".
+//
+// The letters are Vietnamese ones — "cỡ ích lờ", not "ex el" — matching what a
+// Vietnamese shopper says. An English sentence flips them back through the same
+// `en_ctx` gate the acronym table uses, so "I need size XL" still spells
+// English. Bare "XL" with no cue is not handled here at all: it reaches the
+// acronym branch, which now also defaults to Vietnamese letters, so the two
+// paths agree.
 static RE_SIZE_LABEL: Lazy<Regex> = Lazy::new(|| {
     Regex::new(r"(?i)\b(size|cỡ)\s+((?:xxxl|xxl|xl|xs|[sml])(?:\s*/\s*(?:xxxl|xxl|xl|xs|[sml]))*)\b").unwrap()
 });
 
-pub fn expand_size_labels(text: &str) -> String {
+pub fn expand_size_labels(text: &str, en_ctx: bool) -> String {
     RE_SIZE_LABEL.replace_all(text, |caps: &Captures| {
         let prefix = caps.get(1).unwrap().as_str();
         let spelled: Vec<String> = caps.get(2).unwrap().as_str()
             .split('/')
             .map(|s: &str| {
-                let letters = s.trim().to_lowercase().chars()
-                    .map(|c: char| c.to_string())
-                    .collect::<Vec<String>>()
-                    .join(" ");
-                format!("__start_en__{}__end_en__", letters)
+                let size = s.trim();
+                if en_ctx {
+                    let letters = size.to_lowercase().chars()
+                        .map(|c: char| c.to_string())
+                        .collect::<Vec<String>>()
+                        .join(" ");
+                    format!("__start_en__{}__end_en__", letters)
+                } else {
+                    spell_vi(size)
+                }
             })
             .collect();
         format!("{} {}", prefix, spelled.join(" "))
@@ -554,7 +566,7 @@ pub fn normalize_acronyms(text: &str, en_ctx: bool) -> String {
                 // regardless of stage order.
                 match VI_ABBREV.get(word) {
                     Some(Reading::WordEn) => {
-                        return format!("__start_en__{}__end_en__", word.to_lowercase());
+                        return crate::lang::vi::technical::en_marked(&word.to_lowercase());
                     }
                     Some(Reading::LettersNative) => {
                         // Gated on sentence language, like Expand and Fixed: a
@@ -677,9 +689,14 @@ pub fn expand_alphanumeric(text: &str) -> String {
     }).into_owned()
 }
 
-/// "R&D" and "R & D" become "<en>r and d</en>" for known English acronyms.
-/// Anything not on the list ("A & B") is left alone, so its "&" still reads
-/// "và".
+/// "R&D" and "R & D" become "<en>r</en> and <en>d</en>" for known English
+/// acronyms. Anything not on the list ("A & B") is left alone, so its "&" still
+/// reads "và".
+///
+/// Only the spelled letters carry the marker. "and" is a word the English side
+/// of the dictionary knows and the Vietnamese side does not, so it reads ænd on
+/// its own — and being an unambiguous English anchor, it is what keeps the
+/// letters around it English too.
 pub fn expand_english_ampersand(text: &str) -> String {
     RE_AMPERSAND_ACRONYM.replace_all(text, |caps: &Captures| {
         let l = caps.get(1).unwrap().as_str();
@@ -690,7 +707,9 @@ pub fn expand_english_ampersand(text: &str) -> String {
                 .map(|c: char| c.to_lowercase().to_string())
                 .collect::<Vec<String>>()
                 .join(" ");
-            format!(" __start_en__{} and {}__end_en__ ", spell(l), spell(r))
+            let marked = crate::lang::vi::technical::en_marked(
+                &format!("{} and {}", spell(l), spell(r)));
+            format!(" {} ", marked)
         } else {
             caps.get(0).unwrap().as_str().to_string()
         }
@@ -794,7 +813,8 @@ pub fn normalize_others(text: &str, en_ctx: bool) -> String {
 
     // Expand Roman numerals only with a cue word immediately before (thế kỷ,
     // chương, phần, đời, vua). Otherwise leave the run for the acronym branch,
-    // which reads "CD", "MC" and "XL" as English letters.
+    // which reads "CD" and "MC" as English letters and "XL" as the clothing
+    // size "ích lờ".
     let roman_src = res.clone();
     res = RE_ROMAN_NUMBER.replace_all(&roman_src, |caps: &FCaps| {
         let m = caps.get(0).unwrap();

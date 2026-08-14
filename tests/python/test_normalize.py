@@ -48,7 +48,7 @@ TEST_CASES = [
     ("1,299,495", "một triệu hai trăm chín mươi chín nghìn bốn trăm chín mươi lăm"),
     ("Trường hợp 1,23,4", "trường hợp một phẩy hai ba phẩy bốn"),
     ("Trường hợp 1,234,567", "trường hợp một triệu hai trăm ba mươi bốn nghìn năm trăm sáu mươi bảy"),
-    ("Tổng hợp gồm 1,000.00 USD và 1.000,00 EUR.", "tổng hợp gồm một nghìn <en>u s d</en> và một nghìn <en>euro</en>."),
+    ("Tổng hợp gồm 1,000.00 USD và 1.000,00 EUR.", "tổng hợp gồm một nghìn <en>u s d</en> và một nghìn euro."),
 
     # ══ 3. KÝ HIỆU KHOA HỌC & LŨY THỪA ═══════════════════════════════════════
     ("3.2e5 km", "ba chấm hai nhân mười mũ năm ki lô mét"),
@@ -143,7 +143,7 @@ TEST_CASES = [
     # Mã chữ-số: phần số ≥3 chữ số đọc từng chữ số như đọc mã.
     ("mã vé ABC-1234", "mã vé a bê xê một hai ba bốn"),
     # ...nhưng ≤2 chữ số vẫn đọc số đếm (COVID-19, U-23).
-    ("bệnh nhân COVID-19", "bệnh nhân <en>covid</en> mười chín"),
+    ("bệnh nhân COVID-19", "bệnh nhân covid mười chín"),
     ("đội U-23 Việt Nam", "đội u hai mươi ba việt nam"),
     # "#" + mã số: bỏ "thăng", đọc từng chữ số.
     ("đơn hàng #45021 đã rời kho", "đơn hàng bốn năm không hai một đã rời kho"),
@@ -170,7 +170,7 @@ TEST_CASES = [
     ("Ngày 3/5 tôi tính 1/2 + 1/2", "ngày ba tháng năm tôi tính một trên hai cộng một trên hai"),
     ("Vào ngày 20/10/2024, gia đình tôi đã quyết định tổ chức một buổi tiệc nhỏ", "vào ngày hai mươi tháng mười năm hai nghìn không trăm hai mươi bốn, gia đình tôi đã quyết định tổ chức một buổi tiệc nhỏ"),
     ("khoản 3 điều 45 nghị định 12/2021/NĐ-CP . 45/8000", "khoản ba điều bốn mươi lăm nghị định tháng mười hai năm hai nghìn không trăm hai mươi mốt trên nờ đê xê phê. bốn mươi lăm trên tám nghìn"),
-    ("Log lỗi: ERROR[2025-03-11T14:22:03Z].", "log lỗi, <en>error</en>, ngày mười một tháng ba năm hai nghìn không trăm hai mươi lăm tê mười bốn giờ hai mươi hai phút ba giây dét."),
+    ("Log lỗi: ERROR[2025-03-11T14:22:03Z].", "log lỗi, error, ngày mười một tháng ba năm hai nghìn không trăm hai mươi lăm tê mười bốn giờ hai mươi hai phút ba giây dét."),
 
     # ══ 6. THỜI GIAN ═════════════════════════════════════════════════════════
     ("14h30", "mười bốn giờ ba mươi phút"),
@@ -206,7 +206,7 @@ TEST_CASES = [
     ("$50", "năm mươi <en>u s d</en>"),
     ("200 USD", "hai trăm <en>u s d</en>"),
     ("500 VND", "năm trăm việt nam đồng"),
-    ("50 euro", "năm mươi <en>euro</en>"),
+    ("50 euro", "năm mươi euro"),
     ("1000đ", "một nghìn đồng"),
     ("Số tiền là 17.200 VNĐ", "số tiền là mười bảy nghìn hai trăm việt nam đồng"),
     ("75%", "bảy mươi lăm phần trăm"),
@@ -219,23 +219,23 @@ TEST_CASES = [
     ("5 triệu VND", "năm triệu việt nam đồng"),
     ("10 nghìn USD", "mười nghìn <en>u s d</en>"),
     ("8,92 tỷ USD", "tám phẩy chín hai tỷ <en>u s d</en>"),
-    ("€3,50", "ba phẩy năm <en>euro</en>"),
+    ("€3,50", "ba phẩy năm euro"),
     ("¥120000", "một trăm hai mươi nghìn yên"),
     ("Anh ta kiếm được ¥120000 mỗi tháng.", "anh ta kiếm được một trăm hai mươi nghìn yên mỗi tháng."),
     ("Giá là $50 cho mỗi sản phẩm.", "giá là năm mươi <en>u s d</en> cho mỗi sản phẩm."),
-    ("Phí dịch vụ là €10 mỗi người.", "phí dịch vụ là mười <en>euro</en> mỗi người."),
-    ("Giá là £5 mỗi cái.", "giá là năm <en>pound</en> mỗi cái."),
+    ("Phí dịch vụ là €10 mỗi người.", "phí dịch vụ là mười euro mỗi người."),
+    ("Giá là £5 mỗi cái.", "giá là năm pound mỗi cái."),
     ("Thưởng là ₩1000 cho bạn.", "thưởng là một nghìn won cho bạn."),
     ("Tôi mua nó với giá $1,299.99.", "tôi mua nó với giá một nghìn hai trăm chín mươi chín phẩy chín chín <en>u s d</en>."),
     ("Giá cổ phiếu tăng từ $0.000045 lên $1,234.5678 trong 3.5×10^6 giao dịch.", "giá cổ phiếu tăng từ không chấm không không không không bốn lăm <en>u s d</en> lên một nghìn hai trăm ba mươi bốn phẩy năm sáu bảy tám <en>u s d</en> trong ba chấm năm nhân mười mũ sáu giao dịch."),
-    ("Lợi nhuận đạt 1.25B USD trong Q4/2025 (+12.75%).", "lợi nhuận đạt một chấm hai lăm tỷ <en>u s d</en> trong quý bốn hai không hai lăm, cộng mười hai chấm bảy lăm phần trăm."),
+    ("Lợi nhuận đạt 1.25B USD trong Q4/2025 (+12.75%).", "lợi nhuận đạt một chấm hai lăm bê <en>u s d</en> trong quý bốn hai không hai lăm, cộng mười hai chấm bảy lăm phần trăm."),
     # Tiền lóng k / tr.
-    ("500k", "năm trăm nghìn"),
+    ("500k", "năm trăm ca"),
     ("1tr", "một triệu"),
     ("1tr5", "một triệu năm trăm nghìn"),
     ("15tr", "mười lăm triệu"),
     ("2tr3", "hai triệu ba trăm nghìn"),
-    ("giá 250k", "giá hai trăm năm mươi nghìn"),
+    ("giá 250k", "giá hai trăm năm mươi ca"),
 
     # ══ 9. ĐƠN VỊ ĐO LƯỜNG ═══════════════════════════════════════════════════
     ("50km", "năm mươi ki lô mét"),
@@ -257,19 +257,19 @@ TEST_CASES = [
     ("Đơn vị km", "đơn vị ki lô mét"),
     ("Căn hộ 75sqm.", "căn hộ bảy mươi lăm mét vuông."),
     ("Bể bơi 100cum.", "bể bơi một trăm mét khối."),
-    ("Trọng lượng 10lb.", "trọng lượng mười <en>pound</en>."),
-    ("Màn hình 24in.", "màn hình hai mươi bốn <en>inch</en>."),
+    ("Trọng lượng 10lb.", "trọng lượng mười pound."),
+    ("Màn hình 24in.", "màn hình hai mươi bốn inch."),
     ("Độ phân giải 300dpi.", "độ phân giải ba trăm <en>d p i</en>."),
     ("Độ pH của nước là 7.", "độ phê hát của nước là bảy."),
     ("Unit mix: 10km/h và 5m/s.", "unit mix, mười ki lô mét trên giờ và năm mét trên giây."),
-    ("3.46 USD/gallon", "ba chấm bốn sáu <en>u s d</en> trên <en>gallon</en>"),
+    ("3.46 USD/gallon", "ba chấm bốn sáu <en>u s d</en> trên gallon"),
     # Dữ liệu / điện tử.
-    ("Dung lượng 16GB.", "dung lượng mười sáu <en>gigabyte</en>."),
-    ("File nặng 50MB.", "file nặng năm mươi <en>megabyte</en>."),
-    ("Ổ cứng 1TB.", "ổ cứng một <en>terabyte</en>."),
-    ("RAM 8GB", "<en>ram</en> tám <en>gigabyte</en>"),
-    ("1Gbps", "một <en>gigabits per second</en>"),
-    ("Âm thanh 80db.", "âm thanh tám mươi <en>decibel</en>."),
+    ("Dung lượng 16GB.", "dung lượng mười sáu gigabyte."),
+    ("File nặng 50MB.", "file nặng năm mươi megabyte."),
+    ("Ổ cứng 1TB.", "ổ cứng một terabyte."),
+    ("RAM 8GB", "ram tám gigabyte"),
+    ("1Gbps", "một gigabits per second"),
+    ("Âm thanh 80db.", "âm thanh tám mươi decibel."),
     # Đơn vị điện ghép camelCase (kWh, mAh).
     ("5 kWh", "năm ki lô oát giờ"),
     ("3 mAh", "ba mi li am pe giờ"),
@@ -292,12 +292,12 @@ TEST_CASES = [
     ("khối 20m3", "khối hai mươi mét khối"),
     # Chữ HOA đơn dính sau SỐ NGUYÊN mặc định là mã hiệu -> đánh vần; chỉ đọc
     # đơn vị khi có ngữ cảnh: số thập phân, từ dẫn tiền (M/B/K), vật chứa (L).
-    ("vốn 5M", "vốn năm triệu"),          # "vốn" là từ dẫn tiền -> triệu
-    ("thương vụ 5M USD", "thương vụ năm triệu <en>u s d</en>"),
-    ("lương 20M một tháng", "lương hai mươi triệu một tháng"),
-    ("video đạt 5M lượt xem", "video đạt năm triệu lượt xem"),
-    ("quỹ đầu tư 2B đồng", "quỹ đầu tư hai tỷ đồng"),
-    ("giá 100K một ly", "giá một trăm nghìn một ly"),
+    ("vốn 5M", "vốn năm mờ"),          # "vốn" là từ dẫn tiền -> triệu
+    ("thương vụ 5M USD", "thương vụ năm mờ <en>u s d</en>"),
+    ("lương 20M một tháng", "lương hai mươi mờ một tháng"),
+    ("video đạt 5M lượt xem", "video đạt năm mờ lượt xem"),
+    ("quỹ đầu tư 2B đồng", "quỹ đầu tư hai bê đồng"),
+    ("giá 100K một ly", "giá một trăm ca một ly"),
     ("chai 2L nước ngọt", "chai hai lít nước ngọt"),
     # Không có ngữ cảnh -> mã hiệu, đánh vần chữ cái.
     ("căn hộ 51M", "căn hộ năm mươi mốt mờ"),
@@ -333,7 +333,7 @@ TEST_CASES = [
     ("kết quả 10-3 nghĩa là", "kết quả mười trừ ba nghĩa là"),
     ("tính 12-4 ra", "tính mười hai trừ bốn ra"),
     # Chênh lệch số chữ số > 1 -> không phải khoảng, giữ hai số.
-    ("RAM hệ thống là 128GB DDR5-6400.", "<en>ram</en> hệ thống là một trăm hai mươi tám <en>gigabyte</en> đê đê rờ năm sáu nghìn bốn trăm."),
+    ("RAM hệ thống là 128GB DDR5-6400.", "ram hệ thống là một trăm hai mươi tám gigabyte đê đê rờ năm sáu nghìn bốn trăm."),
     # Tỉ số thể thao -> đọc hai số rời.
     ("Việt Nam 2-1 Thái Lan", "việt nam hai một thái lan"),
     ("Arsenal 3-0 Chelsea", "arsenal ba không chelsea"),
@@ -372,12 +372,12 @@ TEST_CASES = [
     ("tỉ lệ nợ/vốn là 1:2:3.", "tỉ lệ nợ trên vốn là một trên hai trên ba."),
     ("tỷ lệ 2:1.", "tỷ lệ hai trên một."),
     ("tỉ số 3:2.", "tỉ số ba trên hai."),
-    ("mã ISO 9001:2015", "mã <en>iso</en> chín nghìn không trăm lẻ một, hai nghìn không trăm mười lăm"),
+    ("mã ISO 9001:2015", "mã iso chín nghìn không trăm lẻ một, hai nghìn không trăm mười lăm"),
     ("Tỉ lệ bản đồ 1:50.000.", "tỉ lệ bản đồ một, năm mươi nghìn."),
     ("Tại thời điểm 02:01, tỉ số trận đấu là 2:1 nhưng tỉ lệ cược là 1:2.5.", "tại thời điểm hai giờ một phút, tỉ số trận đấu là hai trên một nhưng tỉ lệ cược là một, hai chấm năm."),
     ("Vào lúc 10:30, chỉ số nợ/vốn là 1.5:1.", "vào lúc mười giờ ba mươi phút, chỉ số nợ trên vốn là một chấm năm, một."),
     ("Tỷ lệ P/E là 28.7x.", "tỷ lệ phê trên e là hai mươi tám chấm bảy ích."),
-    ("Tỉ số USD/EUR đang tăng.", "tỉ số <en>u s d</en> trên <en>euro</en> đang tăng."),
+    ("Tỉ số USD/EUR đang tăng.", "tỉ số <en>u s d</en> trên euro đang tăng."),
     ("AN/ASQ", "<en>a n</en> trên <en>a s q</en>"),
     # "91W": từ khi thêm đơn vị "w" -> "oát" (công suất "550 W"/"320W" phổ biến
     # hơn nhiều), chỉ số tốc độ lốp chấp nhận đọc "oát".
@@ -417,11 +417,12 @@ TEST_CASES = [
     ("quý iii", "quý iii"),
     ("lần di chuyển", "lần di chuyển"),
     ("lần vi phạm", "lần vi phạm"),
-    # Không có từ dẫn -> không đọc thành số La Mã. CD/DVD/MC/XL nằm trong danh
+    # Không có từ dẫn -> không đọc thành số La Mã. CD/DVD/MC nằm trong danh
     # sách đọc tiếng Anh; CIV và MIX không có tên nên theo mặc định tiếng Việt.
+    # XL là nhãn size, đọc chữ cái Việt.
     ("đĩa CD và đầu DVD", "đĩa <en>c d</en> và đầu <en>d v d</en>"),
     ("mã MC", "mã <en>m c</en>"),
-    ("size XL và XXL", "size <en>x l</en> và <en>x x l</en>"),
+    ("size XL và XXL", "size ích lờ và ích ích lờ"),
     ("CIV và MIX", "xê i vê và mờ i ích"),
     # Số thứ tự đề mục La Mã đầu dòng, kèm dấu "." -> đọc là số (không phải chữ cái).
     ("I. VỀ ĐỀ NGHỊ HUÂN CHƯƠNG LAO ĐỘNG",
@@ -475,7 +476,7 @@ TEST_CASES = [
     ("Ông ấy là PGS.TS ngành AI.", "ông ấy là phó giáo sư tiến sĩ ngành <en>a i</en>."),
 
     # ══ 16. ACRONYM / ALPHANUMERIC / CAMELCASE (tiếng Anh) ════════════════════
-    ("Mô hình B2B rất phổ biến.", "mô hình <en>b two b</en> rất phổ biến."),
+    ("Mô hình B2B rất phổ biến.", "mô hình <en>b</en> two <en>b</en> rất phổ biến."),
     ("Tôi dùng camera K3.", "tôi dùng camera ca ba."),
     ("camera K8", "camera ca tám"),
     ("i9-14900K", "i chín mười bốn nghìn chín trăm ca"),  # hậu tố model, không phải tiền lóng
@@ -504,7 +505,7 @@ TEST_CASES = [
     ("thuế VAT 10%", "thuế vê a tê mười phần trăm"),
     ("chạy quảng cáo mà không đo ROI", "chạy quảng cáo mà không đo rờ ô i"),
     # ROM đọc thành âm tiết như RAM, không đánh vần.
-    ("bộ nhớ ROM", "bộ nhớ <en>rom</en>"),
+    ("bộ nhớ ROM", "bộ nhớ rom"),
     ("khuyến cáo của WHO", "khuyến cáo của vê kép hát ô"),
     ("gia nhập WTO", "gia nhập vê kép tê ô"),
     ("làm OT tới khuya", "làm <en>o t</en> tới khuya"),
@@ -514,18 +515,18 @@ TEST_CASES = [
     ("Dự án VYE.", "dự án vê y e."),
     ("Chào mừng bạn đến với CTY.", "chào mừng bạn đến với công ty."),
     ("TÔI ĐI HỌC", "tôi đi học"),
-    ("Dữ liệu dạng JSON.", "dữ liệu dạng <en>j son</en>."),
+    ("Dữ liệu dạng JSON.", "dữ liệu dạng <en>j</en> son."),
     ("Chỉ số VN-Index giảm.", "chỉ số <en>v n</en> index giảm."),
-    ("Hệ điều hành MS DOS.", "hệ điều hành <en>m s dos</en>."),
-    ("Dùng MI5 và MI6.", "dùng <en>m i five</en> và <en>m i six</en>."),
-    ("Bảo mật 2FA.", "bảo mật <en>two f a</en>."),
-    ("Máy tính TX-0.", "máy tính <en>t x zero</en>."),
-    ("Thiết bị mã TX-0 vẫn còn trong bảo tàng.", "thiết bị mã <en>t x zero</en> vẫn còn trong bảo tàng."),
+    ("Hệ điều hành MS DOS.", "hệ điều hành <en>m s</en> dos."),
+    ("Dùng MI5 và MI6.", "dùng <en>m i</en> five và <en>m i</en> six."),
+    ("Bảo mật 2FA.", "bảo mật two <en>f a</en>."),
+    ("Máy tính TX-0.", "máy tính <en>t x</en> zero."),
+    ("Thiết bị mã TX-0 vẫn còn trong bảo tàng.", "thiết bị mã <en>t x</en> zero vẫn còn trong bảo tàng."),
     ("Phong cách thời trang Y2K đang quay trở lại mạnh mẽ.", "phong cách thời trang y hai ca đang quay trở lại mạnh mẽ."),
-    ("tôi đang ở Washington D.C", "tôi đang ở <en>washington d c</en>"),
-    ("tôi đang ở Washington DC", "tôi đang ở <en>washington d c</en>"),
-    ("chuẩn ISO", "chuẩn <en>iso</en>"),
-    ("máy ảnh ISO 400", "máy ảnh <en>iso</en> bốn trăm"),
+    ("tôi đang ở Washington D.C", "tôi đang ở washington <en>d c</en>"),
+    ("tôi đang ở Washington DC", "tôi đang ở washington <en>d c</en>"),
+    ("chuẩn ISO", "chuẩn iso"),
+    ("máy ảnh ISO 400", "máy ảnh iso bốn trăm"),
     # camelCase splitting.
     ("MixedCase Acronyms như ChatGPT hay Claude.", "mixed case acronyms như chat <en>g p t</en> hay claude."),
     ("getUserIDFromDB", "get user <en>i d</en> from <en>d b</en>"),
@@ -540,21 +541,23 @@ TEST_CASES = [
     ("plug-and-play", "plug and play"),
 
     # ══ 17. ACRONYM NỐI "&" ══════════════════════════════════════════════════
-    ("R&D", "<en>r and d</en>"),
-    ("R & D", "<en>r and d</en>"),
-    ("phòng R&D", "phòng <en>r and d</en>"),
-    ("AT&T", "<en>a t and t</en>"),
-    ("S&P 500", "<en>s and p</en> năm trăm"),
-    ("M&A", "<en>m and a</en>"),
+    ("R&D", "<en>r</en> and <en>d</en>"),
+    ("R & D", "<en>r</en> and <en>d</en>"),
+    ("phòng R&D", "phòng <en>r</en> and <en>d</en>"),
+    ("AT&T", "<en>a t</en> and <en>t</en>"),
+    ("S&P 500", "<en>s</en> and <en>p</en> năm trăm"),
+    ("M&A", "<en>m</en> and <en>a</en>"),
     ("A & B", "a và bê"),    # chữ cái thường -> "và"
     ("3 & 4", "ba và bốn"),
     ("A + B", "a cộng bê"),
     ("A = B", "a bằng bê"),
 
     # ══ 18. NHÃN SIZE QUẦN ÁO ═════════════════════════════════════════════════
-    ("size M/L/XL", "size <en>m</en> <en>l</en> <en>x l</en>"),
-    ("cỡ M", "cỡ <en>m</en>"),
-    ("size S/M/L", "size <en>s</en> <en>m</en> <en>l</en>"),
+    ("size M/L/XL", "size mờ lờ ích lờ"),
+    ("cỡ M", "cỡ mờ"),
+    ("size S/M/L", "size ét mờ lờ"),
+    # Câu tiếng Anh lật lại chữ cái Anh, cùng gate en_ctx với bảng viết tắt.
+    ("I need size XL please", "i need size <en>x l</en> please"),
     ("cỡ lớn", "cỡ lớn"),   # không phải nhãn size
 
     # ══ 19. CHỮ HOA & TỪ TIẾNG VIỆT VIẾT HOA ═════════════════════════════════
@@ -698,7 +701,7 @@ TEST_CASES = [
     # Email.
     ("Liên hệ qua email pnnbao@gmail.com nhé.", "liên hệ qua email phê nờ nờ bao a còng gmail chấm com nhé."),
     # Câu thuần Anh (không từ Việt) -> email đọc kiểu Anh ("at", "dot").
-    ("Email: contact@example.com", "email, <en>contact</en> at <en>example</en> dot <en>com</en>"),
+    ("Email: contact@example.com", "email, contact at example dot com"),
     ("Email công việc: admin@fpt.vn", "email công việc, admin a còng ép phê tê chấm vê nờ"),
     ("Liên hệ hotmail: test@hotmail.com", "liên hệ hotmail, test a còng hotmail chấm com"),
     ("Hãy gửi email đến support@example.com.", "hãy gửi email đến support a còng example chấm com."),
@@ -750,12 +753,12 @@ TEST_CASES = [
     ("Cty TNHH MTV của anh ấy có bốn nhân viên.", "công ty trách nhiệm hữu hạn một thành viên của anh ấy có bốn nhân viên."),
     ("TGĐ mới đổi quy trình, bà PTGĐ xuống xưởng.", "tổng giám đốc mới đổi quy trình, bà phó tổng giám đốc xuống xưởng."),
     ("Đọc BCTC trước kỳ ĐHĐCĐ nhé.", "đọc báo cáo tài chính trước kỳ đại hội đồng cổ đông nhé."),
-    ("Thi TOEIC và dự SEA Games, xem ASIAD.", "thi <en>toeic</en> và dự <en>sea games</en>, xem a si át."),
+    ("Thi TOEIC và dự SEA Games, xem ASIAD.", "thi toeic và dự sea games, xem a si át."),
     # Acronym quen đọc như TỪ (WORD_LIKE_ACRONYMS).
-    ("Trọng tài xem VAR trận EURO do UEFA tổ chức.", "trọng tài xem <en>var</en> trận <en>euro</en> do <en>uefa</en> tổ chức."),
-    ("FED tăng lãi suất khiến NASDAQ đỏ lửa.", "<en>fed</en> tăng lãi suất khiến <en>nasdaq</en> đỏ lửa."),
-    ("Gửi ảnh GIF qua WIFI nhé.", "gửi ảnh <en>gif</en> qua <en>wifi</en> nhé."),
-    ("Lắp thẻ SIM 1 vào khay, bật đèn LED lên.", "lắp thẻ <en>sim</en> một vào khay, bật đèn <en>led</en> lên."),
+    ("Trọng tài xem VAR trận EURO do UEFA tổ chức.", "trọng tài xem var trận euro do uefa tổ chức."),
+    ("FED tăng lãi suất khiến NASDAQ đỏ lửa.", "fed tăng lãi suất khiến nasdaq đỏ lửa."),
+    ("Gửi ảnh GIF qua WIFI nhé.", "gửi ảnh gif qua wifi nhé."),
+    ("Lắp thẻ SIM 1 vào khay, bật đèn LED lên.", "lắp thẻ sim một vào khay, bật đèn led lên."),
     ("Phiên tòa lừa đảo XKLĐ hôm qua.", "phiên tòa lừa đảo xuất khẩu lao động hôm qua."),
     ("Khoa CNTT và sàn TMĐT đang hot.", "khoa công nghệ thông tin và sàn thương mại điện tử đang hot."),
     # T2..T7/CN là thứ CHỈ KHI có từ dẫn thời gian; "Model T2" giữ nguyên.
@@ -763,7 +766,7 @@ TEST_CASES = [
     ("Lịch học từ T2 đến T6, nghỉ T7 và CN.", "lịch học từ thứ hai đến thứ sáu, nghỉ thứ bảy và chủ nhật."),
     ("Model T2 của hãng ra mắt.", "model tê hai của hãng ra mắt."),
     # Exception camelCase mask sớm: "arXiv" không bị xé "ar Xiv" (xiv = số La Mã).
-    ("Bài báo mới đăng trên arXiv hôm qua.", "bài báo mới đăng trên <en>arxiv</en> hôm qua."),
+    ("Bài báo mới đăng trên arXiv hôm qua.", "bài báo mới đăng trên arxiv hôm qua."),
     # Từ ghép toàn tiếng Anh ("ielts"+"zone") giữ khối, G2P tự cắt ở tầng phoneme.
     ("Trả kết quả qua ketqua.ieltszone.edu.vn?sbd=IZ0457 nhé.", "trả kết quả qua ket qua chấm ieltszone chấm ê đu chấm vê nờ hỏi chấm ét bê đê bằng i dét không bốn năm bảy nhé."),
     ("Gửi tới pnnbao@gmail.com nhé.", "gửi tới phê nờ nờ bao a còng gmail chấm com nhé."),
@@ -783,16 +786,16 @@ TEST_CASES = [
     ("The meeting starts at 10:30 tomorrow.", "the meeting starts at ten thirty tomorrow."),
     ("We got a 50% discount on Windows 11.", "we got a fifty percent discount on windows eleven."),
     ("The file is 2.5 MB.", "the file is two point five megabytes."),
-    ("Download it from github.com/user/project now.", "download it from <en>github</en> dot <en>com</en> slash <en>user</en> slash <en>project</en> now."),
+    ("Download it from github.com/user/project now.", "download it from github dot com slash user slash project now."),
     # Mẩu trơ không đủ từ tiếng Anh -> vẫn đọc kiểu Việt.
     ("Arsenal 3-0 Chelsea", "arsenal ba không chelsea"),
-    ("3.46 USD/gallon", "ba chấm bốn sáu <en>u s d</en> trên <en>gallon</en>"),
+    ("3.46 USD/gallon", "ba chấm bốn sáu <en>u s d</en> trên gallon"),
     ("Chuỗi có placeholder ___PROTECTED_EN_TAG_0___ để kiểm tra xung đột.", "chuỗi có placeholder protected en tag không để kiểm tra xung đột."),
-    ("Câu lệnh SQL: SELECT * FROM users WHERE id=1;", "câu lệnh <en>s q l</en>, <en>select</en> sao <en>from</en> users <en>where</en> id bằng một"),
+    ("Câu lệnh SQL: SELECT * FROM users WHERE id=1;", "câu lệnh <en>s q l</en>, select sao from users where id bằng một"),
     ("Cú pháp: [x**2 for x in range(10) if x%2 == 0] trong Python.", "cú pháp, ích sao sao hai for ích in range mười, if ích phần trăm hai bằng bằng không trong python."),
     ("WebAssembly (Wasm) cho phép chạy code C++ trên trình duyệt.", "web assembly, wasm, cho phép chạy code xê cộng cộng trên trình duyệt."),
     ("Triển khai Kubernetes (K8s) trên cụm server bare-metal.", "triển khai kubernetes, ca tám ét, trên cụm server bare metal."),
-    ("GPU NVIDIA RTX 4090 có 24GB GDDR6X VRAM.", "<en>g p u</en> <en>n v d a</en> <en>r t x</en> bốn nghìn không trăm chín mươi có hai mươi bốn <en>gigabyte</en> gờ đê đê rờ sáu ích <en>v ram</en>."),
+    ("GPU NVIDIA RTX 4090 có 24GB GDDR6X VRAM.", "<en>g p u</en> <en>n v d a</en> <en>r t x</en> bốn nghìn không trăm chín mươi có hai mươi bốn gigabyte gờ đê đê rờ sáu ích <en>v</en> ram."),
     ("Định luật bảo toàn năng lượng: E_in = E_out + ΔE_system.", "định luật bảo toàn năng lượng, e in bằng e out cộng đen ta e system."),
 
     # ══ 23. DẤU NHÁY / NGOẶC / DẤU CÂU ════════════════════════════════════════
@@ -872,11 +875,11 @@ TEST_CASES = [
     ("Nếu đã từng đọc cuốn sách trên của Simon, hoặc đã xem anh thuyết trình về khái niệm tại sao trên diễn đàn TED.com, thì có lẽ bạn không còn xa lạ với vòng tròn vàng.",
      "nếu đã từng đọc cuốn sách trên của simon, hoặc đã xem anh thuyết trình về khái niệm tại sao trên diễn đàn tê e đê chấm com, thì có lẽ bạn không còn xa lạ với vòng tròn vàng."),
     ("Dân số thế giới khoảng 7,888,000,000 người (~7.9B).",
-     "dân số thế giới khoảng bảy tỷ tám trăm tám mươi tám triệu người, khoảng bảy chấm chín tỷ."),
+     "dân số thế giới khoảng bảy tỷ tám trăm tám mươi tám triệu người, khoảng bảy chấm chín bê."),
     ("Latency trung bình chỉ ~42ms / request qua REST API.",
-     "latency trung bình chỉ khoảng bốn mươi hai mi li giây trên request qua <en>rest</en> <en>a p i</en>."),
+     "latency trung bình chỉ khoảng bốn mươi hai mi li giây trên request qua rest <en>a p i</en>."),
     ("Dataset gồm 3.2M samples (~1.8TB audio).",
-     "dataset gồm ba chấm hai triệu samples, khoảng một chấm tám <en>terabyte</en> audio."),
+     "dataset gồm ba chấm hai mờ samples, khoảng một chấm tám terabyte audio."),
     ("CPU Core i9-14900K chạy ở xung nhịp 6,0 GHz nhưng nhiệt độ lên tới 95°C.",
      "<en>c p u</en> core i chín mười bốn nghìn chín trăm ca chạy ở xung nhịp sáu gi ga héc nhưng nhiệt độ lên tới chín mươi lăm độ xê."),
     ("Thông tin này được Tập đoàn Hóa chất Đức Giang (DGC) công bố hôm 19/3 - hai ngày sau khi Bộ Công an thông báo tạm giam ông Đào Hữu Huyền",
