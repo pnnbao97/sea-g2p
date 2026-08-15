@@ -94,6 +94,71 @@ pub static MEASUREMENT_KEY_VI: Lazy<HashMap<&'static str, &'static str>> = Lazy:
     m
 });
 
+/// Chemical element symbols, used to tell a formula from a brand name.
+///
+/// `RE_ACRONYM` lets a capital carry one lowercase letter so that "NaCl" and
+/// "CaCO3" parse as element symbols rather than being split apart. The cost is
+/// that any camelCase whose segments are two characters long looks identical to
+/// a formula — "MoMo", "TiVi" and "ViVo" were all spelled out letter by letter.
+/// Checking the segments against this table separates the two.
+///
+/// Naturally occurring elements plus the synthetic ones that appear in ordinary
+/// text. The exotic tail (Nh, Mc, Ts, Og …) is left out deliberately: it never
+/// occurs in prose, and every symbol added is one more two-letter sequence that
+/// a brand name can collide with.
+pub static CHEMICAL_ELEMENTS: Lazy<HashSet<&'static str>> = Lazy::new(|| {
+    [
+        "H", "He", "Li", "Be", "B", "C", "N", "O", "F", "Ne",
+        "Na", "Mg", "Al", "Si", "P", "S", "Cl", "Ar", "K", "Ca",
+        "Sc", "Ti", "V", "Cr", "Mn", "Fe", "Co", "Ni", "Cu", "Zn",
+        "Ga", "Ge", "As", "Se", "Br", "Kr", "Rb", "Sr", "Y", "Zr",
+        "Nb", "Mo", "Tc", "Ru", "Rh", "Pd", "Ag", "Cd", "In", "Sn",
+        "Sb", "Te", "I", "Xe", "Cs", "Ba", "La", "Ce", "Pr", "Nd",
+        "Pm", "Sm", "Eu", "Gd", "Tb", "Dy", "Ho", "Er", "Tm", "Yb",
+        "Lu", "Hf", "Ta", "W", "Re", "Os", "Ir", "Pt", "Au", "Hg",
+        "Tl", "Pb", "Bi", "Po", "At", "Rn", "Fr", "Ra", "Ac", "Th",
+        "Pa", "U", "Np", "Pu", "Am", "Cm",
+    ].into_iter().collect()
+});
+
+/// Does `word` parse as a chemical formula — every segment an element symbol,
+/// with optional subscript digits?
+///
+/// Two conditions, and the second is what saves the brand names. A formula never
+/// writes the same TWO-LETTER symbol twice in a row: barium dioxide is "Ba₂", not
+/// "BaBa". Adjacent repeats of a one-letter symbol are ordinary, so the rule is
+/// restricted to two-letter ones — "CH3COOH" has its "OO" and must stay a
+/// formula. That leaves "MoMo", "BaBa" and "LaLa" free to be split like the
+/// camelCase they are.
+pub fn is_chemical_formula(word: &str) -> bool {
+    let chars: Vec<char> = word.chars().collect();
+    if chars.is_empty() || !word.is_ascii() { return false; }
+    let mut segs: Vec<&'static str> = Vec::new();
+    let mut i = 0usize;
+    while i < chars.len() {
+        if chars[i].is_ascii_digit() {
+            i += 1;
+            continue;
+        }
+        if !chars[i].is_ascii_uppercase() { return false; }
+        // Longest symbol first: "Cl" before "C", so "Cl" is not read as C + l.
+        let two: String = chars[i..(i + 2).min(chars.len())].iter().collect();
+        let one: String = chars[i..i + 1].iter().collect();
+        if two.len() == 2 && chars[i + 1].is_ascii_lowercase() {
+            match CHEMICAL_ELEMENTS.get(two.as_str()) {
+                Some(sym) => { segs.push(sym); i += 2; continue; }
+                None => return false,
+            }
+        }
+        match CHEMICAL_ELEMENTS.get(one.as_str()) {
+            Some(sym) => { segs.push(sym); i += 1; }
+            None => return false,
+        }
+    }
+    if segs.len() < 2 { return false; }
+    !segs.windows(2).any(|w: &[&str]| w[0].len() == 2 && w[0] == w[1])
+}
+
 pub static CURRENCY_KEY: Lazy<HashMap<&'static str, &'static str>> = Lazy::new(|| {
     let mut m = HashMap::new();
     m.insert("usd", "__start_en__u s d__end_en__"); m.insert("vnd", "việt nam đồng");

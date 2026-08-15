@@ -547,6 +547,18 @@ TEST_CASES = [
     ("ABC1k", "a bê xê một ca"),
     ("HbA1c", "hát bê a một xê"),
     ("HBA1C", "hát bê a một xê"),
+    # camelCase hai ký tự mỗi mảnh trông y hệt công thức hoá học. Chỉ giữ nguyên
+    # khi mọi mảnh đều là ký hiệu nguyên tố VÀ không có ký hiệu hai chữ nào lặp
+    # liền kề — công thức viết "Ba₂" chứ không viết "BaBa".
+    ("TiVi", "ti vi"),
+    ("MoMo", "mo mo"),
+    ("ZaLo", "za lo"),
+    ("BaBa", "ba ba"),
+    ("NaCl", "nờ a xê lờ"),
+    ("CaCO3", "xê a xê ô ba"),
+    ("NaHCO3", "nờ a hát xê ô ba"),
+    # "OO" trong nhóm -COOH là lặp ký hiệu MỘT chữ, vẫn là công thức hợp lệ.
+    ("CH3COOH", "xê hát ba xê ô ô hát"),
     # Cụm tiếng Anh nối gạch ngang -> tách bằng khoảng trắng, không đọc "gạch ngang".
     ("text-to-speech", "text to speech"),
     ("end-to-end", "end to end"),

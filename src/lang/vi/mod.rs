@@ -444,9 +444,20 @@ fn split_concatenated_terms(text: &str) -> String {
 
     re_potential.replace_all(text, |caps: &Captures| {
         let word = caps.get(0).unwrap().as_str();
+        // A token carrying lowercase letters only stays whole if it is really a
+        // chemical formula. RE_ACRONYM alone cannot tell "NaCl" from "TiVi" —
+        // both are two capitals each with one lowercase — so it used to protect
+        // the brand names too and the acronym branch spelled them out: "TiVi"
+        // read "tê i vê i", "MoMo" read "mờ ô mờ ô". All-caps tokens keep the
+        // old test; they never used the lowercase part of the pattern.
+        let protected = if word.chars().any(|c: char| c.is_ascii_lowercase()) {
+            crate::lang::vi::resources::is_chemical_formula(word)
+        } else {
+            re_acronym.is_match(word).unwrap_or(false)
+        };
         // Keep known camelCase units (kWh, mAh, mWh) whole so the unit pass can
         // match them. Splitting "kWh" into "k Wh" would be read "ca wh".
-        if re_acronym.is_match(word).unwrap_or(false)
+        if protected
             || MEASUREMENT_KEY_VI.contains_key(word.to_lowercase().as_str())
         {
             word.to_string()
