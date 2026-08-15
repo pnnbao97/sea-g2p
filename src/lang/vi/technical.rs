@@ -67,6 +67,14 @@ pub fn dict_has_vi(word: &str) -> bool {
         .unwrap_or(false)
 }
 
+/// Does the English side of the dictionary know `word`? A word it does not know
+/// cannot be read in English no matter what markup wraps it, and one it does
+/// know needs no markup — the stored phonemes already say whether the token is
+/// a word ("json" -> dʒˈeɪsˈɑːn) or an initialism ("sql" -> ˌɛskjˌuːˈɛl).
+pub fn dict_has_en(word: &str) -> bool {
+    NORM_DICT.get().map(|d| d.has_english(word)).unwrap_or(false)
+}
+
 /// Mark the single LETTERS in `s` as English and leave every word bare.
 ///
 /// The normalizer does not decide a word's language; only letters. Three

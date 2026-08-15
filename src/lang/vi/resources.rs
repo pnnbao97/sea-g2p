@@ -208,9 +208,17 @@ pub static TECHNICAL_TERMS: Lazy<HashMap<&'static str, &'static str>> = Lazy::ne
     // splitter produces "ar Xiv", and "xiv" hits a junk "roman fourteen"
     // dictionary entry. Forcing the lowercase form makes it read as one word.
     m.insert("arXiv", "arxiv");
-    // Initialisms conventionally read as words rather than spelled out.
-    m.insert("TOEIC", "toeic");
-    m.insert("UNICEF", "unicef");
+    // "SaaS" needs the same treatment for the same reason: the camel splitter
+    // cuts it at the a->S boundary into "Saa S", which read "saa ét". A Fixed
+    // key with a lowercase-to-uppercase transition is masked before that pass
+    // runs. WORD_LIKE_ACRONYMS cannot help here — RE_ACRONYM does not match
+    // "SaaS", so the token never reaches the abbreviation table at all.
+    m.insert("SaaS", "saas");
+    // "HbA1c" needs no entry despite the same shape: RE_ACRONYM now reaches past
+    // the lowercase letter that follows a digit, so it and the rest of the
+    // family — "SpO2", "PaO2", "FiO2", "PaCO2" — are spelled by the generic
+    // branch. "SaaS" stays because its lowercase run sits BEFORE the last
+    // capital, which no unit of that pattern can cross.
     m.insert("ASIAD", "a si át");
     m.insert("SEA Games", "sea games");
     m.insert("NVIDIA", "__start_en__n v d a__end_en__");
@@ -381,13 +389,26 @@ pub static WORD_LIKE_ACRONYMS: Lazy<HashSet<&'static str>> = Lazy::new(|| {
         "SEA",
         // Sport, organisations, examinations, everyday life — all read as words.
         "UEFA", "EURO", "VAR", "ASIAD", "INTERPOL", "UNICEF",
-        "TOEFL", "PISA", "STEAM", "SAT", "GMAT",
+        "TOEFL", "TOEIC", "PISA", "STEAM", "SAT", "GMAT",
+        // Said as a word in Vietnamese finance ("ê-bít-đa"), not spelled out;
+        // the English dictionary has it as ˈɛbɪtdə.
+        "EBITDA",
         "AIDS", "MERS", "ECMO", "LASIK",
         "FED", "NASDAQ", "UPCOM", "FOMO", "YOLO", "ASAP",
         "RADAR", "LASER", "LIDAR", "SONAR", "SCUBA", "GIF", "JPEG", "UNIX", "WIFI",
         "SIM", "LED", "VIP", "SPA", "GYM", "POS",
         "SWAT", "SEAL", "WASP", "COBOL", "BASIC", "OLED", "COVAX", "BRICS", "APEC", "VUCA", "PERMA", "DINK",
         "MENA", "EPIC", "OASIS", "BASE", "DART", "IDEA", "CHAOS", "SMART", "FANG", "BLEU", "REST", "ERROR",
+        // Machine learning and modern software, all said as words rather than
+        // spelled. "GAN" is the urgent one: "gan" is a valid syllable AND a
+        // Vietnamese dictionary word, so without an entry the arbiter read the
+        // network as the organ — the same trap that once made "MIT" -> "mít".
+        "SOTA", "BERT", "RAG", "ONNX", "ReLU", "ELO", "CAPTCHA",
+        // Pronounceable acronyms from other fields, spelled out until now:
+        // "ELISA" was "e lờ i ét a". "PET" is here rather than left to the
+        // arbiter because "pet" is not a Vietnamese word, so nothing else
+        // stops it being spelled.
+        "ELISA", "SCADA", "MOSFET", "NEET", "REIT", "EBIT", "GINI", "NSAID", "PET",
         "SELECT", "FROM", "WHERE", "ORDER", "BY", "LIMIT", "OFFSET", "GROUP", "HAVING", "JOIN", "LEFT", "RIGHT", 
         "INNER", "OUTER", "ON", "AS", "AND", "OR", "NOT", "IN", "BETWEEN", "LIKE", "IS", "NULL", "TRUE", "FALSE", 
         "CASE", "WHEN", "THEN", "ELSE", "END", "UNION", "INTERSECT", "EXCEPT", "DESC"
@@ -440,10 +461,17 @@ pub static COMMON_EMAIL_DOMAINS: Lazy<HashMap<&'static str, &'static str>> = Laz
 /// word (LA, CA, IT, AM, PM), and without an entry here they would be read as
 /// words.
 pub static ACRONYMS_SPELL_EN: &[&str] = &[
-    "LA", "CA", "IT", "US", "UK", "AI", "ID", "IP", "PC", "TV", "CD", "DVD",
+    // "LA", "CA" and "AN" are deliberately absent. Each is a Vietnamese word in
+    // disguise ("la", "ca", "an"), so a writer capitalising for emphasis — or
+    // meaning công an by "CA" — got an English spelling out of a Vietnamese
+    // sentence. Left off the list they fall to the dictionary arbiter and read
+    // as the Vietnamese words, which is the safer of the two wrong answers and
+    // usually the right one.
+    "IT", "US", "UK", "AI", "ID", "IP", "PC", "TV", "CD", "DVD",
     "USB", "GPS", "SUV", "CEO", "CFO", "CTO", "GDP", "FBI", "CIA", "NBA",
-    "DJ", "IQ", "EQ", "MV", "EP", "URL", "SEO", "AM", "PM",
-    "NY", "HP", "AN",
+    // "URL" is read "u rờ lờ" in Vietnamese, so it takes the default too.
+    "DJ", "IQ", "EQ", "MV", "EP", "SEO", "AM", "PM",
+    "NY", "HP",
     // Foreign universities, organisations and brands. Unlike BA/CO/MA (which
     // compete with real Vietnamese words), these have no Vietnamese reading
     // to lose, so pinning them costs nothing. Listed even when the fallback
@@ -479,8 +507,21 @@ pub static ACRONYMS_SPELL_EN: &[&str] = &[
     "ATM", "VPN", "CNC", "PCR", "LCD", "RGB", "IPS", "VGA", "FPS",
     "FTP", "MRI", "CT", "ECG", "EEG", "ICU", "BMI", "IVF", "HPV",
     // Economics and markets, where the English letters came in with the term.
-    "CPI", "FDI", "ODA", "FTA", "ETF", "ROA", "EPS", "EBITDA",
+    "CPI", "FDI", "ODA", "FTA", "ETF", "ROA", "EPS",
     "ASR", "TTS", "AQI", "CTR", "ROAS", "ML", "DB", "RTX", "MRSA", "ASQ",
+    // Machine learning initialisms. Spelled, but with ENGLISH letter names —
+    // Vietnamese practitioners say "eo-ét-ti-em", not "lờ ét tê mờ".
+    "LSTM", "RNN", "NLP", "TPU", "SLM", "WER", "CER", "VAE", "MoE",
+    // "LGBT" is said with English letters in Vietnamese too.
+    "LGBT",
+    // These are also vetoes: "pe", "dop", "sop" and "oem" are valid syllables
+    // the dictionary knows, so without an entry the arbiter read the finance
+    // ratio as "pe" and the standard procedure as "sop".
+    "PE", "DOP", "SOP", "OEM",
+    // "ODM" needs no veto — "odm" is not a syllable — but it travels with "OEM"
+    // in the same breath ("hàng OEM/ODM"), and one of the pair reading English
+    // letters while the other read Vietnamese ones was audible.
+    "ODM",
     // "OT" (overtime) is another dictionary-arbiter casualty: "ot" is a valid
     // syllable in the dictionary, so "làm OT tới khuya" came out "làm ot".
     "OT",

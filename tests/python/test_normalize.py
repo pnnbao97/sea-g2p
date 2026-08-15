@@ -378,7 +378,9 @@ TEST_CASES = [
     ("Vào lúc 10:30, chỉ số nợ/vốn là 1.5:1.", "vào lúc mười giờ ba mươi phút, chỉ số nợ trên vốn là một chấm năm, một."),
     ("Tỷ lệ P/E là 28.7x.", "tỷ lệ phê trên e là hai mươi tám chấm bảy ích."),
     ("Tỉ số USD/EUR đang tăng.", "tỉ số <en>u s d</en> trên euro đang tăng."),
-    ("AN/ASQ", "<en>a n</en> trên <en>a s q</en>"),
+    # "AN" không còn trong ACRONYMS_SPELL_EN: "an" là từ điển tiếng Việt nên
+    # trọng tài đọc thành từ, tránh việc viết hoa nhấn mạnh bị đọc kiểu Anh.
+    ("AN/ASQ", "an trên <en>a s q</en>"),
     # "91W": từ khi thêm đơn vị "w" -> "oát" (công suất "550 W"/"320W" phổ biến
     # hơn nhiều), chỉ số tốc độ lốp chấp nhận đọc "oát".
     ("Kích thước lốp xe 225/45R17 91W.", "kích thước lốp xe hai trăm hai mươi lăm trên bốn mươi lăm rờ mười bảy chín mươi mốt oát."),
@@ -496,7 +498,7 @@ TEST_CASES = [
     ("máy CNC", "máy <en>c n c</en>"),
     # Câu tiếng Anh lật mặc định trở lại, cùng cổng en_ctx với nhánh Expand.
     # Áp dụng cho cả mục khai báo LettersNative, không chỉ nhánh fallback.
-    ("The CTV team will join us", "the <en>c t v</en> team will join us"),
+    ("The CTV team will join us", "the ctv team will join us"),
     ("tối qua xem VTV", "tối qua xem vê tê vê"),
     ("I watched VTV last night and paid the VAT already",
      "i watched <en>v t v</en> last night and paid the <en>v a t</en> already"),
@@ -737,8 +739,8 @@ TEST_CASES = [
     ("Dịch vụ ở blogcongnghe.io nhé.", "dịch vụ ở blog cong nghe chấm i ô nhé."),
     ("Bản build ở buildserver.dev nhé.", "bản build ở buildserver chấm dev nhé."),
     # Câu thuần Anh KHÔNG Việt hóa viết tắt (VN giữ nguyên acronym chữ Anh).
-    ("The VN team beat Thailand in the final match.", "the <en>v n</en> team beat thailand in the final match."),
-    ("Our new office is located in TP.HCM near the river.", "our new office is located in <en>t p</en> dot <en>h c m</en> near the river."),
+    ("The VN team beat Thailand in the final match.", "the vn team beat thailand in the final match."),
+    ("Our new office is located in TP.HCM near the river.", "our new office is located in tp dot hcm near the river."),
     ("Đội tuyển VN thắng trận chung kết.", "đội tuyển việt nam thắng trận chung kết."),
     # Viết tắt hành chính/đời sống mở rộng.
     ("Tra cứu điểm GPLX trên cổng dịch vụ công.", "tra cứu điểm giấy phép lái xe trên cổng dịch vụ công."),
