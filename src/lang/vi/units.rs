@@ -157,7 +157,10 @@ static RE_UNITS_WITH_NUM: Lazy<Regex> = Lazy::new(|| {
 });
 
 static RE_STANDALONE_UNIT: Lazy<Regex> = Lazy::new(|| {
-    let safe = ["km", "cm", "mm", "kg", "mg", "usd", "vnd", "ph"];
+    // Units unambiguous enough to read even with no number in front. "mmhg" and
+    // "cmh2o" qualify for a reason the others do not: they are not Vietnamese
+    // words and not prefixes of one, so "chỉ số mmHg" cannot be anything else.
+    let safe = ["km", "cm", "mm", "kg", "mg", "usd", "vnd", "ph", "mmhg", "cmh2o"];
     Regex::new(&format!(r"(?i)(?<![\d.,])\b({})\b", safe.join("|"))).unwrap()
 });
 

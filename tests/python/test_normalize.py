@@ -1,3 +1,5 @@
+import re
+
 import pytest
 from sea_g2p import Normalizer
 
@@ -559,6 +561,17 @@ TEST_CASES = [
     ("NaHCO3", "nờ a hát xê ô ba"),
     # "OO" trong nhóm -COOH là lặp ký hiệu MỘT chữ, vẫn là công thức hợp lệ.
     ("CH3COOH", "xê hát ba xê ô ô hát"),
+    # Đơn vị viết kèm ký hiệu nguyên tố. Khoá đơn vị cũng chặn bộ tách cắt
+    # "mmHg" thành "mm" + "Hg", vốn làm mất phần thuỷ ngân.
+    ("Huyết áp 120/80 mmHg", "huyết áp một trăm hai mươi trên tám mươi mi li mét thuỷ ngân"),
+    ("Chỉ số mmHg bình thường", "chỉ số mi li mét thuỷ ngân bình thường"),
+    ("Áp lực 30 cmH2O", "áp lực ba mươi xen ti mét nước"),
+    # "CI" đi cặp với "CD"; thiếu entry thì một nửa đọc Việt, nửa kia đọc Anh.
+    ("Quy trình CI/CD", "quy trình <en>c i</en> trên <en>c d</en>"),
+    # Tiền tố micro từng bị bỏ mất -> sai một triệu lần.
+    ("Creatinin 80 µmol/L", "creatinin tám mươi mic rô mol trên lít"),
+    ("Nồng độ 5 mEq/L", "nồng độ năm <en>m e q</en> trên lít"),
+    ("Nhịp 80 bpm", "nhịp tám mươi <en>b p m</en>"),
     # Cụm tiếng Anh nối gạch ngang -> tách bằng khoảng trắng, không đọc "gạch ngang".
     ("text-to-speech", "text to speech"),
     ("end-to-end", "end to end"),
@@ -914,6 +927,27 @@ TEST_CASES = [
     ("Dom Studio cho đăng tải tập 17 Skippy Toilet Multiverse với rất nhiều tinh tiết đáng chú ý và cả đáng sợ nữa.",
      "dom studio cho đăng tải tập mười bảy skippy toilet multiverse với rất nhiều tinh tiết đáng chú ý và cả đáng sợ nữa."),
 ]
+
+
+def test_en_tags_wrap_letters_only(normalizer):
+    """Bất biến: tag <en> do normalizer SINH RA chỉ bọc chữ cái đơn.
+
+    Ngôn ngữ của một TỪ do từ điển và anchor của G2P quyết định — "megapascal"
+    và "nasa" đọc đúng dù không có tag, còn "con voi to lắm" vs "i want to go
+    home" thì G2P tự phân biệt. Chỉ chữ cái đơn mới thật sự cần tag, vì stage 16
+    sẽ biến nó thành tên chữ cái Việt nếu để trần.
+
+    Chạy trên toàn bộ corpus phía trên. Câu nào người dùng đã tự viết tag thì bỏ
+    qua: normalizer giữ nguyên văn phần đó, và đó là đường thoát cố ý.
+    """
+    offenders = []
+    for src, _ in TEST_CASES:
+        if "<en>" in src:
+            continue
+        for span in re.findall(r"<en>(.*?)</en>", normalizer.normalize(src)):
+            if any(len(tok) != 1 for tok in span.split()):
+                offenders.append((src, span))
+    assert not offenders, f"tag bọc TỪ chứ không phải chữ cái: {offenders[:5]}"
 
 
 @pytest.mark.parametrize("input_text, expected", TEST_CASES)

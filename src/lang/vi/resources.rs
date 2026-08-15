@@ -91,6 +91,19 @@ pub static MEASUREMENT_KEY_VI: Lazy<HashMap<&'static str, &'static str>> = Lazy:
     // out would give "tê rờ".
     // Compound electrical units written camelCase (mAh/Ah); kWh/Wh/mWh above.
     m.insert("mah", "mi li am pe giờ"); m.insert("ah", "am pe giờ");
+    // Pressure written with an element symbol. The key also stops the
+    // concatenation splitter cutting "mmHg" into "mm" + "Hg", which left the
+    // mercury unread: "120 mmHg" came out "một trăm hai mươi mi li mét hg".
+    // Longer keys are tried first, so this wins over the bare "mm".
+    m.insert("mmhg", "mi li mét thuỷ ngân");
+    m.insert("cmh2o", "xen ti mét nước");
+    // Micro prefix on the mole. Without the key the "µ" was dropped and
+    // "80 µmol/L" read "tám mươi mol trên lít" — a millionfold error.
+    m.insert("µmol", "mic rô mol"); m.insert("μmol", "mic rô mol");
+    // Read with English letters. The key also keeps the splitter off "mEq",
+    // which it would otherwise cut into "m" + "Eq" and read "mét eq".
+    m.insert("meq", "__start_en__m e q__end_en__");
+    m.insert("bpm", "__start_en__b p m__end_en__");
     m
 });
 
@@ -533,6 +546,9 @@ pub static ACRONYMS_SPELL_EN: &[&str] = &[
     // as the Vietnamese words, which is the safer of the two wrong answers and
     // usually the right one.
     "IT", "US", "UK", "AI", "ID", "IP", "PC", "TV", "CD", "DVD",
+    // "CI" travels with "CD" ("quy trình CI/CD"); without an entry the pair read
+    // "xê i trên c d", one half Vietnamese and the other English.
+    "CI",
     "USB", "GPS", "SUV", "CEO", "CFO", "CTO", "GDP", "FBI", "CIA", "NBA",
     // "URL" is read "u rờ lờ" in Vietnamese, so it takes the default too.
     "DJ", "IQ", "EQ", "MV", "EP", "SEO", "AM", "PM",
