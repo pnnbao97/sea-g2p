@@ -536,6 +536,17 @@ TEST_CASES = [
     ("setVolumeLevel", "set volume level"),
     ("iPhone", "i Phone"),
     ("ChatGPT", "chat <en>g p t</en>"),
+    # camelCase mà mỗi chữ hoa kèm ĐÚNG một chữ thường vẫn phải được tách, không
+    # được coi là viết tắt rồi đánh vần. RE_ACRONYM từng nuốt nhóm này khi đuôi
+    # chữ thường chưa bị ràng buộc phải đứng sau chữ số: "HaNoi" ra "hát a nờ ô i".
+    ("HaNoi", "ha noi"),
+    ("DaNang", "da nang"),
+    ("VnExpress", "vn express"),
+    # Ngược lại, <chữ><số><chữ thường> là mã và phải được đánh vần trọn vẹn —
+    # trước đây phần chữ đầu rơi ra ngoài: "ABC1k" ra "abc một ca".
+    ("ABC1k", "a bê xê một ca"),
+    ("HbA1c", "hát bê a một xê"),
+    ("HBA1C", "hát bê a một xê"),
     # Cụm tiếng Anh nối gạch ngang -> tách bằng khoảng trắng, không đọc "gạch ngang".
     ("text-to-speech", "text to speech"),
     ("end-to-end", "end to end"),

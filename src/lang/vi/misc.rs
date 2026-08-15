@@ -92,16 +92,21 @@ static RE_STANDALONE_LETTER: Lazy<FRegex> = Lazy::new(|| {
 /// An acronym, formula or code: at least two uppercase-initial units, each
 /// optionally carrying one lowercase letter and a run of digits.
 ///
-/// The trailing `[a-z]*` matters more than it looks. Without it the pattern
-/// could not reach past a lowercase letter that follows a digit, so "HbA1c",
-/// "mRNA1" and "XqZ1k" never matched and never entered the acronym branch at
-/// all. Nothing else claimed them either: the generic number pass then turned
-/// the "1" into "một" on its own, which split the token into three pieces and
-/// left the letters before it unspelled — "ABC1k" came out "abc một ca". Any
-/// token shaped `<letters><digit><lowercase>` was affected, not just the few
-/// that had been given table entries.
+/// The trailing group matters more than it looks. Without it the pattern could
+/// not reach past a lowercase letter that follows a digit, so "HbA1c" and
+/// "XqZ1k" never matched and never entered the acronym branch at all. Nothing
+/// else claimed them either: the generic number pass then turned the "1" into
+/// "một" on its own, which split the token into three pieces and left the
+/// letters before it unspelled — "ABC1k" came out "abc một ca".
+///
+/// The `(?<=\d)` on that group is what keeps it honest, and it is not optional.
+/// An unguarded `[a-z]*` also swallowed ordinary camelCase whose capitals each
+/// carry one lowercase letter — "HaNoi" parses as Ha|No plus a tail "i" — so
+/// this regex started claiming it, the concatenation splitter kept it whole on
+/// the strength of that match, and "HaNoi" came out "hát a nờ ô i". Requiring a
+/// digit immediately before the tail admits the codes and excludes the words.
 pub static RE_ACRONYM: Lazy<FRegex> = Lazy::new(|| {
-    FRegex::new(&format!(r"\b(?=[A-Z{}a-z{}0-9]*[A-Z{}])(?:[A-Z{}][a-z{}]?\d*){{2,}}[a-z{}]*\b", VI_UPPER, VI_UPPER, VI_UPPER, VI_UPPER, "đăâêôơư", "đăâêôơư")).unwrap()
+    FRegex::new(&format!(r"\b(?=[A-Z{}a-z{}0-9]*[A-Z{}])(?:[A-Z{}][a-z{}]?\d*){{2,}}(?:(?<=\d)[a-z{}]+)?\b", VI_UPPER, VI_UPPER, VI_UPPER, VI_UPPER, "đăâêôơư", "đăâêôơư")).unwrap()
 });
 static RE_VERSION: Lazy<FRegex> = Lazy::new(|| {
     FRegex::new(r"(?<![-\u2013\u2014])\b(\d+(?:\.\d+){2,})\b").unwrap()
