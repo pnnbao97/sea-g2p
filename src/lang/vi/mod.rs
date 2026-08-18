@@ -29,13 +29,24 @@
 //! | 16 | `letters` | Single letters → Vietnamese letter names | Last, otherwise it would swallow letters the stages above still need |
 //! | 17 | `finalize` | Unmask, restore tags, collapse whitespace | Must be last |
 //!
+//! # Before stage 0
+//!
+//! `Normalizer::normalize` runs three input-shaping passes before the staged
+//! pipeline sees anything: `sanitize_unicode` folds look-alike characters, NFC
+//! composes the result, and [`translit`] rewrites foreign Latin letters as
+//! their ASCII base (`Müller` -> `Muller`). All three exist so that no later
+//! stage has to know about a character it was never designed to read.
+//!
 //! # Invariant: nothing disappears in silence
 //!
 //! Any non-alphanumeric character reaching the end of the pipeline is deleted
 //! by `RE_CLEAN_OTHERS` **without a trace** — the root cause of a whole family
-//! of past defects (`∆` U+2206, `⁻` U+207B, `Σ`). The [`audit`] module lists
-//! such characters for a given input so tests catch them before production
-//! does. See [`audit::audit_unmapped`].
+//! of past defects (`∆` U+2206, `⁻` U+207B, `Σ`). Letters were not exempt:
+//! `RE_CLEAN_OTHERS` keeps only ASCII and Vietnamese ones, so a foreign letter
+//! was replaced by a **space** and split its own word in half. [`translit`]
+//! closes that hole for Latin script; the [`audit`] module lists the remaining
+//! characters for a given input so tests catch them before production does.
+//! See [`audit::audit_unmapped`].
 
 pub mod num2vi;
 pub mod num2en;
@@ -47,6 +58,7 @@ pub mod datestime;
 pub mod units;
 pub mod technical;
 pub mod misc;
+pub mod translit;
 pub mod audit;
 
 use pyo3::prelude::*;
@@ -1044,7 +1056,13 @@ impl Normalizer {
     pub fn normalize(&self, text: &str, punc_norm: bool) -> String {
         if text.is_empty() { return String::new(); }
 
-        let nfc_text: String = sanitize_unicode(text).nfc().collect();
+        // Composition first, then the foreign-letter fold: NFD input writes "ü"
+        // as u + U+0308, which the fold cannot see until the two are one
+        // character. Folding here — before any pass looks at the text — means
+        // "Müller" travels the pipeline as "Muller" and stays one word, instead
+        // of being cut into "M ller" by the final whitelist.
+        let composed: String = sanitize_unicode(text).nfc().collect();
+        let nfc_text: String = crate::lang::vi::translit::fold_foreign_letters(&composed);
         // Fold ellipses (… ‥ ․) to "." right away so they follow the same path
         // as "...". Any later and an earlier pass would have swallowed "…" as a
         // separator.

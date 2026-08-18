@@ -26,6 +26,7 @@ its own module.
 | `th_codeswitch.rs`, `th_repetition.rs`, `th_punctuation.rs` | Latin runs inside Thai, `ๆ`, punctuation |
 | `id_normalizer.rs`, `id_g2p.rs`, `id_syllable.rs` | the Indonesian pipeline |
 | `vi_audit.rs` | Vietnamese silent-deletion audit |
+| `vi_translit.rs` | folding foreign Latin letters onto their ASCII base |
 
 | file | covers |
 |---|---|

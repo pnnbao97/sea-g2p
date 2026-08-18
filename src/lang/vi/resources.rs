@@ -26,6 +26,13 @@ use std::collections::{HashMap, HashSet};
 use once_cell::sync::Lazy;
 use crate::core::abbrev::{AbbrevTable, Reading};
 
+/// Every letter of the Vietnamese alphabet that carries a diacritic, lowercase
+/// then uppercase. Two passes depend on this being the *complete* list:
+/// `RE_CLEAN_OTHERS` keeps exactly these (plus ASCII) and deletes the rest, and
+/// [`crate::lang::vi::translit`] refuses to fold them. A missing character
+/// would be silently deleted by the first and flattened by the second.
+pub const VI_LETTERS: &str = "àáảãạăắằẳẵặâấầẩẫậèéẻẽẹêếềểễệìíỉĩịòóỏõọôốồổỗộơớờởỡợùúủũụưứừửữựỳýỷỹỵđÀÁẢÃẠĂẮẰẲẴẶÂẤẦẨẪẬÈÉẺẼẸÊẾỀỂỄỆÌÍỈĨỊÒÓỎÕỌÔỐỒỔỖỘƠỚỜỞỠỢÙÚỦŨỤƯỨỪỬỮỰỲÝỶỸỴĐ";
+
 pub static VI_LETTER_NAMES: Lazy<HashMap<&'static str, &'static str>> = Lazy::new(|| {
     let mut m = HashMap::new();
     m.insert("a", "a"); m.insert("b", "bê"); m.insert("c", "xê");

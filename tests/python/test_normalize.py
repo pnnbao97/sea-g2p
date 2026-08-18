@@ -976,3 +976,44 @@ def test_natural_log_reads_as_log(normalizer, text, expected):
 
 def test_log_itself_is_unchanged(normalizer):
     assert normalizer.normalize("log x") == "log ích"
+
+
+# ── Chữ cái Latin nước ngoài ─────────────────────────────────────────────────
+# Whitelist cuối pipeline thay ký tự lạ bằng DẤU CÁCH, nên "Müller" từng bị cắt
+# thành "M ller" rồi đọc thành "mờ ller": mất dấu là chuyện nhỏ, sinh thêm ranh
+# giới từ mới là chuyện lớn. Nay ä/ö/ü... được ánh xạ về chữ Latin gốc nên từ
+# giữ nguyên hình dạng.
+FOREIGN_LETTER_CASES = [
+    ("Thủ môn Neuer chơi cho Bayern München",
+     "thủ môn neuer chơi cho bayern munchen"),
+    ("Hãng xe Škoda và Citroën", "hãng xe skoda và citroen"),
+    ("Thành phố Malmö ở Thụy Điển", "thành phố malmo ở thụy điển"),
+    # Chữ có nét gạch/ghép không phân rã được -> tra bảng.
+    ("Đường Straße dài 5 km", "đường strasse dài năm ki lô mét"),
+    ("Nhà vật lý Ørsted", "nhà vật lý orsted"),
+    # Dấu tiếng Việt trùng hình (ó, á) giữ nguyên; chỉ ő, ź bị fold.
+    ("Nhà toán học Erdős Pál", "nhà toán học erdos pál"),
+]
+
+
+@pytest.mark.parametrize("text,expected", FOREIGN_LETTER_CASES)
+def test_foreign_latin_letters_fold_to_ascii(normalizer, text, expected):
+    assert " ".join(normalizer.normalize(text).split()) == expected
+
+
+def test_decomposed_input_folds_too(normalizer):
+    """NFD viết "ü" thành u + U+0308: phải hợp thành rồi mới fold được."""
+    import unicodedata
+
+    assert normalizer.normalize(unicodedata.normalize("NFD", "Đại học Zürich")) ==         normalizer.normalize("Đại học Zürich") == "đại học zurich"
+
+
+def test_fold_does_not_touch_vietnamese_or_greek(normalizer):
+    """Bất biến: fold chỉ đụng chữ Latin ngoại lai.
+
+    Chữ Việt phân rã thành e + mũ + sắc nên nếu không chặn thì chính tiếng Việt
+    bị san phẳng; còn α/β đã có cách đọc riêng trong SYMBOLS_MAP.
+    """
+    assert normalizer.normalize("Đường phố Hà Nội, cà phê Buôn Ma Thuột") ==         "đường phố hà nội, cà phê buôn ma thuột"
+    assert normalizer.normalize("góc α bằng 30°") == "góc an pha bằng ba mươi độ"
+    assert normalizer.normalize("Bước sóng 5 µm") == "bước sóng năm mic rô mét"

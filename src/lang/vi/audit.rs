@@ -35,6 +35,7 @@
 
 use std::collections::HashSet;
 use once_cell::sync::Lazy;
+use unicode_normalization::UnicodeNormalization;
 
 use crate::lang::vi::resources::{
     SYMBOLS_MAP, SUPERSCRIPTS_MAP, SUBSCRIPTS_MAP, CURRENCY_SYMBOL_MAP,
@@ -93,7 +94,10 @@ pub fn audit_unmapped(text: &str) -> Vec<char> {
     // Mirror the pipeline: `sanitize_unicode` runs first and folds look-alike
     // characters (`℃` -> `°C`, `‐` -> `-`) into forms the rules recognise, so
     // auditing the raw input would report characters that never reach a pass.
-    let sanitized = crate::lang::vi::sanitize_unicode(text);
+    // Composition and the foreign-letter fold follow, in that order, for the
+    // same reason: by the time a pass runs, "ä" is "a".
+    let composed: String = crate::lang::vi::sanitize_unicode(text).nfc().collect();
+    let sanitized = crate::lang::vi::translit::fold_foreign_letters(&composed);
     let mut seen: HashSet<char> = HashSet::new();
     let mut out: Vec<char> = Vec::new();
     for c in sanitized.chars() {

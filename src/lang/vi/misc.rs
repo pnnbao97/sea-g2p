@@ -208,7 +208,9 @@ static RE_RATIO_MULTI: Lazy<FRegex> = Lazy::new(|| {
     FRegex::new(r"(?<![.,\d:])\d+(?::\d+){2,}(?![\d:])(?![.,]\d)").unwrap()
 });
 static RE_CLEAN_OTHERS: Lazy<Regex> = Lazy::new(|| {
-    Regex::new(r"[^a-zA-Z0-9\sàáảãạăắằẳẵặâấầẩẫậèéẻẽẹêếềểễệìíỉĩịòóỏõọôốồổỗộơớờởỡợùúủũụưứừửữựỳýỷỹỵđÀÁẢÃẠĂẮẰẲẴẶÂẤẦẨẪẬÈÉẺẼẸÊẾỀỂỄỆÌÍỈĨỊÒÓỎÕỌÔỐỒỔỖỘƠỚỜỞỠỢÙÚỦŨỤƯỨỪỬỮỰỲÝỶỸỴĐ.,!?_\'\'-]").unwrap()
+    // The Vietnamese letters come from resources::VI_LETTERS so that this
+    // whitelist and the foreign-letter fold read the same alphabet.
+    Regex::new(&format!(r"[^a-zA-Z0-9\s{}.,!?_\'\'-]", crate::lang::vi::resources::VI_LETTERS)).unwrap()
 });
 static RE_CLEAN_QUOTES: Lazy<Regex> = Lazy::new(|| {
     Regex::new(r#"[“”„]"#).unwrap()
