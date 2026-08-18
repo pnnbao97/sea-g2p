@@ -193,7 +193,7 @@ pub static CURRENCY_KEY: Lazy<HashMap<&'static str, &'static str>> = Lazy::new(|
 pub static ACRONYMS_EXCEPTIONS_VI: Lazy<HashMap<&'static str, &'static str>> = Lazy::new(|| {
     let mut m = HashMap::new();
     m.insert("CĐV", "cổ động viên"); m.insert("HĐND", "hội đồng nhân dân");
-    m.insert("HĐQT", "hội đồng quản trị"); m.insert("TAND", "toàn án nhân dân");
+    m.insert("HĐQT", "hội đồng quản trị"); m.insert("TAND", "tòa án nhân dân");
     m.insert("BHXH", "bảo hiểm xã hội"); m.insert("BHTN", "bảo hiểm thất nghiệp");
     m.insert("TP.HCM", "thành phố hồ chí minh"); m.insert("VN", "việt nam");
     m.insert("UBND", "uỷ ban nhân dân"); m.insert("TP", "thành phố");
