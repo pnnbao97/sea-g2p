@@ -52,6 +52,22 @@ fn quotes_brackets_and_dashes_are_dropped() {
 }
 
 #[test]
+fn mark_inside_a_quote_beats_the_one_after_it() {
+    // Dropping the quotes leaves «? ,» side by side; only the question mark
+    // may reach the TTS, or it reads two breaks where the writer put one.
+    assert_eq!(normalize("\"ไปไหน?\", เขาถาม"), "ไปไหน? เขาถาม");
+    // «?!» collapses the same way — there is no separate multi-bang rule here.
+    assert_eq!(normalize("\"ไปไหน?!\" เขาตะโกน"), "ไปไหน? เขาตะโกน");
+}
+
+#[test]
+fn marks_separated_by_a_newline_also_collapse() {
+    // The Thai pipeline flattens every newline to a space, so a mark ending
+    // one line and a comma opening the next land side by side all the same.
+    assert_eq!(normalize("จบแล้ว.\n, ต่อไป"), "จบแล้ว. ต่อไป");
+}
+
+#[test]
 fn slash_is_a_word() {
     assert!(normalize("ครึ่ง/หนึ่ง").contains("ทับ"));
 }

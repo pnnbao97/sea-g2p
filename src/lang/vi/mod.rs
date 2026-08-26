@@ -409,6 +409,12 @@ fn cleanup_whitespace(text: &str) -> String {
     res = RE_EXTRA_COMMAS.replace_all(&res, ",").into_owned();
     res = RE_COMMA_BEFORE_PUNCT.replace_all(&res, "$1").into_owned();
     res = RE_SPACE_BEFORE_PUNCT.replace_all(&res, "$1").into_owned();
+    // "domine? ," / "đi đâu? ." — the residual stage unwraps quotes and
+    // brackets into commas, which lands next to the mark that closed the
+    // quote. Only the strongest of the pair may reach the TTS. Must run AFTER
+    // RE_SPACE_BEFORE_PUNCT: that rule glues "?\n," into "?,", and a run the
+    // collapse never saw would be re-split into "? ," one line down.
+    res = crate::punc::collapse_punct_runs(&res);
     // Pattern now captures the char after punct; replace with "$1 $2" (insert space)
     res = RE_MISSING_SPACE_AFTER_PUNCT.replace_all(&res, "$1 $2").into_owned();
     res.trim().trim_matches(',').to_string()

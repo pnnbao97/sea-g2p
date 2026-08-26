@@ -449,7 +449,12 @@ fn stage_residual(text: &str) -> String {
     let out = RE_PAUSE.replace_all(text, ",");
     let out = RE_ELLIPSIS.replace_all(&out, ".");
     let out = RE_DROP.replace_all(&out, " ");
-    RE_SPACES.replace_all(&out, " ").trim().to_string()
+    // Dropping a quote can leave the mark inside it next to the mark after
+    // it ("...?" , -> ? ,); only the strongest of the pair survives. Runs
+    // after RE_SPACES so marks separated by a newline — flattened to a space
+    // by then — collapse too.
+    let out = RE_SPACES.replace_all(&out, " ");
+    crate::punc::collapse_punct_runs(&out).trim().to_string()
 }
 
 /// Normalize Thai text into a form the segmenter and G2P can read.

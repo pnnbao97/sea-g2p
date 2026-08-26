@@ -958,6 +958,33 @@ def test_normalize(normalizer, input_text, expected):
     assert actual_clean == expected_clean
 
 
+# ── Dấu câu đi liền nhau ─────────────────────────────────────────────────────
+# Gỡ ngoặc kép/ngoặc đơn để lại hai dấu cạnh nhau ("? ,", "? .") và mô hình TTS
+# đọc thành hai quãng nghỉ. Chỉ dấu MẠNH NHẤT được giữ lại (? > ! > . > ,).
+PUNCT_RUN_CASES = [
+    (
+        'có nghĩa là "Thầy đi đâu?". Cụm từ này được lưu truyền.',
+        "có nghĩa là thầy đi đâu? cụm từ này được lưu truyền.",
+    ),
+    (
+        'ông hỏi Chúa: "Quo vadis, Domine?" ("Lạy Chúa, Chúa đang đi đâu?"), Chúa Giêsu trả lời.',
+        "ông hỏi chúa, quo vadis, domine? lạy chúa, chúa đang đi đâu? chúa giêsu trả lời.",
+    ),
+    # Hai dấu bị ngăn bởi XUỐNG DÒNG cũng phải gộp: RE_SPACE_BEFORE_PUNCT dán
+    # ".\n," thành "., " trước, nên bước gộp phải chạy sau nó — nếu không thì
+    # "câu một. , chú thích" lại lọt ra qua ngả này.
+    (
+        'Câu một.\n("Chú thích dòng hai"), câu ba tiếp theo.',
+        "câu một. chú thích dòng hai, câu ba tiếp theo.",
+    ),
+]
+
+
+@pytest.mark.parametrize("text,expected", PUNCT_RUN_CASES)
+def test_adjacent_punctuation_keeps_only_the_strongest(normalizer, text, expected):
+    assert normalizer.normalize(text) == expected
+
+
 # ── Natural logarithm ────────────────────────────────────────────────────────
 # "ln" is a vowel-less pair of Latin letters, so the G2P stage spelled it as
 # English initials (ˌɛlˈɛn). It is rewritten to "log", which is how it is read

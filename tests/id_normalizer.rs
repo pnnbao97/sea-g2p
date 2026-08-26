@@ -20,6 +20,16 @@ fn rupiah_reads_the_amount_then_the_unit() {
 }
 
 #[test]
+fn mark_inside_a_quote_beats_the_one_after_it() {
+    // Dropping the quotes leaves «? ,» side by side; only the question mark
+    // may reach the TTS, or it reads two breaks where the writer put one.
+    assert_eq!(normalize("\"mau ke mana?\", tanyanya"), "mau ke mana? tanyanya");
+    // The pipeline flattens newlines to spaces, so marks split by one
+    // land side by side and must collapse the same way.
+    assert_eq!(normalize("selesai.\n, lanjut"), "selesai. lanjut");
+}
+
+#[test]
 fn chat_contractions_expand() {
     // yg and dgn look like pronounceable words to a rule engine
     assert_eq!(normalize("yg penting tdk lupa dgn tugasnya"),

@@ -17,9 +17,58 @@
 //!
 //! These are pure string operations with no language dependency, shared by both
 //! `Normalizer` and `G2P`.
+//!
+//! The module also owns [`collapse_punct_runs`], the rule every language's
+//! final cleanup applies: two punctuation marks separated only by spaces
+//! collapse to the single strongest one.
 
 use once_cell::sync::Lazy;
 use regex::Regex;
+
+/// A run of two or more pause/terminator marks separated only by spaces or
+/// tabs: `? ,` — `? .` — `. ,`. These appear when a quoted or bracketed span
+/// is unwrapped: the mark that closed the quote and the mark that followed it
+/// end up side by side, and a TTS model reads two prosodic breaks where the
+/// writer put one. Newlines deliberately do not join a run — a mark ending one
+/// line and a mark opening the next are separate boundaries.
+static RE_PUNCT_RUN: Lazy<Regex> =
+    Lazy::new(|| Regex::new(r"[.,!?;:](?:[ \t]*[.,!?;:])+").unwrap());
+
+/// Strength of a mark when two collide. The question mark carries intonation
+/// the sentence loses without it; the exclamation carries emphasis; the period
+/// a full stop. `;` and `:` rank with the comma — every pipeline folds them to
+/// one before this rule runs, so they only appear here as a safety net.
+fn punct_rank(c: char) -> u8 {
+    match c {
+        '?' => 3,
+        '!' => 2,
+        '.' => 1,
+        _ => 0,
+    }
+}
+
+/// Collapse every space-separated run of punctuation marks to its single
+/// strongest mark: `"domine? ,"` -> `"domine?"`, `"đi đâu? ."` -> `"đi đâu?"`,
+/// `"nữa, ."` -> `"nữa."`.
+///
+/// The strongest survives — not the first or the last — because that is the
+/// mark the sentence cannot afford to lose: dropping a stray comma changes
+/// nothing, dropping the `?` flattens a question into a statement. On equal
+/// strength the first mark wins.
+pub fn collapse_punct_runs(text: &str) -> String {
+    RE_PUNCT_RUN
+        .replace_all(text, |caps: &regex::Captures| {
+            caps.get(0)
+                .unwrap()
+                .as_str()
+                .chars()
+                .filter(|c: &char| !c.is_whitespace())
+                .reduce(|best, c| if punct_rank(c) > punct_rank(best) { c } else { best })
+                .unwrap()
+                .to_string()
+        })
+        .into_owned()
+}
 
 /// Word count at or below which a sentence counts as "short" (under five).
 const SHORT_SENTENCE_MAX_WORDS: usize = 4;

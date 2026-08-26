@@ -1,6 +1,60 @@
 //! Integration tests for the shared trailing-punctuation rule.
 
-use sea_g2p_rs::punc::apply_punc_norm;
+use sea_g2p_rs::punc::{apply_punc_norm, collapse_punct_runs};
+
+// ── collapse_punct_runs: adjacent marks keep only the strongest ────────────
+
+#[test]
+fn comma_after_question_mark_is_dropped() {
+    // "quo vadis, domine?" ("lạy chúa…") — unwrapping quote and bracket left
+    // «? ,» and the model read two breaks.
+    assert_eq!(
+        collapse_punct_runs("quo vadis, domine? , lạy chúa"),
+        "quo vadis, domine? lạy chúa"
+    );
+}
+
+#[test]
+fn period_after_question_mark_is_dropped() {
+    assert_eq!(
+        collapse_punct_runs("nghĩa là thầy đi đâu? . cụm từ này"),
+        "nghĩa là thầy đi đâu? cụm từ này"
+    );
+}
+
+#[test]
+fn strongest_mark_wins_regardless_of_order() {
+    assert_eq!(collapse_punct_runs("xong, . tiếp"), "xong. tiếp");
+    assert_eq!(collapse_punct_runs("xong. , tiếp"), "xong. tiếp");
+    assert_eq!(collapse_punct_runs("thật à, ! ừ"), "thật à! ừ");
+    assert_eq!(collapse_punct_runs("sao, . ? ba dấu"), "sao? ba dấu");
+}
+
+#[test]
+fn adjacent_marks_without_space_also_collapse() {
+    assert_eq!(collapse_punct_runs("domine?,"), "domine?");
+    assert_eq!(collapse_punct_runs("rồi,,"), "rồi,");
+}
+
+#[test]
+fn single_marks_are_untouched() {
+    assert_eq!(
+        collapse_punct_runs("một, hai, và ba. hết chưa? rồi!"),
+        "một, hai, và ba. hết chưa? rồi!"
+    );
+}
+
+#[test]
+fn runs_do_not_cross_newlines() {
+    // A mark ending one line and a mark opening the next are separate
+    // boundaries, not one run.
+    assert_eq!(
+        collapse_punct_runs("dòng một.\n, dòng hai"),
+        "dòng một.\n, dòng hai"
+    );
+}
+
+// ── apply_punc_norm: the trailing-punctuation rule ─────────────────────────
 #[test]
 fn long_sentence_gets_dot_when_missing() {
     assert_eq!(

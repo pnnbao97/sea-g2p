@@ -383,7 +383,12 @@ fn stage_residual(text: &str) -> String {
     let out = RE_APOSTROPHE.replace_all(&out, "$1$2");
     let out = strip_non_word_hyphens(&out);
     let out = RE_DROP.replace_all(&out, " ");
-    RE_SPACES.replace_all(&out, " ").trim().to_string()
+    // Dropping a quote can leave the mark inside it next to the mark after
+    // it ("...?" , -> ? ,); only the strongest of the pair survives. Runs
+    // after RE_SPACES so marks separated by a newline — flattened to a space
+    // by then — collapse too.
+    let out = RE_SPACES.replace_all(&out, " ");
+    crate::punc::collapse_punct_runs(&out).trim().to_string()
 }
 
 /// Normalize Indonesian text into a form the G2P stage can read.
