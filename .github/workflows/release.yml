@@ -85,6 +85,64 @@ jobs:
           name: wheels-macos-${{ matrix.target }}
           path: dist
 
+  # The C ABI (src/capi.rs) is what a non-Rust host links against — audio.cpp
+  # loads it at runtime to read Vietnamese text. Ship it with the release so
+  # such a host does not need a Rust toolchain to get it.
+  capi:
+    name: C ABI (${{ matrix.name }})
+    strategy:
+      matrix:
+        include:
+          - { os: ubuntu-latest,  name: linux-x86_64,  artifact: libsea_g2p_rs.so }
+          - { os: windows-latest, name: windows-x86_64, artifact: sea_g2p_rs.dll }
+          - { os: macos-latest,   name: macos-aarch64, artifact: libsea_g2p_rs.dylib }
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build
+        run: cargo build --release --no-default-features --features capi
+      - name: Stage
+        shell: bash
+        run: |
+          mkdir -p capi
+          cp "target/release/${{ matrix.artifact }}" "capi/"
+          cp include/sea_g2p.h capi/ 2>/dev/null || true
+      - name: Upload
+        uses: actions/upload-artifact@v4
+        with:
+          name: capi-${{ matrix.name }}
+          path: capi
+
+  capi_release:
+    name: Attach the C ABI libraries to the release
+    needs: [capi, release]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: capi-*
+          path: capi
+      - name: Name each file after its platform
+        shell: bash
+        run: |
+          mkdir -p upload
+          for dir in capi/capi-*; do
+            platform="${dir#capi/capi-}"
+            for file in "$dir"/*; do
+              base="$(basename "$file")"
+              case "$base" in
+                *.h) cp "$file" "upload/$base" ;;
+                *) cp "$file" "upload/${base%.*}-${platform}.${base##*.}" ;;
+              esac
+            done
+          done
+          ls -l upload
+      - uses: softprops/action-gh-release@v1
+        with:
+          files: upload/*
+
   sdist:
     runs-on: ubuntu-latest
     steps:

@@ -4,6 +4,7 @@
 
 Fast multilingual text-to-phoneme converter for South East Asian languages.  
 **Vietnamese**, **Thai** and **Indonesian**, all with **English** code-switching.  
+Usable from **Python** (pip) and from **C / C++** (a C ABI over the same Rust core).  
 >**Author**: [Pham Nguyen Ngoc Bao](https://github.com/pnnbao97)
 
 ## 🚀 Used By
@@ -19,6 +20,9 @@ By using SEA-G2P, VieNeu-TTS achieves high-fidelity pronunciation and seamless V
 ```bash
 pip install sea-g2p
 ```
+
+For C or C++, see [Using it from C / C++](#using-it-from-c--c): a release carries
+the shared library for Linux, Windows and macOS, or one cargo command builds it.
 
 ## Usage
 
@@ -123,11 +127,66 @@ print(phonemes)
 #['zˈaːɜ kˈo4 fˈiɛɜw t̪ˈaŋ t̪ˌy2 xˌoŋ tʃˈəɜm xˌoŋ xˌoŋ xˌoŋ xˌoŋ bˈoɜn lˈam jˈuː ˈɛs dˈiː lˈen mˈo6t̪ ŋˈi2n hˈaːj tʃˈam bˈaː mˈyəj bˈoɜn fˈəɪ4 nˈam sˈaɜw bˈa4j t̪ˈaːɜm jˈuː ˈɛs dˈiː tʃˈɔŋ bˈaː tʃˈəɜm nˈam ɲˈən mˈyə2j mˈu5 sˈaɜw zˈaːw zˈi6c.', 'hˈa5j ɣˈy4j ˈiːmeɪl ɗˌeɜn səpˈɔːɹt ˈaː kˈɔ2ŋ ɛɡzˈæmpəl tʃˈəɜm kˈɔm.']
 ```
 
+## Using it from C / C++
+
+A host that is not Python — a C++ TTS runtime, a mobile app, a game engine — can
+call the same Rust core through a C ABI instead of carrying a second copy of the
+rules. That matters more than it sounds: two implementations of Vietnamese
+normalisation drift apart the first time either one is corrected, and the drift
+shows up as a mispronunciation nobody can trace.
+
+Take `libsea_g2p_rs.{so,dylib}` / `sea_g2p_rs.dll` and `sea_g2p.h` from a
+[release](https://github.com/pnnbao97/sea-g2p/releases), or build them:
+
+```bash
+cargo build --release --no-default-features --features capi
+# target/release/{libsea_g2p_rs.so | sea_g2p_rs.dll | libsea_g2p_rs.dylib}
+```
+
+```c
+#include "sea_g2p.h"
+#include <stdio.h>
+
+int main(void) {
+    sea_g2p *g = sea_g2p_open("sea_g2p.bin");          /* the dictionary */
+    if (!g) { fprintf(stderr, "%s\n", sea_g2p_last_error()); return 1; }
+
+    char *phonemes = sea_g2p_phonemize(g, "Tỉ lệ giải ngân đạt 68,5% kế hoạch năm.", 1);
+    printf("%s\n", phonemes);
+    /* t̩ˈi4 lˈe6 zˈaː4j ŋˈən ɗˈaː6t̩ sˈaɜw mˈyəj t̩ˈaːɜt̩ ... */
+
+    sea_g2p_string_free(phonemes);
+    sea_g2p_close(g);
+    return 0;
+}
+```
+
+```bash
+cc -I include app.c -L target/release -lsea_g2p_rs -o app
+```
+
+`sea_g2p_normalize()` gives normalisation without G2P — the length a chunker
+should measure, since what matters is the length after "3,5 triệu" has become
+words. `sea_g2p_punc_norm()` is the trailing-punctuation rule on its own.
+
+The surface is six functions, documented in
+[`include/sea_g2p.h`](include/sea_g2p.h). Strings are UTF-8 both ways and owned
+by the caller (`sea_g2p_string_free`); a failing call returns NULL and leaves a
+per-thread message in `sea_g2p_last_error()`; Rust panics are caught at the
+boundary rather than unwound into C. The library can also be loaded at runtime,
+which is how [audio.cpp](https://github.com/0xShug0/audio.cpp) reads Vietnamese
+text for VieNeu-TTS without a build dependency on Rust.
+
+The Python package is unaffected: `python` is the default cargo feature and the
+wheels are built exactly as before.
+
 ## Features
 
 - **Blazing Fast**: Core engine rewritten in Rust with binary mmap lookup.
 - **Multithreading**: Automatic parallel processing using Rayon/Rust for batch inputs.
 - **Zero Dependency**: Pre-compiled wheels for Windows, Linux, and macOS.
+- **Callable from C / C++**: the same engine behind a small C ABI, so a native
+  host phonemizes through this crate instead of reimplementing it.
 - **Smart Normalization**: Staged pipelines per language — 17 stages for
   Vietnamese (numbers, dates, units, formulas, technical terms), 8 for Thai
   (Thai digits ๐-๙, Buddhist-era dates, `ๆ` repetition, abbreviation table).
@@ -210,5 +269,6 @@ To install for development purposes:
 3. Run the tests:
    ```bash
    cargo test --release      # Rust integration tests
+   cargo test --release --no-default-features --features capi   # the same, without PyO3
    python -m pytest tests/   # Python end-to-end tests
    ```
