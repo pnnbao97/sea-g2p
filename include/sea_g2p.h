@@ -45,8 +45,8 @@ int sea_g2p_abi_version(void);
  * successful one. Borrowed: valid until the next failing call on this thread. */
 const char *sea_g2p_last_error(void);
 
-/* Opens `sea_g2p.bin` (the dictionary shipped with the Python package) and
- * returns a handle, or NULL on failure. */
+/* Opens `sea_g2p.bin` — the dictionary, carried inside the Python wheel and
+ * attached to every GitHub release — and returns a handle, or NULL on failure. */
 sea_g2p *sea_g2p_open(const char *dict_path);
 
 /* Frees a handle. Freeing NULL is a no-op. */

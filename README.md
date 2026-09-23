@@ -135,13 +135,18 @@ rules. That matters more than it sounds: two implementations of Vietnamese
 normalisation drift apart the first time either one is corrected, and the drift
 shows up as a mispronunciation nobody can trace.
 
-Take `libsea_g2p_rs.{so,dylib}` / `sea_g2p_rs.dll` and `sea_g2p.h` from a
-[release](https://github.com/pnnbao97/sea-g2p/releases), or build them:
+Take `libsea_g2p_rs.{so,dylib}` / `sea_g2p_rs.dll`, `sea_g2p.h` and the
+`sea_g2p.bin` dictionary from a
+[release](https://github.com/pnnbao97/sea-g2p/releases) — a C host needs no pip
+install — or build the library yourself:
 
 ```bash
 cargo build --release --no-default-features --features capi
 # target/release/{libsea_g2p_rs.so | sea_g2p_rs.dll | libsea_g2p_rs.dylib}
 ```
+
+Building from a checkout, the dictionary is already there:
+`python/sea_g2p/sea_g2p.bin`.
 
 ```c
 #include "sea_g2p.h"

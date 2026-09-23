@@ -120,6 +120,9 @@ jobs:
     permissions:
       contents: write
     steps:
+      - uses: actions/checkout@v4
+        with:
+          path: repo
       - uses: actions/download-artifact@v4
         with:
           pattern: capi-*
@@ -138,6 +141,10 @@ jobs:
               esac
             done
           done
+          # The dictionary the library opens. A Python user gets it inside the
+          # wheel; a C host would otherwise have to pip install the package for
+          # one file, so ship it here too.
+          cp repo/python/sea_g2p/sea_g2p.bin upload/sea_g2p.bin
           ls -l upload
       - uses: softprops/action-gh-release@v1
         with:
