@@ -4,6 +4,10 @@ on:
   push:
     tags:
       - 'v*'
+  # Re-run a release without moving the tag: pick the tag as the ref. Uploads
+  # are idempotent (--skip-existing), so this finishes a publish that stopped
+  # halfway rather than starting a second one.
+  workflow_dispatch:
 
 permissions:
   contents: write
