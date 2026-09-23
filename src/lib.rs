@@ -24,8 +24,13 @@
 //! Tests live in `tests/`, not beside the code: `tests/*.rs` for Rust,
 //! `tests/python/` for the Python end-to-end suite.
 
+#[cfg(feature = "python")]
 use pyo3::prelude::*;
+#[cfg(feature = "python")]
 use pyo3::wrap_pyfunction;
+
+#[cfg(feature = "capi")]
+pub mod capi;
 pub mod core;
 pub mod g2p;
 pub mod lang;
@@ -38,17 +43,20 @@ pub mod punc;
 /// longer ones only get a "." appended when they do not already end in
 /// `,` `.` `!` `?`. Pipelines that need to settle punctuation at a chunk
 /// boundary — text or phonemes — can call this instead of normalizing again.
+#[cfg(feature = "python")]
 #[pyfunction]
 fn punc_norm(text: &str) -> String {
     crate::punc::apply_punc_norm(text)
 }
 
+#[cfg(feature = "python")]
 #[pyclass]
 struct G2P {
     engine: g2p::G2PEngine,
     thai: std::sync::OnceLock<lang::th::Thai>,
 }
 
+#[cfg(feature = "python")]
 #[pymethods]
 impl G2P {
     #[new]
@@ -179,6 +187,7 @@ impl G2P {
 }
 
 /// sea_g2p_rs: Rust core for sea-g2p
+#[cfg(feature = "python")]
 #[pymodule]
 fn sea_g2p_rs(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<G2P>()?;

@@ -61,6 +61,7 @@ pub mod misc;
 pub mod translit;
 pub mod audit;
 
+#[cfg(feature = "python")]
 use pyo3::prelude::*;
 // fancy_regex only for patterns requiring look-arounds
 use fancy_regex::{Regex as FRegex, Captures as FCaps};
@@ -1024,16 +1025,14 @@ pub fn clean_vietnamese_text_ctx(text: &str, force_vi: bool) -> String {
     current_text.to_lowercase()
 }
 
-#[pyclass]
+#[cfg_attr(feature = "python", pyclass(get_all))]
 pub struct Normalizer {
-    #[pyo3(get)]
     pub lang: String,
 }
 
-#[pymethods]
+/// The normaliser itself. Plain Rust, so the C ABI and any Rust caller reach it
+/// without PyO3; the wheel's class is a thin wrapper below.
 impl Normalizer {
-    #[new]
-    #[pyo3(signature = (lang="vi", dict_path=None))]
     pub fn new(lang: &str, dict_path: Option<&str>) -> Self {
         // Load the phoneme dictionary, used to look words up when reading
         // paths, URLs and emails the Vietnamese way. A failed load is ignored:
@@ -1058,7 +1057,7 @@ impl Normalizer {
             .collect()
     }
 
-    #[pyo3(signature = (text, punc_norm=false))]
+
     pub fn normalize(&self, text: &str, punc_norm: bool) -> String {
         if text.is_empty() { return String::new(); }
 
@@ -1126,11 +1125,36 @@ impl Normalizer {
         }
     }
 
-    #[pyo3(signature = (texts, punc_norm=false))]
-    pub fn normalize_batch(&self, py: Python<'_>, texts: Vec<String>, punc_norm: bool) -> PyResult<Vec<String>> {
-        py.allow_threads(|| {
-            use rayon::prelude::*;
-            Ok(texts.into_par_iter().map(|t| self.normalize(&t, punc_norm)).collect())
-        })
+    /// Many texts at once, in parallel.
+    pub fn normalize_all(&self, texts: Vec<String>, punc_norm: bool) -> Vec<String> {
+        use rayon::prelude::*;
+        texts.into_par_iter().map(|t| self.normalize(&t, punc_norm)).collect()
+    }
+}
+
+/// The class the Python wheel exposes: same names, same defaults, and it
+/// releases the GIL for the batch call.
+#[cfg(feature = "python")]
+#[pymethods]
+impl Normalizer {
+    #[new]
+    #[pyo3(signature = (lang="vi", dict_path=None))]
+    fn py_new(lang: &str, dict_path: Option<&str>) -> Self {
+        Self::new(lang, dict_path)
+    }
+
+    #[pyo3(name = "normalize", signature = (text, punc_norm=false))]
+    fn py_normalize(&self, text: &str, punc_norm: bool) -> String {
+        self.normalize(text, punc_norm)
+    }
+
+    #[pyo3(name = "audit")]
+    fn py_audit(&self, text: &str) -> Vec<String> {
+        self.audit(text)
+    }
+
+    #[pyo3(name = "normalize_batch", signature = (texts, punc_norm=false))]
+    fn py_normalize_batch(&self, py: Python<'_>, texts: Vec<String>, punc_norm: bool) -> PyResult<Vec<String>> {
+        Ok(py.allow_threads(|| self.normalize_all(texts, punc_norm)))
     }
 }

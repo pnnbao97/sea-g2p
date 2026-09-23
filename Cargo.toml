@@ -7,8 +7,17 @@ edition = "2021"
 name = "sea_g2p_rs"
 crate-type = ["cdylib", "rlib"]
 
+[features]
+# The Python wheel (what `maturin`/`uv build` produces) is the default.
+default = ["python"]
+python = ["dep:pyo3", "dep:pyo3-build-config"]
+# A C ABI for non-Rust hosts (see src/capi.rs). Off by default, and it drops
+# PyO3 entirely so the library has no Python runtime to find:
+#   cargo build --release --no-default-features --features capi
+capi = []
+
 [dependencies]
-pyo3 = { version = "0.23", features = ["extension-module", "abi3-py310", "generate-import-lib"] }
+pyo3 = { version = "0.23", features = ["extension-module", "abi3-py310", "generate-import-lib"], optional = true }
 regex = "1.10"
 fancy-regex = "0.13"
 once_cell = "1.19"
@@ -17,4 +26,4 @@ rayon = "1.10"
 unicode-normalization = "0.1"
 
 [build-dependencies]
-pyo3-build-config = "0.23"
+pyo3-build-config = { version = "0.23", optional = true }
