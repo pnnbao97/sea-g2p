@@ -1093,6 +1093,7 @@ def test_fold_does_not_touch_vietnamese_or_greek(normalizer):
     ("***Bảo*** đi chơi", "bảo đi chơi"),
     ("~~Bảo~~ đi chơi", "bảo đi chơi"),
     ("**_Bảo_** đi chơi", "bảo đi chơi"),
+    ("**Bảo**đi chơi", "bảo đi chơi"),
     ("**Lưu ý:** hôm nay nghỉ", "lưu ý, hôm nay nghỉ"),
     ("# Tiêu đề", "tiêu đề"),
     ("## Mục 2", "mục hai"),
