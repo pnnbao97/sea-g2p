@@ -566,6 +566,18 @@ static RE_EARLY_EXCEPTIONS: Lazy<Option<Regex>> = Lazy::new(|| {
     Some(Regex::new(&format!(r"\b(?:{})\b", keys.join("|"))).unwrap())
 });
 
+// Brand names in any letter case, masked early for the same reason as the
+// camelCase exceptions above: the camel splitter must not see them.
+// Longest brand first, so "zalo pay" is tried before "zalo".
+static RE_BRAND_NAMES: Lazy<Regex> = Lazy::new(|| {
+    let mut keys: Vec<&String> = crate::lang::vi::resources::BRAND_NAMES_VI.keys().collect();
+    keys.sort_by_key(|k: &&String| std::cmp::Reverse(k.len()));
+    let alts: Vec<String> = keys.iter()
+        .map(|k: &&String| regex::escape(k).replace(' ', r"\s+"))
+        .collect();
+    Regex::new(&format!(r"(?i)\b(?:{})\b", alts.join("|"))).unwrap()
+});
+
 /// Language flags derived once per input and read by every later stage.
 ///
 /// Both are computed from the raw input, never from partially normalized text,
@@ -973,10 +985,27 @@ pub fn clean_vietnamese_text_ctx(text: &str, force_vi: bool) -> String {
         }).to_string();
     }
 
+    // Brand names, masked. Run once before the camel splitter, which would cut
+    // "MoMo" into "Mo Mo", and once after it, so a brand inside a compound
+    // ("ViettelPay" -> "Viettel Pay") is caught without its own entry.
+    let mask_brands = |text: &str, map: &mut Vec<(String, String)>| -> String {
+        if en_ctx { return text.to_string(); }
+        RE_BRAND_NAMES.replace_all(text, |caps: &Captures| {
+            let orig = caps.get(0).unwrap().as_str();
+            let key = orig.split_whitespace().collect::<Vec<_>>().join(" ").to_lowercase();
+            let val = crate::lang::vi::resources::BRAND_NAMES_VI.get(&key)
+                .cloned()
+                .unwrap_or_else(|| orig.to_string());
+            protect(val, map)
+        }).into_owned()
+    };
+    current_text = mask_brands(&current_text, &mut mask_map);
+
     current_text = stage_early_lexical(&current_text, ctx);
     current_text = stage_superscripts(&current_text);
     current_text = stage_math(&current_text, ctx);
     current_text = split_concatenated_terms(&current_text);
+    current_text = mask_brands(&current_text, &mut mask_map);
     current_text = stage_codes(&current_text, ctx);
 
     current_text = stage_arithmetic(&current_text);
@@ -1067,6 +1096,7 @@ impl Normalizer {
         // "Müller" travels the pipeline as "Muller" and stays one word, instead
         // of being cut into "M ller" by the final whitelist.
         let composed: String = sanitize_unicode(text).nfc().collect();
+        let composed = crate::core::markdown::strip_markdown(&composed);
         let nfc_text: String = crate::lang::vi::translit::fold_foreign_letters(&composed);
         // Fold ellipses (… ‥ ․) to "." right away so they follow the same path
         // as "...". Any later and an earlier pass would have swallowed "…" as a

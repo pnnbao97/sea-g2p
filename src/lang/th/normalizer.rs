@@ -459,7 +459,7 @@ fn stage_residual(text: &str) -> String {
 
 /// Normalize Thai text into a form the segmenter and G2P can read.
 pub fn normalize(text: &str) -> String {
-    let mut s = stage_spelling(text);
+    let mut s = stage_spelling(&crate::core::markdown::strip_markdown(text));
     s = stage_spans(&s);
     // before the abbreviation table, which claims ศ. อ. ส. for other readings
     s = stage_weekdays(&s);

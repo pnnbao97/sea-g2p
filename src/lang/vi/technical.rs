@@ -714,7 +714,53 @@ pub fn normalize_emails(text: &str, vi_ctx: bool, en_ctx: bool) -> String {
     }).to_string()
 }
 
+// A run of words joined by slashes: "anh/chị", "anh/chị/em", "và/hoặc".
+// Letters only on both sides; the boundary checks live in `slash_between_words`.
+static RE_WORD_SLASH: Lazy<regex::Regex> = Lazy::new(|| {
+    regex::Regex::new(r"\p{L}+(?:/\p{L}+)+").unwrap()
+});
+
+// Words that, joined by a slash, offer alternatives rather than a ratio:
+// forms of address, gender, and/or, yes/no.
+static ALTERNATIVE_WORDS: Lazy<HashSet<&'static str>> = Lazy::new(|| {
+    [
+        "anh", "chị", "em", "ông", "bà", "cô", "chú", "bác", "cậu", "mợ", "dì",
+        "thím", "cháu", "con", "bố", "mẹ", "ba", "má", "cha", "bạn", "thầy",
+        "vợ", "chồng", "nội", "ngoại",
+        "nam", "nữ", "trai", "gái",
+        "và", "hoặc", "hay",
+        "có", "không", "đúng", "sai", "được", "chưa", "rồi",
+        "and", "or", "yes", "no", "he", "she", "his", "her", "him",
+    ].into_iter().collect()
+});
+
+/// A slash between words that offer alternatives ("anh/chị", "nam/nữ",
+/// "và/hoặc", "and/or") is read as a plain word break: "anh chị", not
+/// "anh trên chị".
+///
+/// Every part must be in [`ALTERNATIVE_WORDS`]. The syntax alone cannot tell
+/// "anh/chị" from the ratio "nợ/vốn" or the rate "giờ/ngày", so anything
+/// outside the list, acronym pairs included ("CI/CD", "AN/ASQ"), keeps "trên".
+fn slash_between_words(text: &str) -> String {
+    RE_WORD_SLASH.replace_all(text, |caps: &regex::Captures| {
+        let m = caps.get(0).unwrap();
+        let word = m.as_str();
+        // Part of a larger token ("3a/b", "x/y/2", "abc.d/e"): not ours.
+        let glued = |c: Option<char>| c.is_some_and(|c: char| c.is_ascii_digit() || matches!(c, '/' | '.' | '_'));
+        if glued(text[..m.start()].chars().next_back()) || glued(text[m.end()..].chars().next()) {
+            return word.to_string();
+        }
+        let parts: Vec<&str> = word.split('/').collect();
+        if parts.iter().all(|p: &&str| ALTERNATIVE_WORDS.contains(p.to_lowercase().as_str())) {
+            parts.join(" ")
+        } else {
+            word.to_string()
+        }
+    }).into_owned()
+}
+
 pub fn normalize_slashes(text: &str) -> String {
+    let text = &slash_between_words(text);
     let res = RE_NEG_FRAC.replace_all(text, |caps: &regex::Captures| {
         let matched = caps.get(0).unwrap().as_str();
         let frac = caps.get(1).unwrap().as_str();

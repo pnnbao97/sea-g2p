@@ -142,3 +142,12 @@ def test_thai_letter_names_keep_the_phonemes_thai():
     # a Thai tone letter on the spelled name, not the English primary stress
     assert "ˈ" not in out, out
     assert "siː" in out, out
+
+
+# ── Markdown formatting ─────────────────────────────────────────────────────
+# The markers are symbols too: "~~Budi~~" read "kira-kira kira-kira Budi …".
+
+def test_markdown_is_stripped(th, idn):
+    assert idn.normalize("~~Budi~~ pergi") == "Budi pergi"
+    assert idn.normalize("**Budi** pergi") == "Budi pergi"
+    assert th.normalize("**สวัสดี** ครับ") == "สวัสดี ครับ"

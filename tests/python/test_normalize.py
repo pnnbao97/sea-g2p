@@ -142,6 +142,17 @@ TEST_CASES = [
     ("nền tảng Core ML/AI", "nền tảng core <en>m l</en> trên <en>a i</en>"),
     ("tốc độ 120 km/h", "tốc độ một trăm hai mươi ki lô mét trên giờ"),
     ("chỉ số P/E cao", "chỉ số phê trên e cao"),
+    # Gạch chéo giữa các từ lựa chọn (xưng hô, giới tính, và/hoặc, có/không)
+    # là ngắt từ, không phải "trên". Tỉ số ("nợ/vốn") và tần suất ("giờ/ngày")
+    # vẫn đọc "trên".
+    ("Kính gửi anh/chị", "kính gửi anh chị"),
+    ("Kính gửi Quý Ông/Bà, xin chào", "kính gửi quý ông bà, xin chào"),
+    ("mời anh/chị/em tham dự", "mời anh chị em tham dự"),
+    ("giới tính nam/nữ", "giới tính nam nữ"),
+    ("trả lời Có/Không", "trả lời có không"),
+    ("tài liệu và/hoặc hình ảnh", "tài liệu và hoặc hình ảnh"),
+    ("làm 8 giờ/ngày", "làm tám giờ trên ngày"),
+    ("lương 5 triệu đồng/tháng", "lương năm triệu đồng trên tháng"),
     # Mã chữ-số: phần số ≥3 chữ số đọc từng chữ số như đọc mã.
     ("mã vé ABC-1234", "mã vé a bê xê một hai ba bốn"),
     # ...nhưng ≤2 chữ số vẫn đọc số đếm (COVID-19, U-23).
@@ -343,6 +354,7 @@ TEST_CASES = [
     # đủ kích hoạt câu Anh dù từ còn lại lẫn chữ số ("3D", "4K").
     ("print 3D technology", "print three d technology"),
     ("best 4K monitor", "best four k monitor"),
+    ("send the file and/or the link", "send the file and or the link"),
     # ...nhưng trong câu Việt thì "3D" vẫn đọc kiểu Việt.
     ("Công nghệ in 3D đang phát triển.", "công nghệ in ba đê đang phát triển."),
     ("thắng 2-0", "thắng hai không"),
@@ -553,8 +565,35 @@ TEST_CASES = [
     # khi mọi mảnh đều là ký hiệu nguyên tố VÀ không có ký hiệu hai chữ nào lặp
     # liền kề — công thức viết "Ba₂" chứ không viết "BaBa".
     ("TiVi", "ti vi"),
-    ("MoMo", "mo mo"),
-    ("ZaLo", "za lo"),
+    # Tên thương hiệu Việt (BRAND_NAMES_VI) khớp mọi kiểu hoa/thường: "mo",
+    # "lo" là âm tiết Việt đọc /ɔ/, còn "momo", "zalo" viết liền bị đọc kiểu Anh.
+    ("MoMo", "mô mô"),
+    ("Momo", "mô mô"),
+    ("MOMO", "mô mô"),
+    ("thanh toán qua MoMo.", "thanh toán qua mô mô."),
+    ("nhắn qua Zalo nhé", "nhắn qua da lô nhé"),
+    ("chuyển từ ZaloPay", "chuyển từ da lô pay"),
+    ("chuyển từ Zalo Pay sang", "chuyển từ da lô pay sang"),
+    ("ví VinMoMo", "ví vyn mô mô"),
+    ("chuyển qua BVBank", "chuyển qua bê vê bank"),
+    ("thẻ TPBank", "thẻ tê phê bank"),
+    ("thẻ TP Bank", "thẻ tê phê bank"),
+    ("ngân hàng OCEANBANK", "ngân hàng ocean bank"),
+    ("ngân hàng Shinhan", "ngân hàng sin han"),
+    ("thẻ Vietcombank", "thẻ việt com bank"),
+    ("cổng Napas", "cổng na pát"),
+    ("sim Viettel", "sim việt theo"),
+    # Brand trong từ ghép camelCase được bắt sau bước tách, không cần mục riêng.
+    ("ví ViettelPay", "ví việt theo pay"),
+    ("cà phê HIGHLANDS", "cà phê highlands"),
+    ("đặt phòng Airbnb", "đặt phòng air bi en bi"),
+    ("vé xe Futa", "vé xe phu ta"),
+    ("cổng VNPay", "cổng vê en pay"),
+    ("phần mềm MISA", "phần mềm mi sa"),
+    ("gói GOMO", "gói gô mô"),
+    ("siêu thị Co.opmart", "siêu thị cô óp mart"),
+    ("siêu thị CoopMart", "siêu thị cô óp mart"),
+    ("ZaLo", "da lô"),
     ("BaBa", "ba ba"),
     ("NaCl", "nờ a xê lờ"),
     ("CaCO3", "xê a xê ô ba"),
@@ -1044,3 +1083,33 @@ def test_fold_does_not_touch_vietnamese_or_greek(normalizer):
     assert normalizer.normalize("Đường phố Hà Nội, cà phê Buôn Ma Thuột") ==         "đường phố hà nội, cà phê buôn ma thuột"
     assert normalizer.normalize("góc α bằng 30°") == "góc an pha bằng ba mươi độ"
     assert normalizer.normalize("Bước sóng 5 µm") == "bước sóng năm mic rô mét"
+
+
+# Markdown từ LLM/README: dấu định dạng bị bỏ, chữ được giữ. Trước đây
+# "**Bảo**" đọc "sao sao bảo sao sao", "~~x~~" đọc "khoảng khoảng x".
+@pytest.mark.parametrize("text, expected", [
+    ("**Bảo** đi chơi", "bảo đi chơi"),
+    ("*Bảo* đi chơi", "bảo đi chơi"),
+    ("***Bảo*** đi chơi", "bảo đi chơi"),
+    ("~~Bảo~~ đi chơi", "bảo đi chơi"),
+    ("**_Bảo_** đi chơi", "bảo đi chơi"),
+    ("**Lưu ý:** hôm nay nghỉ", "lưu ý, hôm nay nghỉ"),
+    ("# Tiêu đề", "tiêu đề"),
+    ("## Mục 2", "mục hai"),
+    ("* mục một", "mục một"),
+    ("> Bảo nói", "bảo nói"),
+    ("[Bảo](https://x.com) đi chơi", "bảo đi chơi"),
+])
+def test_markdown_is_stripped(normalizer, text, expected):
+    assert normalizer.normalize(text) == expected
+
+
+# Cùng ký tự nhưng là ký hiệu thật: phải giữ cách đọc cũ.
+@pytest.mark.parametrize("text, expected", [
+    ("2*3*4", "hai sao ba sao bốn"),
+    ("-5 độ", "âm năm độ"),
+    ("x > 5", "ích lớn hơn năm"),
+    ("C# và F#", "xê thăng và ép thăng"),
+])
+def test_markdown_lookalike_symbols_survive(normalizer, text, expected):
+    assert normalizer.normalize(text) == expected

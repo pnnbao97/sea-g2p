@@ -1,0 +1,44 @@
+# Vietnamese brand names: how Vietnamese speakers say them.
+#
+# One entry per line: <brand><TAB><reading>. Lines starting with "#" and blank
+# lines are ignored. Matching ignores letter case ("MoMo", "Momo", "MOMO") and
+# treats any run of spaces in a brand as one space ("Zalo Pay", "Zalo  Pay").
+# The longest brand wins, so "zalo pay" beats "zalo".
+#
+# List only brands the pipeline reads WRONG without an entry. English names
+# that G2P already handles (iPhone, YouTube, Spotify) stay out. Write the
+# reading in Vietnamese spelling; "d" is /z/ in this G2P, so "da lô" gives zaː lo.
+# English words inside a reading ("pay", "bank") are left plain, and G2P picks
+# their language itself.
+#
+# Every entry needs a case in tests/python/test_normalize.py.
+
+momo	mô mô
+zalo	da lô
+zalopay	da lô pay
+zalo pay	da lô pay
+# "vyn", not "vin": beside Vietnamese words G2P reads "vin" as Vietnamese
+# (vˈi6n); "vyn" keeps the English vˈɪn.
+vinmomo	vyn mô mô
+
+# Banks. The embedded acronym would otherwise hit the abbreviation table
+# ("BV" -> "bệnh viện", "TP" -> "thành phố") or be spelled letter by letter.
+bvbank	bê vê bank
+tpbank	tê phê bank
+tp bank	tê phê bank
+oceanbank	ocean bank
+shinhan	sin han
+vietcombank	việt com bank
+napas	na pát
+
+# Others.
+viettel	việt theo
+highlands	highlands
+airbnb	air bi en bi
+futa	phu ta
+# "VN" would expand to "việt nam".
+vnpay	vê en pay
+misa	mi sa
+gomo	gô mô
+co.opmart	cô óp mart
+coopmart	cô óp mart

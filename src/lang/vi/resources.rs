@@ -661,6 +661,27 @@ pub static VI_ABBREV: Lazy<AbbrevTable> = Lazy::new(|| {
     t
 });
 
+/// Vietnamese brand names, keyed by lowercase brand with single spaces, from
+/// `brands.tsv` (the file documents the format and what belongs in it).
+///
+/// Without an entry brands go wrong in several ways. The camelCase spelling is
+/// split ("MoMo" -> "mo mo"), and "mo" is a valid Vietnamese syllable read with
+/// the open /ɔ/. The run-together spelling ("zalo") is not a Vietnamese
+/// syllable, so G2P reads it as English ("zahlow"). And an embedded acronym
+/// hits the abbreviation table ("BVBank" -> "bệnh viện bank").
+pub static BRAND_NAMES_VI: Lazy<HashMap<String, String>> = Lazy::new(|| {
+    include_str!("brands.tsv")
+        .lines()
+        .map(str::trim)
+        .filter(|l: &&str| !l.is_empty() && !l.starts_with('#'))
+        .filter_map(|l: &str| {
+            let (brand, reading) = l.split_once('\t')?;
+            let key = brand.split_whitespace().collect::<Vec<_>>().join(" ").to_lowercase();
+            Some((key, reading.trim().to_string()))
+        })
+        .collect()
+});
+
 pub static COMBINED_EXCEPTIONS: Lazy<HashMap<String, String>> = Lazy::new(|| {
     VI_ABBREV
         .replacement_keys()

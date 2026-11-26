@@ -393,7 +393,7 @@ fn stage_residual(text: &str) -> String {
 
 /// Normalize Indonesian text into a form the G2P stage can read.
 pub fn normalize(text: &str) -> String {
-    let mut s = stage_fold(text);
+    let mut s = stage_fold(&crate::core::markdown::strip_markdown(text));
     s = stage_spans(&s);
     s = stage_abbreviations(&s);
     // after abbreviations, so "hr Sen" has become "hari Sen" and the cue is there

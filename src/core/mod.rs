@@ -4,6 +4,7 @@
 
 pub mod abbrev;
 pub mod dict;
+pub mod markdown;
 pub mod numeric;
 pub mod roman;
 pub mod spans;
